@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: ExportXMLFromDB.pl,v 1.3 2002-02-07 01:39:25 dan Exp $
+# $Id: ExportXMLFromDB.pl,v 1.4 2002-02-07 19:57:54 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -20,12 +20,14 @@ exit;
 # Main Processing Routine
 #####
 sub main {
-	my $limit = 0;
+	my $limit	= 0;
+	my $i		= 0;
 
 	if (($#ARGV+1) == 1) {
         print "there is 1 argument\n";
 
-        my $limit = $ARGV[0];
+        $limit = $ARGV[0];
+		print "\$limit = $limit\n";
 	}
 
 	my $dbh = db_handle();
@@ -34,14 +36,21 @@ sub main {
 
 	my $sql = "select * from change_log order by id";
 	if ($limit > 0) {
-		$sql .= " limit limit";
+		$sql .= " limit $limit";
 	}
 
+	print "\$sql = '$sql'\n";
 	my $sth = $dbh->prepare($sql);
 	$sth->execute ||
 		die "Could not execute SQL $sql ... maybe invalid?";
 
 	while ($change_log = $sth->fetchrow_hashref) {
+		$i++;
+		if ($i % 100) {
+			print <STDOUT>, ".";
+		} else {
+			print <STDOUT>, "$i";
+		}
 		# Get the data
 		my ($Data_ref) = &GetData($change_log);
 
@@ -270,7 +279,15 @@ sub GetFiles {
 				if ($action eq 'A') {
 					$action = 'Add';
 				} else {
-					$action = 'unknown action';
+					if ($action eq 'I') {
+						# we have a special case.  In FP1, we dealt with early imports
+						# in a very not nice way.  We didn't record anything in the details field.
+						# so we will just assume the Makefile here.
+						$action = 'Add';
+						$path = "ports/" . $files->{category} . "/" . $files->{port} . "/Makefile";
+					} else {
+						$action = 'unknown action';
+					}
 				}
 			}
 		}
