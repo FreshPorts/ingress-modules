@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: category.pm,v 1.8.2.5 2003-03-03 14:21:00 dan Exp $
+# $Id: category.pm,v 1.8.2.6 2003-03-04 23:06:38 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -21,7 +21,7 @@ sub _initialize {
 # =================================
 
 sub new {
-	my $this		= {};
+	my $this			= {};
 	my $class		= shift;
 
 	$this->{dbh}	= shift;
@@ -30,6 +30,18 @@ sub new {
 	$this->_initialize();
 	return $this;
 }
+
+sub _populate {
+	my $this = shift;
+	my $row  = shift;
+
+	$this->{id} 			= $row->{id};
+	$this->{is_primary}	= $row->{is_primary};
+	$this->{element_id}	= $row->{element_id};
+	$this->{name}			= $row->{name};
+	$this->{description}	= $row->{description};
+}
+
 
 sub save {
 	my $this = shift;
@@ -67,20 +79,21 @@ sub save {
 
 	if ($this->{id}) {
 		# we are updating
-		$sql = "update categories  \
-				set \
-				is_primary = " . $dbh->quote($this->{is_primary}) . ", \
-				element_id = $this->{element_id}, \
-				name      = " . $dbh->quote($this->{name}) . ", \
-				description = " . $dbh->quote($this->{description}) . " \
-				 where id = $this->{id}";
+		$sql = "
+update categories set
+       is_primary = " . $dbh->quote($this->{is_primary}) . ",
+       element_id  =                 $this->{element_id},
+       name        = " . $dbh->quote($this->{name}) . ",
+       description = " . $dbh->quote($this->{description}) . "
+ where id = $this->{id}";
+
 		$sth = $this->{dbh}->prepare($sql);
 		$sth->execute ||
 			FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql ... maybe invalid?", 1);
 	} else {
 		# we are inserting
-		$sql = "select CreateCategory(" . $dbh->quote($this->{name}) . ", \
-				" . $dbh->quote($this->{description}) . ", \
+		$sql = "select CreateCategory(" . $dbh->quote($this->{name}) . ",
+				" . $dbh->quote($this->{description}) . ",
 				" . $dbh->quote($this->{is_primary}) . ")";
 
 		print "sql is $sql\n";
@@ -112,7 +125,7 @@ sub FetchByID {
 	$dbh = $this->{dbh};
 
 	$sql = "select * from categories where id = $this->{id}";
-	print "sql = '$sql'\n";
+#	print "sql = '$sql'\n";
 
 	$sth = $dbh->prepare($sql);
 	if ( !defined $sth ) {
@@ -126,11 +139,7 @@ sub FetchByID {
 
 	$sth->finish();
 
-	$this->{id} 			= $row->{id};
-	$this->{is_primary}	= $row->{is_primary};
-	$this->{element_id}	= $row->{element_id};
-	$this->{name}			= $row->{name};
-	$this->{description}	= $row->{description};
+	$this->_populate($row);
 
 	return $this->{id};
 }
@@ -145,7 +154,7 @@ sub FetchByName {
 	my $row;
 	my $tmp;
 
-	$dbh		= $this->{dbh};
+	$dbh = $this->{dbh};
 	if (!$dbh) {
 		FreshPorts::Utilities::ReportError('warning', "no database handle!", 1);
 	}
@@ -163,19 +172,13 @@ sub FetchByName {
 
 	$sth->finish();
 	if ($row) {
-		$this->{id} 			= $row->{id};
-		$this->{is_primary}	= $row->{is_primary};
-		$this->{element_id}	= $row->{element_id};
-		$this->{name}			= $row->{name};
-		$this->{description}	= $row->{description};
+		$this->_populate($row);
 	} else {
 		print "NOT FOUND\n";
 	}
 
 	return $this->{id};
 }
-
-1;
 
 # =================================
 
@@ -203,3 +206,43 @@ sub _description_fetch {
 
 	return $description;
 }
+
+sub FetchAll {
+	#
+	# return a hash containing one entry for each category
+	#
+	my $this = shift;
+	
+	my $sql;
+	my $sth;
+	my $row;
+	my %Categories;
+	my $category;
+	my $dbh = $this->{dbh};
+
+	$sql = "select * from categories order by name";
+	print "sql = '$sql'\n";
+
+	$sth = $dbh->prepare($sql);
+	if ( !defined $sth ) {
+   	FreshPorts::Utilities::ReportError('warning', "Could not prepare SQL $sql" . pg_lasterror(), 1);
+	}
+
+	if (!$sth->execute) {
+   	FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql" . pg_lasterror(), 1);
+	}
+
+	while ($row = $sth->fetchrow_hashref()) {
+		$category = FreshPorts::Category->new($dbh);
+   	print "found $row->{id} = $row->{name}\n";
+
+		$category->{id} = $row->{id};
+		$category->FetchByID();
+	   $Categories{$row->{name}} = $category;
+	}
+
+	return %Categories;
+}
+
+1;
+
