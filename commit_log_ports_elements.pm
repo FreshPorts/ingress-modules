@@ -1,11 +1,11 @@
 #!/usr/bin/perl
 #
-# $Id: commit_log_ports_extra.pm,v 1.1.2.1 2003-10-04 21:06:11 dan Exp $
+# $Id: commit_log_ports_elements.pm,v 1.1.2.1 2003-10-06 17:17:05 dan Exp $
 #
 # Copyright (c) 2003 DVL Software
 #
 
-package FreshPorts::CommitLogPortsExtra;
+package FreshPorts::CommitLogPortsElements;
 
 use strict;
 use utilities;
@@ -44,7 +44,7 @@ sub save {
 	my $sql;
 	my @row;
 
-	$sql = "insert into commit_log_ports_extra
+	$sql = "insert into commit_log_ports_elements
 				(commit_log_id, element_id) values
 				($this->{commit_log_id}, $this->{element_id})";
 
