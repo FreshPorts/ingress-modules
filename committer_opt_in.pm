@@ -1,5 +1,5 @@
 #
-# $Id: committer_opt_in.pm,v 1.1.2.11 2003-11-20 14:14:00 dan Exp $
+# $Id: committer_opt_in.pm,v 1.1.2.12 2003-12-19 13:52:42 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -49,8 +49,8 @@ sub CommitterHasOptedIn($;$) {
 	my $myrow;
 
 	my $sql = "select committer
-              from committer_notify
-             where lower(committer) = lower('$committer')";
+	             from committer_notify
+	            where lower(committer) = lower('$committer')";
 	my $sth = $dbh->prepare($sql);
 	if (!$sth->execute())  {
 		FreshPorts::Utilities::ReportError('warning', "Could not execute sql: $sql", 1);
@@ -86,12 +86,11 @@ The following is a list of the ports which had errors:
 		$Body .= $Port . "\n";
 	}
 
-	$Body .= "
-This commit has produced the following error during processing by FreshPorts:
+	$Body .= "\nThe exact errors appear below.\n\n";
 
-" . Text::Wrap::wrap('', '', $FreshPorts::CommitterOptIn::Errors) . "
-
-";
+	while (my ($Port, $Error) = each %PortList) {
+		$Body .= $Port . ":\n\n" . Text::Wrap::wrap('', '', $Error) . "\n";
+	}
 
 	if ($FreshPorts::Config::CommitterNotify) {
 		$Body .= "
