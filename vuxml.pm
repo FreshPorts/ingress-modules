@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: vuxml.pm,v 1.1.2.11 2005-01-13 15:59:26 dan Exp $
+# $Id: vuxml.pm,v 1.1.2.12 2005-01-24 20:47:58 dan Exp $
 #
 # Copyright (c) 2004 DVL Software
 #
@@ -166,6 +166,35 @@ sub FetchByVID {
 	}
 
 	return $this->{vid};
+}
+
+sub DeleteByVID {
+	my $this = shift;
+	my $VID  = shift;
+
+	my $dbh;
+	my $sql;
+	my $sth;
+	my $numrows;
+
+	$dbh = $this->{dbh};
+
+	$sql = "DELETE
+              FROM vuxml
+             WHERE vuxml.vid = '$VID'";
+
+#	print "sql = '$sql'\n";
+
+	$sth = $dbh->prepare($sql);
+	if (!$sth->execute) {
+		FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql", 1);
+	}
+
+	$numrows = $sth->rows;
+
+	$sth->finish();
+
+	return $numrows;
 }
 
 sub FetchPackages {
