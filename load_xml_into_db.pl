@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: load_xml_into_db.pl,v 1.46.2.18 2003-10-04 21:03:06 dan Exp $
+# $Id: load_xml_into_db.pl,v 1.46.2.19 2003-12-31 22:49:49 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -39,6 +39,7 @@ use utilities;
 use cache;
 use committer_opt_in;
 use non_ports;
+use special_processing_files;
 
 use XML::Node;
 use DBI;
@@ -487,6 +488,8 @@ sub handle_file_end
 	#
 
 	push @Files, [$FileAction, $FilePath, $FileRevision, $commit_log_element->{id}, $element_id];
+
+	FreshPorts::SpecialProcessingFiles::Eat($dbh, $Updates{FileAction}, $Updates{FilePath}, $Updates{FileRevision});
 
 	undef $Updates{FileAction};
 	undef $Updates{FilePath};
