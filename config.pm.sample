@@ -1,5 +1,5 @@
 #
-# $Id: config.pm.sample,v 1.13.2.11 2004-01-02 18:07:34 dan Exp $
+# $Id: config.pm.sample,v 1.13.2.12 2004-10-03 16:06:29 dan Exp $
 #
 # Copyright (c) 2001-2004 DVL Software
 #
@@ -22,7 +22,7 @@ $FreshPorts::Config::password			= 'password';
 
 $FreshPorts::Config::BaseDir			= "/usr/websites/WEBSITE_URL";
 
-$FreshPorts::Config::scriptpath			= $BaseDir . '/scripts';
+$FreshPorts::Config::scriptpath			= $FreshPorts::Config::BaseDir . '/scripts';
 
 $FreshPorts::Config::mkdir_pkg			= 0;
 
@@ -41,8 +41,8 @@ $FreshPorts::Config::path_to_ports		= $FreshPorts::Config::path_to_tree . '/port
 #
 $FreshPorts::Config::ports_prefix		= 'ports';
 
-$FreshPorts::Config::DailySummaryDir	= $BaseDir . "/www/archives"; # no trailing /
-$FreshPorts::Config::HourlySummaryDir	= $BaseDir . "/dynamic";
+$FreshPorts::Config::DailySummaryDir	= $FreshPorts::Config::BaseDir . "/www/archives"; # no trailing /
+$FreshPorts::Config::HourlySummaryDir	= $FreshPorts::Config::BaseDir . "/dynamic";
 
 $FreshPorts::Config::CommitterNotify	= 0;	# Should we notify committers of problems?
 $FreshPorts::Config::NotifyAdmin        = 1;	# Notify me
@@ -65,7 +65,16 @@ $FreshPorts::Config::email_client		= 'localhost';
 
 $FreshPorts::Config::SystemOwnerEmail	= 'dan@langille.org';
 
-$FreshPorts::Config::MovedFileFlag		= $BaseDir . '/dynamic/refresh_moved';
+$FreshPorts::Config::MovedFileFlag		= $FreshPorts::Config::BaseDir . '/dynamic/refresh_moved';
+$FreshPorts::Config::UpdatingFileFlag	= $FreshPorts::Config::BaseDir . '/dynamic/refresh_updating';
+$FreshPorts::Config::VuXMLFileFlag		= $FreshPorts::Config::BaseDir . '/dynamic/vuxml';
+
+$FreshPorts::Config::PortsFreezeFile    = $FreshPorts::Config::BaseDir . '/dynamic/PortsFreezeIsInEffect';
+
+#
+# For fetching files from CVS
+#
+$FreshPorts::Config::CVS_Repository		= "http://www.freebsd.org/cgi/cvsweb.cgi";
 
 #
 # for debugging....
