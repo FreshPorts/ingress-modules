@@ -9,8 +9,8 @@
 
 use DBI;
 use strict;
-use lib 'CHECKTHISPATH/usr/local/etc/freshports.test/updates';
-use portschange;
+use lib '/usr/local/etc/freshports/updates';
+use ports;
 
 my $Debug = 0;
 
@@ -34,26 +34,6 @@ my %FilesWhichPromptRefresh = (
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-
-#sub GetPortCategory($category, $dbh) {
-sub GetPortCategory($;$) {
-   my $category = shift;
-   my $dbh = shift;
-
-   my $sql = "select id from categories where name = '" . $category . "'";
-
-   my $sth = $dbh->prepare($sql);
-
-   $sth->execute ||
-        die "Could not execute SQL statement ... maybe invalid?";
-
-
-   my @row=$sth->fetchrow_array;
-
-   print "\nGetPortCategory = $sql which gives ", @row[0], "\n";
-
-   return @row[0];
-}
 
 #ChangeLogInsert($committer, $timestamp, $description, $dbh);
 sub ChangeLogInsert($;$;$;$) {
@@ -141,13 +121,19 @@ sub ChangeLogDetailInsert($;$;$;$;$) {
    return $ChangeLogDetailID;
 }
 
-#PortCreate ($port, $categoryid, $timestamp, $commitdescription, $dbh) {
-sub PortCreate($;$;$;$;$) {
+#PortCreate ($port, $category, $categoryid, $timestamp, $commitdescription, $dbh) {
+sub PortCreate($;$;$;$;$;$) {
    my $port              = shift;
+   my $category          = shift;
    my $categoryid        = shift;
    my $timestamp         = shift;
    my $commitdescription = shift;
    my $dbh               = shift;
+
+
+   my $needs_refresh;
+
+   $needs_refresh = GetNeedsRefreshForNewPort($category, $port);
 
    # no such port.  create it.
    my $sql = "insert into ports (name, primary_category_id, " .
@@ -161,7 +147,7 @@ sub PortCreate($;$;$;$;$) {
    # but that defaults to local time, which is not necessarily the same time zone
    # which can give things like created > last_update.
    $sql .= "'$port', $categoryid, " .
-           "'$timestamp', 7, 'A', 'N', '$commitdescription')";
+           "'$timestamp', $needs_refresh, 'A', 'N', '$commitdescription')";
 
    print "$sql\n";
 
@@ -180,35 +166,6 @@ sub PortCreate($;$;$;$;$) {
 #
 #   $sth->execute ||
 #      die "Could not execute SQL port insert statement ... $sql maybe invalid?";
-
-   return $PortID;
-}
-
-#sub GetPortID($port, $categoryid, $dbh) {
-sub GetPortID($;$;$) {
-   my $port       = shift;
-   my $categoryid = shift;
-   my $dbh        = shift;
-
-   my $PortID = 0;
-
-   my $sql = "select id, needs_refresh, status from ports where name = '" . $port . "' and primary_category_id = $categoryid";
-   print $sql, "\n";
-   my $sth = $dbh->prepare($sql);
-   
-   $sth->execute ||
-      die "Could not execute SQL statement ... maybe invalid?";
-
-   my @row=$sth->fetchrow_array;
-
-   if (@row) {
-      print "something found\n";
-      $PortID = @row[0];
-   } else {
-      print "nothing found\n";
-   }
-
-   print "port id = " . $PortID . "\n";
 
    return $PortID;
 }
@@ -291,7 +248,7 @@ my $NotifyByMail = "root";
 my $PortID;
 my $ChangePortID;
 
-my $dbh = DBI->connect('dbi:mysql:DATABASE','updater','PASSWORD');
+my $dbh = DBI->connect('dbi:mysql:freshports','updater','xyzzy');
 if (!$dbh) {
    # email the main man
    open  MAIL, "|mail -s 'freshports error' $NotifyByMail";
@@ -387,7 +344,7 @@ for(my $i=0; $i<=$#file; $i++) {
                   $PortID = GetPortID($port, $categoryid, $dbh);
 
                   if ($PortID == 0) {
-                     $PortID = PortCreate ($port, $categoryid, $timestamp, $description, $dbh);
+                     $PortID = PortCreate ($port, $category, $categoryid, $timestamp, $description, $dbh);
                   }
 
                   if (!$Debug) {
@@ -496,4 +453,4 @@ $dbh->disconnect();
 # and let the www world know that the database has updated 
 # and therefore their cache files are out of date
 #
-`touch /www/change.freshports.org/lastupdate`;
+`touch /www/freshports.org/lastupdate`;
