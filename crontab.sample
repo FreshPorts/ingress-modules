@@ -1,5 +1,5 @@
 #
-# $Id: crontab.sample,v 1.7.2.8 2003-11-20 14:17:18 dan Exp $
+# $Id: crontab.sample,v 1.7.2.9 2004-01-12 19:02:50 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -7,6 +7,8 @@
 SHELL=/bin/sh
 # mail any output to `paul', no matter whose crontab this is
 MAILTO=dan
+
+YYYY_MM_DD=`eval date -v-${DAYS}d "+%Y-%m-%d"`
 
 DIR=/usr/websites/WEBSITE-NAME/scripts
 
@@ -31,6 +33,9 @@ DIR=/usr/websites/WEBSITE-NAME/scripts
 0		0	*	*	*	cd $DIR && perl unrefreshed.pl -i 2>&1 > /dev/null
 0		*	*	*	*	cd $DIR && perl hourly_stats.pl   2>&1 > /dev/null
 0		0	*	*	*	cd $DIR && perl daily_stats.pl    2>&1 > /dev/null
+
+3		0	*	*	*	cd $DIR && sh daily_rendering_times.sh 1
+# 2>&1 > /dev/null
 
 */5 *   *       *   *   cd $DIR && ./cache-refresh.sh  > /dev/null 2>&1
 
