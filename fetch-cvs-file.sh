@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $Id: fetch-cvs-file.sh,v 1.6.2.4 2002-05-19 18:40:12 dan Exp $
+# $Id: fetch-cvs-file.sh,v 1.6.2.5 2002-11-15 20:14:12 dan Exp $
 #
 # Copyright (c) 2000-2002 DVL Software
 #
@@ -22,7 +22,7 @@ else
 
 	FETCHFILE=$DESTDIR/$FILE
 
-#	echo about to fetch http://www.freebsd.org/cgi/cvsweb.cgi/~checkout~/$SRCDIR/$FILE?rev=HEAD
+#	echo about to fetch http://www.freebsd.org/cgi/cvsweb.cgi/~checkout~/$SRCDIR/$FILE?rev=REVISION
 #	echo fetching into $FETCHFILE
 
 	# try to get around any possible caching by using a timestamp as a parameter
