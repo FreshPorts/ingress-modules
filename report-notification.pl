@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: report-notification.pl,v 1.1.2.11 2002-10-30 15:04:20 dan Exp $
+# $Id: report-notification.pl,v 1.1.2.12 2002-11-12 04:30:41 dan Exp $
 #
 # Copyright (c) 2001-2002 DVL Software
 #
@@ -59,6 +59,7 @@ your selected ports which have changed since the last notification.  You
 have chosen to receive these notices on a $FrequencyLong basis.
 
 $Body
+======================================
 
 Please refer to $WatchURL for details.
 
@@ -193,7 +194,7 @@ sub CompileWatchNotifyList($;$;$;$;$) {
 		# and wrap the description of the change.
 		$Body .= wrap("  ", "  ", $row[5]) . "\n";
 		$Body .=      "  $row[4] - $row[6]\n";
-		$Body .=      "  $FreshPorts::Config::FreshPortsURL" . $row[2] . '/' . $row[3] . "/\n\n";
+		$Body .=      "  $FreshPorts::Config::FreshPortsURL" . $row[2] . '/' . $row[3] . "/\n\n\n";
 
 	}
 #print "* * * * Body = $Body\n";
