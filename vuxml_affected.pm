@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: vuxml_affected.pm,v 1.1.2.4 2004-12-11 00:32:50 dan Exp $
+# $Id: vuxml_affected.pm,v 1.1.2.5 2004-12-11 15:27:02 dan Exp $
 #
 # Copyright (c) 2004 DVL Software
 #
@@ -69,6 +69,37 @@ UPDATE vuxml_affected
 	return $this->{id};
 }
 
+sub FetchByVID {
+	my $this = shift;
+	my $VID  = shift;
 
+	my $dbh;
+	my $sql;
+	my $sth;
+	my $row;
+
+	my @Affected;
+
+	$dbh = $this->{dbh};
+
+	$sql = "SELECT vuxml_affected.*
+              FROM vuxml_affected, vuxml
+             WHERE vuxml_affected.vuxml_id = vuxml.id
+               AND vuxml.vid = " .  $dbh->quote($VID);
+
+	print "sql = '$sql'\n";
+
+	$sth = $dbh->prepare($sql);
+	if (!$sth->execute) {
+		FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql", 1);
+	}
+
+	while ($row = $sth->fetchrow_hashref()) {
+		push @Affected, $row;
+	}
+	$sth->finish();
+
+	return @Affected;
+}
 
 1;
