@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: email.pl,v 1.8.2.4 2002-05-09 22:13:58 dan Exp $
+# $Id: email.pl,v 1.8.2.5 2002-05-11 03:56:13 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -135,7 +135,7 @@ sub CompileWatchNotifyList($;$) {
 #		print "LastID = '$LastID' and id = '$row[0]'\n";
 		if ($LastID != $row[0]) {
 			$NumMsgs++;
-#			SendWatchNoticePersonal($To, $FrequencyLong, $Body);
+			SendWatchNoticePersonal($To, $FrequencyLong, $Body);
 			print "To   = $To\n";
 			print "Body = $Body\n";
 
