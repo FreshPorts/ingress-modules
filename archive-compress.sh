@@ -1,8 +1,10 @@
 #!/bin/sh
 #
-# $Id: archive-compress.sh,v 1.3 2002-01-06 07:21:05 dan Exp $
+# $Id: archive-compress.sh,v 1.4 2002-02-02 17:04:49 dan Exp $
 #
 # Copyright (c) 1999-2000 DVL Software
+#
+# I'm not so sure this is used any more
 #
 
 #if [ $# -ne 1 ]
