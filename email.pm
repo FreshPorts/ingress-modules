@@ -1,5 +1,5 @@
 #
-# $Id: email.pm,v 1.1.2.2 2002-11-26 03:46:25 dan Exp $
+# $Id: email.pm,v 1.1.2.3 2002-11-29 17:01:16 dan Exp $
 #
 # Copyright (c) 2002 DVL Software
 #
@@ -8,6 +8,7 @@ package FreshPorts::email;
 
 use strict;
 use Mail::Sender;
+use utilities;
 
 sub SendMail($;$;$;$) {
 	my $From 	= shift;
@@ -17,9 +18,15 @@ sub SendMail($;$;$;$) {
 
 	my $sender = new Mail::Sender{smtp => 'localhost', from => $From};
 
-	$sender->Open({to => $To, subject => $Subject});
-	$sender->SendEnc($Body);
-	$sender->Close;
+	my $result = $sender->Open({to => $To, subject => $Subject});
+	if (!$result) {
+		$sender->SendEnc($Body);
+		$sender->Close;
+	} else {
+		# we set the last parameter to zero to avoid recursion - if 1, that function would call this function...etc.
+		FreshPorts::Utilities::ReportError('LOG_NOTICE', "could not open Mail::Sender.  from='$From' to='$To' subject='$Subject' errorcode='$result'", 0);
+		exit;
+	}
 }
 
 $Mail::Sender::NO_X_MAILER = 0;
