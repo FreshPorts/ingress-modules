@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: refresh-unrefreshed-ports.pl,v 1.16 2002-02-09 19:47:32 dan Exp $
+# $Id: refresh-unrefreshed-ports.pl,v 1.17 2002-02-13 14:52:13 dan Exp $
 #
 # Copyright (c) 1999-2001 DVL Software
 #
@@ -32,12 +32,12 @@ $dbh = FreshPorts::Database::GetDBHandle();
 # get a list of ports to update
 #
 
-$sql = "select ports.id, categories.name as category, element.name as port, commit_log_ports.needs_refresh, commit_log_ports.commit_log_id \
-        from ports, categories, element, commit_log_ports \
-        where ports.category_id              = categories.id \
+$sql = "select ports.id, categories.name as category, element.name as port, commit_log_ports.needs_refresh, commit_log_ports.commit_log_id 
+        from ports, categories, element, commit_log_ports 
+        where ports.category_id              = categories.id 
           and ports.element_id               = element.id
-		  and commit_log_ports.port_id       = ports.id  \
-          and commit_log_ports.needs_refresh <> 0 \
+		  and commit_log_ports.port_id       = ports.id  
+          and commit_log_ports.needs_refresh <> 0 
         order by category, port";
 
 print "sql = $sql\n";
