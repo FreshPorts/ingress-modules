@@ -723,18 +723,18 @@ sub RefreshOnePort($;$;$;$) {
 }
 
 
-sub CreateDailySummary($;$) {
+sub CreateDailySummary($;$;$) {
 
-   my $PathToUse    = "/www/freshports.org/archives";  # must NOT include a trailing /
+   my $PathToUse       = "/www/freshports.org/archives";  # must NOT include a trailing /
    my @myrow;
-   my $CommitDate = shift;
-   my $dbh        = shift;
+   my $CommitDateStart = shift;
+   my $dbh             = shift;
 
    my $sql = "select ports.id, ports.name, ports.version " .
              "from ports, change_log_port, change_log ".
              "where ports.id                      = change_log_port.port_id ".
              "  and change_log_port.change_log_id = change_log.id ".
-             "  and date_format(change_log.commit_date, '%Y/%m/%d') = '$CommitDate' " .
+             "  and change_log.commit_date between '$CommitDateStart' and Date_Add('$CommitDateStart', INTERVAL 1 DAY) " .
              "order by change_log.commit_date desc";
 
    my $sth = $dbh->prepare($sql);
