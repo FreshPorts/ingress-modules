@@ -1,5 +1,5 @@
 #
-# $Id: email.pm,v 1.1.2.11 2003-11-20 14:13:03 dan Exp $
+# $Id: email.pm,v 1.1.2.12 2004-01-29 15:27:43 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -18,7 +18,7 @@ sub SendMail($;$;$;$;$;$) {
 	my $To		= shift;
 	my $CC      = shift;
 	my $Subject	= shift;
-	my $Body	= shift;
+	my $Body	   = shift;
 	my $Headers = shift;
 	
 	my $result;
