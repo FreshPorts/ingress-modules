@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: report-notification.pl,v 1.1.2.15 2002-12-12 04:37:52 dan Exp $
+# $Id: report-notification.pl,v 1.1.2.16 2002-12-12 04:57:52 dan Exp $
 #
 # Copyright (c) 2001-2002 DVL Software
 #
@@ -45,7 +45,7 @@ sub SendWatchNoticePersonal($;$;$;$) {
 	my $BodyIn        = shift;
 
 	my $From		= 'FreshPorts Watch Daemon <FreshPorts-Watch@FreshPorts.org>';
-	my $Subject	= "FreshPorts $FrequencyLong notification";
+	my $Subject	= "FreshPorts $FrequencyLong notification - $WatchListName";
 
 	my $Body = "HEADS UP: multiple watch lists:
 see http://www.freshports.org/phorum/read.php?f=1&i=451&t=420
@@ -81,7 +81,7 @@ question, to postmaster\@FreshPorts.org.";
 	$Headers .= 'X-FreshPorts-WatchListName: '      . $WatchListName . "\n";
 	$Headers .= 'X-FreshPorts-WatchListFrequency: ' . $FrequencyLong . "\n";
 
-	 FreshPorts::email::SendMailWithHeaders($From, $To, $Subject, $Body, $Headers);
+	FreshPorts::email::SendMail($From, $To, $Subject, $Body, $Headers);
 }
 
 
