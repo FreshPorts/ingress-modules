@@ -7,7 +7,7 @@ MAILTO=dan
 # do that backup 
 #
 
-0	1	*	*	*	nice -15 sh -c '(/home/freshports.org/scripts/database_dump.sh 2>&1 | mail -s "freshports Backup" root)'
+#0	1	*	*	*	nice -15 sh -c '(/home/freshports.org/scripts/database_dump.sh 2>&1 | mail -s "freshports Backup" root)'
 10	18	*	*	*	nice -15 sh -c '(cd /home/freshports.org/scripts ; /usr/bin/perl /home/freshports.org/scripts/email.pl D 2>&1 | mail -s "freshports daily notice" root)'
 0	19	*	*	2	nice -15 sh -c '(cd /home/freshports.org/scripts ; /usr/bin/perl /home/freshports.org/scripts/email.pl W 2>&1 | mail -s "freshports weekly notice" root)'
 20	19	9,23	*	*	nice -15 sh -c '(cd /home/freshports.org/scripts ; /usr/bin/perl /home/freshports.org/scripts/email.pl F 2>&1 | mail -s "freshports fortnightly notice" root)'
