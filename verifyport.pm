@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: verifyport.pm,v 1.35 2001-12-29 21:37:06 dan Exp $
+# $Id: verifyport.pm,v 1.36 2001-12-30 23:22:29 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -24,6 +24,8 @@ require Sys::Syslog;
 # new message.
 
 sub InitialiseNewMessage() {
+	# now empty function
+	# kept in case needed in future
 }
 
 sub _CompileListOfPorts($;$;$) {
@@ -146,23 +148,25 @@ print "SETTING CATEGORY =  $port->{category_id}\n";
 						#
 						# we are deleted (local value, never actually saved to db)
 						#
-						$port->{deleted}		= 1;
-						$port->{needs_refresh}	= 0;
+						$port->{deleted} = 1;
 						print "THIS PORT HAS BEEN DELETED\n";
 					}
-	
+
 					#
 					# make sure this commit isn't deleting us...
 					# NOTE: {deleted} may have been set while processing a previous file name
 					#
-					if (!defined($port->{deleted})) {
-						my $index = $FreshPorts::Constants::FilesWhichPromptRefresh{$extra};
-						if ($index) {
-							print "yes, it's a File Which Prompts Refresh (index = $index)\n";
-							$port->{needs_refresh} |= $index;
-							print "needs_refresh is now $port->{needs_refresh}\n";
-						}
-					}
+#
+# we don't use needs_refresh any more
+#
+#					if (!defined($port->{deleted})) {
+#						my $index = $FreshPorts::Constants::FilesWhichPromptRefresh{$extra};
+#						if ($index) {
+#							print "yes, it's a File Which Prompts Refresh (index = $index)\n";
+#							$port->{needs_refresh} |= $index;
+#							print "needs_refresh is now $port->{needs_refresh}\n";
+#						}
+#					}
 				}
 			} else {
 				print "... but is on the list of IgnoredItems!\n\n";
@@ -196,7 +200,7 @@ sub SaveChangesToPortsTree($;$;$) {
 # We will do three things
 #   1 - populate PortsChecked with a list of ports 
 #   2 - ensure said ports and their categories exit
-#   3 - set needs_refresh on each port according to the files touched
+#   3 - set needs_refresh for each port according to the files touched
 #       by this commit
 #
 
@@ -235,7 +239,8 @@ sub SaveChangesToPortsTree($;$;$) {
 				print $port->{category_id};
 			}
 
-			print "', needs_refresh='$port->{needs_refresh}'\n";
+			my $needs_refresh = $port->GetNeedsRefreshForNewPort();
+			print "', needs_refresh='$needs_refresh'\n";
 
 			$port->{last_commit_id} = $commit_log_id;
 
@@ -251,7 +256,7 @@ sub SaveChangesToPortsTree($;$;$) {
 
 			$commit_log_ports->{commit_log_id}	= $commit_log_id;
 			$commit_log_ports->{port_id}		= $port->{id};
-			$commit_log_ports->{needs_refresh}	= $port->GetNeedsRefreshForNewPort();
+			$commit_log_ports->{needs_refresh}	= $needs_refresh;
 
 			if ($commit_log_ports->{needs_refresh} == -1) {
 				Sys::Syslog::syslog('warning', "Cannot GetNeedsRefreshForNewPort.  Fetch failed");
@@ -308,24 +313,30 @@ sub _LoadMasterPortsForAnySlavePorts($;$) {
 	print "checking for any MASTER/SLAVE port dependencies.\n";
 
     #
-    # in this loop assign a value to needs_refresh for each port
+    # find the number of Makefiles
     #
-	foreach $value (@{$Files}) {
-		($action, $filename, $revision, $commit_log_element_id) = @$value;
-		$basename = File::Basename::basename($filename);
-		if ($basename eq $FreshPorts::Constants::FILE_MAKEFILE) {
-			#
-			# OK, that's Makefile.  But is it a category Makefile
-			# or another port's Makefile?
-			#
 
-			my ($subtree, $category_name, $port_name, $extra) = split/\//,$filename, 4;
-			if (defined($port_name) && defined($extra)) {
-				$MakefileCount++;
-			}
-		}
-	}
-
+#	foreach $value (@{$Files}) {
+#		($action, $filename, $revision, $commit_log_element_id) = @$value;
+#		$basename = File::Basename::basename($filename);
+#		if ($basename eq $FreshPorts::Constants::FILE_MAKEFILE) {
+#			#
+#			# OK, that's Makefile.  But is it a category Makefile
+#			# or another port's Makefile?
+#			#
+#
+#			my ($subtree, $category_name, $port_name, $extra) = split/\//,$filename, 4;
+#			if (defined($port_name) && defined($extra)) {
+#				$MakefileCount++;
+#			}
+#		}
+#	}
+#
+	#
+	# temporary change to force fetching of all files associated with commit
+	# it's hard to know what included files will be needed
+	#
+	$MakefileCount = 2;
 	if ($MakefileCount > 1) {
 		foreach $value (@{$Files}) {
 			($action, $filename, $revision, $commit_log_element_id) = @$value;
