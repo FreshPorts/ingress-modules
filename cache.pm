@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: cache.pm,v 1.1.2.3 2002-04-02 01:45:56 dan Exp $
+# $Id: cache.pm,v 1.1.2.4 2002-04-02 01:48:34 dan Exp $
 #
 # Copyright (c) 2001-2002 DVL Software
 #
@@ -140,7 +140,7 @@ sub CreateDailySummary($;$) {
 				   and ports.id                       = commit_log_ports.port_id
 				   and ports.category_id              = categories.id
 				   and ports.element_id               = element.id
-				 ORDER by commit_log.commit_date desc";
+				 ORDER by commit_log.commit_date desc, category, port";
 
 	print "\$sql='$sql'<BR>\n";
 
