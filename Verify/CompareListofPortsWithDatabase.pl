@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: CompareListofPortsWithDatabase.pl,v 1.1.2.1 2002-05-19 18:42:53 dan Exp $
+# $Id: CompareListofPortsWithDatabase.pl,v 1.1.2.2 2003-01-15 04:56:45 dan Exp $
 #
 # Copyright (c) 2001-2002 DVL Software
 #
@@ -32,7 +32,7 @@ my $sql;
 my $IndexLine;
 my $IndexFile = 0;
 
-for (my $i = 1; $i < ($#ARGV+1); $i++) {
+for (my $i = 0; $i < ($#ARGV+1); $i++) {
 	print "checking arg $i\n";
 	if ($ARGV[$i] eq '-I') {
 		print "debugging....\n";
@@ -40,7 +40,7 @@ for (my $i = 1; $i < ($#ARGV+1); $i++) {
 	}
 }
 
-my $dbh = DBI->connect('DBI:Pg:dbname=fp2migration');
+my $dbh = DBI->connect('DBI:Pg:dbname=fp2migration', 'dan', '', {AutoCommit => 0});
 
 
 if ($dbh) {
@@ -48,12 +48,14 @@ if ($dbh) {
 
 	print "now setting up things....\n";
 
+	$dbh->rollback();
+
 	$sql = "select PortVerifyBegin()";
 	$sth = $dbh->prepare($sql);
 	$sth->execute ||
 		FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql ... maybe invalid?", 1);
 
-#	$dbh->commit();
+	$dbh->commit();
 
 	print "reading from STDIN...\n";
 	while (defined(my $IndexLine = <STDIN> ) ) {
@@ -67,6 +69,7 @@ if ($dbh) {
 			$result = $IndexLine;
 		}
 
+		print "found $result\n";
 
 		# record this port as not being found in the db.
 		$PortsDisk{$result} = 0;
@@ -117,16 +120,16 @@ if ($dbh) {
 			(my $category, my $port) = split ("/", $CatPort);
 
 			$sql = "select PortVerifyAddOne('$category', '$port')";
-	        $sth = $dbh->prepare($sql);
-    	    $sth->execute ||
-        	    FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql ... maybe invalid?", 1);
+	 		$sth = $dbh->prepare($sql);
+			$sth->execute ||
+				FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql ... maybe invalid?", 1);
 		}
 	}
 
 	print "MissingFromDisk = $MissingFromDisk\n";
 	print "MissingFromDB   = $MissingFromDB\n";
 
-#	$dbh->commit();
+	$dbh->commit();
 	$sth->finish();
 	$dbh->disconnect();
 } else {
