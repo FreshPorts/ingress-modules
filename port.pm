@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.36 2002-02-22 07:39:41 dan Exp $
+# $Id: port.pm,v 1.37 2002-03-12 15:42:06 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -344,6 +344,9 @@ sub _ExtractValuesFromMakefile {
 	#
 
 	if ($result == 0) {
+
+		$builddepends	= FreshPorts::Utilities::freshports_ConverPortPathToStandardLocation($builddepends);
+		$rundepends		= FreshPorts::Utilities::freshports_ConverPortPathToStandardLocation($rundepends);
 
 		print " portname     ='$this->{name}'\n";
 		print " packagename  ='$portname'\n";
