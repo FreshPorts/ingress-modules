@@ -1,5 +1,5 @@
 #
-# $Id: committer_opt_in.pm,v 1.1.2.9 2003-09-09 11:48:14 dan Exp $
+# $Id: committer_opt_in.pm,v 1.1.2.10 2003-11-14 17:59:23 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -16,8 +16,21 @@ $FreshPorts::CommitterOptIn::CommitMessageID      = '';
 $FreshPorts::CommitterOptIn::CommitMessageSubject = '';
 $FreshPorts::CommitterOptIn::Errors               = '';
 
+my %PortList;
+
 sub RecordErrorDetails {
-	$FreshPorts::CommitterOptIn::Errors .= shift;
+	my $Port     = shift;
+	my $ErrorMsg = shift;
+
+	# we'll keep the error msg with the port name, in case we use it one day
+	if (defined($PortList{$Port})) {
+		$PortList{$Port} .= $ErrorMsg;
+	} else {
+		$PortList{$Port}  = $ErrorMsg;
+	}
+
+	$FreshPorts::CommitterOptIn::Errors .= $ErrorMsg . "\n\n" .
+        "===================================================\n";
 }
 
 sub RecordCommitMessageID {
@@ -65,11 +78,19 @@ processing:
 MessageID: $FreshPorts::CommitterOptIn::CommitMessageID
 Subject  : $FreshPorts::CommitterOptIn::CommitMessageSubject
 
+The following is a list of the ports which had errors:
+
+";
+
+	while (my ($Port, $Error) = each %PortList) {
+		$Body .= $Port . "\n";
+	}
+
+	$Body .= "
 This commit has produced the following error during processing by FreshPorts:
 
 " . Text::Wrap::wrap('', '', $FreshPorts::CommitterOptIn::Errors) . "
 
-===================================================
 ";
 
 	if ($FreshPorts::Config::CommitterNotify) {
@@ -93,10 +114,10 @@ FreshPorts Daemon
 	my $Subject      = 'FreshPorts sanity checking';
 	my $ExtraHeaders = 'X-FreshPorts-Sanity: error';
 
-	if ($FreshPorts::Config::CommitterNotify) {
+	if ($FreshPorts::Config::CommitterNotify || $FreshPorts::Config::NotifyAdmin) {
 		if (CommitterHasOptedIn($committer, $dbh)) {
 			$To = "$committer\@FreeBSD.org";
-         $CC = $FreshPorts::Config::SystemOwnerEmail;
+			$CC = $FreshPorts::Config::SystemOwnerEmail;
 			FreshPorts::Utilities::ReportError('warning', "Committer $committer has been notified of errors: $FreshPorts::CommitterOptIn::Errors", 0);
 		} else {
 			$Body = "Committer $committer would have been notified of errors if they were opted in.\n\n$Body";
