@@ -1,5 +1,5 @@
 #
-# $Id: README.txt,v 1.3 2002-02-24 02:36:19 dan Exp $
+# $Id: README.txt,v 1.3.2.1 2002-11-24 17:00:27 dan Exp $
 #
 #
 # Copyright (c) 2001-2002 DVL Software
@@ -20,6 +20,8 @@ http://www.cpan.org/authors/id/C/CH/CHANG-LIU/XML-Node-0.10.tar.gz
 textproc/p5-XML-Writer
 http://search.cpan.org/search?dist=XML-Writer
 http://www.cpan.org/authors/id/DMEGG/XML-Writer-0.4.tar.gz
+
+mail/p5-Mail-Sender
 
 adjust this line in load_xml_into_db.pl:
 use lib '/home/lists/scripts';
