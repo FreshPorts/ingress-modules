@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.38.2.31 2003-09-23 15:44:23 dan Exp $
+# $Id: port.pm,v 1.38.2.32 2003-10-04 21:02:33 dan Exp $
 #
 #
 # Copyright (c) 2001-2003 DVL Software
@@ -52,6 +52,8 @@ sub _initialize {
 	$this->{broken}				= '';
 	$this->{categories}			= '';
 	$this->{status}				= '';
+	$this->{element_pathname}   = '';
+
 
 print "$FreshPorts::Constants::commit_log_seq\n";
 print "$FreshPorts::Constants::ports_seq\n";
@@ -84,6 +86,7 @@ sub _GetValuesFromRow {
 	$this->{categories}			= $row->{categories};
 	$this->{last_commit_id}		= $row->{last_commit_id};
 	$this->{status}				= $row->{status};
+	$this->{element_pathname}   = $row->{element_pathname};
 }
 
 # =================================
@@ -199,7 +202,8 @@ sub FetchByID {
    select ports.*, 
           categories.name as category, 
           element.name    as name, 
-          element.status
+          element.status,
+          element_pathname(element.id, FALSE) as element_pathname
      from ports, categories, element 
     where ports.id          = $this->{id} 
       and ports.category_id = categories.id 
@@ -255,7 +259,8 @@ sub FetchByPartialPathName {
    select ports.*,
           categories.name as category,
           element.name    as name,
-          element.status
+          element.status,
+          element_pathname(element.id, FALSE) as element_pathname
      from ports, categories, element
     where ports.element_id  = $this->{element_id}
       and ports.category_id = categories.id
