@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: refresh-unrefreshed-ports.pl,v 1.11 2001-12-30 23:20:42 dan Exp $
+# $Id: refresh-unrefreshed-ports.pl,v 1.12 2001-12-31 15:27:27 dan Exp $
 #
 # Copyright (c) 1999-2001 DVL Software
 #
@@ -105,7 +105,6 @@ foreach $porttorefresh (@PORTS) {
 		Sys::Syslog::syslog('warning', "Could not retrieve port ($port_id, $category_name, $port_name, $needs_refresh, $commit_log_id)");
 		die "Could not retrieve port ($port_id, $category_name, $port_name, $needs_refresh, $commit_log_id)";
 	}
-	last;
 }
 
 $sth->finish();
