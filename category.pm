@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: category.pm,v 1.8.2.9 2003-08-19 10:53:37 dan Exp $
+# $Id: category.pm,v 1.8.2.10 2004-08-18 16:42:56 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -21,7 +21,7 @@ sub _initialize {
 # =================================
 
 sub new {
-	my $this			= {};
+	my $this		= {};
 	my $class		= shift;
 
 	$this->{dbh}	= shift;
@@ -36,8 +36,8 @@ sub _populate {
 	my $row  = shift;
 
 	$this->{id} 			= $row->{id};
-	$this->{is_primary}	= $row->{is_primary};
-	$this->{element_id}	= $row->{element_id};
+	$this->{is_primary}		= $row->{is_primary};
+	$this->{element_id}		= $row->{element_id};
 	$this->{name}			= $row->{name};
 	$this->{description}	= $row->{description};
 }
