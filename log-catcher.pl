@@ -1,4 +1,9 @@
 #!/usr/bin/perl -w
+#
+# $Id: log-catcher.pl,v 1.4 2002-01-06 07:21:06 dan Exp $
+#
+# Copyright (c) 1999-2000 DVL Software
+#
 
 $Outfile  = "/usr/local/etc/freshports.test/msgs/" . time . ".$$.txt";
 

@@ -1,9 +1,11 @@
 #!/usr/bin/perl
-
+#
+# $Id: summary-all-days-create.pl,v 1.3 2002-01-06 07:21:06 dan Exp $
+#
+# Copyright (c) 1999-2000 DVL Software
 #
 # FreshPorts - takes log details and creates daily summaries
 # written by Dan Langille
-# copyright 2000 DVL Software
 #
 
 use DBI;

@@ -1,7 +1,10 @@
 #!/bin/sh
 #
+# $Id: database_dump.sh,v 1.7 2002-01-06 07:21:05 dan Exp $
+#
+# Copyright (c) 1999-2000 DVL Software
+#
 # postgresql database backup
-# Copyright 1999, 2000 DVL Software Limited
 #
 
 #

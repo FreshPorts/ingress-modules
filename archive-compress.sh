@@ -1,4 +1,9 @@
 #!/bin/sh
+#
+# $Id: archive-compress.sh,v 1.3 2002-01-06 07:21:05 dan Exp $
+#
+# Copyright (c) 1999-2000 DVL Software
+#
 
 #if [ $# -ne 1 ]
 #then

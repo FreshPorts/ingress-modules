@@ -1,5 +1,9 @@
 #!/usr/bin/perl -w
-
+#
+# $Id: announce.pl,v 1.3 2002-01-06 07:21:05 dan Exp $
+#
+# Copyright (c) 1999-2000 DVL Software
+#
 use strict;
 use DBI;
 
