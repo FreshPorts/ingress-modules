@@ -1,5 +1,5 @@
 #
-# $Id: committer_opt_in.pm,v 1.1.2.3 2002-11-24 17:14:57 dan Exp $
+# $Id: committer_opt_in.pm,v 1.1.2.4 2002-12-16 17:11:36 dan Exp $
 #
 # Copyright (c) 2002 DVL Software
 #
@@ -62,7 +62,7 @@ hugs+kisses
 FreshPorts Daemon
 ";
 
-		FreshPorts::email::SendMail('FreshPorts Daemon <FreshPorts@FreshPorts.org>', "$committer\@FreeBSD.org", 'FreshPorts error', $Body);
+		FreshPorts::email::SendMail('FreshPorts Daemon <FreshPorts@FreshPorts.org>', "$committer\@FreeBSD.org", 'FreshPorts error', $Body, 'X-FreshPorts-Sanity: error');
 		FreshPorts::Utilities::ReportError('warning', "Committer $committer has been notified of errors: $FreshPorts::CommitterOptIn::Errors", 0);
 	} else {
 		FreshPorts::Utilities::ReportError('warning', "Committer $committer would have been notified of errors if they were opted in: $FreshPorts::CommitterOptIn::Errors", 0);
