@@ -22,14 +22,18 @@ my $Debug = 0;
 #
 # DO NOT MODIFY THE BELOW VALUES WITHOUT ALSO CHANGING THE SAME VALUES IN fetch-refresh-ports
 
-my $FILE_MAKEFILE    = "Makefile";
-my $FILE_DESCRIPTION = "pkg-descr";
-my $FILE_COMMENT     = "pkg-comment";
+my $FILE_MAKEFILE       = "Makefile";
+my $FILE_DESCRIPTION    = "pkg-descr";
+my $FILE_COMMENT        = "pkg-comment";
+my $FILE_MAKEFILECOMMON = "Makefile.common";
+my $FILE_MAKEFILEMAN    = "files/Makefile.man";
 
 my %FilesWhichPromptRefresh = (
-    $FILE_MAKEFILE    => "1",
-    $FILE_DESCRIPTION => "2",
-    $FILE_COMMENT     => "4",
+    $FILE_MAKEFILE       => "1",
+    $FILE_DESCRIPTION    => "2",
+    $FILE_COMMENT        => "4",
+    $FILE_MAKEFILECOMMON => "8",
+    $FILE_MAKEFILEMAN    => "16",
 );
 
 # DO NOT MODIFY THE ABOVE VALUES WITHOUT ALSO CHANGING THE SAME VALUES IN fetch-refresh-ports
@@ -261,6 +265,17 @@ sub MarkPortAsRefreshNeeded($;$;$;$;$) {
             # the items which prompts a refresh, we undelete the port.
             #
             $sql .= ", status = 'A'";
+            #
+            # problem: port is committed as net/FlowScan, then deleted
+            # then added back in as net/flowscan.  mySQL is case insensitive.
+            # but the fetch on cvs isn't.  Therefore we start getting stuff
+            # for FlowScan, which is in the attic, not for flowscan, which isn't.
+            # Solution: when a port is reactivated from being deleted, make
+            # sure ALL the fields are updated with the current values.
+            # in short, what's done for a NEW port should be done with this
+            # resurrected port.
+            #
+            # Dan Langille 2001.3.26
          }
       }
    }
@@ -285,6 +300,9 @@ my $NotifyByMail = "root";
 my $PortID;
 my $ChangePortID;
 
+#
+# this would be a good place for a short loop and a sleep if it fails
+#
 my $dbh = DBI->connect('dbi:mysql:freshports','updater','xyzzy');
 if (!$dbh) {
    # email the main man
@@ -347,7 +365,12 @@ for(my $i=0; $i<=$#file; $i++) {
       if ($entry || (!$entry && $action eq 'import')) {
 
          # we ignore certain categories and always ignore /usr/ports/<category>/Makefile.
-         if ((index($ignoredirs, $category) == -1) && ($port ne 'Makefile')) {
+         #
+         # note that ports/<category>/pkg/COMMENT contains the description of the category.
+         # we might want to pick that up one day.
+         # Dan Langille 2001.03.26
+         #
+         if ((index($ignoredirs, $category) == -1) && ($port ne 'Makefile') && ($port ne 'pkg')) {
             #print '  ***';
             # we have a file in this port which is actually being updated.  Let's update the port.
 

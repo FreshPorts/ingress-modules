@@ -10,7 +10,7 @@ use File::PathConvert;
 my $PORTSBASEDIR = "/usr/ports";
 
 @ISA	= qw(Exporter);
-@EXPORT	= qw(PortUpdate ExtractCategoryFromDirectory GetDescrAndHomePage ReadFile PackageExists RefreshPort SendWatchNotice RefreshOnePort CreateDailySummary GetNeedsRefreshForNewPort GetPortCategory GetPortID CreateCategory);
+@EXPORT	= qw(PortUpdate ExtractCategoryFromDirectory GetDescrAndHomePage ReadFile PackageExists RefreshPort SendWatchNotice FilesWhichPromptRefresh RefreshOnePort CreateDailySummary GetNeedsRefreshForNewPort GetPortCategory GetPortID CreateCategory);
 
 
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -20,14 +20,18 @@ my $PORTSBASEDIR = "/usr/ports";
 #
 # DO NOT MODIFY THE BELOW VALUES WITHOUT ALSO CHANGING THE SAME VALUES IN updates.pl
 
-my $FILE_MAKEFILE    = "Makefile";
-my $FILE_DESCRIPTION = "pkg-descr";
-my $FILE_COMMENT     = "pkg-comment";
+my $FILE_MAKEFILE	= "Makefile";
+my $FILE_DESCRIPTION	= "pkg-descr";
+my $FILE_COMMENT	= "pkg-comment";
+my $FILE_MAKEFILECOMMON	= "Makefile.common";
+my $FILE_MAKEFILEMAN	= "files/Makefile.man";
 
 my %FilesWhichPromptRefresh = (
-    $FILE_MAKEFILE    => "1",
-    $FILE_DESCRIPTION => "2",
-    $FILE_COMMENT     => "4",
+    $FILE_MAKEFILE       => 1,
+    $FILE_DESCRIPTION    => 2,
+    $FILE_COMMENT        => 4,
+    $FILE_MAKEFILECOMMON => 8,
+    $FILE_MAKEFILEMAN    => 16,
 );
 
 # DO NOT MODIFY THE ABOVE VALUES WITHOUT ALSO CHANGING THE SAME VALUES IN updates.pl
@@ -315,6 +319,13 @@ sub CreateCategory($;$;$;$;$) {
 
    # create a new entry in the category table
    # we only create primary categories here.
+
+# enhancement:
+# note that ports/<category>/pkg/COMMENT contains the category description.
+# one day, we might want to start using that.
+#
+# Dan Langille 2001.03.26
+#
    my $sql = "insert into categories (system, name, description, is_primary) values \
              ('$system', '$category', '$description', '$is_primary')";
 
@@ -472,10 +483,11 @@ sub PortUpdate($;$;$;$;$;$;$;$;$;$;$;$;$;$;$;$;$;$;$) {
 
       print "$sql\n";
 
-      $sth = $dbh->prepare($sql);
+      $sth = $dbh->prepare($sql) || 
+         die "Could not insert statement ... maybe invalid? " . mysql_error() ;
 
       $sth->execute ||
-         die "Could not insert statement ... maybe invalid?";
+         die "Could not insert statement ... maybe invalid? " . mysql_error();
    } else {
       # update the time on the port
       $sql = "update ports set \ 
@@ -503,7 +515,7 @@ sub PortUpdate($;$;$;$;$;$;$;$;$;$;$;$;$;$;$;$;$;$;$) {
 
       print "$sql\n";
 
-      $sth = $dbh->prepare($sql);
+      $sth = $dbh->prepare($sql) || die "Could not prepare ... maybe invalid?" . mysql_error();
 
       $sth->execute ||
          die "Could not execute update statement ... maybe invalid?";
@@ -654,7 +666,8 @@ sub RefreshOnePort($;$;$;$) {
 
    my $dirname = "$PORTSBASEDIR/$category";
 
-#   print " now in RefreshOnePort.  press enter to continue"; <STDIN>;
+   print " now in RefreshOnePort.  press enter to continue";
+# <STDIN>;
 
    print " which becomes $dirname : $port\n";
 
