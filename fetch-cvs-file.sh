@@ -54,7 +54,8 @@ else
  #
  # this is an attempt to ensure we have the correction owner
  #
- /usr/sbin/chown daemon:daemon $FETCHFILE
+# I don't think thi sis needed just here..
+# /usr/sbin/chown daemon:daemon $FETCHFILE
  exit $RESULT
 fi
 
