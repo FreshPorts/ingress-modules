@@ -2,9 +2,12 @@
 
 package	ports;
 require	Exporter;
+
 @ISA	= qw(Exporter);
-@EXPORT	= qw(PortUpdate ExtractCategoryFromDirectory GetDescrAndHomePage ReadFile PackageExists);
- 
+@EXPORT	= qw(PortUpdate ExtractCategoryFromDirectory GetDescrAndHomePage ReadFile PackageExists RefreshPort);
+
+my $IGNOREDPORTS = "\\.\\.|\\.|pkg|CVS|apache13-php3-fp-modssl|Makefile";
+
 #
 # this script should walk the ports tree and update the 
 # ports table accordingly.
@@ -21,7 +24,7 @@ print "directory = $dir\n";
    my @fields = split(/\//, $dir);
 
    #grab the last one.
-   my $category = @fields[$#fields];
+   my $category = $fields[$#fields];
 
 print "category = $category\n";
 
@@ -130,9 +133,9 @@ sub GetPortCategory($;$) {
 
    my @row=$sth->fetchrow_array;
 
-   print "\nGetPortCategory = $sql which gives ", @row[0], "\n";
+   print "\nGetPortCategory = $sql which gives ", $row[0], "\n";
 
-   return @row[0];
+   return $row[0];
 }
 
 sub PortUpdate($;$;$;$;$;$;$;$;$;$;$;$;$;$;$;$;$) {
@@ -177,7 +180,7 @@ print " 9 $builddepends\n";
 print "10 $rundepends\n";
 print "11 $shortdescription\n";
 print "12 $longdescription\n";
-print "13 $homepage\n";
+print "13 $homepage\n";                 # this may be an unitialized value
 print "14 $packageexists\n";
 
 # this asks for user input
@@ -216,13 +219,13 @@ print "14 $packageexists\n";
    print "port ID found = ", $row[0], "\n";
    if (!@row) {
       # no such port.  create it.
-      $sql = "insert into ports (name, description,                                                       \
+      $sql = "insert into ports (name,                                                                    \
               primary_category_id, system, version, date_created,                                         \
               short_description, long_description, maintainer, categories,                                \
               date_last_refreshed, needs_refresh, homepage, master_sites, extract_suffix, package_exists, \
               status, depends_run, depends_build) values (";
 
-      $sql .= "'$name', '$descpath', $categoryid ,                                        \
+      $sql .= "'$name', $categoryid ,                                                     \
               'FreeBSD', '$portversion', current_timestamp, '$shortdescription',          \ 
               '$longdescription', '$maintainer', '$categories', current_timestamp, 'N',   \
               '$homepage', '$mastersites', '$extractsuffix', '$packageexists', 'A',       \
@@ -236,7 +239,7 @@ print "14 $packageexists\n";
          die "Could not insert statement ... maybe invalid?";
    } else {
       # update the time on the port
-      $sql = "update ports set description = '$descpath',       \ 
+      $sql = "update ports set \ 
               version = '$portversion', short_description = \
               '$shortdescription', long_description = '$longdescription', maintainer = \
               '$maintainer', categories = '$categories', date_last_refreshed = \
@@ -255,3 +258,83 @@ print "14 $packageexists\n";
 }
 
 
+sub RefreshPort($;$;$) {
+
+   my $dirname = shift;
+   my $port    = shift;
+   my $dbh     = shift;
+
+   print "\n... now checking $dirname/$port .... ";
+   if (-d "$dirname/$port" && $port !~ /$IGNOREDPORTS/) {
+      if (!-e "$dirname/$port/Makefile") {
+         print " @@@@@@ makefile does not exist (port must be in Attic)\n";
+      } else {
+
+         print "...now looking at $dirname/$port/Makefile\n";
+
+         #
+         # if we don't change the working dir, stuff like descrpath will not
+         # contain /usr/ports/...etc.  It will look more like this: 
+         #     /usr/home/dan/walkports/pkg/DESCR
+         # That's because DESCR is define as .{CURDIR}/pkg/DESCR etc more or less
+         #
+         
+         $makecommand = "make -V PORTNAME -V PKGNAME -V DESCR -V CATEGORIES -V PORTVERSION " .
+                        "-V COMMENT -V MAINTAINER -V EXTRACT_SUFX -V MASTER_SITES " .
+                        "-V BUILD_DEPENDS -V RUN_DEPENDS -f $dirname/$port/Makefile";
+           
+         print "makecommand = $makecommand\n";
+         chdir "$dirname/$port";
+ 
+         ($portname, $packagename, $descrpath, $categories, $portversion, $commentfile,
+          $maintainer, $extractsuffix, $mastersites, $builddepends,
+          $rundepends) = split(/\n/s, `$makecommand`);
+
+         $category = ExtractCategoryFromDirectory($dirname);
+
+         print " 0 $port\n";
+         print " 1 $portname\n";
+         print " a $category\n";
+         print " 2 $packagename\n";     
+         print " 3 $descrpath\n";     
+         print " 4 $categories\n";
+         print " 5 $portversion\n";
+         print " 6 $commentfile\n";
+         print " 7 $maintainer\n";
+         print " 8 $extractsuffix\n";
+         print " 9 $mastersites\n";
+         print "10 $builddepends\n";
+         print "11 $rundepends\n";
+
+         ($longdescription, $homepage) = GetDescrAndHomePage($descrpath);
+         $shortdescription = ReadFile($commentfile);
+
+         $packageexists = PackageExists($packagename . "tgz");
+
+         # because we are adding in \ before the quotes,
+         # we need to quote the \'s first.
+
+         #  these bits might have \'s.
+         $longdescription  =~ s/\\/\\\\/g;
+         $shortdescription =~ s/\\/\\\\/g;
+
+         #  these bits might have quotes.
+         $longdescription  =~ s/\'/\\'/g;
+         $shortdescription =~ s/\'/\\'/g;
+
+         print "12 $shortdescription\n";
+         print "13 $longdescription\n";
+         print "14 $homepage\n";
+         print "15 $packageexists\n";
+
+         print "\n ---------------------------------------- \n";
+
+         PortUpdate ($port, $portname, $category, $descrpath, $categories, $portversion,
+                     $commentfile, $maintainer, $extractsuffix, $mastersites, $builddepends,
+                     $rundepends, $shortdescription, $longdescription, $homepage, $packageexists, $dbh);
+
+      }  # else yes, the Makefile does exist.
+   } else {
+      print "skipping\n";
+   } # else ignored directory
+}
