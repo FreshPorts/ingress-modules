@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.38.2.15 2002-12-10 18:12:55 dan Exp $
+# $Id: port.pm,v 1.38.2.16 2002-12-16 17:11:17 dan Exp $
 #
 #
 # Copyright (c) 2001-2002 DVL Software
@@ -593,7 +593,7 @@ sub _FetchFilesNeedingRefresh {
 				#
 
 				my $directory	= File::Basename::dirname ($DESCR);
-				my $FILE		= File::Basename::basename($DESCR);
+				my $FILE			= File::Basename::basename($DESCR);
 				my $DESTDIR		= $directory;
 				$SRCDIR			= File::Basename::dirname(RemovePortsPrefix($DESCR));
 
