@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: process_moved.pl,v 1.1.2.1 2003-12-31 01:51:02 dan Exp $
+# $Id: process_moved.pl,v 1.1.2.2 2003-12-31 16:09:31 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -74,12 +74,17 @@ sub main {
 }
 
 sub parsefile ($) {
+	my $dbh       = shift;
+	my $inputfile = shift;
+
 	my $line;
 	my $result;
 	my $From;
 	my $To;
 	my $Date;
 	my $Why;
+
+	my $ID;
 
 	print "reading from STDIN...\n";
 	while (defined(my $line = <STDIN> ) ) {
@@ -90,7 +95,31 @@ sub parsefile ($) {
 			print $line . "\n";
 
 			($From, $To, $Date, $Why) = $line =~ /^(.*\/.*)\|(.*)\|(\d{4}-\d{2}-\d{2})\|(.*)$/;
-			print "$From $To $Date $Why\n"
+			print "$From $To $Date $Why\n";
+			$ID = AddMoved($dbh, $From, $To, $Date, $Why);
 		}
 	}
+}
+
+sub AddMoved($;$;$;$;$) {
+	my $dbh    = shift;
+	my $From   = $dbh->quote(shift);
+	my $To     = $dbh->quote(shift);
+	my $Date   = $dbh->quote(shift);
+	my $Why    = $dbh->quote(shift);
+
+	my $sth;
+	my $sql;
+	my @row;
+
+	# quote everything going to the database
+	$sql = "select PortsMovedAdd ($From, $To, $Date, $Why)";;
+	$sth = $dbh->prepare($sql);
+	if (!$sth->execute())  {
+		FreshPorts::Utilities::ReportError('warning', "Could not execute sql", 1);
+	}
+	@row = $sth->fetchrow_array();   
+	$sth->finish();
+
+	return $row[0];
 }
