@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: vuxml.pm,v 1.1.2.8 2004-12-13 21:38:03 dan Exp $
+# $Id: vuxml.pm,v 1.1.2.9 2004-12-13 23:22:43 dan Exp $
 #
 # Copyright (c) 2004 DVL Software
 #
@@ -160,6 +160,7 @@ sub FetchByVID {
 	# no sense setting values if we didn't get anything...
 	if ($row) {
 		$this->_GetValuesFromRow($row);
+		$this->FetchPackages($this->{vid});
 	} else {
 		undef $this->{vid};
 	}
@@ -178,12 +179,26 @@ sub FetchPackages {
 
 	$this->{packages} = \@Packages;
 
-	print "vuxml.pm:179 loop\n";
+	return $VID;
+}
+
+sub print {
+	my $this = shift;
+
+	print "vuxml.pm:187 loop\n";
+	print "vuxml id       = '" . $this->{id}             . "'\n";
+	print "vid            = '" . $this->{vid}            . "'\n";
+	print "topic          = '" . $this->{topic}          . "'\n";
+	print "description    = '" . $this->{description}    . "'\n";
+	print "date_discovery = '" . $this->{date_discovery} . "'\n";
+	print "date_entry     = '" . $this->{date_entry}     . "'\n";
+	print "date_modified  = '" . $this->{date_modified}  . "'\n";
+	print "status         = '" . $this->{status}         . "'\n";
+
 	foreach my $package (@{$this->{packages}}) {
 		print $package->{id} . "\n";
 	}
 
-	return $VID;
 }
 
 1;
