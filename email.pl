@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: email.pl,v 1.8.2.3 2002-05-02 22:12:58 dan Exp $
+# $Id: email.pl,v 1.8.2.4 2002-05-09 22:13:58 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -55,7 +55,7 @@ Cheers and thanks for your support.
 
 You are receiving this message as part of the service you joined at
 http://freshports.org/ but if you no longer wish to receive such messages,
-please go to http://freshports.org/customize.php3 and disable mailings.
+please go to http://freshports.org/customize.php and disable mailings.
 
 If a problem occurs, please send details, including the email address in
 question, to postmaster\@freshports.org.
