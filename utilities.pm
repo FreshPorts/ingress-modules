@@ -1,4 +1,4 @@
-# $Id: utilities.pm,v 1.11.2.2 2002-05-19 18:42:12 dan Exp $
+# $Id: utilities.pm,v 1.11.2.3 2002-08-12 03:08:37 dan Exp $
 #
 #
 # Copyright (c) 2001 DVL Software
@@ -49,7 +49,7 @@ sub FetchFile($;$;$;$) {
 	my $FetchAttempts = 5;
 
 	while ($FetchAttempts) {
-		`sh $FreshPorts::Config::scriptpath/fetch-cvs-file.sh $DESTDIR $SRCDIR $FILE $REVISION`;
+		my $FetchResults = `sh $FreshPorts::Config::scriptpath/fetch-cvs-file.sh $DESTDIR $SRCDIR $FILE $REVISION 2>&1`;
 		$result = $?;
 		print "fetch result = $result\n";
 		if (($result >> 8)) {
@@ -57,6 +57,7 @@ sub FetchFile($;$;$;$) {
 			# This might be a nice place to retry a fetch, or send an email
 			#
 			print "that fetch failed.  What do to?\n";
+			print "\n\n" . $FetchResults . "\n\n";
 
 			# and we're outta here
 			# fetch failed
