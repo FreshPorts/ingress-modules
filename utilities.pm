@@ -1,4 +1,4 @@
-# $Id: utilities.pm,v 1.11.2.18 2004-09-23 17:48:53 dan Exp $
+# $Id: utilities.pm,v 1.11.2.19 2004-09-27 00:30:17 dan Exp $
 #
 #
 # Copyright (c) 2001-2004 DVL Software
@@ -34,7 +34,7 @@ sub ReadFile($) {
 	return $content;
 }
 
-sub FetchFile($;$;$;$) {
+sub FetchFile($;$;$;$;) {
 	#
 	# fetch a file
 	# into the given path
@@ -46,18 +46,34 @@ sub FetchFile($;$;$;$) {
 	my $FILE		= shift;
 	my $REVISION	= shift;
 
-	print "FetchFile $DESTDIR $SRCDIR $FILE $REVISION\n";
+	return FetchFileURL($FreshPorts::Config::CVS_Repository, $DESTDIR, $SRCDIR, $FILE, $REVISION, '');
+}
+sub FetchFileURL($;$;$;$;$;$) {
+	#
+	# fetch a file
+	# into the given path
+	# returns 1 if fetched.
+	# zero otherwise.
+	#
+	my $URL			= shift;
+	my $DESTDIR		= shift;
+	my $SRCDIR		= shift;
+	my $FILE		= shift;
+	my $REVISION	= shift;
+	my $SUFFIX      = shift;
 
-	my $result  = 0;
+#	print "FetchFileURL $URL $DESTDIR $SRCDIR $FILE $REVISION $SUFFIX\n";
+
+	my $result = 0;
 
 	my $FetchAttempts = 5;
 
 	while ($FetchAttempts) {
-		my $command = "sh $FreshPorts::Config::scriptpath/fetch-cvs-file.sh $DESTDIR $SRCDIR $FILE $REVISION 2>&1";
-		print "fetch command = '$command'";
+		my $command = "sh $FreshPorts::Config::scriptpath/fetch-cvs-file.sh $URL $DESTDIR $SRCDIR $FILE $REVISION $SUFFIX 2>&1";
+#		print "fetch command = '$command'";
 		my $FetchResults = `$command`;
 		$result = $?;
-		print "fetch result = $result\n";
+#		print "fetch result = $result\n";
 		if (($result >> 8)) {
 			#
 			# This might be a nice place to retry a fetch, or send an email
