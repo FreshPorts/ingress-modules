@@ -27,7 +27,7 @@
 # SUCH DAMAGE.
 
 #
-# @(#) $Id: vuxml_parsing.pm,v 1.1.2.2 2004-09-10 03:26:33 dan Exp $
+# @(#) $Id: vuxml_parsing.pm,v 1.1.2.3 2004-09-11 00:03:59 dan Exp $
 #
 # Parse the Vulnerabilities and Exposures (vuxml) database extracting
 # the entries for loading into a RDBMS.
@@ -62,6 +62,7 @@ sub new
     my $stream = shift;
     my $dbh    = shift;
     my $class  = ref($caller) || $caller || __PACKAGE__;
+
     my $self;
 
     # There can be only one! Since we keep $self hanging around as a
@@ -287,10 +288,38 @@ sub update_database
     #
     # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+#	my $vuxml_id =  $self->update_database_vuxml();
+
     $self->print_self();    # For debugging purposes
 
     return $self;
 }
+
+sub update_database_vuxml {
+    my __PACKAGE__ $self = shift;
+
+	use vuxml;
+	use db_utils;
+	use vuxml_affected;
+	use vuxml_names;
+	use vuxml_ranges;
+	use vuxml_references;
+
+
+	my $vuxml = FreshPorts::vuxml->new($self->{db_handle});
+
+	$vuxml->{vid}            =  $self->vid();
+	$vuxml->{topic}          =  $self->topic();
+	$vuxml->{description}    =  $self->description();
+	$vuxml->{date_discovery} =  $self->date_discovery();
+	$vuxml->{date_entry}     =  $self->date_entry();
+	$vuxml->{date_modified}  =  $self->date_modified();
+
+	my $vuxml_id = $vuxml->save();
+
+	return $vuxml_id;
+}
+
 
 # Accessor methods
 
@@ -1108,4 +1137,3 @@ sub handle_end_modified ()
 #
 # That's All Folks!
 #
-
