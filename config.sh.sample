@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $Id: config.sh.sample,v 1.1.2.9 2005-01-13 23:06:51 dan Exp $
+# $Id: config.sh.sample,v 1.1.2.10 2005-03-13 13:22:43 dan Exp $
 #
 
 BASEDIR="/usr/websites/DIRNAME"
@@ -22,7 +22,7 @@ SCRIPTDIR="${BASEDIR}/scripts"
 MSGDIR="MSG_ARCHIVE"
 
 CACHEDIR="${BASEDIR}/caching/cache"
-STAGINGDIR="${BASEIDR}/caching/tmp"
+STAGINGDIR="${BASEDIR}/caching/tmp"
 
 # What file do we set for /usr/ports/MOVED?
 
