@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: process_cvs_mail.pl,v 1.8.2.9 2002-12-10 16:50:55 dan Exp $
+# $Id: process_cvs_mail.pl,v 1.8.2.10 2003-01-20 20:05:37 dan Exp $
 #
 # Copyright (c) 2001-2002  DVL Software
 #
