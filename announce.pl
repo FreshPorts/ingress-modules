@@ -1,16 +1,16 @@
 #!/usr/bin/perl -w
 #
-# $Id: announce.pl,v 1.3.2.8 2003-07-31 17:54:25 dan Exp $
+# $Id: announce.pl,v 1.3.2.9 2004-01-29 15:27:24 dan Exp $
 #
-# Copyright (c) 1999-2003 DVL Software
+# Copyright (c) 1999-2004 DVL Software
 #
+
 use strict;
 use DBI;
 use database;
 use constants;
 use email;
 
-my $dirname='';
 my @USERS;
 my $sql;
 my $sth;
