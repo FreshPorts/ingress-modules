@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: hourly_stats.pl,v 1.1.2.4 2002-05-28 22:47:00 dan Exp $
+# $Id: hourly_stats.pl,v 1.1.2.5 2002-05-29 19:57:04 dan Exp $
 #
 # Copyright (c) 2001-2002 DVL Software
 #
@@ -76,7 +76,7 @@ sub CreateHourlySummary() {
 		print "that file was opened.  now writing output\n";
 		my $count =0;
 
-		print FILE '<BR>Caculated hourly:<BR>';
+		print FILE '<BR>Calculated hourly:<BR>';
 
 		print FILE '<TABLE WIDTH="100%">' . "\n";
 		print FILE '<TR><TD><A HREF="/categories.php">Port count</A></TD> <TD ALIGN="right">'      . $Stats{new}       . '</TD></TR>' . "\n";
