@@ -1,4 +1,4 @@
-# $Id: xml_munge.pm,v 1.1.2.6 2005-01-22 14:38:54 dan Exp $
+# $Id: xml_munge.pm,v 1.1.2.7 2005-01-26 20:53:20 dan Exp $
 #
 # Copyright (c) 2001-2004 DVL Software
 #
@@ -345,7 +345,8 @@ sub handle_update_end {
 		}
 	}
 
-	$self->notify_observers($FreshPorts::Messages::PortsRefreshed, (message_id => $Updates{MessageId}) );
+	$self->notify_observers($FreshPorts::Messages::PortsRefreshed, 
+			(message_id => $Updates{MessageId}, CommitLogPorts => \%CommitLogPorts) );
 
 
 	if (scalar(keys %CommitLogPorts)) {
