@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $Id: freebsd-cvs.sh,v 1.5 2002-02-21 17:59:33 dan Exp $
+# $Id: freebsd-cvs.sh,v 1.6 2002-02-22 16:33:31 dan Exp $
 #
 # Copyright (c) 1999-2000 DVL Software
 #
@@ -16,13 +16,11 @@ then
    exit 1
 fi
 
-echo processing $FILE
-
 XML="msgs/FreeBSD/xml"
 OUTPUT="msgs/FreeBSD/xml-output"
 
-
 PATHNAME=$1
+echo processing $PATHNAME
 
 FILE=`basename $PATHNAME` 
 
