@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $Id: process_updating.sh,v 1.1.2.1 2004-09-17 03:12:35 dan Exp $
+# $Id: process_updating.sh,v 1.1.2.2 2004-10-12 00:45:28 dan Exp $
 #
 # Copyright (c) 2003-2004 DVL Software Limited
 #
@@ -21,6 +21,11 @@ then
 fi
 
 . config.sh
+
+if [ $OFFLINE = 1 ]
+then
+	exit 0
+fi
 
 if [ "${UPDATINGFLAGFILE}x" = 'x' -o "${PORTSDIR}x" = 'x' ]
 then

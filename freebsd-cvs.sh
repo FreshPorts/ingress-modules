@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $Id: freebsd-cvs.sh,v 1.7.2.5 2003-05-16 01:14:04 dan Exp $
+# $Id: freebsd-cvs.sh,v 1.7.2.6 2004-10-12 00:45:28 dan Exp $
 #
 # Copyright (c) 1999-2003 DVL Software
 #
@@ -23,6 +23,11 @@ then
 fi
 
 . config.sh
+
+if [ $OFFLINE = 1 ]
+then
+	exit 0
+fi
 
 XML="${MSGDIR}/msgs/FreeBSD/recent"
 OUTPUT="${MSGDIR}/msgs/FreeBSD/recent"
