@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: vuxml_mark_commits.pl,v 1.1.2.3 2004-09-21 23:35:59 dan Exp $
+# $Id: vuxml_mark_commits.pl,v 1.1.2.4 2004-09-27 00:27:54 dan Exp $
 #
 # Copyright (c) 1999-2004 DVL Software
 #
@@ -40,6 +40,19 @@ SELECT distinct CLP.port_id, CLP.port_version, CLP.port_revision, CLP.port_epoch
 	return @Commits;
 }
 
+sub EmptyCommitLogPortsVuXML($) {
+	my $dbh = shift;
+
+	my $sth;
+	my $sql;
+
+	# quote everything going to the database
+	$sql = "DELETE FROM commit_log_ports_vuxml";
+	$sth = $dbh->prepare($sql);
+	if (!$sth->execute())  {
+		FreshPorts::Utilities::ReportError('warning', "Could not execute sql", 1);
+	}
+}
 sub ValueOrNull($) {
 	my $Value = shift;
 
@@ -54,38 +67,6 @@ sub ValueOrNull($) {
 	return $Result;
 }
 
-sub DisplayTheseCommits($;$) {
-    my $dbh     = shift;
-    my $Commits = shift;
-
-	my $Commit;
-    my $sth;
-    my $sql;
-
-	print "now marking those commits\n";
-
-	print "but first, let's display them all\n";
-	for $Commit ( @{$Commits} ) {
-
-		print "==================\n";
-		for my $value (keys %$Commit) {
-			print "$value=$Commit->{$value}\n";
-		}
-        $sql = "
-INSERT INTO commit_log_ports_vuxml(commit_log_id, port_id, vuxml_id)
-SELECT commit_log_id,
-       port_id,
-       " . $Commit->{vid} . " as vuxml_id
-  FROM commit_log_ports
- WHERE port_id       = "  . $Commit->{port_id}                    . "
-   AND port_version  = '" . $Commit->{port_version}               . "
-   AND port_revision = " . ValueOrNull($Commit->{port_revision})  . " 
-   AND port_revision = " . ValueOrNull($Commit->{port_epoch});
-
-	    print "sql is $sql\n";
-	}
-}
-
 sub MarkTheseCommits($;$) {
     my $dbh     = shift;
     my $Commits = shift;
@@ -96,15 +77,19 @@ sub MarkTheseCommits($;$) {
 
 	print "now marking those commits\n";
 
-	print "but first, let's display them all\n";
+	my $OldValue = $|;
+
+	$| = 1;
+
+#	print "but first, let's display them all\n";
 	for $Commit ( @{$Commits} ) {
 
-		print "==================\n";
+#		print "==================\n";
 #		for my $value (keys %$Commit) {
 #			print "$value=$Commit->{$value}\n";
 #		}
-
-		print "that was VULN => $Commit->{vid}\n";
+#
+#		print "that was VULN => $Commit->{vid}\n";
 
         $sql = "
 INSERT INTO commit_log_ports_vuxml(commit_log_id, port_id, vuxml_id)
@@ -117,15 +102,17 @@ SELECT commit_log_id,
    AND port_revision " . ValueOrNull($Commit->{port_revision})  . " 
    AND port_epoch    " . ValueOrNull($Commit->{port_epoch});
 
-    print "sql is $sql\n";
+#		print "sql is $sql\n";
+		print ".";
 
-       $sth = $dbh->prepare($sql);
-       $sth->execute ||
-              die "Could not execute SQL $sql ... maybe invalid?";
+		$sth = $dbh->prepare($sql);
+		$sth->execute ||
+			die "Could not execute SQL $sql ... maybe invalid?";
 	}
 
-	print "finished marking those commits\n";
+	$| = $OldValue;
 
+	print "\nfinished marking those commits\n";
 }
 
 sub PackageVersion($;$;$) {
@@ -145,14 +132,12 @@ sub PackageVersion($;$;$) {
 	return $PackageVersion;
 }
 
-sub ProcessEachRangeRecord($) {
+sub TestVersionValues($;$;$) {
+	my $Version1   = shift;
+	my $Operator   = shift;
+	my $Version2   = shift;
 
-    my $dbh = shift;
-    my $sth;
-    my $sql;
-    my $row;
-    my $i           = 0;
-    my $LastPackage = undef;
+	my $TestResult = undef;
 
 	my %Operators = ('lt' => {
                                 '<' => 1,
@@ -173,6 +158,52 @@ sub ProcessEachRangeRecord($) {
 	                         },
 	                );
 
+	my $command = "/usr/local/sbin/pkg_version -t $Version1 $Version2";
+	my $result  = `$command`;
+
+	chomp $result;
+
+
+
+	my $ValidResults = $Operators{$Operator};
+#	while ( my ($op, $index) = each %$ValidResults) {
+#		print "valid match for '$Operator' is '$op'\n"
+#	}
+			
+	if (defined($ValidResults->{$result})) {
+		$TestResult = 1;
+	} else {
+		$TestResult = 0;
+	}
+
+	return $TestResult;
+}
+
+
+sub IsCommitAffected($;$) {
+	my $CommitVersion = shift;
+	my $Range         = shift;
+
+	my $TestResult    = undef;
+
+	$TestResult = TestVersionValues($CommitVersion, $Range->{'op1'}, $Range->{'v1'});
+	if ($TestResult) {
+		if (defined($Range->{'v2'})) {
+			$TestResult = TestVersionValues($CommitVersion, $Range->{'op2'}, $Range->{'v2'});
+		}
+	}
+
+	return $TestResult;
+}
+
+sub ProcessEachRangeRecord($) {
+
+    my $dbh = shift;
+    my $sth;
+    my $sql;
+    my $range;
+    my $i           = 0;
+    my $LastPackage = undef;
 
     my @Commits         = undef;
 	my @AffectedCommits = ();
@@ -186,16 +217,14 @@ sub ProcessEachRangeRecord($) {
     $sth->execute ||
            die "Could not execute SQL $sql ... maybe invalid?";
 
-    while ($row = $sth->fetchrow_hashref()) {
+    while ($range = $sth->fetchrow_hashref()) {
 		$i++;
-        if (!defined($LastPackage) || $LastPackage ne $row->{'package_name'}) {
+        if (!defined($LastPackage) || $LastPackage ne $range->{'package_name'}) {
 			if (defined($LastPackage)) {
 				MarkTheseCommits($dbh, \@AffectedCommits);
-#				DisplayTheseCommits($dbh, \@AffectedCommits);
-#				exit;
 			}
 			
-            $LastPackage = $row->{'package_name'};
+            $LastPackage = $range->{'package_name'};
 
             print "We have a new package name: '$LastPackage'\n";
 			@Commits = CommitsForThisPackage($dbh, $LastPackage);
@@ -203,39 +232,33 @@ sub ProcessEachRangeRecord($) {
         } else {
             print "processing another record for that package\n";
 		}
-		print "*** Working on $row->{'op1'} $row->{'v1'}";
-		if (defined($row->{'op2'})) {
-			print "*** $row->{'op2'} $row->{'v2'}";
+		print "*** Working on $range->{'op1'} $range->{'v1'}";
+		if (defined($range->{'op2'})) {
+			print "*** $range->{'op2'} $range->{'v2'}";
 		}
 		print "\n";
 
-		my $ValidResults = $Operators{$row->{'op1'}};
-		while ( my ($op, $index) = each %$ValidResults) {
-			print "valid match for '$row->{'op1'}' is '$op'\n"
-		}
-
-
         foreach my $Commit (@Commits) {
 			my $CommitVersion = PackageVersion($Commit->{'port_version'},  $Commit->{'port_revision'}, $Commit->{'port_epoch'});
-#			print "'$Commit->{'port_id'}', '$CommitVersion'\n";
 
-			my $command = "/usr/local/sbin/pkg_version -t $CommitVersion $row->{'v1'}";
-			my $result  = `$command`;
+			print "Looking at port='$Commit->{'port_id'}' " . sprintf "%10s", $CommitVersion . ' ';
+			print "$range->{'op1'} " . sprintf "%10s", $range->{'v1'};
+			if (defined($range->{'op2'})) {
+				print " $range->{'op1'} " . sprintf "%10s", $range->{'v1'};
+			}
+			print "\n";
 
-			chomp $result;
-
-			print "Looking at port='$Commit->{'port_id'}' with $command' gives '$result'\n";
-			if (defined($ValidResults->{$result})) {
+			if (IsCommitAffected($CommitVersion, $range)) {
 				print "### this version is affected\n";
-				$Commit->{'id'} =  $row->{'id'};
+				$Commit->{'id'} =  $range->{'id'};
 
 				print "***** saving away this commit:\n";
-				for my $value (keys %$Commit) {
-					print "$value=$Commit->{$value}\n";
-				}
+#				for my $value (keys %$Commit) {
+#					print "$value=$Commit->{$value}\n";
+#				}
 
 				push @AffectedCommits, ( { commit_log_id => $Commit->{'id'},
-				                           vid           => $row->{'id'},
+				                           vid           => $range->{'id'},
 				                           port_id       => $Commit->{'port_id'},
 				                           port_version  => $Commit->{'port_version'},
 				                           port_revision => $Commit->{'port_revision'},
