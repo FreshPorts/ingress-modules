@@ -27,11 +27,16 @@ else
          exit 3
       fi
 
-      mkdir /usr/ports/${CATEG}/${PORT}/pkg
-      if [ $? -ne 0 ]
-      then
-         exit 2
-      fi
+# we don't need this any more.
+# But it did help to find the pre-everything bugs
+# see also 3BB8479C.16045.406FAE31@localhost
+# in the freebsd mailing list archives.
+#
+#      mkdir /usr/ports/${CATEG}/${PORT}/pkg
+#      if [ $? -ne 0 ]
+#      then
+#         exit 2
+#      fi
    fi
  fi
 
@@ -54,7 +59,7 @@ else
  #
  # this is an attempt to ensure we have the correction owner
  #
-# I don't think thi sis needed just here..
+# I don't think this is needed just here..
 # /usr/sbin/chown daemon:daemon $FETCHFILE
  exit $RESULT
 fi
