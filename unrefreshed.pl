@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: unrefreshed.pl,v 1.11 2002-03-12 15:42:35 dan Exp $
+# $Id: unrefreshed.pl,v 1.11.2.1 2002-06-16 14:26:41 dan Exp $
 #
 # Copyright (c) 2001-2002 DVL Software
 #
@@ -50,10 +50,11 @@ my @row;
 
 $sql = "select ports.id, element.name as port, categories.name as category \
         from ports, categories, element, commit_log_ports \
-        where ports.category_id              = categories.id \
-		  and ports.element_id               = element.id \
-		  and commit_log_ports.port_id       = ports.id \
+        where ports.category_id               = categories.id \
+		  and ports.element_id                = element.id \
+		  and commit_log_ports.port_id        = ports.id \
           and commit_log_ports.needs_refresh <> 0 \
+          and element.status                  = 'A'
         order by category, port";
 
 $sth = $dbh->prepare($sql);
@@ -70,6 +71,7 @@ if ($rowcount > 0) {
 	print "\n$rowcount port[s] need[s] refresh\n";
 
 	print "$ENV{HOME} is where we were\n";
+	SendNotice("dan\@langille.org", $rowcount);
 }
 
 $sth->finish();
