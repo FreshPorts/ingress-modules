@@ -1,21 +1,21 @@
 #
-# $Id: config.pm.sample,v 1.10 2001-12-24 04:42:29 dan Exp $
+# $Id: config.pm.sample,v 1.11 2001-12-28 22:34:59 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
 
 package FreshPorts::Config;
 
-$FreshPorts::Config::scriptpath			= "~/scripts";
+$FreshPorts::Config::scriptpath			= $ENV{HOME} . "/scripts";
 
 $FreshPorts::Config::dbname				= 'database';
 $FreshPorts::Config::user				= 'user';
 $FreshPorts::Config::password			= '';
 
-$FreshPorts::Config::path_to_tree		= '~/';								# where on disk is the ports tree?
-$FreshPorts::Config::path_to_ports		= $FreshPorts::Config::path_to_tree . '/ports';	# path to ports tree
+$FreshPorts::Config::path_to_tree		= $ENV{HOME};								# where on disk is the ports tree?
+$FreshPorts::Config::path_to_ports		= $FreshPorts::Config::path_to_tree . '/ports';	# path to ports tree. no trailing slash
 $FreshPorts::Config::ports_prefix		= 'ports';										# where in the cvs tree are ports?
 
-$FreshPorts::Config::DailySummaryDir	= "~/src/www/archives"; # no trailing /
+$FreshPorts::Config::DailySummaryDir	= $ENV{HOME} . "/src/www/archives"; # no trailing /
 
 1;
