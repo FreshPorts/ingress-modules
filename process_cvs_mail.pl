@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: process_cvs_mail.pl,v 1.8.2.15 2003-09-16 11:00:35 dan Exp $
+# $Id: process_cvs_mail.pl,v 1.8.2.16 2003-11-29 15:40:48 dan Exp $
 #
 # Copyright (c) 2001-2003  DVL Software
 #
@@ -85,7 +85,7 @@ sub GetData {
 
 	$Message_Subject	= &GetMessage_Subject($message);
 
-	$Log					= &GetLog($message);
+	$Log				= &GetLog($message);
 
 	if ($Log eq '') {
 		$Log = $Message_Subject;
@@ -98,7 +98,7 @@ sub GetData {
 					'TIME', [ &GetTime($message)
 					],
 					'OS', [ {
-						Id	=> &GetOS_Id,
+						Id	    => &GetOS_Id,
 						Branch	=> &GetOS_Branch($message) }
 					],
 					'LOG', [ {},
@@ -109,8 +109,8 @@ sub GetData {
 						&GetPeople($message)
 					],
 					'MESSAGE', [ {
-						Id  => &GetMessage_Id($message),
-						Subject => $Message_Subject,
+						Id             => &GetMessage_Id($message),
+						Subject		   => $Message_Subject,
 						EncodingLosses => $EncodingLosses },
 						'DATE', [ &GetMessage_Date($message)
 						],
@@ -188,21 +188,21 @@ sub DataToXML {
 ####################################################################
 
 sub GetPR {
-        my ($message) = @_;
-        my ($PR);
+	my ($message) = @_;
+	my ($PR);
 
-        my (@lines) = split("\n", $message);
-        
-        for (@lines) {          
-                my ($line) = $_;
-       
-                if ($line =~ /^  PR:/) {
-                        $PR = (split(" ", $line, 2))[1];
-                        last;
-                }
-        }
+	my (@lines) = split("\n", $message);
+		
+	for (@lines) {          
+		my ($line) = $_;
+	   
+		if ($line =~ /^  PR:/) {
+			$PR = (split(" ", $line, 2))[1];
+			last;
+		}
+	}
 
-        return $PR;
+	return $PR;
 }
 
 sub GetPeople {
@@ -235,74 +235,74 @@ sub GetPeople {
 }
 
 sub GetObtainedFrom {
-        my ($message) = @_;
-        my ($ObtainedFrom);
+	my ($message) = @_;
+	my ($ObtainedFrom);
 
-        my (@lines) = split("\n", $message);
-        
-        for (@lines) {          
-                my ($line) = $_;
-       
-                if ($line =~ /^  Obtained from:/) {
-                        $ObtainedFrom = (split(" ", $line, 3))[2];
-                        last;
-                }
-        }
+	my (@lines) = split("\n", $message);
+		
+	for (@lines) {          
+		my ($line) = $_;
+	   
+		if ($line =~ /^  Obtained from:/) {
+			$ObtainedFrom = (split(" ", $line, 3))[2];
+			last;
+		}
+	}
 
-        return $ObtainedFrom;
+	return $ObtainedFrom;
 }
 
 sub GetApprover {
-        my ($message) = @_;
-        my ($Approver);
+	my ($message) = @_;
+	my ($Approver);
 
-        my (@lines) = split("\n", $message);
-        
-        for (@lines) {          
-                my ($line) = $_;
-       
-                if ($line =~ /^  Approved by:/) {
-                        $Approver = (split(" ", $line, 3))[2];
-                        last;
-                }
-        }
+	my (@lines) = split("\n", $message);
+		
+	for (@lines) {          
+		my ($line) = $_;
+	   
+		if ($line =~ /^  Approved by:/) {
+			$Approver = (split(" ", $line, 3))[2];
+			last;
+		}
+	}
 
-        return $Approver;
+	return $Approver;
 }
 
 sub GetReviewer { 
-        my ($message) = @_;
-        my ($Reviewer);
+	my ($message) = @_;
+	my ($Reviewer);
 
-        my (@lines) = split("\n", $message);
+	my (@lines) = split("\n", $message);
 
-        for (@lines) {
-                my ($line) = $_;
-        
-                if ($line =~ /^  Reviewed by:/) {
-                        $Reviewer = (split(" ", $line, 3))[2];
-                        last;
-                }
-        }
+	for (@lines) {
+		my ($line) = $_;
+		
+		if ($line =~ /^  Reviewed by:/) {
+			$Reviewer = (split(" ", $line, 3))[2];
+			last;
+		}
+	}
 
-        return $Reviewer;
+	return $Reviewer;
 }
 
 sub GetSubmitter {  
-        my ($message) = @_;
-        my ($Submitter);
-        
-        my (@lines) = split("\n", $message); 
-                 
-        for (@lines) {
-                my ($line) = $_;
-        
-                if ($line =~ /^  Submitted by:/) {
-                        $Submitter = (split(" ", $line, 3))[2];
-                        last;
-                }
-        }
-         
+	my ($message) = @_;
+	my ($Submitter);
+		
+	my (@lines) = split("\n", $message); 
+				 
+	for (@lines) {
+		my ($line) = $_;
+		
+		if ($line =~ /^  Submitted by:/) {
+			$Submitter = (split(" ", $line, 3))[2];
+			last;
+		}
+	}
+		 
 	return $Submitter;
 }
 
@@ -381,8 +381,6 @@ sub GetFilesImported {
 	my ($found) = 0;
 	for (@lines) {
 		my ($line) = $_;
-
-#		print "file :" . $line . "\n";
 
 		#
 		# see also GetLog for use of Revision.
@@ -478,148 +476,148 @@ sub GetLog {
 }
 
 sub GetUpdater_Handle {
-        my ($message) = @_;
-        my ($handle);
+	my ($message) = @_;
+	my ($handle);
 
-        my (@lines) = split("\n", $message);
+	my (@lines) = split("\n", $message);
 
-        my ($newline_found) = 0;
-        for (@lines) {
-                if (length == 0) { $newline_found = 1; next; }
-                next unless ($newline_found == 1);
-                ($handle) = split(" ", $_);
-                last;
-        }
+	my ($newline_found) = 0;
+	for (@lines) {
+		if (length == 0) { $newline_found = 1; next; }
+		next unless ($newline_found == 1);
+		($handle) = split(" ", $_);
+		last;
+	}
 
-        return $handle;
+	return $handle;
 }
 
 sub GetDate {
-        my ($message) = @_;
-        my ($date, $year, $month, $day);
+	my ($message) = @_;
+	my ($date, $year, $month, $day);
 
-        my (@lines) = split("\n", $message);
+	my (@lines) = split("\n", $message);
 
-        my ($newline_found) = 0; 
-        for (@lines) {
-                if (length == 0) { $newline_found = 1; next; }                
-                next unless ($newline_found == 1);
-                $date = (split /\s+/, $_, 3)[1];
+	my ($newline_found) = 0; 
+	for (@lines) {
+		if (length == 0) { $newline_found = 1; next; }                
+		next unless ($newline_found == 1);
+		$date = (split /\s+/, $_, 3)[1];
 		($year, $month, $day) = split(/\//, $date);
-                last;
-        }
+		last;
+	}
 
 	$date = {	Year	=> $year,
-			Month	=> int($month),
-			Day	=> int($day) };
+				Month	=> int($month),
+				Day		=> int($day) };
 
 	return $date;
 }
  
 sub GetTime {
-        my ($message) = @_;                     
-        my ($time, $hour, $minute, $second, $timezone);
-                                                 
-        my (@lines) = split("\n", $message);
-        
-        my ($newline_found) = 0;
-        for (@lines) {
-                if (length == 0) { $newline_found = 1; next; }
-                next unless ($newline_found == 1);
-                ($time, $timezone) = (split /\s+/, $_, 4)[2,3];
-                ($hour, $minute, $second) = split(/:/, $time);
-                last;
-        }
-                                        
-        $time = {	Hour		=> int($hour),
-                        Minute		=> int($minute),
-                        Second		=> int($second),
-			Timezone	=> $timezone };
+	my ($message) = @_;                     
+	my ($time, $hour, $minute, $second, $timezone);
+												 
+	my (@lines) = split("\n", $message);
+		
+	my ($newline_found) = 0;
+	for (@lines) {
+		if (length == 0) { $newline_found = 1; next; }
+		next unless ($newline_found == 1);
+		($time, $timezone) = (split /\s+/, $_, 4)[2,3];
+		($hour, $minute, $second) = split(/:/, $time);
+		last;
+	}
+										
+	$time = {	Hour		=> int($hour),
+				Minute		=> int($minute),
+				Second		=> int($second),
+				Timezone	=> $timezone };
 
 	return $time;
 }
 
 sub GetMessage_Date {
-        my ($message) = @_;
-        my ($date, $year, $month, $day);
+	my ($message) = @_;
+	my ($date, $year, $month, $day);
 	my (%months) = ( 'Jan' => 1, 'Feb' => 2, 'Mar' => 3, 'Apr' => 4, 'May' => 5, 'Jun' => 6, 'Jul' => 7, 'Aug' => 8, 'Sep' => 9, 'Oct' => 10, 'Nov' => 11, 'Dec' => 12 ); 
 
 	my (@lines) = split("\n", $message);
 
-        for (@lines) {
-                my ($line) = $_;
+	for (@lines) {
+		my ($line) = $_;
 
-                if ($line =~ /^Date: /) {
-        	        ($day, $month, $year) = (split(/\s+/, $line))[2..4];
-                        last;
-                }
-        }
+		if ($line =~ /^Date: /) {
+			($day, $month, $year) = (split(/\s+/, $line))[2..4];
+			last;
+		}
+	}
 
-        $date = {       Year    => $year,
-                        Month   => int($months{$month}),     
-                        Day     => int($day) };
+	$date = {   Year    => $year,
+				Month   => int($months{$month}),     
+				Day     => int($day) };
 
-        return $date;
+	return $date;
 }
-                                          
+										  
 sub GetMessage_Time {
-        my ($message) = @_;
-        my ($time, $hour, $minute, $second, $timezone);
+	my ($message) = @_;
+	my ($time, $hour, $minute, $second, $timezone);
 
-        my (@lines) = split("\n", $message);
-                                                
-        for (@lines) {
-                my ($line) = $_;
-                                          
-                if ($line =~ /^Date: /) {
-                        ($time, $timezone) = (split(/\s+/, $line))[5,7];
+	my (@lines) = split("\n", $message);
+												
+	for (@lines) {
+		my ($line) = $_;
+										  
+		if ($line =~ /^Date: /) {
+			($time, $timezone) = (split(/\s+/, $line))[5,7];
 			($hour, $minute, $second) = split(/:/, $time);
 			$timezone = substr($timezone, 1, 3);
 			last;
-                }
-        }
+		}
+	}
 
-        $time = {	Hour		=> int($hour),
-			Minute		=> int($minute),
-			Second		=> int($second),
-			Timezone	=> $timezone };
+	$time = {	Hour		=> int($hour),
+				Minute		=> int($minute),
+				Second		=> int($second),
+				Timezone	=> $timezone };
 
-        return $time;
+	return $time;
 }
 
 sub GetMessage_Id {
-        my ($message) = @_;
-        my ($Id);
+	my ($message) = @_;
+	my ($Id);
 
-        my (@lines) = split("\n", $message);
+	my (@lines) = split("\n", $message);
 
-        for (@lines) {
-                my ($line) = $_;
+	for (@lines) {
+		my ($line) = $_;
 
-                if ($line =~ /^Message-Id:/) {
-                        $line =~ /\<(.*?)\>/g;
-                        $Id = $1;
-                        last;
-                } 
-        }
+		if ($line =~ /^Message-Id:/) {
+			$line =~ /\<(.*?)\>/g;
+			$Id = $1;
+			last;
+		} 
+	}
 
-        return $Id;
+	return $Id;
 }
 
 sub GetMessage_To {
-        my ($message) = @_;
-        my ($data, $to);
+	my ($message) = @_;
+	my ($data, $to);
 
-        my (@lines) = split("\n", $message);
+	my (@lines) = split("\n", $message);
 
-        for (@lines) {
-                my ($line) = $_;
+	for (@lines) {
+		my ($line) = $_;
 
-                if ($line =~ /^To: /) {
-                        $data = (split/: /, $line, 2)[1];
-                        last;
-                }
-        }
+		if ($line =~ /^To: /) {
+			$data = (split/: /, $line, 2)[1];
+			last;
+		}
+	}
 
 	my (@data) = split(/, /, $data);
 
@@ -629,7 +627,7 @@ sub GetMessage_To {
 		push @to, [{ 'Email' => $_ } ];
 	}
 
-        return @to;
+	return @to;
 }
 
 sub GetMessage_Subject {
@@ -644,30 +642,30 @@ sub GetMessage_Subject {
 # This assumes 9 spaces there...
 #
 
-        my ($message) = @_;
-        my ($Subject);
+	my ($message) = @_;
+	my ($Subject);
 
-		my ($FoundSubject) = 0;
+	my ($FoundSubject) = 0;
 
-        my (@lines) = split("\n", $message);
+	my (@lines) = split("\n", $message);
 
-        for (@lines) {
-                my ($line) = $_;
+	for (@lines) {
+		my ($line) = $_;
 
-				if ($FoundSubject) {
-					if ($line =~ /^         /) {
-						$Subject .= ' ' . (split/         /, $line, 2)[1];
-						next;
-					} else {
-						last;
-					}
-				} else {
-	                if ($line =~ /^Subject:/) {
-    	                    $Subject = (split/: /, $line, 2)[1];
-							$FoundSubject = 1;
-                	}
-				}
-        }
+		if ($FoundSubject) {
+			if ($line =~ /^         /) {
+				$Subject .= ' ' . (split/         /, $line, 2)[1];
+				next;
+			} else {
+				last;
+			}
+		} else {
+			if ($line =~ /^Subject:/) {
+				$Subject = (split/: /, $line, 2)[1];
+				$FoundSubject = 1;
+			}
+		}
+	}
 
-        return $Subject;
+	return $Subject;
 }
