@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.38.2.28 2003-07-31 17:51:58 dan Exp $
+# $Id: port.pm,v 1.38.2.29 2003-09-09 11:46:42 dan Exp $
 #
 #
 # Copyright (c) 2001-2003 DVL Software
@@ -365,7 +365,7 @@ sub _ExtractValuesFromMakefile {
 	# (caused by spaces instead of tabs in a section such as do-install:), then $MakeResults will be empty
 	# and the errors will be captured in the tmp file we created.
 	#
-	if ($result != 0 && $MakeResults != '') {
+	if ($result != 0 && $MakeResults ne '') {
 		# save the results for error reporting
 		$ErrorMessage = $MakeResults;
 		FreshPorts::CommitterOptIn::RecordErrorDetails("This command:\n\n$makecommand\n\nproduced this error:\n\n$ErrorMessage");
@@ -384,17 +384,10 @@ sub _ExtractValuesFromMakefile {
 	print 'size is '  . -s $TmpFile;
 	print "\n";
 	if (-s $TmpFile > 0) {
-		my $message = `cat $TmpFile`;
+		$ErrorMessage = `cat $TmpFile`;
 
-		#
-		# if we didn't have an error before, and MakeResults is empty, then we didn't report anything above
-		#
-		if ($result == 0 || $MakeResults == '') {
-			$message = "This command:\n\n$makecommand\n\nproduced this error:\n\n$message";
-		} else {
-			$message = "Additional information:\n\n$message"
-		}
-		FreshPorts::CommitterOptIn::RecordErrorDetails($message);
+		$ErrorMessage = "This command:\n\n$makecommand\n\nproduced this error:\n\n$ErrorMessage";
+		FreshPorts::CommitterOptIn::RecordErrorDetails($ErrorMessage);
 		$result = -1;
 	}
 
@@ -521,7 +514,7 @@ sub _ExtractValuesFromMakefile {
 		$this->{categories}			= $categories;
 
 	} else {
-		print "That make failed:\n\n$MakeResults\n\n";
+		print "That make failed:\n\n'$ErrorMessage'\n\n";
 		FreshPorts::Utilities::ReportError('warning', "error executing make command for $this->{category}/$this->{name}: " . $ErrorMessage, 0);
 	}
 
@@ -673,8 +666,8 @@ sub _FetchFilesNeedingRefresh {
 			
 
 		} else {
-			print "That make failed:\n\n$MakeResults\n\n";
 			my $error = $?;
+			print "That make failed:\n\n'$MakeResults' - '$error'\n\n";
 			FreshPorts::Utilities::ReportError('warning', "error executing make command for $this->{category}/$this->{name}: Error Code = " . ($error >> 8), 0);
 			FreshPorts::CommitterOptIn::RecordErrorDetails("\n\n" . $MakeResults. "\n\n");
 			$result = -1;
