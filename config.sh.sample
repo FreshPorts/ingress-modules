@@ -1,17 +1,17 @@
 #!/bin/sh
 #
-# $Id: config.sh.sample,v 1.1.2.5 2004-02-07 15:15:29 dan Exp $
+# $Id: config.sh.sample,v 1.1.2.6 2004-04-01 18:31:13 dan Exp $
 #
 
-BASEDIR="/usr/websites/working-copy.freshports.org"
+BASEDIR="/usr/websites/DIRNAME"
 
 # what is the URL for this website?
-WEBSITEURL="http://working-copy.freshports.org"
+WEBSITEURL="http://WEBSITE_URL"
 
 #
 # where do I find files such as load_xml_into_db.pl
 #
-SCRIPTDIR="/path/to/scripts/directory"
+SCRIPTDIR="${BASEDIR}/scripts"
 
 #
 # Where does the msg directory start?
@@ -19,17 +19,17 @@ SCRIPTDIR="/path/to/scripts/directory"
 # created by ${SCRIPTDIR}/procmail/create_dirs.sh
 # and be the value which supplied to that script.
 #
-MSGDIR="/path/to/msg/directory"
+MSGDIR="MSG_ARCHIVE"
 
-CACHEDIR="/usr/websites/freshports.org/caching/cache"
-STAGINGDIR="/usr/websites/freshports.org/caching/tmp"
+CACHEDIR="${BASEDIR}/caching/cache"
+STAGINGDIR="${BASEIDR}/caching/tmp"
 
 # What file do we set for /usr/ports/MOVED?
 
 MOVEDFLAGFILE="${BASEDIR}/dynamic/refresh_moved"
 
-PORTSDIR="/home/dan/ports"
-ADMINEMAIL="dan@langille.org"
+PORTSDIR="PORTS_DIR"
+ADMINEMAIL="ADMIN_EMAIL"
 
 if [ -e 'OFFLINE' ]
 then
