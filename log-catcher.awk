@@ -12,9 +12,9 @@
 
 BEGIN {
  OUTDIR="/usr/local/etc/freshports/msgs/" ;
- MUNGER="/usr/bin/awk -f /usr/local/etc/freshports/log-munger.awk";
+ MUNGER="/usr/bin/awk -f /home/freshports.org/scripts/log-munger.awk";
 
- UPDATER = "/usr/bin/perl /usr/local/etc/freshports/updates/updates.pl";
+ UPDATER = "/usr/bin/perl /home/freshports.org/scripts/updates/updates.pl";
 
  getline pid<"/dev/pid"
 
@@ -32,12 +32,16 @@ BEGIN {
 
 {
 if(inheader==0) {
+ print "1=" $1
+ print "2=" $2
+ print "NF=" $NF
  if($1=="To" && $2=="Unsubscribe:" && $NF=="majordomo@FreeBSD.org") exit;
  print $0>file;
  next;
  }
 if($1=="In-Reply-To:") exit;
 if($1=="Subject:" && ($2!="cvs" || $3!="commit:" || !index($0,"ports/"))) {
+ print "wrong subject or not commit"
  exit;
 }
 
@@ -50,6 +54,7 @@ if(NF==0) {
 }
 
 END {
+
 if(wasport) {
 
  /* invoke the munger now */
