@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: load_xml_into_db.pl,v 1.46.2.4 2002-07-27 19:53:40 dan Exp $
+# $Id: load_xml_into_db.pl,v 1.46.2.5 2002-08-12 03:12:54 dan Exp $
 #
 # Copyright (c) 2001-2002 DVL Software
 #
@@ -38,6 +38,7 @@ use database;
 use utilities;
 use housekeeping;
 use cache;
+use committer_opt_in;
 
 use XML::Node;
 use DBI;
@@ -252,13 +253,48 @@ sub handle_update_end
 	# the list of files we have.
 
 	my %CommitLogPorts;	# array of port objects touched by this message.
+	my $ErrorFound = 0;
 
-	%CommitLogPorts = FreshPorts::VerifyPort::SaveChangesToPortsTree($commit_log_id, \@Files, $dbh);
+	%CommitLogPorts = FreshPorts::VerifyPort::SaveChangesToPortsTree($commit_log_id, \@Files, $fetch_before_refresh, $dbh);
 	$dbh->commit();
 
 	print "\n --- end of this update --- \n";
 
     my $commit_date = sprintf "%04u-%02u-%02u", $Updates{dateyear}, $Updates{datemonth}, $Updates{dateday};
+
+	# now we should refresh all the ports associated with this commit
+	# as each port is refreshed, it will be committed
+
+	if ($refresh_ports) {
+		$ErrorFound = FreshPorts::VerifyPort::RefreshAllPortsTouchedByCommit(\%CommitLogPorts, $fetch_before_refresh, $dbh);
+	}
+	if (!$ErrorFound) {
+		$ErrorFound = 1;	# testing
+		FreshPorts::CommitterOptIn::RecordErrorDetails('test error message' . "\n");
+		FreshPorts::CommitterOptIn::RecordErrorDetails('This is another error' . "\n");
+	}
+
+	if (scalar(keys %CommitLogPorts)) {
+		print "adding that commit date to the daily summary refresh list\n";
+		FreshPorts::Cache::DailySummaryDateAdd($commit_date, $dbh)
+	} else {
+		print "that was not a port, so not adding to daily summary refresh list\n";
+		
+		#
+		# let others know that a refresh has been completed
+		# so that caching of pages can be properly done.
+		#
+		my $housekeeping = FreshPorts::Housekeeping->new($dbh);
+		print " &&&&&&&&&&&&&&&&& setting housekeeping->refreshdone\n";
+		$housekeeping->refreshdone($FreshPorts::Housekeeping::Refresh);
+	}
+
+	if ($ErrorFound) {
+		print "sending NotifyCommitter to $Updates{committerAll}\n";
+		FreshPorts::CommitterOptIn::NotifyCommitter($Updates{committerAll}, $dbh);
+	} else {
+		print "No errors found during that commit\n";
+	}
 
 	# we don't clear these values until the end of the update
 	undef $Updates{os};
@@ -287,28 +323,6 @@ sub handle_update_end
 	undef $Updates{MessageId};
 	undef $Updates{MessageToAll};
 	undef $Updates{MessageSubject};
-
-	# now we should refresh all the ports associated with this commit
-	# as each port is refreshed, it will be committed
-
-	if ($refresh_ports) {
-		FreshPorts::VerifyPort::RefreshAllPortsTouchedByCommit(\%CommitLogPorts, $fetch_before_refresh, $dbh);
-	}
-
-	if (scalar(keys %CommitLogPorts)) {
-		print "adding that commit date to the daily summary refresh list\n";
-		FreshPorts::Cache::DailySummaryDateAdd($commit_date, $dbh)
-	} else {
-		print "that was not a port, so not adding to daily summary refresh list\n";
-		
-		#
-		# let others know that a refresh has been completed
-		# so that caching of pages can be properly done.
-		#
-		 my $housekeeping = FreshPorts::Housekeeping->new($dbh);
-		print " &&&&&&&&&&&&&&&&& setting housekeeping->refreshdone\n";
-		$housekeeping->refreshdone($FreshPorts::Housekeeping::Refresh);
-	}
 }
 
 sub handle_updates_end {
