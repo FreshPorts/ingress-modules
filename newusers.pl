@@ -1,11 +1,15 @@
 #!/usr/bin/perl
-
+#
+# $Id: newusers.pl,v 1.3 2002-01-06 07:17:04 dan Exp $
+#
+# Copyright (c) 2001 DVL Software
+#
 
 use strict;
 use DBI;
 
-use lib '/home/freshports.org/scripts';
-use freshports_database;
+use lib "$ENV{HOME}/scripts";
+use database;
 
 sub SendNotice($;$) {
    my $StartDate = shift;
@@ -35,11 +39,11 @@ if (($#ARGV+1) == 2) {
    my $StartDate = $ARGV[0];
    my $EndDate   = $ARGV[1];
 
-   my $dbh = freshports_connect();
+   my $dbh = FreshPorts::Database::GetDBHandle();
    if (!$dbh) {
       print " connect failed\n";
    }
-   my $sql = "select id, username, email, firstlogin \
+   my $sql = "select id, name, email, firstlogin \
               from users \
               where firstlogin >= '$StartDate' \
                 and firstlogin <= '$EndDate' \
