@@ -1,5 +1,5 @@
 #
-# $Id: verifyport.pm,v 1.42.2.19 2004-01-02 18:01:21 dan Exp $
+# $Id: verifyport.pm,v 1.42.2.20 2004-01-05 04:36:33 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -318,9 +318,6 @@ sub FetchAllFiles($;$) {
 			next;
 		}
 
-		#
-		# there is no sense in fetching removed files
-		#
 		my $directory = File::Basename::dirname ($filename);
 		my $FILE      = File::Basename::basename($filename);
 
@@ -328,6 +325,9 @@ sub FetchAllFiles($;$) {
 		my $SRCDIR    = $directory;
 		my $REVISION  = $revision;
 	
+		#
+		# there is no sense in fetching removed files
+		#
 		if ($action ne $FreshPorts::Constants::REMOVE) {
 
 			#
