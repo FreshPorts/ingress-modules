@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: vuxml_references.pm,v 1.1.2.3 2004-12-11 00:58:31 dan Exp $
+# $Id: vuxml_references.pm,v 1.1.2.4 2004-12-12 15:43:11 dan Exp $
 #
 # Copyright (c) 2004 DVL Software
 #
@@ -31,6 +31,15 @@ sub _GetValuesFromRow {
 	$this->{vuxml_id}   = $row->{vuxml_id};
 	$this->{type}       = $row->{type};
 	$this->{reference}  = $row->{reference};
+}
+
+sub empty {
+	my $this = shift;
+
+	$this->{id}         = undef;
+	$this->{vuxml_id}   = undef;
+	$this->{type}       = undef;
+	$this->{reference}  = undef;
 }
 
 sub save {
