@@ -1,4 +1,4 @@
-# $Id: xml_munge.pm,v 1.1.2.2 2004-09-17 03:13:27 dan Exp $
+# $Id: xml_munge.pm,v 1.1.2.3 2004-12-19 23:15:00 dan Exp $
 #
 # Copyright (c) 2001-2004 DVL Software
 #
@@ -325,6 +325,7 @@ sub handle_update_end {
 
 	if ($fetch_before_refresh) {
 		FreshPorts::VerifyPort::FetchAllFiles(\@Files, $dbh);
+		$self->notify_observers($FreshPorts::Messages::FilesFetched);
 	}
 
     my $commit_date = sprintf "%04u-%02u-%02u", $Updates{dateyear}, $Updates{datemonth}, $Updates{dateday};

@@ -27,7 +27,7 @@
 # SUCH DAMAGE.
 
 #
-# @(#) $Id: vuxml_parsing.pm,v 1.1.2.12 2004-12-15 14:44:16 dan Exp $
+# @(#) $Id: vuxml_parsing.pm,v 1.1.2.13 2004-12-19 23:15:00 dan Exp $
 #
 # Parse the Vulnerabilities and Exposures (vuxml) database extracting
 # the entries for loading into a RDBMS.
@@ -321,7 +321,8 @@ sub update_database
 
     $self->print_self();    # For debugging purposes
 
-	my $FullInsert = 1;
+	my $FullInsert  = 1;
+	my $MarkCommits = 0;
 
 	if ($self->{update_in_place}) {
 	    my $vuxml = FreshPorts::vuxml->new( $self->{db_handle} );
@@ -334,14 +335,15 @@ sub update_database
 
 			if ($self->vuxml_differs($vuxml)) {
 				print "The vuxml entry is being updated with fresh data.\n";
-				$self->update_database_vuxml();
+				$self->update_database_vuxml($vuxml->{id});
+
+				$MarkCommits = 1;
 			}
 
-			#
-			# next we compare the vuxml_affected, vuxml_names, and vuxml_ranges
-			# before we decide to delete from commit_log_ports_vuxml and then
-			# remark the commits
-			#
+
+			if ($MarkCommits) {
+				# do something here.
+			}
 
 		} else {
 			print "Could not find vuln = '" . $self->vid() . "'.  A full insert will be done.\n";
@@ -349,77 +351,13 @@ sub update_database
 	}
 
     if ($FullInsert) {
-        my $vuxml_id = $self->database_vuxml_insert();
-        $self->database_vuxml_insert_affected  ($vuxml_id);
-        $self->database_vuxml_insert_references($vuxml_id);
+        my $vuxml_id = $self->update_database_vuxml(undef);
+        $self->update_database_vuxml_affected  ($vuxml_id);
+        $self->update_database_vuxml_references($vuxml_id);
     }
 
 
     return $self;
-}
-
-sub vuxml_affected_differs
-{
-	return 1;
-}
-
-
-
-sub vuxml_affected_differs_helper
-{
-    my __PACKAGE__ $self = shift;
-    my $vuxml            = shift;
-
-	my $differs = 0;
-
-	return $differs
-}
-
-sub vuxml_names_differ
-{
-    my __PACKAGE__ $self = shift;
-    my $vuxml            = shift;
-
-	my $differs = 0;
-
-	return $differs
-}
-
-
-sub vuxml_ranges_differ
-{
-    my __PACKAGE__ $self = shift;
-    my $vuxml            = shift;
-
-	my $differs = 0;
-
-	return $differs
-}
-
-sub values_differ
-{
-    my __PACKAGE__ $self = shift;
-    my $a                = shift;
-    my $b                = shift;
-
-	my $differs = 0;
-
-	if (defined($a) && defined($b)) {
-		if ($a ne $b) {
-print "different at 1\n";
-			$differs = 1;
-		}
-	} else {
-		if (!defined($a) && !defined($b)) {
-			# they are both not defined
-			# so they are equal
-		} else {
-print "different at 2\n";
-			$differs = 1;
-		}
-	}
-
-	return $differs;
 }
 
 sub vuxml_differs
@@ -427,28 +365,24 @@ sub vuxml_differs
     my __PACKAGE__ $self = shift;
     my $vuxml            = shift;
 
-	my $differs = 0;
+	my $differs = 0;  # for now, always different
 
-	$differs = 1 if ($self->values_differ($vuxml->{vid}            , $self->vid()));
-	$differs = 1 if ($self->values_differ($vuxml->{topic}          , $self->topic()));
-	$differs = 1 if ($self->values_differ($vuxml->{description}    , $self->description()));
-	$differs = 1 if ($self->values_differ($vuxml->{date_discovery} , $self->date_discovery()));
-	$differs = 1 if ($self->values_differ($vuxml->{date_entry}     , $self->date_entry()));
-	$differs = 1 if ($self->values_differ($vuxml->{date_modified}  , $self->date_modified()));
+#	if (
 
-#	$differs = 1 if ($self->
 
 	return $differs;
 }
 
-sub database_vuxml_insert
+sub update_database_vuxml
 {
     my __PACKAGE__ $self = shift;
-    my $id               = shift;
+	my $vuxml_id         = shift;
 
     use vuxml;
 
     my $vuxml = FreshPorts::vuxml->new( $self->{db_handle} );
+
+    $vuxml->{id}             = $vuxml_id;
 
     $vuxml->{vid}            = $self->vid();
     $vuxml->{topic}          = $self->topic();
@@ -457,12 +391,12 @@ sub database_vuxml_insert
     $vuxml->{date_entry}     = $self->date_entry();
     $vuxml->{date_modified}  = $self->date_modified();
 
-    my $vuxml_id = $vuxml->save();
+    $vuxml_id = $vuxml->save();
 
     return $vuxml_id;
 }
 
-sub database_vuxml_insert_affected
+sub update_database_vuxml_affected
 {
     my __PACKAGE__ $self = shift;
     my $vuxml_id         = shift;
@@ -535,7 +469,7 @@ sub database_vuxml_insert_affected
     return $package_count;
 }
 
-sub database_vuxml_insert_references
+sub update_database_vuxml_references
 {
     my __PACKAGE__ $self = shift;
     my $vuxml_id         = shift;

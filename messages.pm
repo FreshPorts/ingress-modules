@@ -1,5 +1,5 @@
 #
-# $Id: messages.pm,v 1.1.2.2 2004-09-17 03:13:47 dan Exp $
+# $Id: messages.pm,v 1.1.2.3 2004-12-19 23:14:59 dan Exp $
 #
 # Copyright (c) 2004 DVL Software
 #
@@ -15,5 +15,6 @@ $FreshPorts::Messages::FileUpdate		= 'FileUpdate';
 $FreshPorts::Messages::PortsRefreshed	= 'PortsRefreshed';
 $FreshPorts::Messages::ProcessingDone	= 'ProcessingDone';
 $FreshPorts::Messages::PortsFreezeCheck	= 'PortsFreezeCheck';
+$FreshPorts::Messages::FilesFetched		= 'FilesFetched';
 
 1;

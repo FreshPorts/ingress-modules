@@ -1,5 +1,5 @@
 #
-# $Id: verifyport.pm,v 1.42.2.25 2004-09-17 02:07:47 dan Exp $
+# $Id: verifyport.pm,v 1.42.2.26 2004-12-19 23:15:00 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -340,6 +340,7 @@ sub FetchAllFiles($;$) {
 			if (!FreshPorts::Utilities::FetchFile($DESTDIR, $SRCDIR, $FILE, $REVISION)) {
 				FreshPorts::Utilities::ReportError('warning', "Sorry, but we couldn't fetch all the files as required when we encounter a SLAVE/MASTER port", 0);
 			}
+
 		} else {
 			print "files was removed.  not fetching $SRCDIR/$FILE/?revision=$REVISION\n";
 		}
