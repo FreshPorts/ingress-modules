@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.38.2.21 2003-04-05 00:45:33 dan Exp $
+# $Id: port.pm,v 1.38.2.22 2003-04-06 16:26:27 dan Exp $
 #
 #
 # Copyright (c) 2001-2002 DVL Software
@@ -312,6 +312,8 @@ sub _ExtractValuesFromMakefile {
 
 	my $result;
 	my $makecommand;
+	my $ErrorMessage;		# stores the result of the latest make command
+								# in case we need it for error reporting
 
 	my $MakefileDirectory = "$FreshPorts::Config::path_to_ports/$this->{category}/$this->{name}";
 
@@ -352,17 +354,28 @@ sub _ExtractValuesFromMakefile {
 	my $MakeResults = `$makecommand`;
 	# save this for later reference
 	$result = $?;
-
+	if ($result != 0) {
+		# save the results for error reporting
+		$ErrorMessage = $MakeResults;
+	}
 
 	my $mastersites = '';
 	if ($result == 0) {
 		print "trying to get master sites\n";
-		$mastersites = `make master-sites-all -f $MakefileDirectory/$FreshPorts::Constants::FILE_MAKEFILE PORTSDIR=$FreshPorts::Config::path_to_ports`;
+		my $mastersitescommand = "make master-sites-all -f $MakefileDirectory/$FreshPorts::Constants::FILE_MAKEFILE PORTSDIR=$FreshPorts::Config::path_to_ports";
+		print "'$mastersitescommand'\n";
+		$mastersites = `$mastersitescommand`;
 		# save this for later reference
 		$result = $?;
-	}
 
-	chomp($mastersites);	# remove that trailing whitespace.
+		chomp($mastersites);	# remove that trailing whitespace.
+
+		# we'll need this for error reporting
+		if ($result != 0) {
+			# save the results for error reporting
+			$ErrorMessage = $mastersites;
+		}
+	}
 
 	print "\$result='$result'\n";
 	print "\$mastersites='$mastersites\n";
@@ -466,8 +479,8 @@ sub _ExtractValuesFromMakefile {
 
 	} else {
 		print "That make failed:\n\n$MakeResults\n\n";
-		FreshPorts::Utilities::ReportError('warning', "error executing make command for $this->{category}/$this->{name}: " . $MakeResults, 0);
-		FreshPorts::CommitterOptIn::RecordErrorDetails("\n\n" . $MakeResults. "\n\n");
+		FreshPorts::Utilities::ReportError('warning', "error executing make command for $this->{category}/$this->{name}: " . $ErrorMessage, 0);
+		FreshPorts::CommitterOptIn::RecordErrorDetails("\n\n" . $ErrorMessage . "\n\n");
 		$result = -1;
 	}
 
