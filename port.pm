@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.38.2.43 2005-02-01 17:37:27 dan Exp $
+# $Id: port.pm,v 1.38.2.44 2005-02-17 05:33:03 dan Exp $
 #
 #
 # Copyright (c) 2001-2003 DVL Software
@@ -59,6 +59,8 @@ sub _initialize {
 	$this->{no_package}			= '';
 	$this->{package_name}		= '';
 	$this->{portepoch}			= '';
+	$this->{restricted}			= '';
+	$this->{no_cdrom}			= '';
 
 	$this->{categories}			= '';
 	$this->{status}				= '';
@@ -99,6 +101,8 @@ sub _GetValuesFromRow {
 	$this->{no_package}			= $row->{no_package};
 	$this->{package_name}		= $row->{package_name};
 	$this->{portepoch}			= $row->{portepoch};
+	$this->{restricted}			= $row->{restricted};
+	$this->{no_cdrom}			= $row->{no_cdrom};
 
 	$this->{categories}			= $row->{categories};
 	$this->{last_commit_id}		= $row->{last_commit_id};
@@ -161,8 +165,10 @@ update ports
        latest_link       = " . $dbh->quote($this->{latest_link})		. ", 
        no_latest_link    = " . $dbh->quote($this->{no_latest_link})		. ", 
        no_package        = " . $dbh->quote($this->{no_package})			. ", 
-       package_name      = " . $dbh->quote($this->{package_name})			. ", 
+       package_name      = " . $dbh->quote($this->{package_name})		. ", 
        portepoch         = " . $dbh->quote($this->{portepoch})			. ", 
+       restricted        = " . $dbh->quote($this->{restricted})			. ", 
+       no_cdrom          = " . $dbh->quote($this->{no_cdrom})			. ", 
 
        categories        = " . $dbh->quote($this->{categories});
 
@@ -396,7 +402,8 @@ sub _ExtractValuesFromMakefile {
 	$makecommand = "make -V PORTNAME -V PKGNAME -V DESCR -V CATEGORIES -V PORTVERSION -V PORTREVISION " .
 		" -V COMMENT -V COMMENTFILE -V MAINTAINER -V EXTRACT_SUFX " .
 		" -V BUILD_DEPENDS -V RUN_DEPENDS -V LIB_DEPENDS -V FORBIDDEN -V BROKEN -V DEPRECATED -V IGNORE ".
-		" -V MASTERPORT -V LATEST_LINK -V NO_LATEST_LINK -V NO_PACKAGE -V PKGNAMEPREFIX -V PKGNAMESUFFIX -V PORTEPOCH -f $Makefile " .
+		" -V MASTERPORT -V LATEST_LINK -V NO_LATEST_LINK -V NO_PACKAGE -V PKGNAMEPREFIX -V PKGNAMESUFFIX -V PORTEPOCH " .
+		" -V RESTRICTED -V NO_CDROM -f $Makefile " .
 		" DISTDIR=$FreshPorts::Constants::DISTDIR " .
 		" PORTSDIR=$FreshPorts::Config::path_to_ports LOCALBASE=/nonexistentlocal X11BASE=/nonexistentx 2>$TmpFile";
 
@@ -482,7 +489,8 @@ sub _ExtractValuesFromMakefile {
 		(my $portname, my $packagename, my $descrpath, my $categories, my $portversion, my $portrevision, my $shortdescription,
 		 my $CommentFile, my $maintainer, my $extractsuffix, my $builddepends,
 		 my $rundepends, my $libdepends, my $forbidden, my $broken, my $deprecated, my $ignore,
-		 my $master_port, my $latest_link, my $no_latest_link, my $no_package, my $pkgnameprefix, my $pkgnamesuffix, my $portepoch) = split(/\n/s, $MakeResults);
+		 my $master_port, my $latest_link, my $no_latest_link, my $no_package, my $pkgnameprefix, my $pkgnamesuffix, my $portepoch,
+		 my $restricted, my $no_cdrom) = split(/\n/s, $MakeResults);
 
 		my $package_name = $pkgnameprefix . $portname . $pkgnamesuffix;
 
@@ -547,8 +555,10 @@ sub _ExtractValuesFromMakefile {
 		print "23 \$no_package       = '$no_package'\n";
 		print "24 \$package_name     = '$package_name'\n";
 		print "25 \$portepoch        = '$portepoch'\n";
+		print "26 \$restricted       = '$restricted'\n";
+		print "27 \$no_cdrom         = '$no_cdrom'\n";
 
-		print "26 \$categories       = '$categories'\n";
+		print "28 \$categories       = '$categories'\n";
 
 		print "\n ---------------------------------------- \n";
 
@@ -594,6 +604,8 @@ sub _ExtractValuesFromMakefile {
 		$this->{no_package}			= $no_package;
 		$this->{package_name}		= $package_name;
 		$this->{portepoch}			= $portepoch;
+		$this->{restricted}			= $restricted;
+		$this->{no_cdrom}			= $no_cdrom;
 		$this->{categories}			= $categories;
 
 	} else {
