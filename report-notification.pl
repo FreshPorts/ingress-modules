@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: report-notification.pl,v 1.1.2.9 2002-10-21 23:37:01 dan Exp $
+# $Id: report-notification.pl,v 1.1.2.10 2002-10-30 07:09:01 dan Exp $
 #
 # Copyright (c) 2001-2002 DVL Software
 #
@@ -175,7 +175,7 @@ sub CompileWatchNotifyList($;$;$;$;$) {
 			if ($Debug) {
 				print "NOT SENDING EMAIL.. in DEBUG mode\n";
 			} else {
-#				SendWatchNoticePersonal($To, $FrequencyLong, $Body);
+				SendWatchNoticePersonal($To, $FrequencyLong, $Body);
 			}
 			print "To   = $To\n";
 			print "Body = $Body\n";
