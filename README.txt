@@ -1,5 +1,5 @@
 #
-# $Id: README.txt,v 1.3.2.3 2003-10-17 21:41:12 dan Exp $
+# $Id: README.txt,v 1.3.2.4 2004-12-22 16:50:26 dan Exp $
 #
 #
 # Copyright (c) 2001-2003 DVL Software
@@ -34,7 +34,7 @@ And you also need to run dir-create.sh
 If you need to add an archive contents to FreshPorts, you can start
 with this:
 
-Creat this file
+Create this file
 
 $ less file.sh
 #!/bin/sh
