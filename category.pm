@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: category.pm,v 1.8.2.6 2003-03-04 23:06:38 dan Exp $
+# $Id: category.pm,v 1.8.2.7 2003-03-05 18:46:09 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -46,7 +46,7 @@ sub _populate {
 sub save {
 	my $this = shift;
 
-	print "into FreshPorts::Category::save\n";
+#	print "into FreshPorts::Category::save\n";
 
 	#
 	# if id is supplied, we are updating. otherwise we are inserting.
@@ -69,7 +69,7 @@ sub save {
 		FreshPorts::Utilities::ReportError('warning', "name not supplied", 1);
 	}
 
-	if (!$this->{is_primary}) {
+	if (!defined($this->{is_primary})) {
 		FreshPorts::Utilities::ReportError('warning', "is_primary not supplied", 1);
 	}
 
@@ -79,24 +79,23 @@ sub save {
 
 	if ($this->{id}) {
 		# we are updating
-		$sql = "
-update categories set
-       is_primary = " . $dbh->quote($this->{is_primary}) . ",
-       element_id  =                 $this->{element_id},
-       name        = " . $dbh->quote($this->{name}) . ",
-       description = " . $dbh->quote($this->{description}) . "
- where id = $this->{id}";
-
+		$sql = "update categories  \
+				set \
+				is_primary = " . $dbh->quote($this->{is_primary}) . ", \
+				element_id = $this->{element_id}, \
+				name      = " . $dbh->quote($this->{name}) . ", \
+				description = " . $dbh->quote($this->{description}) . " \
+				 where id = $this->{id}";
 		$sth = $this->{dbh}->prepare($sql);
 		$sth->execute ||
 			FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql ... maybe invalid?", 1);
 	} else {
 		# we are inserting
-		$sql = "select CreateCategory(" . $dbh->quote($this->{name}) . ",
-				" . $dbh->quote($this->{description}) . ",
+		$sql = "select CreateCategory(" . $dbh->quote($this->{name}) . ", \
+				" . $dbh->quote($this->{description}) . ", \
 				" . $dbh->quote($this->{is_primary}) . ")";
 
-		print "sql is $sql\n";
+#		print "sql is $sql\n";
 
 		$sth = $this->{dbh}->prepare($sql);
 		$sth->execute ||
