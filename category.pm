@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: category.pm,v 1.8 2002-02-02 03:06:27 dan Exp $
+# $Id: category.pm,v 1.8.2.1 2002-05-19 18:38:33 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -188,7 +188,7 @@ sub _description_fetch {
 	print "SRCDIR =$SRCDIR\n";
 	print "FILE   =$FILE\n";
 
-	`sh $FreshPorts::Config::scriptpath/fetch-cvs-file.sh $DESTDIR $SRCDIR $FILE`;
+	`sh $FreshPorts::Config::scriptpath/fetch-cvs-file.sh $DESTDIR $SRCDIR $FILE HEAD`;
 	if ($?) {
 		FreshPorts::Utilities::ReportError('warning', "Could not fetch file for '$DESTDIR' '$SRCDIR' '$FILE'.  Error code = " . ($? >> 8), 1);
 	}
