@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: refresh-unrefreshed-ports.pl,v 1.20.2.10 2004-11-27 13:54:07 dan Exp $
+# $Id: refresh-unrefreshed-ports.pl,v 1.20.2.11 2004-12-11 15:27:20 dan Exp $
 #
 # Copyright (c) 1999-2004 DVL Software
 #
