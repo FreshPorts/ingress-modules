@@ -19,9 +19,9 @@ sub GetPortCategory($;$) {
    my $category = shift;
    my $dbh = shift;
 
-   $sql = "select id from categories where lower(name) = lower('" . $category . "')";
+   my $sql = "select id from categories where name = '" . $category . "'";
 
-   $sth = $dbh->prepare($sql);
+   my $sth = $dbh->prepare($sql);
 
    $sth->execute ||
         die "Could not execute SQL statement ... maybe invalid?";
@@ -35,8 +35,65 @@ sub GetPortCategory($;$) {
    return @row[0];
 }
 
-#PortUpdate ($committer, $timestamp, $action, $description, $category, $port, $entry, $dbh) {
-sub PortUpdate($;$;$;$;$;$;$;$) {
+#ChangeLogInsert($committer, $timestamp, $description, $dbh);
+sub ChangeLogInsert($;$;$;$) {
+   my $committer   = shift;
+   my $timestamp   = shift;
+   my $description = shift;
+   my $dbh         = shift;
+
+   my $sql = "INSERT INTO change_log (commit_date, committer, update_description) \
+           values ('$timestamp', '$committer', '$description')";
+
+   my $sth = $dbh->prepare($sql);
+
+   $sth->execute ||
+        die "Could not execute change_log SQL statement $sql ... maybe invalid?";
+
+   my $ChangeLogID = $sth->{'mysql_insertid'};
+
+   return $ChangeLogID;
+}
+
+#ChangeLogDetailInsert($ChangeLogID, $PortID, $action, $dbh);
+sub ChangeLogDetailInsert($;$;$;$) {
+   my $ChangeLogID = shift;
+   my $PortID      = shift;
+   my $action      = shift;
+   my $dbh         = shift;
+
+   my $change_type = '?';
+
+   print "in ChangeLogDetailInsert change log ID is $ChangeLogID\n";
+
+   if ($action eq "modify") {
+      $change_type = 'M';
+   } else {
+      if ($action eq "remove") {
+         $change_type = 'R';
+      } else {
+         if ($action eq "import") {
+            $change_type = 'I';
+         }
+      }
+   }
+
+   my $sql = "INSERT INTO change_log_details (change_log_id, port_id, change_type) \
+                values ($ChangeLogID, $PortID, '$change_type')";
+
+   my $sth = $dbh->prepare($sql);
+
+   $sth->execute ||
+        die "Could not execute change_log_detail SQL statement $sql ... maybe invalid?";
+
+   my $ChangeLogDetailID = $sth->{'mysql_insertid'};
+
+   return $ChangeLogDetailID;
+}
+
+#PortUpdate ($ChangeLogID, $committer, $timestamp, $action, $description, $category, $port, $entry, $dbh) {
+sub PortUpdate($;$;$;$;$;$;$;$;$) {
+   my $ChangeLogID = shift;
    my $committer   = shift;
    my $timestamp   = shift;
    my $action      = shift;
@@ -49,6 +106,8 @@ sub PortUpdate($;$;$;$;$;$;$;$) {
    my $sql = "";
    my $refresh_needed = "N";
 
+   print "change log ID is $ChangeLogID\n";
+
    $categoryid = GetPortCategory($category, $dbh);
    if ($category = '') {
       # email the main man
@@ -60,7 +119,7 @@ sub PortUpdate($;$;$;$;$;$;$;$) {
 
       # update the port, creating it if necessary
 
-      $sql = "select id from ports where lower(name) = lower('" . $port . "') and primary_category_id = $categoryid";
+      $sql = "select id from ports where name = '" . $port . "' and primary_category_id = $categoryid";
       print $sql, "\n";
       $sth = $dbh->prepare($sql);
    
@@ -111,12 +170,26 @@ sub PortUpdate($;$;$;$;$;$;$;$) {
          $sth = $dbh->prepare($sql);
 
          $sth->execute ||
-            die "Could not execute SQL statement ... maybe invalid?";
+            die "Could not execute SQL port insert statement ... $sql maybe invalid?";
+
+         my $PortId = $sth->{'mysql_insertid'};
+
+         my $last_change_log_detail_id = ChangeLogDetailInsert($ChangeLogID, $PortID, $action, $dbh);
+
+         $sql = "update ports set last_change_log_detail_id = $last_change_log_detail_id where id = $PortId";
+
+         $sth = $dbh->prepare($sql);
+
+         $sth->execute ||
+            die "Could not execute port update SQL statement ... $sql maybe invalid?";
 
       } else {
+         my $PortID = @row[0];
+         my $last_change_log_detail_id = ChangeLogDetailInsert($ChangeLogID, $PortID, $action, $dbh);
+
          # update the time on the port
          $sql = "update ports set last_update = '$timestamp', committer = '$committer', " .
-                "last_update_description = '$description' ";
+                "last_update_description = '$description', last_change_log_detail_id = $last_change_log_detail_id ";
 
          if ($refresh_needed eq "Y") {
             $sql .= ", needs_refresh = 'Y'";
@@ -129,7 +202,7 @@ sub PortUpdate($;$;$;$;$;$;$;$) {
             }
          }
 
-         $sql .= " where id = " . @row[0];
+         $sql .= " where id = $PortID";
 
          print "$sql\n";
 
@@ -141,6 +214,7 @@ sub PortUpdate($;$;$;$;$;$;$;$) {
    } # else category is not blank
 }
 
+my $ChangeLogID;
 
 $dbh = DBI->connect('dbi:mysql:freshports','updater','xyzzy');
 
@@ -191,8 +265,13 @@ for($i=0; $i<=$#file; $i++) {
          if (($category !~ /$ignoredirs/) && ($port ne 'Makefile')) {
             #print '  ***';
             # we have a file in this port which is actually being updated.  Let's update the port.
-     
-            PortUpdate ($committer, $timestamp, $action, $description, $category, $port, $entry, $dbh)
+            if (!defined($ChangeLogID)) {
+               # insert main details into the change_log table.
+               $ChangeLogID = ChangeLogInsert($committer, $timestamp, $description, $dbh);
+               print "change log ID is $ChangeLogID\n";
+            }
+            print "change log ID is still $ChangeLogID\n";
+            PortUpdate ($ChangeLogID, $committer, $timestamp, $action, $description, $category, $port, $entry, $dbh)
          } else {
             print "ignoring $category/$port\n";
          }
