@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: report-notification.pl,v 1.1.2.8 2002-09-16 01:18:31 dan Exp $
+# $Id: report-notification.pl,v 1.1.2.9 2002-10-21 23:37:01 dan Exp $
 #
 # Copyright (c) 2001-2002 DVL Software
 #
@@ -33,6 +33,8 @@ my $WatchURL	= $FreshPorts::Config::FreshPortsURL . "watch.php";
 my $AdjustURL	= $FreshPorts::Config::FreshPortsURL . "report-subscriptions.php";
 
 my $ReportID	= $FreshPorts::ReportConstants::Notification;
+
+$Text::Wrap::columns = 82;
 
 sub SendWatchNoticePersonal($;$;$) {
 
@@ -82,7 +84,7 @@ sub CompileWatchNotifyList($;$;$;$;$) {
 	my $NewPorts  = shift;
 	my $PortCount = shift;
 	my $LastSent  = shift;
-	my $dbh = shift;
+	my $dbh       = shift;
 	my $sth;
 	my $sql;
 
@@ -173,7 +175,7 @@ sub CompileWatchNotifyList($;$;$;$;$) {
 			if ($Debug) {
 				print "NOT SENDING EMAIL.. in DEBUG mode\n";
 			} else {
-				SendWatchNoticePersonal($To, $FrequencyLong, $Body);
+#				SendWatchNoticePersonal($To, $FrequencyLong, $Body);
 			}
 			print "To   = $To\n";
 			print "Body = $Body\n";
@@ -186,11 +188,14 @@ sub CompileWatchNotifyList($;$;$;$;$) {
 		}
 
 		# get the category and port
-		$Body .= "$FreshPorts::Config::FreshPortsURL" . $row[2] . '/' . $row[3] . "/\n";
+		$Body .= $row[2] . '/' . $row[3] . "\n";
 
 		# and wrap the description of the change.
-		$Body .= wrap("     ", "     ", $row[5]) . "\n";
-		$Body .=      "     $row[4] - $row[6]\n\n";
+		$Body .= wrap("  ", "  ", $row[5]) . "\n";
+		$Body .=      "  $row[4] - $row[6]\n";
+		$Body .=      "  $FreshPorts::Config::FreshPortsURL" . $row[2] . '/' . $row[3] . "/\n\n";
+
+print "* * * * Body = $Body\n";
 	}
 
 	# if we got at least one, send out email
