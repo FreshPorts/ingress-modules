@@ -1,5 +1,5 @@
 #
-# $Id: crontab.sample,v 1.7.2.2 2002-05-25 22:45:26 dan Exp $
+# $Id: crontab.sample,v 1.7.2.3 2002-07-27 19:51:21 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -23,3 +23,5 @@ MAILTO=dan
 0	*	*		*	*	perl ${HOME}/scripts/hourly_stats.pl 2>&1 > /dev/null
 0	0	*		*	*	perl ${HOME}/scripts/daily_stats.pl 2>&1 > /dev/null
 10	0	*		*	*	${HOME}/scripts/archive-messages.sh >> /dev/null
+
+17	0	*		*	*	sh /usr/websites/freshports.org/scripts/vacuum.sh 2>&1 > /dev/null
