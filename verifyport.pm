@@ -1,5 +1,5 @@
 #
-# $Id: verifyport.pm,v 1.42.2.18 2003-10-06 17:20:43 dan Exp $
+# $Id: verifyport.pm,v 1.42.2.19 2004-01-02 18:01:21 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -288,6 +288,7 @@ sub SaveChangesToPortsTree($;$;$) {
 sub FetchAllFiles($;$) {
 	#
 	# fetch all the files associated with this commit
+	# Actually, it's only files within the ports tree.
 	#
 
 	my $Files	= shift;
@@ -308,6 +309,14 @@ sub FetchAllFiles($;$) {
 
 	foreach $value (@{$Files}) {
 		($action, $filename, $revision, $commit_log_element_id, $element_id) = @$value;
+
+		#
+		# fetch only files in the ports tree
+		#
+		if (!($filename =~ "m|/*ports/")) {
+			print "outside ports tree: ignoring $filename\n";
+			next;
+		}
 
 		#
 		# there is no sense in fetching removed files
