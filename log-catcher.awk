@@ -11,10 +11,10 @@
 
 
 BEGIN {
- OUTDIR="/usr/local/etc/freshports.test/msgs/" ;
- MUNGER="/usr/bin/awk -f /usr/local/etc/freshports.test/log-munger.awk";
+ OUTDIR="CHECKTHISDIR/usr/local/etc/freshports.test/msgs/" ;
+ MUNGER="CHECKTHISDIR/usr/bin/awk -f /usr/local/etc/freshports.test/log-munger.awk";
 
- UPDATER = "/usr/bin/perl /usr/local/etc/freshports.test/updates/updates.pl";
+ UPDATER = "CHECKTHISDIR/usr/bin/perl /usr/local/etc/freshports.test/updates/updates.pl";
 
  getline pid<"/dev/pid"
 
