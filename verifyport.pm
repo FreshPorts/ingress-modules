@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: verifyport.pm,v 1.36 2001-12-30 23:22:29 dan Exp $
+# $Id: verifyport.pm,v 1.37 2001-12-31 06:18:09 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -523,14 +523,15 @@ sub CreateDailySummary($;$) {
 	my $CommitDateStart = shift;
 	my $dbh             = shift;
 
-	my @myrow;
+	my $myrow;
 
-	my $sql =	"select ports.id, element.name, commit_log_ports.port_version, commit_log_ports.port_revision " .
-				"from ports, commit_log, commit_log_ports, element ".
-				"where ports.id                       = commit_log_ports.port_id ".
-				"  and commit_log_ports.commit_log_id = commit_log.id ".
-				"  and element.id                     = ports.element_id ".
-				"  and commit_log.commit_date between '$CommitDateStart'::timestamp and '$CommitDateStart'::timestamp + INTERVAL '1 DAY' " .
+	my $sql =	"select ports.id, element.name as port, commit_log_ports.port_version as version, commit_log_ports.port_revision as revision, categories.name as category, commit_log.commit_date as commit_date " .
+				"from ports, commit_log, commit_log_ports, element, categories " .
+				"where ports.id                       = commit_log_ports.port_id " .
+				"  and commit_log_ports.commit_log_id = commit_log.id " .
+				"  and element.id                     = ports.element_id " .
+				"  and ports.category_id              = categories.id " .
+				"  and commit_log.commit_date + 'INTERVAL -10800 seconds' between '$CommitDateStart'::timestamp and '$CommitDateStart'::timestamp + INTERVAL '1 DAY' " .
 				"order by commit_log.commit_date desc";
 
 	print "\$sql='$sql'<BR>\n";
@@ -540,14 +541,7 @@ sub CreateDailySummary($;$) {
 	$sth->execute ||
 		die "Could not execute SQL statement\n--$sql--\n... maybe invalid?";
 
-
 	print "$sql\n";
-
-#	if ($sth->num_rows) {
-#		print "$sth->num_rows rows in that result\n";
-#	}
-
-#	print "press enter to continue"; <STDIN>;
 
 	umask(02);
 	# create the output file name gradually, ensuring the directories exist
@@ -584,9 +578,10 @@ sub CreateDailySummary($;$) {
 	if (open(FILE, ">$OutputFile")) {
 		print "that file was opened.  now writing output\n";
 		my $count =0;
-		while (@myrow = $sth->fetchrow_array) {
-			print FILE '<a href="port-description.php3?port=';
-			print FILE $myrow[0] . '"><font size="-1">' . $myrow[1] . " ";
+		while ($myrow = $sth->fetchrow_hashref()) {
+			print $myrow->{commit_date} .': '. $myrow->{category}. '/' . $myrow->{port} . "\n";
+			print FILE "<A HREF=\"$myrow->{category}/$myrow->{port}/\">";
+			print FILE '<font size="-1">' . $myrow->{port} . ' ';
 
 			#
 			# when a port is first saved, it does not contain a version.
@@ -595,11 +590,11 @@ sub CreateDailySummary($;$) {
 			# but in case we have parallel processes, this check
 			# should avoid a nasty little warning message.
 			#
-			if (defined($myrow[2])) {
-				print FILE $myrow[2];
+			if (defined($myrow->{version})) {
+				print FILE $myrow->{version};
 			}
-			if (defined($myrow[3])) {
-				print FILE '-' . $myrow[3];
+			if (defined($myrow->{revision})) {
+				print FILE '-' . $myrow->{revision};
 			}
 			print FILE "</font></a><br>\n";     
 			$count++;
