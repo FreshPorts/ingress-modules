@@ -1,5 +1,5 @@
 #
-# $Id: verifyport.pm,v 1.42.2.29 2005-01-26 17:40:25 dan Exp $
+# $Id: verifyport.pm,v 1.42.2.30 2005-02-01 17:52:07 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -559,14 +559,7 @@ sub RefreshAllPortsTouchedByCommit($;$;$) {
 			$commit_log_ports->{port_epoch}		= $port->{portepoch};
 
 			$commit_log_ports->save();
-
-			#
-			# commit everything we've done.  we don't want it falling over during
-			# the daily summary creation and then doing a rollback.
-			#
-			$dbh->commit();
 		} else {
-			$dbh->rollback();
 			$ErrorFound = 1;
 		}
 	}
@@ -623,9 +616,6 @@ sub RefreshAllSlavePortsOfPortsTouchedByCommit($;$;$) {
 		#  save it
 		$port->save();
 
-		#  commit
-		$dbh->commit();
-
 		print "refreshed " . $port->{category} . '/' . $port->{name} . "\n";
 
 		undef $port;
@@ -672,12 +662,6 @@ sub MarkVulnerableCommits($;$;$) {
 			$port->{version},
 			$port->{revision},
 			$port->{portepoch});
-
-		#
-		# commit everything we've done.  we don't want it falling over during
-		# the daily summary creation and then doing a rollback.
-		#
-		$dbh->commit();
 	}
 
 	print "# # # # done marking vulnerable commits # # # #\n\n";
