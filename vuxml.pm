@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: vuxml.pm,v 1.1.2.2 2004-09-11 01:07:41 dan Exp $
+# $Id: vuxml.pm,v 1.1.2.3 2004-12-09 02:07:50 dan Exp $
 #
 # Copyright (c) 2004 DVL Software
 #
@@ -47,9 +47,10 @@ sub save {
 	my $sql;
 	my @row;
 
-	$this->{id} = FreshPorts::Database::GetNextValue($FreshPorts::Constants::vuxml_seq, $dbh);
+	if (!defined($this->{id})) {
+		$this->{id} = FreshPorts::Database::GetNextValue($FreshPorts::Constants::vuxml_seq, $dbh);
 
-	$sql = "insert into vuxml(id, vid, topic, description, date_discovery, 
+		$sql = "insert into vuxml(id, vid, topic, description, date_discovery, 
                                date_entry, date_modified, status) values (
 				$this->{id},
 				" . $dbh->quote($this->{vid})            . ",
@@ -59,6 +60,17 @@ sub save {
 				" . $dbh->quote($this->{date_entry})     . ",
 				" . $dbh->quote($this->{date_modified})  . ",
                 'A')";
+	} else {
+		$sql = "UPDATE vuxml SET
+				vid            = " . $dbh->quote($this->{vid})            . ",
+				topic          = " . $dbh->quote($this->{topic})          . ",
+				description    = " . $dbh->quote($this->{description})    . ",
+				date_discovery = " . $dbh->quote($this->{date_discovery}) . ",
+				date_entry     = " . $dbh->quote($this->{date_entry})     . ",
+				date_modified  = " . $dbh->quote($this->{date_modified})  . ",
+                status         = " . $dbh->quote($this->{status})         . "
+                WHERE id       = $this->{id}";
+	}
 
 	print "sql is $sql\n";
 
@@ -72,7 +84,7 @@ sub save {
 }
 
 sub FetchByID {
-	my $this	= shift;
+	my $this = shift;
 
 	my $dbh;
 	my $sql;
@@ -81,8 +93,8 @@ sub FetchByID {
 
 	$dbh = $this->{dbh};
 
-	$sql = "select vuxml.* \
-              from vuxml \
+	$sql = "select vuxml.*
+              from vuxml
              where vuxml.id = $this->{id}";
 
 	print "sql = '$sql'\n";
@@ -102,5 +114,40 @@ sub FetchByID {
 
 	return $this->{id};
 }
+
+sub FetchByVID {
+	my $this = shift;
+
+	my $dbh;
+	my $sql;
+	my $sth;
+	my $row;
+
+	$dbh = $this->{dbh};
+
+	$sql = "select vuxml.*
+              from vuxml
+             where vuxml.vid = '$this->{vid}'";
+
+	print "sql = '$sql'\n";
+
+	$sth = $dbh->prepare($sql);
+	if (!$sth->execute) {
+		FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql", 1);
+	}
+
+	$row = $sth->fetchrow_hashref();
+	$sth->finish();
+
+	# no sense setting values if we didn't get anything...
+	if ($row) {
+		$this->_GetValuesFromRow($row);
+	} else {
+		undef $this->{vid};
+	}
+
+	return $this->{vid};
+}
+
 
 1;
