@@ -1,5 +1,5 @@
 #
-# $Id: email.pm,v 1.1.2.5 2002-12-12 04:57:11 dan Exp $
+# $Id: email.pm,v 1.1.2.6 2003-05-02 18:04:34 dan Exp $
 #
 # Copyright (c) 2002 DVL Software
 #
@@ -8,6 +8,8 @@ package FreshPorts::email;
 
 use strict;
 use Mail::Sender;
+
+use config;
 use utilities;
 
 
@@ -20,7 +22,12 @@ sub SendMail($;$;$;$;$) {
 	
 	my $result;
 
-	my $sender = new Mail::Sender{smtp => 'localhost', from => $From};
+	my $sender = new Mail::Sender{
+            smtp   => $FreshPorts::Config::email_server,
+            from   => $From,
+            port   => $FreshPorts::Config::email_port,
+            client => $FreshPorts::Config::email_client
+            };
 
 	$result = $sender->Open({to => $To, subject => $Subject, headers=> $Headers});
 
