@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.38.2.7 2002-09-02 03:47:53 dan Exp $
+# $Id: port.pm,v 1.38.2.8 2002-09-09 18:36:17 dan Exp $
 #
 #
 # Copyright (c) 2001-2002 DVL Software
@@ -391,54 +391,63 @@ sub _ExtractValuesFromMakefile {
 		$commentfile =~ s|//|/|g;
 
 		my $RealDescrPath	= File::PathConvert::realpath($descrpath);
-		my $RealCommentFile	= File::PathConvert::realpath($commentfile); 
+		my $RealCommentFile	= File::PathConvert::realpath($commentfile);
 
-		(my $longdescription, my $homepage) = _GetDescrAndHomePage($RealDescrPath);
-		my $shortdescription = FreshPorts::Utilities::ReadFile($RealCommentFile);
+		if (defined($RealDescrPath) && defined($RealCommentFile)) {
+			(my $longdescription, my $homepage) = _GetDescrAndHomePage($RealDescrPath);
+			my $shortdescription = FreshPorts::Utilities::ReadFile($RealCommentFile);
 
-		my $packageexists = _PackageExists($packagename . ".tgz");
+			my $packageexists = _PackageExists($packagename . ".tgz");
 
-		print "12 $shortdescription\n";
-		print "13 $longdescription\n";
-		print "14 ";
-		if (defined($homepage)) {
-			print "$homepage";
+			print "12 $shortdescription\n";
+			print "13 $longdescription\n";
+			print "14 ";
+			if (defined($homepage)) {
+				print "$homepage";
+			}
+			print "\n";
+
+			print "15 $packageexists\n";
+			print "16 $forbidden\n";
+			print "17 $broken\n";
+			print "18 $categories\n";
+
+			print "\n ---------------------------------------- \n";
+
+			# convert a few values to zero if not defined.
+			if (!defined($forbidden)) {
+				$forbidden = '';
+			}
+
+			if (!defined($broken)) {
+				$broken = '';
+			}
+
+			# put everything into the hash...
+
+			$this->{portname}			= $portname;
+			$this->{short_description}	= $shortdescription;
+			$this->{long_description}	= $longdescription;
+			$this->{version}			= $portversion;
+			$this->{revision}			= $portrevision;
+			$this->{maintainer}			= $maintainer;
+			$this->{homepage}			= $homepage;
+			$this->{master_sites}		= $mastersites;
+			$this->{extract_suffix}		= $extractsuffix;
+			$this->{package_exists}		= $packageexists;
+			$this->{depends_build}		= $builddepends;
+			$this->{depends_run}		= $rundepends;
+			$this->{forbidden}			= $forbidden;
+			$this->{broken}				= $broken;
+			$this->{categories}			= $categories;
+
+		} else {
+			print "That make failed to return values for '-V DESCR -V COMMENT'.  I suspect an embedded make has failed.\n\n";
+
+			FreshPorts::Utilities::ReportError('warning', "That make failed to return values for '-V DESCR -V COMMENT'.  I suspect an embedded make has failed. $this->{category}/$this->{name}", 0);
+			FreshPorts::CommitterOptIn::RecordErrorDetails("\n\nThat make failed to return values for '-V DESCR -V COMMENT'.  I suspect an embedded make has failed.\n\n");
+			$result = -1;
 		}
-		print "\n";
-
-		print "15 $packageexists\n";
-		print "16 $forbidden\n";
-		print "17 $broken\n";
-		print "18 $categories\n";
-
-		print "\n ---------------------------------------- \n";
-
-		# convert a few values to zero if not defined.
-		if (!defined($forbidden)) {
-			$forbidden = '';
-		}
-
-		if (!defined($broken)) {
-			$broken = '';
-		}
-
-		# put everything into the hash...
-
-		$this->{portname}			= $portname;
-		$this->{short_description}	= $shortdescription;
-		$this->{long_description}	= $longdescription;
-		$this->{version}			= $portversion;
-		$this->{revision}			= $portrevision;
-		$this->{maintainer}			= $maintainer;
-		$this->{homepage}			= $homepage;
-		$this->{master_sites}		= $mastersites;
-		$this->{extract_suffix}		= $extractsuffix;
-		$this->{package_exists}		= $packageexists;
-		$this->{depends_build}		= $builddepends;
-		$this->{depends_run}		= $rundepends;
-		$this->{forbidden}			= $forbidden;
-		$this->{broken}				= $broken;
-		$this->{categories}			= $categories;
 
 	} else {
 		print "That make failed:\n\n$MakeResults\n\n";
@@ -701,7 +710,7 @@ sub RefreshFromFiles($;$) {
 			}
 		}
 	} else {
-		print "this port does not need a refresh\n";
+		print "this port does not need a refresh or we were told not to fetch\n";
 	}
 
 	# if we didn't use up all of our fetch attempts...
