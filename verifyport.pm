@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: verifyport.pm,v 1.33 2001-12-29 20:58:08 dan Exp $
+# $Id: verifyport.pm,v 1.34 2001-12-29 21:24:55 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -105,7 +105,7 @@ sub _CompileListOfPorts($;$;$) {
 
 					$port = $ListOfPorts{"$category_name/$port_name"};
 					if (!$port) {
-						print "* * * we'll have to create that port!\n";
+						print "* * * we'll have to load/create that port!\n";
 						$port = FreshPorts::Port->new($dbh);
 
 						# this is all that's needed to retrieve a port which exists
@@ -453,16 +453,22 @@ sub RefreshAllPortsTouchedByCommit($) {
 	# refresh each and every port we are told about
 	#
 	print "# # # # Refreshing ports # # # #\n\n";
-	while (my ($portname, $commit_log_port) = each %CommitLogPorts) {
-		$port = $commit_log_port->{port};
-		print "port = $portname, port_id = '$port->{id}', category_id='$port->{category_id}', needs_refresh='$commit_log_port->{needs_refresh}'\n";
+	while (my ($portname, $commit_log_ports) = each %CommitLogPorts) {
+		$port = $commit_log_ports->{port};
+		print "port = $portname, port_id = '$port->{id}', category_id='$port->{category_id}', needs_refresh='$commit_log_ports->{needs_refresh}'\n";
 
-		$port->RefreshFromFiles($commit_log_port->{needs_refresh});
+		$port->RefreshFromFiles($commit_log_ports->{needs_refresh});
 
-		$commit_log_port->{needs_refresh}	= 0;
-		$commit_log_port->{port_version}	= $port->{version};
-		$commit_log_port->{port_revision}	= $port->{revision};
-		$commit_log_port->save();
+		# after refreshing from the files, save the results
+		$port-save();
+
+		# and then update the commit_log_ports
+
+		$commit_log_ports->{needs_refresh}	= 0;
+		$commit_log_ports->{port_version}	= $port->{version};
+		$commit_log_ports->{port_revision}	= $port->{revision};
+
+		$commit_log_ports->save();
 	}
 
 	print "# # # # done refreshing ports # # # #\n\n";

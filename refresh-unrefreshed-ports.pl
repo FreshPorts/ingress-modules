@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: refresh-unrefreshed-ports.pl,v 1.9 2001-12-28 22:38:28 dan Exp $
+# $Id: refresh-unrefreshed-ports.pl,v 1.10 2001-12-29 21:24:55 dan Exp $
 #
 # Copyright (c) 1999-2001 DVL Software
 #
@@ -86,6 +86,9 @@ foreach $porttorefresh (@PORTS) {
 		# now reset refreshed
 		#
 		if ($result == 0) {
+
+			$port->save();
+
 			$commit_log_ports->{commit_log_id}	= $commit_log_id;
 			$commit_log_ports->{port_id}		= $port->{id};
 			$commit_log_ports->{needs_refresh}	= 0;
