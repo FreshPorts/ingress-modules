@@ -11,7 +11,7 @@
 # the name of the backup file. file name format is 
 # freshports.backup.2000.01.12.at.22.59.48.tgz
 #
-WorkingDirectory="/usr/local/etc/freshports/"
+WorkingDirectory=$HOME
 BackupFile="freshports.backup.`date +%Y.%m.%d.at.%H.%M.%S`.tgz"
 TempFreshportsFile="freshports.backup.txt"
 TempFreshportsForumFile="freshports.phorum.backup.txt"
