@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: process_cvs_mail.pl,v 1.8 2002-01-07 21:15:12 dan Exp $
+# $Id: process_cvs_mail.pl,v 1.8.2.1 2002-03-22 23:07:32 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -306,7 +306,7 @@ sub GetFiles {
 		#
 		# see also GetLog for use of Revision.
 		#
-		if ($line =~ /^  Revision/) { $found = 1; next; }
+		if ($line =~ /^  Revision  Changes    Path/) { $found = 1; next; }
 		next unless $found == 1;
 
 		last if (length($line) == 0);
