@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: process_cvs_mail.pl,v 1.8.2.7 2002-07-16 12:56:04 dan Exp $
+# $Id: process_cvs_mail.pl,v 1.8.2.8 2002-12-10 16:16:00 dan Exp $
 #
 # Copyright (c) 2001-2002  DVL Software
 #
@@ -341,13 +341,13 @@ sub GetFiles {
 		my ($revision, $changes1, $changes2, $path, $action) = split(" ", $line);
 
 		if (!defined($action)) {
-			$action = 'Modify';
+			$action = $FreshPorts::Constants::MODIFY;
 		} else {
 			if ($action eq '(dead)') {
-				$action = 'Remove';
+				$action = $FreshPorts::Constants::REMOVE;
 			} else {
 				if ($action eq '(new)') {
-					$action = 'Add';
+					$action = '$FreshPorts::Constants::ADD;
 				} else {
 					$action = 'unknown action';
 				}
