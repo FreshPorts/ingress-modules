@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $Id: config.sh.sample,v 1.1.2.7 2004-10-03 02:19:59 dan Exp $
+# $Id: config.sh.sample,v 1.1.2.8 2004-10-10 17:56:59 dan Exp $
 #
 
 BASEDIR="/usr/websites/DIRNAME"
@@ -30,7 +30,7 @@ MOVEDFLAGFILE="${BASEDIR}/dynamic/refresh_moved"
 
 # What file do we set for /usr/ports/UPDATING?
 
-UPDATINGFLAGFILE="${BASEDIR}/dynamic/refresh_moved"
+UPDATINGFLAGFILE="${BASEDIR}/dynamic/refresh_updating"
 
 PORTSFREEZEFILE="${BASEDIR}/dynamic/PortsFreezeIsOn"
 
