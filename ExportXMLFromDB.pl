@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: ExportXMLFromDB.pl,v 1.2 2002-02-03 01:50:32 dan Exp $
+# $Id: ExportXMLFromDB.pl,v 1.3 2002-02-07 01:39:25 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -20,11 +20,23 @@ exit;
 # Main Processing Routine
 #####
 sub main {
+	my $limit = 0;
+
+	if (($#ARGV+1) == 1) {
+        print "there is 1 argument\n";
+
+        my $limit = $ARGV[0];
+	}
+
 	my $dbh = db_handle();
 
 	my $change_log;
 
-	my $sql = "select * from change_log order by id limit 1";
+	my $sql = "select * from change_log order by id";
+	if ($limit > 0) {
+		$sql .= " limit limit";
+	}
+
 	my $sth = $dbh->prepare($sql);
 	$sth->execute ||
 		die "Could not execute SQL $sql ... maybe invalid?";
