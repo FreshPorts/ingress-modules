@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.38.2.22 2003-04-06 16:26:27 dan Exp $
+# $Id: port.pm,v 1.38.2.23 2003-04-23 14:29:34 dan Exp $
 #
 #
 # Copyright (c) 2001-2002 DVL Software
@@ -315,6 +315,8 @@ sub _ExtractValuesFromMakefile {
 	my $ErrorMessage;		# stores the result of the latest make command
 								# in case we need it for error reporting
 
+	my $TmpFile = FreshPorts::Utilities::TmpFileName("$this->{category}.$this->{name}.make-error");
+
 	my $MakefileDirectory = "$FreshPorts::Config::path_to_ports/$this->{category}/$this->{name}";
 
 	if (!LooksLikeAMakefile("$MakefileDirectory/$FreshPorts::Constants::FILE_MAKEFILE")) {
@@ -347,13 +349,19 @@ sub _ExtractValuesFromMakefile {
 	$makecommand = "make -V PORTNAME -V PKGNAME -V DESCR -V CATEGORIES -V PORTVERSION -V PORTREVISION " .
 		" -V COMMENT -V COMMENTFILE -V MAINTAINER -V EXTRACT_SUFX " .
 		" -V BUILD_DEPENDS -V RUN_DEPENDS -V FORBIDDEN -V BROKEN -f $MakefileDirectory/$FreshPorts::Constants::FILE_MAKEFILE " . 
-		" PORTSDIR=$FreshPorts::Config::path_to_ports 2>&1";
+		" PORTSDIR=$FreshPorts::Config::path_to_ports 2>$TmpFile";
 
 	print "makecommand = $makecommand\n";
 
 	my $MakeResults = `$makecommand`;
 	# save this for later reference
 	$result = $?;
+	if (-s $TmpFile > 0) {
+		my $Errors = `cat $TmpFile`;
+		`rm $TmpFile`;
+		FreshPorts::Utilities::ReportErrorEmail('warning', "error executing make command for $this->{category}/$this->{name} for database $FreshPorts::Config::dbname\n: $makecommand => " . $Errors, 1, 0);
+	}
+
 	if ($result != 0) {
 		# save the results for error reporting
 		$ErrorMessage = $MakeResults;
@@ -494,6 +502,8 @@ sub _FetchFilesNeedingRefresh {
 	my $this	= shift;
 	my $result	= 1;
 
+	my $TmpFile = FreshPorts::Utilities::TmpFileName("$this->{category}.$this->{name}.make-error");
+
 	print "into _FetchFilesNeedingRefresh ------------\n";
 
 	# this is where we fetch the files to disk
@@ -542,10 +552,19 @@ sub _FetchFilesNeedingRefresh {
 			mkdir "pkg",0;
 		}
 
-		my $makecommand = "make -V DESCR -V -f $DESTDIR/$FILE PORTSDIR=$FreshPorts::Config::path_to_ports 2>&1";
+		my $makecommand = "make -V DESCR -V -f $DESTDIR/$FILE PORTSDIR=$FreshPorts::Config::path_to_ports 2>$TmpFile";
 
 		print "makecommand = $makecommand\n";
 		my $MakeResults = `$makecommand`;
+		my $Result = $?;
+
+		if (-s $TmpFile > 0) {
+			my $Errors = `cat $TmpFile`;
+			`rm $TmpFile`;
+			FreshPorts::Utilities::ReportErrorEmail('warning', "error executing make command for $this->{category}/$this->{name} for database $FreshPorts::Config::dbname\n: '$makecommand' ->" . $Errors, 1, 0);
+			ulink $TmpFile;
+		}
+
 
 		# remove previously created directory
 		rmdir "pkg";
@@ -554,7 +573,7 @@ sub _FetchFilesNeedingRefresh {
 		# we need to check this return value.  if it fails, we need to know
 		#
 
-		if ($? == 0) {
+		if ($Result == 0) {
 			(my $DESCR) = split(/\n/s, $MakeResults);
 
 			#
