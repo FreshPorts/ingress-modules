@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $Id: fetch-cvs-file.sh,v 1.7 2001-12-22 21:50:37 dan Exp $
+# $Id: fetch-cvs-file.sh,v 1.8 2002-02-18 06:16:44 dan Exp $
 #
 # Copyright (c) 1999-2001 DVL Software
 #
@@ -41,7 +41,7 @@ else
 #
 time=`/bin/date +"%s"`
 
-/usr/local/bin/lynx -source -dump http://www.freebsd.org/cgi/cvsweb.cgi/$SRCDIR/$FILE?rev=HEAD\&abcd=$time > $FETCHFILE
+/usr/bin/fetch -o $FETCHFILE http://www.freebsd.org/cgi/cvsweb.cgi/$SRCDIR/$FILE?rev=HEAD\&abcd=$time
  if [ $? -ne 0 ]
  then
     exit 6
