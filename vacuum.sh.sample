@@ -1,0 +1,10 @@
+#!/bin/sh
+#
+# $Id: vacuum.sh.sample,v 1.1.2.1 2002-07-24 16:52:24 dan Exp $
+#
+
+RESULT=acuumdb --analyze freshportsif [ $RESULT -ne 'VACUUM' ]
+   echo $RESULT | mail -s "FAILED: vacuum analyze freshports" dan@langille.org
+else
+   echo $RESULT | mail -s "vacuum analyze freshports" dan@langille.org
+fi
