@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: report-notification.pl,v 1.1.2.20 2003-05-16 01:14:07 dan Exp $
+# $Id: report-notification.pl,v 1.1.2.21 2003-09-11 20:06:07 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -77,7 +77,9 @@ question, to postmaster\@FreshPorts.org.";
 	$Headers .= 'X-FreshPorts-WatchListName: '      . $WatchListName . "\n";
 	$Headers .= 'X-FreshPorts-WatchListFrequency: ' . $FrequencyLong . "\n";
 
-	FreshPorts::email::SendMail($From, $To, $Subject, $Body, $Headers);
+	my $CC = '';
+
+	FreshPorts::email::SendMail($From, $To, $CC, $Subject, $Body, $Headers);
 }
 
 
