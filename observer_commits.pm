@@ -1,5 +1,5 @@
 #
-# $Id: observer_commits.pm,v 1.1.2.1 2004-08-18 16:48:23 dan Exp $
+# $Id: observer_commits.pm,v 1.1.2.2 2004-09-17 03:14:56 dan Exp $
 #
 # Copyright (c) 2004 DVL Software
 #
@@ -8,6 +8,8 @@
 # These are the messages passed around between Observables and Observers
 
 package FreshPorts::ObserverCommits;
+
+use special_processing_files;
 
 sub new {
 	my $this		= {};
@@ -40,6 +42,7 @@ sub update {
 
 	if ($action eq $FreshPorts::Messages::FileUpdate) {
 		print "Observer has noticed that commit '" . $object->id() . "' contains file $params{FilePath} as revision $params{FileRevision}\n";
+		FreshPorts::SpecialProcessingFiles::Eat($dbh, $params{FileAction}, $params{FilePath}, $params{FileRevision});
 	}
 
 	if ($action eq $FreshPorts::Messages::PortsRefreshed) {
@@ -48,6 +51,9 @@ sub update {
 
 	if ($action eq $FreshPorts::Messages::ProcessingDone) {
 		print "Observer has noticed that processing has finished.\n";
+	}
+	if ($action eq $FreshPorts::Messages::PortsFreezeCheck) {
+		print "Observer has noticed that we must do a ports freeze check.\n";
 	}
 
 }
