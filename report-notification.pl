@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: report-notification.pl,v 1.1.2.18 2003-03-11 13:28:56 dan Exp $
+# $Id: report-notification.pl,v 1.1.2.19 2003-03-11 13:54:24 dan Exp $
 #
 # Copyright (c) 2001-2002 DVL Software
 #
@@ -26,7 +26,7 @@ my @row;
 my $Bcc;
 my $NumMsgs		= 0;
 my $NumCommits	= 0;
-my $NumPorts    = 0;
+my $NumPorts   = 0;
 
 my $FormatDate	= "%W, %b %e";
 my $FormatTime	= "%H:%i";
@@ -278,7 +278,6 @@ if ($Debug) {
 	print "running in debug mode.............\n";
 	print "**********************************\n";
 }
-
 
 print "start  $time\n";
 
