@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.38.2.24 2003-05-16 01:14:05 dan Exp $
+# $Id: port.pm,v 1.38.2.25 2003-05-17 12:58:57 dan Exp $
 #
 #
 # Copyright (c) 2001-2003 DVL Software
@@ -562,7 +562,6 @@ sub _FetchFilesNeedingRefresh {
 			my $Errors = `cat $TmpFile`;
 			`rm $TmpFile`;
 			FreshPorts::Utilities::ReportErrorEmail('warning', "error executing make command for $this->{category}/$this->{name} for database $FreshPorts::Config::dbname\n: '$makecommand' ->" . $Errors, 1, 0);
-			ulink $TmpFile;
 		}
 
 
