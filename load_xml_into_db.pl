@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: load_xml_into_db.pl,v 1.40 2002-02-09 02:57:12 dan Exp $
+# $Id: load_xml_into_db.pl,v 1.41 2002-02-14 23:36:31 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -291,13 +291,6 @@ sub handle_update_end
 	# the daily summary creation and then doing a rollback.
 	#
 	$dbh->commit();
-
-	# create the daily summaries (if we have a port there..)
-	if (keys %CommitLogPorts) {
-		FreshPorts::VerifyPort::CreateDailySummary($commit_date, $dbh);
-	} else {
-		print "No ports found: CreateDailySummary not being called\n";
-	}
 }
 
 sub handle_updates_end {
