@@ -94,7 +94,7 @@ sub PortUpdate($;$;$;$;$;$;$;$) {
 
       # we don't get a version when inserting, so we must fake it by supplying a name.
       $sql .= "'$port', '$timestamp', $categoryid, '$description', " . 
-              "'$committer', current_timestamp, 'Y', 'N', 'N', '-- waiting for description --')";
+              "'$committer', current_timestamp, 'Y', 'A', 'N', '-- waiting for description --')";
 
       print "$sql\n";
 
