@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: set-no_latest_link.no_package.pkgname.portepoch.pl,v 1.1.2.1 2004-09-13 19:51:48 dan Exp $
+# $Id: set-no_latest_link.no_package.pkgname.portepoch.pl,v 1.1.2.2 2004-09-13 22:23:34 dan Exp $
 #
 # Copyright (c) 1999-2004 DVL Software
 #
@@ -63,10 +63,7 @@ foreach $porttorefresh (@PORTS) {
 		print "has been refreshed ($result)\n";
 
 		if ($result == 0) {
-			$sql = "update ports set no_latest_link = " . $dbh->quote($port->{no_latest_link}) .
-					", no_package = " . $dbh->quote($port->{no_package})  . 
-					", pkgname    = " . $dbh->quote($port->{pkgname})     .
-					", portepoch  = " . $dbh->quote($port->{portepoch})   .
+			$sql = "update ports set package_name = " . $dbh->quote($port->{package_name})     .
 			        " where id = $port_id";
 			$sth = $dbh->prepare($sql);
 			$sth->execute ||
