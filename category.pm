@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: category.pm,v 1.8.2.10 2004-08-18 16:42:56 dan Exp $
+# $Id: category.pm,v 1.8.2.11 2004-09-28 22:15:48 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -195,12 +195,11 @@ sub _description_fetch {
 	print "SRCDIR =$SRCDIR\n";
 	print "FILE   =$FILE\n";
 
-	`sh $FreshPorts::Config::scriptpath/fetch-cvs-file.sh $DESTDIR $SRCDIR $FILE $FreshPorts::Constants::HEAD`;
-	if ($?) {
+	if (FreshPorts::Utilities::FetchFile($DESTDIR, $SRCDIR, $FILE, $FreshPorts::Constants::HEAD)) {
+		$description = FreshPorts::Utilities::ReadFile("$DESTDIR/$FILE");
+	} else {
 		FreshPorts::Utilities::ReportError('warning', "Could not fetch file for '$DESTDIR' '$SRCDIR' '$FILE'.  Error code = " . ($? >> 8), 0);
 		$description = 'No description supplied (pkg/COMMENT not found)';
-	} else {
-		$description = FreshPorts::Utilities::ReadFile("$DESTDIR/$FILE");
 	}
 
 	# get rid of the trailing CR/LF.

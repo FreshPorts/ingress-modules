@@ -1,10 +1,11 @@
 #!/bin/sh
 #
-# $Id: fetch-cvs-file.sh,v 1.6.2.7 2004-09-27 00:29:25 dan Exp $
+# $Id: fetch-cvs-file.sh,v 1.6.2.8 2004-09-28 22:15:48 dan Exp $
 #
 # Copyright (c) 2000-2004 DVL Software
 #
 
+echo "num of params = $#"
 if  [ $# -ne 6 ];
 	then echo $0 : usage $0 URL DESTDIR SRCDIR FILE REVISION SUFFIX 1>&2
 	exit 1
@@ -28,8 +29,8 @@ else
 	#
 	time=`/bin/date +"%s"`
 
-#	echo "* * * about to fetch '$URL/$SRCDIR/$FILE?rev=$REVISION$SUFFIX&cache_busting_value=$time'"
-#	echo "* * * fetching into $FETCHFILE"
+	echo "* * * about to fetch '$URL/$SRCDIR/$FILE?rev=$REVISION$SUFFIX&cache_busting_value=$time'"
+	echo "* * * fetching into $FETCHFILE"
 
 	/usr/bin/fetch -A -o $FETCHFILE "$URL/$SRCDIR/$FILE?rev=$REVISION$SUFFIX&cache_busting_value=$time"
 	exit $?

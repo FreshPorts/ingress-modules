@@ -1,4 +1,4 @@
-# $Id: utilities.pm,v 1.11.2.19 2004-09-27 00:30:17 dan Exp $
+# $Id: utilities.pm,v 1.11.2.20 2004-09-28 22:15:48 dan Exp $
 #
 #
 # Copyright (c) 2001-2004 DVL Software
@@ -46,7 +46,7 @@ sub FetchFile($;$;$;$;) {
 	my $FILE		= shift;
 	my $REVISION	= shift;
 
-	return FetchFileURL($FreshPorts::Config::CVS_Repository, $DESTDIR, $SRCDIR, $FILE, $REVISION, '');
+	return FetchFileURL($FreshPorts::Config::CVS_Repository, $DESTDIR, $SRCDIR, $FILE, $REVISION, "''");
 }
 sub FetchFileURL($;$;$;$;$;$) {
 	#
@@ -62,7 +62,7 @@ sub FetchFileURL($;$;$;$;$;$) {
 	my $REVISION	= shift;
 	my $SUFFIX      = shift;
 
-#	print "FetchFileURL $URL $DESTDIR $SRCDIR $FILE $REVISION $SUFFIX\n";
+#	print "FetchFileURL '$URL' '$DESTDIR' '$SRCDIR' '$FILE' '$REVISION' '$SUFFIX'\n";
 
 	my $result = 0;
 
