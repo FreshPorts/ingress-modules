@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: verifyport.pm,v 1.31 2001-12-24 03:16:05 dan Exp $
+# $Id: verifyport.pm,v 1.32 2001-12-24 04:36:35 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -183,11 +183,12 @@ sub SaveChangesToPortsTree($;$;$) {
 	my $dbh				= shift;
 
 	my %ListOfPorts;
+	my %CommitLogPorts;	# hash of commit_log_ports objects
 
 	#
 	# we record the ports affected by a given commit
 	#
-	my $commit_log_ports = FreshPorts::CommitLogPorts->new($dbh);
+	my $commit_log_ports;
 
 
 #
@@ -243,6 +244,11 @@ sub SaveChangesToPortsTree($;$;$) {
 			#
 			# make sure we record what ports were updated by this commit
 			#
+			# we create a new one each time because of the update method...
+			# it checks for {saved}... not very OO, but oh...
+			#
+			$commit_log_ports = FreshPorts::CommitLogPorts->new($dbh);
+
 			$commit_log_ports->{commit_log_id}	= $commit_log_id;
 			$commit_log_ports->{port_id}		= $port->{id};
 			$commit_log_ports->{needs_refresh}	= $port->GetNeedsRefreshForNewPort();
@@ -253,6 +259,16 @@ sub SaveChangesToPortsTree($;$;$) {
 			}
 
 			$commit_log_ports->save();
+
+			#
+			# now we save the commit_log_port with the port
+			# so we can process them for refresh later...
+			# and then zero out needs_refresh.
+			# messy.  Perhaps there is a neater way.
+			#
+			$commit_log_ports->{port}	= $port;
+			$CommitLogPorts{portname}	= $commit_log_ports;
+
 		}
 
 		_RecordPortFilesTouchedByThatCommit($commit_log_id, $Files, \%ListOfPorts, $dbh);
@@ -260,7 +276,7 @@ sub SaveChangesToPortsTree($;$;$) {
 		_DeleteDeletedPorts(\%ListOfPorts, $dbh);
 	}
 
-	return %ListOfPorts;
+	return %CommitLogPorts;
 }
 
 sub _LoadMasterPortsForAnySlavePorts($;$) {
@@ -428,17 +444,24 @@ sub RefreshAllPortsTouchedByCommit($) {
 	# refresh each of them
 	#
 
-	my $PortsRef	= shift;
-	my %Ports		= %{$PortsRef};
+	my $CommitLogPortsRef	= shift;
+	my %CommitLogPorts		= %{$CommitLogPortsRef};
+
+	my $port;
 
 	#
 	# refresh each and every port we are told about
 	#
 	print "# # # # Refreshing ports # # # #\n\n";
-	while (my ($portname, $port) = each %Ports) {
-		print "port = $portname, port_id = '$port->{id}', category_id='$port->{category_id}', needs_refresh='$port->{needs_refresh}'\n";
+	while (my ($portname, $commit_log_port) = each %CommitLogPorts) {
+		$port = $commit_log_port->{port};
+		print "port = $portname, port_id = '$port->{id}', category_id='$port->{category_id}', needs_refresh='$commit_log_port->{needs_refresh}'\n";
 
-		$port->RefreshFromFiles();
+		$port->RefreshFromFiles($commit_log_port->{needs_refresh});
+
+		$commit_log_port->{needs_refresh}	= 0;
+		$commit_log_port->{port_version}	= $port->{version};
+		$commit_log_port->save();
 	}
 
 	print "# # # # done refreshing ports # # # #\n\n";

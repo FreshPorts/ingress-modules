@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.19 2001-12-24 03:16:04 dan Exp $
+# $Id: port.pm,v 1.20 2001-12-24 04:36:34 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -548,6 +548,11 @@ sub RefreshFromFiles($) {
 #
 	my $this			= shift;
 	my $needs_refresh	= shift;
+
+	if (!defined($needs_refresh)) {
+		Sys::Syslog::syslog('warning',"needs_refresh has no value");
+		die "needs_refresh has no value";
+	}
 
 	my $result	= 0;
 

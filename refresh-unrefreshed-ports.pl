@@ -1,18 +1,14 @@
 #!/usr/bin/perl -w
 #
-# $Id: refresh-unrefreshed-ports.pl,v 1.7 2001-12-22 04:30:40 dan Exp $
+# $Id: refresh-unrefreshed-ports.pl,v 1.8 2001-12-24 04:36:34 dan Exp $
 #
 # Copyright (c) 1999-2001 DVL Software
 #
 
 use strict;
-use lib '/home/lists-test/scripts';
+use lib '~/scripts';
 use port;
- 
 use DBI;
-
-use lib '~/tmp/scripts';
-
 use database;
 use utilities;
 
@@ -68,7 +64,7 @@ foreach $porttorefresh (@PORTS) {
 
 	$port->{id} = $port_id;
 	if ($port->FetchByID()) {
-		$port->RefreshFromFiles();
+		$port->RefreshFromFiles(fillintheblank);
 	} else {
 		Sys::Syslog::syslog('warning', "Could not retrieve port ($port_id, $category_name, $port_name, $needs_refresh)");
 		die "Could not retrieve port ($port_id, $category_name, $port_name, $needs_refresh)";

@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: load_xml_into_db.pl,v 1.29 2001-12-23 18:50:34 dan Exp $
+# $Id: load_xml_into_db.pl,v 1.30 2001-12-24 04:36:34 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -21,7 +21,9 @@
 #we make a great deal of use of a global variable Updates.  We should fix that up.
 # use strict;
 
-use lib '/home/lists/scripts';
+push (@INC, '~/scripts');
+
+use lib '/home/lists-test/scripts';
 
 require Sys::Syslog;
 
@@ -228,9 +230,9 @@ sub handle_update_end
 	# Now we want to update the Ports subsection of the database based upon
 	# the list of files we have.
 
-	my %Ports;	# array of port objects touched by this message.
+	my %CommitLogPorts;	# array of port objects touched by this message.
 
-	%Ports = FreshPorts::VerifyPort::SaveChangesToPortsTree($commit_log_id, \@Files, $dbh);
+	%CommitLogPorts = FreshPorts::VerifyPort::SaveChangesToPortsTree($commit_log_id, \@Files, $dbh);
 	$dbh->commit();
 
 	print "\n --- end of this update --- \n";
@@ -267,10 +269,10 @@ sub handle_update_end
 
 	# now we should refresh all the ports associated with this commit
 
-	FreshPorts::VerifyPort::RefreshAllPortsTouchedByCommit(\%Ports);
+	FreshPorts::VerifyPort::RefreshAllPortsTouchedByCommit(\%CommitLogPorts);
 
 	# create the daily summaries (if we have a port there..)
-	if (keys %Ports) {
+	if (keys %CommitLogPorts) {
 		FreshPorts::VerifyPort::CreateDailySummary($commit_date, $dbh);
 	} else {
 		print "No ports found: CreateDailySummary not being called\n";

@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: commit_log_ports.pm,v 1.5 2001-12-24 03:16:04 dan Exp $
+# $Id: commit_log_ports.pm,v 1.6 2001-12-24 04:36:34 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -44,17 +44,20 @@ sub save {
 	my $sql;
 	my @row;
 
+	my $quoted_port_version = $dbh->quote($this->{port_version});
+
 	if (!defined($this->{saved})) {
 		# we are inserting
+
 		$sql = "insert into commit_log_ports \
 				(commit_log_id, port_id, needs_refresh, port_version) values \
-				($this->{commit_log_id}, $this->{port_id}, $this-<{needs_refresh}, \
-				 $dbh->quote($this->{port_version}))";
+				($this->{commit_log_id}, $this->{port_id}, $this->{needs_refresh}, \
+				 $quoted_port_version)";
 	} else {
 		# we are updating
 		$sql = "update commit_log_ports \
-				   set needs_refresh =  $this-<{needs_refresh} . \
-				 	   port_version  =  $dbh->quote($this->{port_version}) \
+				   set needs_refresh =  $this->{needs_refresh}, \
+				 	   port_version  =  $quoted_port_version \
 				 where commit_log_id =  $this->{commit_log_id} \
 				   and port_id       =  $this->{port_id}";
 	}
