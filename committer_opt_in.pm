@@ -1,5 +1,5 @@
 #
-# $Id: committer_opt_in.pm,v 1.1.2.1 2002-08-12 04:29:09 dan Exp $
+# $Id: committer_opt_in.pm,v 1.1.2.2 2002-09-16 13:26:22 dan Exp $
 #
 # Copyright (c) 2002 DVL Software
 #
@@ -22,7 +22,7 @@ sub CommitterHasOptedIn($;$) {
 
 	my $sql = "select committer
               from committer_notify
-             where committer = '$committer'";
+             where lower(committer) = lower('$committer')";
 	my $sth = $dbh->prepare($sql);
 	if (!$sth->execute())  {
 		FreshPorts::Utilities::ReportError('warning', "Could not execute sql: $sql", 1);
