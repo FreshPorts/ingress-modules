@@ -1,4 +1,4 @@
-# $Id: utilities.pm,v 1.11.2.6 2002-11-24 17:14:58 dan Exp $
+# $Id: utilities.pm,v 1.11.2.7 2002-11-29 17:01:53 dan Exp $
 #
 #
 # Copyright (c) 2001 DVL Software
@@ -106,11 +106,11 @@ sub ReportError($;$;$) {
 
 	my $suffix = $FreshPorts::Config::scriptpath;
 
-	Sys::Syslog::syslog($level, $message . " $suffix)");
+	Sys::Syslog::syslog($level, $message . " ($suffix)");
 	print $message . "\n";
 
 	if ($die) {
-		SendEmailNotice("dan\@langille.org", $message);
+		SendEmailNotice('dan@langille.org', $message);
 		die $message . "\n";
 	}
 }
