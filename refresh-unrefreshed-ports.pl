@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: refresh-unrefreshed-ports.pl,v 1.20.2.6 2003-05-16 01:14:07 dan Exp $
+# $Id: refresh-unrefreshed-ports.pl,v 1.20.2.7 2003-10-24 16:24:29 dan Exp $
 #
 # Copyright (c) 1999-2003 DVL Software
 #
@@ -82,7 +82,7 @@ while (@row=$sth->fetchrow_array) {
 	push @PORTS, {%Port};
 }
  
-my $port					= FreshPorts::Port->new($dbh);
+my $port				= FreshPorts::Port->new($dbh);
 my $element				= FreshPorts::Element->new($dbh);
 my $commit_log_ports	= FreshPorts::CommitLogPorts->new($dbh);
 
