@@ -1,5 +1,5 @@
 #
-# $Id: crontab.sample,v 1.5 2002-01-06 07:16:37 dan Exp $
+# $Id: crontab.sample,v 1.6 2002-01-20 21:08:48 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -8,18 +8,16 @@ SHELL=/bin/sh
 # mail any output to `paul', no matter whose crontab this is
 MAILTO=dan
 
-#
-# do that backup 
-#
-
-#0	1	*		*	*	nice -15 sh -c '(${HOME}/scripts/database_dump.sh 2>&1 | mail -s "freshports Backup" root)'
+0	1	*		*	*	nice -15 sh -c '(${HOME}/scripts/database_dump.sh 2>&1 | mail -s "freshports Backup" root)'
 10	18	*		*	*	nice -15 sh -c '(cd ${HOME}/scripts ; /usr/bin/perl ${HOME}/scripts/email.pl D 2>&1 | mail -s "freshports daily notice"       root)'
 0	19	*		*	2	nice -15 sh -c '(cd ${HOME}/scripts ; /usr/bin/perl ${HOME}/scripts/email.pl W 2>&1 | mail -s "freshports weekly notice"      root)'
 20	19	9,23	*	*	nice -15 sh -c '(cd ${HOME}/scripts ; /usr/bin/perl ${HOME}/scripts/email.pl F 2>&1 | mail -s "freshports fortnightly notice" root)'
 40	19	23		*	*	nice -15 sh -c '(cd ${HOME}/scripts ; /usr/bin/perl ${HOME}/scripts/email.pl M 2>&1 | mail -s "freshports monthly notice"     root)'
 
-0	0	*	*	*	nice -15 sh -c '(cd ${HOME}/scripts ; /bin/sh  ${HOME}/scripts/searchlog.sh 2>&1 | mail -s "freshports searchlog" dan@langille.org)'
+58	15	*		*	*	/usr/local/bin/cvsup -b ${HOME} -h xeon ${HOME}/ports-supfile | mail -s "lists-test cvsup" root
 
-0	0	*	*	*	nice -15 sh -c '(cd ${HOME}/scripts ; /bin/sh newusers.sh 2>&1 | mail -s "FreshPorts users" dan@langille.org)'
+0	0	*		*	*	nice -15 sh -c '(cd ${HOME}/scripts ; /bin/sh  ${HOME}/scripts/searchlog.sh 2>&1 | mail -s "freshports searchlog" dan@langille.org)'
+
+0	0	*		*	*	nice -15 sh -c '(cd ${HOME}/scripts ; /bin/sh newusers.sh 2>&1 | mail -s "FreshPorts users" dan@langille.org)'
 */10	*	*	*	*	perl ${HOME}/scripts/unrefreshed.pl 2>&1 > /dev/null
-10	0	*	*	*	${HOME}/scripts/archive-messages.sh
+10	0	*		*	*	${HOME}/scripts/archive-messages.sh >> /dev/null
