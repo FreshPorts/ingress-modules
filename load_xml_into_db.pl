@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: load_xml_into_db.pl,v 1.46.2.1 2002-04-01 22:52:06 dan Exp $
+# $Id: load_xml_into_db.pl,v 1.46.2.2 2002-04-12 05:31:59 dan Exp $
 #
 # Copyright (c) 2001-2002 DVL Software
 #
@@ -167,8 +167,8 @@ sub SetupParser($) {
 	$p->register(">UPDATES>UPDATE>PEOPLE>UPDATER",			"end"  => \&handle_updater_end);
 
 	$p->register(">UPDATES>UPDATE>MESSAGE:Id",				"attr" => \$Updates{MessageId});
-
 	$p->register(">UPDATES>UPDATE>MESSAGE:Subject",			"attr" => \$Updates{MessageSubject});
+	$p->register(">UPDATES>UPDATE>MESSAGE:EncodingLosses",	"attr" => \$Updates{MessageEncodingLosses});
 
 
 	$p->register(">UPDATES>UPDATE>MESSAGE>DATE:Year",		"attr" => \$Updates{messageyear});
@@ -631,6 +631,7 @@ sub SaveUpdateToDB {
 	$commit_log->{committer}		= $committer;
 	$commit_log->{description}		= $description;
 	$commit_log->{system_id}		= $SystemID;
+	$commit_log->{encoding_losses}	= $Updates{MessageEncodingLosses};
 
 	$id = $commit_log->save();
 
