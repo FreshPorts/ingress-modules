@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: vuxml_mark_commits.pm,v 1.1.2.2 2004-12-11 00:58:31 dan Exp $
+# $Id: vuxml_mark_commits.pm,v 1.1.2.3 2004-12-13 14:50:23 dan Exp $
 #
 # Copyright (c) 1999-2004 DVL Software
 #
@@ -227,23 +227,23 @@ sub ProcessEachRangeRecord() {
 	my $this = shift;
 
 	my $dbh = $this->{dbh};
-    my $sth;
-    my $sql;
-    my $range;
-    my $i           = 0;
-    my $LastPackage = undef;
+	my $sth;
+	my $sql;
+	my $range;
+	my $i           = 0;
+	my $LastPackage = undef;
 
-    my @Commits         = undef;
+	my @Commits         = undef;
 	my @AffectedCommits = ();
 
 
-    $sql = "select * from vuxml_ranges();";
+	$sql = "select * from vuxml_ranges();";
 
-    print "sql is $sql\n";
+	print "sql is $sql\n";
 
-    $sth = $dbh->prepare($sql);
-    $sth->execute ||
-           die "Could not execute SQL $sql ... maybe invalid?";
+	$sth = $dbh->prepare($sql);
+	$sth->execute ||
+		die "Could not execute SQL $sql ... maybe invalid?";
 
     while ($range = $sth->fetchrow_hashref()) {
 		$i++;
