@@ -1,5 +1,5 @@
 #
-# $Id: email.pm,v 1.1.2.6 2003-05-02 18:04:34 dan Exp $
+# $Id: email.pm,v 1.1.2.7 2003-05-10 19:18:12 dan Exp $
 #
 # Copyright (c) 2002 DVL Software
 #
