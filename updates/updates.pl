@@ -111,7 +111,6 @@ sub PortUpdate($;$;$;$;$;$;$;$;$) {
    my $dbh         = shift;
 
    my $sql = "";
-   my $refresh_needed = "N";
 
    print "change log ID is $ChangeLogID\n";
 
@@ -203,7 +202,7 @@ sub PortUpdate($;$;$;$;$;$;$;$;$) {
                # if we are deleting a port, we don't need to refresh it.
                # we do this in case the port is already waiting for a refresh
                # when it is deleted.
-               $refresh_needed = "N"
+               $sql .= ", needs_refresh = 'N'";
             }
          } else {
 
@@ -214,16 +213,14 @@ sub PortUpdate($;$;$;$;$;$;$;$;$) {
             # pretty much means the port is being deleted.
             #
 
-            if ($entry =~ /$FilesWhichPromptRefresh/) {
-               $refresh_needed = "Y";
+            if (index($FilesWhichPromptRefresh, $entry) != -1) {
+               #
+               # if the port has not been deleted
+               #
+               if ($StatusOriginal ne "D") {
+                  $sql .= ", needs_refresh = 'Y'";
+               }
             }
-         }
-
-         #
-         # change the needs_refresh flag if necessary.
-         #
-         if ($NeedsRefreshOriginal ne $refresh_needed) {
-            $sql .= ", needs_refresh = '$refresh_needed'";
          }
 
          $sql .= " where id = $PortID";
