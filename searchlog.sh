@@ -1,8 +1,8 @@
 #!/bin/sh
 #
-# $Id: searchlog.sh,v 1.3 2002-01-06 07:17:55 dan Exp $
+# $Id: searchlog.sh,v 1.3.2.1 2002-06-02 14:03:28 dan Exp $
 #
-# Copyright (c) 2001 DVL Software
+# Copyright (c) 2001-2002 DVL Software
 #
 
-grep `date -v-1d "+%Y-%m-%d"` ${HOME}/src/configuration/searchlog.txt
+grep `date -v-1d "+%Y-%m-%d"` /usr/websites/freshports.org/dynamic/searchlog.txt
