@@ -1,4 +1,12 @@
 #!/bin/sh
+#
+# $Id: archive-logs.sh,v 1.4 2001-12-22 23:23:08 dan Exp $
+#
+# Copyright (c) 2001 DVL Software Limited
+#
+# archive away all the messages which were created N days ago
+# take them from MSGDIR and put them in ARCHIVEDIR/YYYY_MM/YYYY_MM_DD/
+#
 
 if [ $# -ne 3 ]
 then
