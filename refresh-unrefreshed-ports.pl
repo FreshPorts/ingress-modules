@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: refresh-unrefreshed-ports.pl,v 1.13 2002-02-02 03:06:30 dan Exp $
+# $Id: refresh-unrefreshed-ports.pl,v 1.14 2002-02-03 01:51:24 dan Exp $
 #
 # Copyright (c) 1999-2001 DVL Software
 #
@@ -74,7 +74,7 @@ foreach $porttorefresh (@PORTS) {
 				print "that port has been deleted and will not be refreshed\n";
 				$result = 0;
 			} else {
-				$result = $port->RefreshFromFiles($needs_refresh);
+				$result = $port->RefreshFromFiles($needs_refresh, 1);
 				print "has been refreshed ($result)\n";
 			}
 		} else {

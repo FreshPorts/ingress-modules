@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: verifyport.pm,v 1.40 2002-02-02 03:06:31 dan Exp $
+# $Id: verifyport.pm,v 1.41 2002-02-03 01:51:24 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -180,10 +180,11 @@ print "SETTING CATEGORY =  $port->{category_id}\n";
 	return %ListOfPorts;
 }
 
-sub SaveChangesToPortsTree($;$;$) {
+sub SaveChangesToPortsTree($;$;$;$) {
 	my $commit_log_id	= shift;
 	my $Files			= shift;
 	my $dbh				= shift;
+	my $fetch_files		= shift;
 
 	my %ListOfPorts;
 	my %CommitLogPorts;	# hash of commit_log_ports objects
@@ -220,7 +221,10 @@ sub SaveChangesToPortsTree($;$;$) {
 		# port being saved which requires the master port
 		# Makfile to be already on disk before we do a make -V ..etc
 		#
-		_LoadMasterPortsForAnySlavePorts($Files, $dbh);
+
+		if ($fetch_files) {
+			_LoadMasterPortsForAnySlavePorts($Files, $dbh);
+		}
 
 		#
 		# for each port, ensure that we save away the new needs_refresh value
@@ -295,8 +299,8 @@ sub _LoadMasterPortsForAnySlavePorts($;$) {
 	# it's simple.  it works.  for this particular problem.
 	#
 
-	my $Files	= shift;
-	my $dbh		= shift;
+	my $Files		= shift;
+	my $dbh			= shift;
 
 	
 	my $action;
@@ -445,14 +449,15 @@ sub _RecordPortFilesTouchedByThatCommit($;$;$;$) {
 	}
 }
 
-sub RefreshAllPortsTouchedByCommit($) {
+sub RefreshAllPortsTouchedByCommit($;$) {
 	#
 	# given the ports touched by this commit
 	# refresh each of them
 	#
 
-	my $CommitLogPortsRef	= shift;
-	my %CommitLogPorts		= %{$CommitLogPortsRef};
+	my $CommitLogPortsRef		= shift;
+	my %CommitLogPorts			= %{$CommitLogPortsRef};
+	my $fetch_before_refresh	= shift;
 
 	my $port;
 	my $error = 0;
@@ -465,7 +470,7 @@ sub RefreshAllPortsTouchedByCommit($) {
 		$port = $commit_log_ports->{port};
 		print "port = $portname, port_id = '$port->{id}', category_id='$port->{category_id}', needs_refresh='$commit_log_ports->{needs_refresh}'\n";
 
-		$error = $port->RefreshFromFiles($commit_log_ports->{needs_refresh});
+		$error = $port->RefreshFromFiles($commit_log_ports->{needs_refresh}, $fetch_before_refresh);
 		if (!$error) {
 			
 			# after refreshing from the files, save the results

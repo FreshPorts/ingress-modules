@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.28 2002-02-02 03:06:30 dan Exp $
+# $Id: port.pm,v 1.29 2002-02-03 01:51:24 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -417,7 +417,6 @@ sub _FetchFilesNeedingRefresh {
 
 	my $FILE	= $FreshPorts::Constants::FILE_MAKEFILE;
 
-
 	print "\$DESTDIR = $DESTDIR\n";
 	print "\$SRCDIR  = $SRCDIR\n";
 	print "\$FILE    = $FILE\n";
@@ -567,13 +566,14 @@ sub _PackageExists($) {
 	return $exists;
 }
 
-sub RefreshFromFiles($) {
+sub RefreshFromFiles($;$) {
 #
 # refresh this port based on the make files associated with it and the value of needs_refresh
 # returns 0 for success, 1 for failure
 #
 	my $this			= shift;
 	my $needs_refresh	= shift;
+	my $fetch_files		= shift;
 
 	if (!defined($needs_refresh)) {
 		FreshPorts::Utilities::ReportError('warning', "needs_refresh has no value", 1);
@@ -584,10 +584,12 @@ sub RefreshFromFiles($) {
 
 	my $FetchAttempts = 5;
 
-	if ($needs_refresh > 0) {
+	#
+	# fetch the files needed
+	#
+	if ($needs_refresh > 0 && $fetch_files) {
 		while ($FetchAttempts) {
 			if ($this->_FetchFilesNeedingRefresh()) {
-				$error = $this->_ExtractValuesFromMakefile();
 				last;
 			} else {
 				# fetch failed
@@ -600,6 +602,11 @@ sub RefreshFromFiles($) {
 		}
 	} else {
 		print "this port does not need a refresh\n";
+	}
+
+	# if we didn't use up all of our fetch attempts...
+	if ($FetchAttempts) {
+		$error = $this->_ExtractValuesFromMakefile();
 	}
 
 	if (!$FetchAttempts || $error) {
