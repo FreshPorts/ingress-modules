@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $Id: create_dirs.sh,v 1.1 2002-02-18 05:36:34 dan Exp $
+# $Id: create_dirs.sh,v 1.2 2002-03-22 19:52:42 dan Exp $
 #
 # Copyright (c) 1999-2002 DVL Software
 #
@@ -8,6 +8,7 @@
 #
 
 mkdir $HOME/mail
+mkdir $HOME/msgs
 mkdir $HOME/msgs/spooling
 mkdir $HOME/msgs/FreeBSD
 mkdir $HOME/msgs/FreeBSD/archive
