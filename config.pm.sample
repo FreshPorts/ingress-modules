@@ -1,5 +1,5 @@
 #
-# $Id: config.pm.sample,v 1.13.2.3 2002-12-17 13:28:30 dan Exp $
+# $Id: config.pm.sample,v 1.13.2.4 2002-12-17 15:50:48 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -42,6 +42,7 @@ $FreshPorts::Config::ports_prefix		= 'ports';
 $FreshPorts::Config::DailySummaryDir	= $ENV{HOME} . "/src/www/archives"; # no trailing /
 $FreshPorts::Config::HourlySummaryDir	= "/usr/websites/freshports.org/dynamic";
 
+$FreshPorts::Config::CommitterNotify	= 1;	# Should we notify committers of problems?
 
 #
 # Change only above. Do not change below.
