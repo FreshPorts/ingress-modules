@@ -17,3 +17,4 @@ MAILTO=dan
 
 0	0	*	*	*	nice -15 sh -c '(cd /home/freshports.org/scripts ; /bin/sh newusers.sh 2>&1 | mail -s "FreshPorts users" dan@langille.org)'
 */10	*	*	*	*	perl /home/freshports.org/scripts/unrefreshed.pl 2>&1 > /dev/null
+10	0	*	*	*	${HOME}/scripts/archive-messages.sh
