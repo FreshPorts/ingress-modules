@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: set-historical-epoch.pl,v 1.1.2.4 2004-09-25 19:41:17 dan Exp $
+# $Id: set-historical-epoch.pl,v 1.1.2.5 2004-09-25 19:53:11 dan Exp $
 #
 # Copyright (c) 1999-2004 DVL Software
 #
@@ -126,12 +126,6 @@ order by C.commit_date desc";
 
 	my $EPOCH = '';
 
-	my $PortInstance = FreshPorts::Port->new($dbh);
-#	$PortInstance->{id} = $Port->{'id'};
-#	if (!$PortInstance->FetchByID()) {
-#		die 'could not fetch port => ' . $PortInstance->{id};
-#	}
-
 	while (my $commit=$sth->fetchrow_hashref()) {
 		print sprintf "commit_log_id = %8d commit_date = %s", $commit->{'commit_log_id'}, $commit->{'commit_date'};
 		print sprintf "%20s", PackageVersion($commit->{'port_version'}, $commit->{'port_revision'}, $commit->{'port_epoch'});
@@ -143,29 +137,15 @@ order by C.commit_date desc";
 
 			my $URL     = 'http://cvsweb.unixathome.org/cgi-bin/cvsweb.cgi/~checkout~';
 			my $DESTDIR = '/tmp';
-#			my $DESTDIR = '~/' . $commit->{'pathname'};
 			my $SRCDIR  = $commit->{'pathname'};
 			my $FILE    = $FreshPorts::Constants::FILE_MAKEFILE;
 			my $SUFFIX  = '\&content-type=text/plain\&cvsroot=freebsd';
 
 			if (FreshPorts::Utilities::FetchFileURL($URL, $DESTDIR, $SRCDIR, $FILE, $commit->{'revision_name'}, $SUFFIX)) {
 
-#				my $result = $PortInstance->RefreshFromFiles(0, 0);
-#				if ($result != 0) {
-#					die 'RefreshFromFiles failed with ' . $result;
-#				}
-
 				$EPOCH = `grep PORTEPOCH $DESTDIR/$FILE | awk '{print \$2}'`;
 				chomp $EPOCH;
 				print " contains EPOCH = '$EPOCH'";
-
-#				print "\n";
-#
-#				print "make -V PORTEPOCH returns '" . $PortInstance->{portepoch} . "'\n";
-#
-#				if ($EPOCH ne '' && $PortInstance->{portepoch} ne $EPOCH) {
-#					print "\n\n\n *********************** the two EPOCHS do not match ***********************\n\n\n";
-#				}
 
 			} else {
 				FreshPorts::Utilities::ReportError('warning', "Could not execute fetch file", 1);
