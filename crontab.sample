@@ -1,5 +1,5 @@
 #
-# $Id: crontab.sample,v 1.7.2.3 2002-07-27 19:51:21 dan Exp $
+# $Id: crontab.sample,v 1.7.2.4 2002-11-26 03:46:08 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -9,10 +9,16 @@ SHELL=/bin/sh
 MAILTO=dan
 
 0	1	*		*	*	nice -15 sh -c '(${HOME}/scripts/database_dump.sh 2>&1 | mail -s "freshports Backup" root)'
-10	18	*		*	*	nice -15 sh -c '(cd ${HOME}/scripts ; /usr/bin/perl ${HOME}/scripts/email.pl D 2>&1 | mail -s "freshports daily notice"       root)'
-0	19	*		*	2	nice -15 sh -c '(cd ${HOME}/scripts ; /usr/bin/perl ${HOME}/scripts/email.pl W 2>&1 | mail -s "freshports weekly notice"      root)'
-20	19	9,23	*	*	nice -15 sh -c '(cd ${HOME}/scripts ; /usr/bin/perl ${HOME}/scripts/email.pl F 2>&1 | mail -s "freshports fortnightly notice" root)'
-40	19	23		*	*	nice -15 sh -c '(cd ${HOME}/scripts ; /usr/bin/perl ${HOME}/scripts/email.pl M 2>&1 | mail -s "freshports monthly notice"     root)'
+
+10	18	*		*	*	nice -15 sh -c '(cd ${HOME}/scripts ; /usr/bin/perl ${HOME}/scripts/report-notification.pl D 2>&1 | mail -s "freshports NEW daily notice"       root)'
+0	19	*		*	2	nice -15 sh -c '(cd ${HOME}/scripts ; /usr/bin/perl ${HOME}/scripts/report-notification.pl W 2>&1 | mail -s "freshports NEW weekly notice"      root)'
+20	19	9,23	*	*	nice -15 sh -c '(cd ${HOME}/scripts ; /usr/bin/perl ${HOME}/scripts/report-notification.pl F 2>&1 | mail -s "freshports NEW fortnightly notice" root)'
+40	19	23		*	*	nice -15 sh -c '(cd ${HOME}/scripts ; /usr/bin/perl ${HOME}/scripts/report-notification.pl M 2>&1 | mail -s "freshports NEW monthly notice"     root)'
+
+10	18	*		*	*	nice -15 sh -c '(cd ${HOME}/scripts ; /usr/bin/perl ${HOME}/scripts/report-new-ports.pl D 2>&1 | mail -s "freshports NEW ports daily notice"       root)'
+0	19	*		*	2	nice -15 sh -c '(cd ${HOME}/scripts ; /usr/bin/perl ${HOME}/scripts/report-new-ports.pl W 2>&1 | mail -s "freshports NEW ports weekly notice"      root)'
+20	19	9,23	*	*	nice -15 sh -c '(cd ${HOME}/scripts ; /usr/bin/perl ${HOME}/scripts/report-new-ports.pl F 2>&1 | mail -s "freshports NEW ports fortnightly notice" root)'
+40	19	23		*	*	nice -15 sh -c '(cd ${HOME}/scripts ; /usr/bin/perl ${HOME}/scripts/report-new-ports.pl M 2>&1 | mail -s "freshports NEW ports monthly notice"     root)'
 
 58	15	*		*	*	/usr/local/bin/cvsup -b ${HOME} -h xeon ${HOME}/scripts/ports-supfile | mail -s "lists-test cvsup" root
 
