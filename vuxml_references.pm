@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: vuxml_references.pm,v 1.1.2.1 2004-09-10 03:26:42 dan Exp $
+# $Id: vuxml_references.pm,v 1.1.2.2 2004-12-11 00:11:29 dan Exp $
 #
 # Copyright (c) 2004 DVL Software
 #
@@ -42,13 +42,21 @@ sub save {
 	my $sql;
 	my @row;
 
-	$this->{id} = FreshPorts::Database::GetNextValue($FreshPorts::Constants::vuxml_references_seq, $dbh);
+	if (!defined($this->{id})) {
+		$this->{id} = FreshPorts::Database::GetNextValue($FreshPorts::Constants::vuxml_references_seq, $dbh);
 
-	$sql = "insert into vuxml_references(id, vuxml_id, type, reference) values (
+		$sql = "insert into vuxml_references(id, vuxml_id, type, reference) values (
 				$this->{id},
-				" . $dbh->quote($this->{vuxml_id})  . ",
+				" . $this->{vuxml_id}  . ",
 				" . $dbh->quote($this->{type})      . ",
 				" . $dbh->quote($this->{reference}) . ")";
+	} else {
+		$sql = "UPDATE vuxml_references
+				   SET vuxml_id  = " . $this->{vuxml_id}  . ",
+				       type      = " . $dbh->quote($this->{type})      . ",
+				       reference = " . $dbh->quote($this->{reference}) . "
+				 WHERE id        = " . $this->{id};
+	}
 
 	print "sql is $sql\n";
 

@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: vuxml_affected.pm,v 1.1.2.2 2004-09-11 14:02:33 dan Exp $
+# $Id: vuxml_affected.pm,v 1.1.2.3 2004-12-11 00:12:43 dan Exp $
 #
 # Copyright (c) 2004 DVL Software
 #
@@ -43,12 +43,22 @@ sub save {
 	my $sql;
 	my @row;
 
-	$this->{id} = FreshPorts::Database::GetNextValue($FreshPorts::Constants::vuxml_affected_seq, $dbh);
+	if (!defined($this->{id})) {
+	
+		$this->{id} = FreshPorts::Database::GetNextValue($FreshPorts::Constants::vuxml_affected_seq, $dbh);
 
-	$sql = "insert into vuxml_affected(id, vuxml_id, type) values (
+		$sql = "insert into vuxml_affected(id, vuxml_id, type) values (
 				$this->{id},
 				$this->{vuxml_id},
 				" . $dbh->quote($this->{type}) . ')';
+	} else {
+		$sql = "
+UPDATE vuxml_affected
+   SET vuxml_id = "  .  $this->{vuxml_id} . ",
+       type     = '" . $dbh->quote($this->{type}) . "
+ WHERE id       = "  . $this->{id};
+	}
+
 
 	print "sql is $sql\n";
 
@@ -60,5 +70,7 @@ sub save {
 	# after saving, return the ID
 	return $this->{id};
 }
+
+
 
 1;

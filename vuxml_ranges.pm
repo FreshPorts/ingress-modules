@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: vuxml_ranges.pm,v 1.1.2.4 2004-09-20 19:55:32 dan Exp $
+# $Id: vuxml_ranges.pm,v 1.1.2.5 2004-12-11 00:12:43 dan Exp $
 #
 # Copyright (c) 2004 DVL Software
 #
@@ -44,15 +44,26 @@ sub save {
 	my $sql;
 	my @row;
 
-	$this->{id} = FreshPorts::Database::GetNextValue($FreshPorts::Constants::vuxml_ranges_seq, $dbh);
+	if (!defined($this->{id})) {
+		$this->{id} = FreshPorts::Database::GetNextValue($FreshPorts::Constants::vuxml_ranges_seq, $dbh);
 
-	$sql = "insert into vuxml_ranges(vuxml_affected_id, version1, operator1,
+		$sql = "insert into vuxml_ranges(id, vuxml_affected_id, version1, operator1,
 					operator2, version2) values (
+                " . $this->{id}                     . ",
 				" . $this->{vuxml_affected_id}      . ",
 				" . $dbh->quote($this->{version1})  . ",
 				" . $dbh->quote($this->{operator1}) . ",
 				" . $dbh->quote($this->{operator2}) . ",
 				" . $dbh->quote($this->{version2})  . ")";
+	} else {
+		$sql = "UPDATE vuxml_ranges
+				   SET vuxml_affected_id = " . $this->{vuxml_affected_id}      . ",
+				       version1          = " . $dbh->quote($this->{version1})  . ",
+				       operator1         = " . $dbh->quote($this->{operator1}) . ",
+				       operator2         = " . $dbh->quote($this->{operator2}) . ",
+				       version2          = " . $dbh->quote($this->{version2})  . "
+				 WHERE id                = " . $this->{id};
+	}
 
 	print "sql is $sql\n";
 
