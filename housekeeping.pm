@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: housekeeping.pm,v 1.1 2002-02-17 20:04:30 dan Exp $
+# $Id: housekeeping.pm,v 1.1.2.1 2002-04-01 22:53:11 dan Exp $
 #
 # Copyright (c) 2002 DVL Software
 #
@@ -60,6 +60,17 @@ sub read {
 
 	$this->{last_port_commit}	= $row[0];
 	$this->{refresh_now}		= $row[1];
+
+	$sql = "SELECT COUNT(*) from daily_refreshes";
+	$sth = $dbh->prepare($sql);
+	$sth->execute ||
+		FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql ... maybe invalid?", 1);
+
+	@row=$sth->fetchrow_array;
+
+	$sth->finish();
+
+	$this->{daily_refreshes}	= $row[0];	
 }
 
 1;
