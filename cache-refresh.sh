@@ -8,6 +8,11 @@ fi
 
 . config.sh
 
+if [ $OFFLINE = 1 ]
+then
+	exit 0
+fi
+
 if [ "${WEBSITEURL}x" = "x" ]
 then
 	echo 'define WEBSITEURL in config.sh first'

@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $Id: archive-messages.sh,v 1.1.2.5 2003-08-19 11:00:52 dan Exp $
+# $Id: archive-messages.sh,v 1.1.2.6 2004-02-07 06:26:09 dan Exp $
 #
 # Copyright (c) 2003 DVL Software Limited
 #
@@ -24,6 +24,11 @@ then
 fi
 
 . config.sh
+
+if [ $OFFLINE = 1 ]
+then
+	exit 0
+fi
 
 DAYS=$1
 

@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $Id: daily_rendering_times.sh,v 1.1.2.1 2004-01-12 19:02:05 dan Exp $
+# $Id: daily_rendering_times.sh,v 1.1.2.2 2004-02-07 06:26:09 dan Exp $
 #
 # Copyright (c) 2004 DVL Software Limited
 #
@@ -25,6 +25,11 @@ then
 fi
 
 . config.sh
+
+if [ $OFFLINE = 1 ]
+then
+	exit 0
+fi
 
 DAYS=$1
 
