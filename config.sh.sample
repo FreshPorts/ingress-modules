@@ -1,8 +1,18 @@
 #!/bin/sh
 #
-# $Id: config.sh.sample,v 1.1.2.1 2003-04-10 11:46:45 dan Exp $
+# $Id: config.sh.sample,v 1.1.2.2 2003-04-10 11:51:21 dan Exp $
 #
 
+#
+# where do I find files such as load_xml_into_db.pl
+#
 SCRIPTDIR="/path/to/scripts/directory"
+
+#
+# Where does the msg directory start?
+# This directory should contain the files
+# created by ${SCRIPTDIR}/procmail/create_dirs.sh
+# and be the value which supplied to that script.
+#
 MSGDIR="/path/to/msg/directory"
 
