@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: refresh-unrefreshed-ports.pl,v 1.20 2002-02-17 20:02:57 dan Exp $
+# $Id: refresh-unrefreshed-ports.pl,v 1.20.2.1 2002-04-21 23:46:07 dan Exp $
 #
 # Copyright (c) 1999-2001 DVL Software
 #
@@ -20,6 +20,7 @@ my $maxlength=0;
 my $dirname='';
 my $porttorefresh;
 my @PORTS;
+my %Port;
 my $sql;
 my $sth;
 my @row;
@@ -35,13 +36,15 @@ my $housekeeping = FreshPorts::Housekeeping->new($dbh);
 # get a list of ports to update
 #
 
-$sql = "select ports.id, categories.name as category, element.name as port, commit_log_ports.needs_refresh, commit_log_ports.commit_log_id 
-        from ports, categories, element, commit_log_ports 
+$sql = "select ports.id, categories.name as category, element.name as port, commit_log_ports.needs_refresh, 
+			   commit_log_ports.commit_log_id, to_char(commit_log.commit_date - SystemTimeAdjust(), 'YYYY-MM-DD') as commit_date
+        from ports, categories, element, commit_log_ports, commit_log
         where ports.category_id              = categories.id 
           and ports.element_id               = element.id
 		  and commit_log_ports.port_id       = ports.id  
           and commit_log_ports.needs_refresh <> 0 
 		  and element.status				 = 'A'
+		  and commit_log.id                  = commit_log_ports.commit_log_id
         order by category, port";
 
 print "sql = $sql\n";
@@ -51,20 +54,38 @@ $sth->execute ||
 		FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql ... maybe invalid?", 1);
 
 while (@row=$sth->fetchrow_array) {
-   print "now processing @row\n";
-   push @PORTS, "$row[0]:$row[1]:$row[2]:$row[3]:$row[4]"
+	print "now processing @row\n";
+	$Port{id}            = $row[0];
+	$Port{category}      = $row[1];
+	$Port{port}          = $row[2];
+	$Port{needs_refresh} = $row[3];
+	$Port{commit_log_id} = $row[4];
+	$Port{commit_date}   = $row[5];
+
+	#
+	# by enclosing the has in { }
+	# we are creating an anonymous hash
+	#
+	push @PORTS, {%Port};
 }
  
 my $port				= FreshPorts::Port->new($dbh);
 my $element				= FreshPorts::Element->new($dbh);
 my $commit_log_ports	= FreshPorts::CommitLogPorts->new($dbh);
 
+my %DatesToRefresh;
+
 foreach $porttorefresh (@PORTS) {
 	my $result;
 
-	print "found $porttorefresh\n";
+	my $port_id       = $porttorefresh->{id};
+	my $category_name = $porttorefresh->{category};
+	my $port_name     = $porttorefresh->{port};
+	my $needs_refresh = $porttorefresh->{needs_refresh};
+	my $commit_log_id = $porttorefresh->{commit_log_id};
+	my $commit_date   = $porttorefresh->{commit_date};
 
-	my ($port_id, $category_name, $port_name, $needs_refresh, $commit_log_id) = split /:/,$porttorefresh, 5;
+	print "found $category_name/$port_name $needs_refresh $commit_log_id $commit_date \n";
 
 	$port->{id} = $port_id;
 	if ($port->FetchByID()) {
@@ -112,12 +133,32 @@ foreach $porttorefresh (@PORTS) {
 			# the daily summary creation and then doing a rollback.
 			#
 			$dbh->commit();
+
+			#
+			# save that date away for later use
+			#
+			$DatesToRefresh{"$commit_date"} = "$commit_date";
 		} else {
 			print "update result is $result ******************************************\n";
 			$dbh->rollback();
 		}
 	} else {
 		FreshPorts::Utilities::ReportError('warning', "Could not retrieve port ($port_id, $category_name, $port_name, $needs_refresh, $commit_log_id)", 1);
+	}
+}
+
+$sth->finish();
+
+#
+# now save all those commit values away
+#
+while ( my ($key, $value) = each %DatesToRefresh) {
+	$sql = "select DailySummaryDateAdd('$key')";
+	print "sql is $sql\n";
+
+	$sth = $dbh->prepare($sql);
+	if (!$sth->execute) {
+		FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql ... maybe invalid? ". $dbh->errstr, 1);
 	}
 }
 
