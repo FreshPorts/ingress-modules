@@ -1,5 +1,5 @@
 #
-# $Id: committer_opt_in.pm,v 1.1.2.13 2004-02-04 05:24:39 dan Exp $
+# $Id: committer_opt_in.pm,v 1.1.2.14 2004-02-28 20:19:09 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -121,7 +121,7 @@ FreshPorts Daemon
 	                   "X-FreshPorts-Hostname: $Hostname\n" . 
 	                   "X-FreshPorts-Database: $FreshPorts::Config::dbname";
 
-	if ($FreshPorts::Config::CommitterNotify || $FreshPorts::Config::NotifyAdmin) {
+	if ($FreshPorts::Config::CommitterNotify) {
 		if ($FreshPorts::Config::CommitterNotify && CommitterHasOptedIn($committer, $dbh)) {
 			$To = "$committer\@FreeBSD.org";
 			$CC = $FreshPorts::Config::SystemOwnerEmail;
