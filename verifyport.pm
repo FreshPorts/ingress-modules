@@ -1,6 +1,5 @@
-#!/usr/bin/perl -w
 #
-# $Id: verifyport.pm,v 1.42.2.15 2003-09-23 15:49:05 dan Exp $
+# $Id: verifyport.pm,v 1.42.2.16 2003-09-24 13:49:27 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
