@@ -1,4 +1,4 @@
-# $Id: constants.pm,v 1.6 2002-02-02 03:06:28 dan Exp $
+# $Id: constants.pm,v 1.7 2002-03-12 15:39:18 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -42,13 +42,16 @@ $FreshPorts::Constants::FILE_MAKEFILEMAN	= "files/Makefile.man";
 # and /usr/ports/<category> which FreshPorts does not track
 #
 %FreshPorts::Constants::IgnoredItems = (
-	"Attic"		=> 1,
-	"distfiles"	=> 2,
-	"Mk"		=> 3,
-	"Tools"		=> 4,
-	"Templates"	=> 5,
-	"Makefile"	=> 6,
-	"pkg"		=> 7,
+	"Attic"			=> 1,
+	"distfiles"		=> 2,
+	"Mk"			=> 3,
+	"Tools"			=> 4,
+	"Templates"		=> 5,
+	"Makefile"		=> 6,
+	"pkg"			=> 7,
+	"Makefile.inc"	=> 8,
 );
+
+$FreshPorts::Constants::UsualPortsTreeLocation	= '/usr';
 
 1;
