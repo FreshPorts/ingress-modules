@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.38.2.9 2002-09-18 14:04:54 dan Exp $
+# $Id: port.pm,v 1.38.2.10 2002-11-04 20:29:36 dan Exp $
 #
 #
 # Copyright (c) 2001-2002 DVL Software
@@ -395,7 +395,15 @@ sub _ExtractValuesFromMakefile {
 
 		if (defined($RealDescrPath) && defined($RealCommentFile)) {
 			(my $longdescription, my $homepage) = _GetDescrAndHomePage($RealDescrPath);
-			my $shortdescription = FreshPorts::Utilities::ReadFile($RealCommentFile);
+
+			my $shortdescription;
+
+			if (-f $RealCommentFile) {
+				$shortdescription = FreshPorts::Utilities::ReadFile($RealCommentFile);
+			} else {
+				$shortdescription =  `make -V PORTCOMMENT -f $MakefileDirectory/$FreshPorts::Constants::FILE_MAKEFILE`;
+				chomp $shortdescription;
+			}
 
 			my $packageexists = _PackageExists($packagename . ".tgz");
 
