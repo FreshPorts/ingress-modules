@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: announce.pl,v 1.3.2.5 2002-12-12 04:59:12 dan Exp $
+# $Id: announce.pl,v 1.3.2.6 2003-05-01 11:59:23 dan Exp $
 #
 # Copyright (c) 1999-2000 DVL Software
 #
@@ -26,25 +26,41 @@ sub SendAnnouncement($) {
 
 	my $Body = "Folks,
 
-A new reporting facility has been created.  This allows
-new reports to be easily added.  It also puts all of your
-subscriptions in one easy place:
+FreshPorts Upgrade / Blacklist
 
-   http://www.FreshPorts.org/report-subscriptions.php
+Blacklist: 
+The FreshPorts mail server was caught up in a blacklist recently.
+This means you may not have been receiving FreshPorts as expected.
 
-Please visit the above URL to ensure you are subscribed to the
-reports you want.
+I urge you to review your watch list for any changes over the 
+past two weeks for which you may not have received an update
+notice.
 
-HEADS UP: If you subscribed or changed your report preferences
-on Monday September 9, 2002 around 2-3 pm EST, you should review
-your settings.  This was about the time which we converted the 
-database.  If you made no changes on this day, your previous settings
-should have been copied over to the new setup.
+For more information on the blacklist:
+
+http://www.freebsddiary.org/freshports-release-2003.04.29.php
+
+In the short term, FreshPorts mail is now going out from a
+new mail server.
+
+
+Upgrade:
+
+The FreshPorts server has been upgraded.  Now you can have
+one watch list per machine.  For details, see
+
+http://www.freebsddiary.org/freshports-release-2003.04.29.php
+http://www.freshports.org/release-2003-04-29.php
+
+Cheers 
+
+
+
 --
 
-You are recieving this message as part of the service
+You are receiving this message as part of the service
 you joined at http://www.FreshPorts.org/ but if you no longer
-wish to recieve such messages, please go to
+wish to receive such messages, please go to
 http://www.FreshPorts.org/report-subscriptions.php
 
 If a problem occurs, please send details, including the email
