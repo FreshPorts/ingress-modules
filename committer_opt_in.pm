@@ -1,5 +1,5 @@
 #
-# $Id: committer_opt_in.pm,v 1.1.2.10 2003-11-14 17:59:23 dan Exp $
+# $Id: committer_opt_in.pm,v 1.1.2.11 2003-11-20 14:14:00 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -112,7 +112,15 @@ FreshPorts Daemon
 	my $To           = $FreshPorts::Config::SystemOwnerEmail;
 	my $CC           = '';
 	my $Subject      = 'FreshPorts sanity checking';
-	my $ExtraHeaders = 'X-FreshPorts-Sanity: error';
+
+	my $Hostname     = `hostname`;
+
+	# we must cut off the trailing newlines or the headers will not be altogether
+	chomp $Hostname;
+
+	my $ExtraHeaders = "X-FreshPorts-Sanity: error\n" .
+	                   "X-FreshPorts-Hostname: $Hostname\n" . 
+	                   "X-FreshPorts-Database: $FreshPorts::Config::dbname";
 
 	if ($FreshPorts::Config::CommitterNotify || $FreshPorts::Config::NotifyAdmin) {
 		if (CommitterHasOptedIn($committer, $dbh)) {
