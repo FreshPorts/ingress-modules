@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $Id: archive-messages.sh,v 1.1.2.1 2003-02-25 14:13:27 dan Exp $
+# $Id: archive-messages.sh,v 1.1.2.2 2003-04-23 19:17:12 dan Exp $
 #
 # Copyright (c) 2001 DVL Software Limited
 #
@@ -16,11 +16,18 @@ then
    exit 1
 fi
 
+if [ ! -f config.sh ]
+then
+	echo "config.sh not found..."
+	exit 1
+fi
+
+. config.sh
 
 DAYS=$1
 
-BASEDIR=${HOME}/msgs/FreeBSD
-SCRIPTDIR=${HOME}/scripts
+
+BASEDIR=${MSGDIR}/msgs/FreeBSD
 
 ${SCRIPTDIR}/archive-logs.sh ${DAYS} ${BASEDIR}/raw        ${BASEDIR}/archive/raw
 ${SCRIPTDIR}/archive-logs.sh ${DAYS} ${BASEDIR}/xml        ${BASEDIR}/archive/xml
