@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.38.2.35 2003-12-19 13:53:03 dan Exp $
+# $Id: port.pm,v 1.38.2.36 2004-02-23 03:06:07 dan Exp $
 #
 #
 # Copyright (c) 2001-2003 DVL Software
@@ -50,6 +50,7 @@ sub _initialize {
 	$this->{depends_run}		= '';
 	$this->{forbidden}			= '';
 	$this->{broken}				= '';
+	$this->{deprecated}			= '';
 	$this->{categories}			= '';
 	$this->{status}				= '';
 	$this->{element_pathname}   = '';
@@ -83,6 +84,7 @@ sub _GetValuesFromRow {
 	$this->{depends_run}		= $row->{depends_run};
 	$this->{forbidden}			= $row->{forbidden};
 	$this->{broken}				= $row->{broken};
+	$this->{deprecated}			= $row->{deprecated};
 	$this->{categories}			= $row->{categories};
 	$this->{last_commit_id}		= $row->{last_commit_id};
 	$this->{status}				= $row->{status};
@@ -135,6 +137,7 @@ update ports
        depends_run       = " . $dbh->quote($this->{depends_run})		. ", 
        forbidden         = " . $dbh->quote($this->{forbidden})			. ", 
        broken            = " . $dbh->quote($this->{broken})				. ", 
+       deprecated        = " . $dbh->quote($this->{deprecated})			. ", 
        categories        = " . $dbh->quote($this->{categories});
 
 		# we don't always have this value, so we don't change it....
@@ -366,7 +369,7 @@ sub _ExtractValuesFromMakefile {
 	#
 	$makecommand = "make -V PORTNAME -V PKGNAME -V DESCR -V CATEGORIES -V PORTVERSION -V PORTREVISION " .
 		" -V COMMENT -V COMMENTFILE -V MAINTAINER -V EXTRACT_SUFX " .
-		" -V BUILD_DEPENDS -V RUN_DEPENDS -V FORBIDDEN -V BROKEN -f $Makefile " . 
+		" -V BUILD_DEPENDS -V RUN_DEPENDS -V FORBIDDEN -V BROKEN -V DEPRECATED-f $Makefile " . 
 		" PORTSDIR=$FreshPorts::Config::path_to_ports 2>$TmpFile";
 
 	print "makecommand = $makecommand\n";
@@ -450,7 +453,7 @@ sub _ExtractValuesFromMakefile {
 
 		(my $portname, my $packagename, my $descrpath, my $categories, my $portversion, my $portrevision, my $shortdescription,
 		 my $CommentFile, my $maintainer, my $extractsuffix, my $builddepends,
-		 my $rundepends, my $forbidden, my $broken) = split(/\n/s, $MakeResults);
+		 my $rundepends, my $forbidden, my $broken, my $deprecated) = split(/\n/s, $MakeResults);
 
 		$builddepends	= freshports_ConvertPortPathToStandardLocation(FreshPorts::Utilities::trim_multiple_to_single(FreshPorts::Utilities::trim($builddepends)));
 		$rundepends		= freshports_ConvertPortPathToStandardLocation(FreshPorts::Utilities::trim_multiple_to_single(FreshPorts::Utilities::trim($rundepends)));
@@ -503,7 +506,8 @@ sub _ExtractValuesFromMakefile {
 		print "15 \$packageexists='$packageexists'\n";
 		print "16 \$forbidden    ='$forbidden'\n";
 		print "17 \$broken       ='$broken'\n";
-		print "18 \$categories   ='$categories'\n";
+		print "18 \$deprecated   ='$deprecated'\n";
+		print "19 \$categories   ='$categories'\n";
 
 		print "\n ---------------------------------------- \n";
 
@@ -514,6 +518,10 @@ sub _ExtractValuesFromMakefile {
 
 		if (!defined($broken)) {
 			$broken = '';
+		}
+
+		if (!defined($deprecated)) {
+			$deprecated = '';
 		}
 
 		# put everything into the hash...
@@ -532,6 +540,7 @@ sub _ExtractValuesFromMakefile {
 		$this->{depends_run}		= $rundepends;
 		$this->{forbidden}			= $forbidden;
 		$this->{broken}				= $broken;
+		$this->{deprecated}			= $deprecated;
 		$this->{categories}			= $categories;
 
 	} else {
