@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: process_updating.pl,v 1.1.2.4 2004-08-11 16:00:28 dan Exp $
+# $Id: process_updating.pl,v 1.1.2.5 2004-08-11 16:01:49 dan Exp $
 #
 # Copyright (c) 2004 DVL Software
 #
@@ -70,7 +70,6 @@ sub parsefile ($) {
 	my $dbh = shift;
 
 	my $version;
-	my @dates;
 
 	# slurp in UPDATING.
 	my @lines = <STDIN>;
@@ -118,14 +117,6 @@ sub parsefile ($) {
 					}
 				}
 			}
-
-
-			# store for later.
-			push @dates, {date      => $date, 
-					author  => $author,
-					port    => \@ports,
-					affects => $affects, 
-					msg     => $msg};
 
 			my $ID = AddUpdating($dbh, $date, $affects, $author, $msg);
 
