@@ -1,5 +1,5 @@
 #
-# $Id: verifyport.pm,v 1.42.2.17 2003-10-04 21:05:28 dan Exp $
+# $Id: verifyport.pm,v 1.42.2.18 2003-10-06 17:20:43 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -11,8 +11,8 @@ use element;
 use category;
 use port;
 use commit_log_ports;
-use commit_log_ports_extra;
 use commit_log_port_elements;
+use commit_log_ports_elements;
 use utilities;
 use committer_opt_in;
 
@@ -180,6 +180,8 @@ sub SaveChangesToPortsTree($;$;$) {
 	my %ListOfPorts;
 	my %CommitLogPorts;	# hash of commit_log_ports objects
 
+	my $CreatingNewPort;
+
 	#
 	# we record the ports affected by a given commit
 	#
@@ -226,7 +228,17 @@ sub SaveChangesToPortsTree($;$;$) {
 
 			$port->{last_commit_id} = $commit_log_id;
 
+			$CreatingNewPort = !defined($port->{id});
+
 			$port->save();
+
+			#
+			# when creating a new port, we need to get the element_pathname
+			# value, which is used later in the loading process
+			#
+			if ($CreatingNewPort) {
+				$port->FetchByID();
+			}
 
 			#
 			# make sure we record what ports were updated by this commit
@@ -265,10 +277,10 @@ sub SaveChangesToPortsTree($;$;$) {
 	}
 
 	#
-	# files within the ports tree, but not under any particular port,
-	# are recorded with commit_log_ports_extra
+	# The commit_log_ports_elements table records the ports and elements (which
+	# are not part of a port) which were touched by a commit.
 	#
-	_RecordPortsFilesOutsidePorts($commit_log_id, $Files, \%CommitLogPorts, $dbh);
+	_RecordPortsAndElements($commit_log_id, $Files, \%CommitLogPorts, $dbh);
 
 	return %CommitLogPorts;
 }
@@ -404,9 +416,9 @@ sub _RecordPortFilesTouchedByThatCommit($;$;$;$) {
 	}
 }
 
-sub _RecordPortsFilesOutsidePorts($;$;$;$) {
+sub _RecordPortsAndElements($;$;$;$) {
 	#
-	# This function will populate the commit_log_ports_extra table.
+	# This function will populate the commit_log_ports_elements table.
 	#
 	my $commit_log_id		= shift;
 	my $Files				= shift;
@@ -417,7 +429,7 @@ sub _RecordPortsFilesOutsidePorts($;$;$;$) {
 
 	my $portname;					# of the form "$category/$port"
 	my $port;						# of type FreshPorts::Element
-	my $commit_log_ports_extra;		# of type FreshPorts::CommitLogPortsExtra
+	my $commit_log_ports_elements;	# of type FreshPorts::CommitLogPortsExtra
 	my $commit_log_ports;
 
 	my $action;
@@ -427,14 +439,13 @@ sub _RecordPortsFilesOutsidePorts($;$;$;$) {
 	my $element_id;
 	my $value;
 
-	$commit_log_ports_extra = FreshPorts::CommitLogPortsExtra->new($dbh);
+	$commit_log_ports_elements = FreshPorts::CommitLogPortsElements->new($dbh);
 
-	print "into _RecordPortsFilesOutsidePorts\n";
+	print "into _RecordPortsAndElements\n";
 	print "\n\nThat message is all done under Commit ID = '$commit_log_id'\n";
 
 	print "the size of \@Files is ", scalar(@{$Files}), "\n";
 
-	my $match = '';
 	my $ExtraElement;
 	#
 	# for each file, see if it's under an existing port
@@ -448,11 +459,10 @@ sub _RecordPortsFilesOutsidePorts($;$;$;$) {
 		%CommitLogPorts = %{$CommitLogPortsRef};
 		while (my ($portname, $commit_log_ports) = each %CommitLogPorts) {
 			$port = $commit_log_ports->{port};
+			
 
 			print " checking port " . $port->{'element_pathname'} . "\n";
-			$match = '^/?' . $port->{element_pathname} . '/';
-
-			if ($filename =~ m|$match|) {
+			if ($filename =~ m|^/?\Q$port->{element_pathname}\E/|) {
 				print " YES!  that was a match!\n";
 				$ExtraElement = 0;
 				last;
@@ -467,11 +477,22 @@ sub _RecordPortsFilesOutsidePorts($;$;$;$) {
 			#
 			# record which files go with what port...
 			#
-			$commit_log_ports_extra->{commit_log_id}	= $commit_log_id;
-			$commit_log_ports_extra->{element_id}		= $element_id;
-			$commit_log_ports_extra->save();
+			$commit_log_ports_elements->{commit_log_id}	= $commit_log_id;
+			$commit_log_ports_elements->{element_id}	= $element_id;
+			$commit_log_ports_elements->save();
 		}
 	}
+
+	# we have recorded all non-ports.  Now we record the ports
+	# We do this assignment here because a reset didn't work
+	%CommitLogPorts = %{$CommitLogPortsRef};
+	while (my ($portname, $commit_log_ports) = each %CommitLogPorts) {
+		$port = $commit_log_ports->{port};
+		$commit_log_ports_elements->{commit_log_id}	= $commit_log_id;
+		$commit_log_ports_elements->{element_id}	= $port->{element_id};
+		$commit_log_ports_elements->save();
+	}
+	
 }
 
 sub RefreshAllPortsTouchedByCommit($;$;$) {
