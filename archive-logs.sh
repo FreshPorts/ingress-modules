@@ -7,7 +7,6 @@ then
 fi
 
 
-
 DATE="date -v-${1}d \"+%Y%m%d\""
 
 echo $DATE

@@ -37,18 +37,24 @@ else
 
  FETCHFILE=/usr/ports/$CATEG/$PORT/$FILE
 
- echo about to fetch http://www.freebsd.org/cgi/cvsweb.cgi/ports/$CATEG/$PORT/$FILE
+ echo about to fetch http://www.freebsd.org/cgi/cvsweb.cgi/~checkout~/ports/$CATEG/$PORT/$FILE?rev=HEAD
+ echo fetching into $FETCHFILE
 
- fetch -b -o $FETCHFILE http://www.freebsd.org/cgi/cvsweb.cgi/ports/$CATEG/$PORT/$FILE?rev=HEAD
+# wget --user-agent=Lynx -O $FETCHFILE http://www.freebsd.org/cgi/cvsweb.cgi/~checkout~/ports/$CATEG/$PORT/$FILE?rev=HEAD
+# fetch -o $FETCHFILE http://www.freebsd.org/cgi/cvsweb.cgi/~checkout~/ports/$CATEG/$PORT/$FILE?rev=HEAD
+#/usr/local/bin/lynx -source -dump http://www.freebsd.org/cgi/cvsweb.cgi/~checkout~/ports/$CATEG/$PORT/$FILE?rev=HEAD > $FETCHFILE
+/usr/local/bin/lynx -source -dump http://www.freebsd.org/cgi/cvsweb.cgi/ports/$CATEG/$PORT/$FILE?rev=HEAD > $FETCHFILE
  if [ $? -ne 0 ]
  then
     exit 6
  fi
 
+ RESULT=0
+
  #
  # this is an attempt to ensure we have the correction owner
  #
  /usr/sbin/chown daemon:daemon $FETCHFILE
- exit $?
+ exit $RESULT
 fi
 

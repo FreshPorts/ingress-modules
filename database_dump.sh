@@ -8,12 +8,14 @@
 #
 
 #
-# the name of the backup file. file name format is backup.2000.01.12.at.22.59.48.tgz
+# the name of the backup file. file name format is 
+# freshports.backup.2000.01.12.at.22.59.48.tgz
 #
 WorkingDirectory="/usr/local/etc/freshports/"
 BackupFile="freshports.backup.`date +%Y.%m.%d.at.%H.%M.%S`.tgz"
 TempFreshportsFile="freshports.backup.txt"
 TempFreshportsForumFile="freshports.phorum.backup.txt"
+TempFreshportsSurveyFile="freshports.survey.backup.txt"
 
 #
 # dump the database.
@@ -26,10 +28,11 @@ TempFreshportsForumFile="freshports.phorum.backup.txt"
 #
 /usr/local/bin/mysqldump -uroot -c --add-drop-table freshports   > $WorkingDirectory$TempFreshportsFile
 /usr/local/bin/mysqldump -uroot -c --add-drop-table fpfeedbackup > $WorkingDirectory$TempFreshportsForumFile
+/usr/local/bin/mysqldump -uroot -c --add-drop-table survey       > $WorkingDirectory$TempFreshportsSurveyFile
 #
 # compress it
 #
-tar cfz $BackupFile $WorkingDirectory$TempFreshportsFile $WorkingDirectory$TempFreshportsForumFile
+tar cfz $BackupFile $WorkingDirectory$TempFreshportsFile $WorkingDirectory$TempFreshportsForumFile $WorkingDirectory$TempFreshportsSurveyFile
 
 #
 # copy it offsite
@@ -41,9 +44,11 @@ tar cfz $BackupFile $WorkingDirectory$TempFreshportsFile $WorkingDirectory$TempF
 #        mput $BackupFile
 #EoF
 
-/usr/bin/scp $BackupFile dan@ns1.unixathome.org:$BackupFile
+#/usr/bin/scp $BackupFile dan@ns1.unixathome.org:$BackupFile
+/usr/bin/scp $BackupFile dan@cvsup.nz.freebsd.org:$BackupFile
+/usr/bin/scp -P 2222 $BackupFile dan@diary.unixathome.org:$BackupFile
 
 #
 # remove the files we created
 #
-#rm $BackupFile $WorkingDirectory$TempFreshportsFile $WorkingDirectory$TempFreshportsForumFile
+#rm $BackupFile $WorkingDirectory$TempFreshportsFile $WorkingDirectory$TempFreshportsForumFile $WorkingDirectory$TempFreshportsSurveyFile
