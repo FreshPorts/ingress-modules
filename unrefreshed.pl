@@ -1,14 +1,16 @@
 #!/usr/bin/perl -w
+#
+# $Id: unrefreshed.pl,v 1.10 2002-01-06 06:21:45 dan Exp $
+#
+# Copyright (c) 2001 DVL Software
+#
 
 use strict;
-use lib '~/scripts';
-#use lib '~/scripts/updates';
+use lib "$ENV{HOME}/scripts";
 
 use port;
 use database; 
 use DBI;
-
-#use freshports_database;
 
 require config;
 
