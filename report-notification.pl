@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: report-notification.pl,v 1.1.2.17 2003-03-11 13:27:37 dan Exp $
+# $Id: report-notification.pl,v 1.1.2.18 2003-03-11 13:28:56 dan Exp $
 #
 # Copyright (c) 2001-2002 DVL Software
 #
