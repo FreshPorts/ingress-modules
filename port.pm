@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.38.2.26 2003-07-17 12:45:38 dan Exp $
+# $Id: port.pm,v 1.38.2.27 2003-07-17 13:39:39 dan Exp $
 #
 #
 # Copyright (c) 2001-2003 DVL Software
@@ -855,6 +855,17 @@ sub LooksLikeAMakefile($) {
 	return $Result;
 }
 
+sub IsActive {
+	my $this = shift;
+
+	return ($this->{status} eq $FreshPorts::Element::Active);
+}
+
+sub IsDeleted {
+	my $this = shift;
+
+	return ($this->{status} eq $FreshPorts::Element::Deleted);
+}
 
 FreshPorts::Utilities::InitSyslog();
 
