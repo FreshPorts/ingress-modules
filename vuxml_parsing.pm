@@ -27,7 +27,7 @@
 # SUCH DAMAGE.
 
 #
-# @(#) $Id: vuxml_parsing.pm,v 1.1.2.13 2004-12-19 23:15:00 dan Exp $
+# @(#) $Id: vuxml_parsing.pm,v 1.1.2.14 2004-12-23 18:22:52 dan Exp $
 #
 # Parse the Vulnerabilities and Exposures (vuxml) database extracting
 # the entries for loading into a RDBMS.
@@ -360,6 +360,35 @@ sub update_database
     return $self;
 }
 
+sub DateLessThanDate {
+	use Date::Calc qw( Date_to_Days );
+
+	my $Date1 = shift;
+	my $Date2 = shift;
+
+	my ($Y1, $M1, $D1) = $Date1 =~ /(\d+)-(\d+)-(\d+)/;
+	my ($Y2, $M2, $D2) = $Date2 =~ /(\d+)-(\d+)-(\d+)/;
+
+	return Date_to_Days($Y1, $M1, $D1) < Date_to_Days($Y2, $M2, $D2);
+}
+
+sub RecentlyAdded {
+	use Date::Calc qw( Today Add_Delta_Days Date_to_Days );
+
+	my $Date = shift;
+
+	my ($Y, $M, $D) = $Date =~ /(\d+)-(\d+)-(\d+)/;
+
+	my ($TodayY, $TodayM, $TodayD) = Today();
+	print "Today is $TodayY $TodayM $TodayD\n";
+
+	my ($TodayY2, $TodayM2, $TodayD2) = Add_Delta_Days($TodayY, $TodayM, $TodayD, -2);
+	print "two days ago is is $TodayY2 $TodayM2 $TodayD2\n";
+
+	return Date_to_Days($TodayY2, $TodayM2, $TodayD2) < Date_to_Days($Y, $M, $D)
+}
+
+
 sub vuxml_differs
 {
     my __PACKAGE__ $self = shift;
@@ -367,8 +396,10 @@ sub vuxml_differs
 
 	my $differs = 0;  # for now, always different
 
-#	if (
-
+	if (RecentlyAdded($vuxml->{date_entry}) || (defined($vuxml->{date_modified})
+	                                   && RecentlyAdded($vuxml->{date_modified}))) {
+		$differs = 1;
+	}
 
 	return $differs;
 }
