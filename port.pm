@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.31 2002-02-16 07:19:40 dan Exp $
+# $Id: port.pm,v 1.32 2002-02-16 07:21:42 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -444,7 +444,11 @@ sub _FetchFilesNeedingRefresh {
 
 		if (!LooksLikeAMakefile("$DESTDIR/$FILE")) {
 			FreshPorts::Utilities::ReportError('warning', "$DESTDIR/$FILE does not look like a makefile", 0);
-			return -1;
+			#
+			# lets try returning 1 instead of -1, the fetch may have failed... and given us HTML or rather
+			# more precisely, non-ASCII
+			#
+			return 1;
 		}
 
 		print "now doing a chdir to $DESTDIR\n";
