@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: main-page-update.pl,v 1.10.2.2 2002-07-27 19:53:40 dan Exp $
+# $Id: main-page-update.pl,v 1.10.2.3 2002-12-17 16:27:18 dan Exp $
 #
 # Copyright (c) 1999-2002 DVL Software
 #
@@ -53,7 +53,7 @@ while (1) {
 
 	if ($housekeeping->{refresh_now} || $MaxCommitLogPortId > $housekeeping->{last_port_commit}) {
 		print "housekeeping shows a refresh is needed\n";
-		$sql = "UPDATE housekeeping SET refresh_now = 0";
+		$sql = "UPDATE housekeeping SET refresh_now = 0 where id = 1";
 		if ($sth = $dbh->prepare($sql)) {
 			if ($sth->execute) {
 				print "refreshing main page now.\n";

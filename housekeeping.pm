@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: housekeeping.pm,v 1.1.2.2 2002-07-27 19:53:40 dan Exp $
+# $Id: housekeeping.pm,v 1.1.2.3 2002-12-17 16:27:18 dan Exp $
 #
 # Copyright (c) 2002 DVL Software
 #
@@ -35,7 +35,7 @@ sub refreshdone {
 	my @row;
 
 	# we are always updating here.  It is cleared during the stored procedure RecordLastestPortCommits
-	$sql = "update housekeeping set refresh_now = $value";
+	$sql = "update housekeeping set refresh_now = $value where id = 1";
 
 	print "sql is $sql\n";
 
@@ -53,7 +53,7 @@ sub read {
 	my $sql;
 	my @row;
 
-	$sql = "select last_port_commit, refresh_now from housekeeping";
+	$sql = "select last_port_commit, refresh_now from housekeeping where id = 1";
 	$sth = $dbh->prepare($sql);
 	$sth->execute ||
 		FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql ... maybe invalid?", 1);
@@ -63,7 +63,7 @@ sub read {
 	$sth->finish();
 
 	$this->{last_port_commit}	= $row[0];
-	$this->{refresh_now}		= $row[1];
+	$this->{refresh_now}			= $row[1];
 
 	$sql = "SELECT COUNT(*) from daily_refreshes";
 	$sth = $dbh->prepare($sql);
