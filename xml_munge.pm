@@ -1,4 +1,4 @@
-# $Id: xml_munge.pm,v 1.1.2.8 2005-02-01 17:39:35 dan Exp $
+# $Id: xml_munge.pm,v 1.1.2.9 2005-02-01 17:51:39 dan Exp $
 #
 # Copyright (c) 2001-2004 DVL Software
 #
@@ -62,6 +62,8 @@ my @Files;							# files affected by this commit
 my $id;								# this will get the message id once we know it.
 									# impelemented only for observable class
 
+my $_RollbackNeeded         = 0;	# set by Rollback_Needed()
+
 #
 # a file can be added to the repository, deleted (removed) from the repository,
 # or modified in the repository.
@@ -101,6 +103,8 @@ sub process {
 	my ( $this ) = @_;
 
 	$this->main;
+
+	return $_RollbackNeeded;
 }
 
 sub usage {
@@ -309,11 +313,9 @@ sub handle_update_end {
 	%CommitLogPorts = FreshPorts::VerifyPort::SaveChangesToPortsTree(commit_log_id(), \@Files, $self->{dbh});
 
 	#
-	# commit what we have now, then start a new transaction.
+	# commit what we have now, and that starts a new transaction.
 	#
 	$self->{dbh}->commit();
-
-#	$self->{dbh}->begin_work();
 
 	print "\n --- end of this update --- \n";
 
@@ -385,6 +387,10 @@ sub handle_update_end {
 	undef $Updates{MessageId};
 	undef $Updates{MessageToAll};
 	undef $Updates{MessageSubject};
+
+	if ($ErrorFound) {
+		Set_Rollback_Needed();
+	}
 }
 
 sub handle_updates_end {
@@ -912,6 +918,10 @@ sub commit_log_id {
 	# impelemented only for observable class
 
 	return $commit_log_id;
+}
+
+sub Set_Rollback_Needed() {
+	$_RollbackNeeded = 1;
 }
 
 1;
