@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: load_xml_into_db.pl,v 1.46 2002-03-12 15:41:35 dan Exp $
+# $Id: load_xml_into_db.pl,v 1.47 2002-03-23 04:32:53 dan Exp $
 #
 # Copyright (c) 2001-2002 DVL Software
 #
@@ -340,7 +340,7 @@ sub handle_file_end
 	$fileaction = FileActionValid($FileAction);
 	if (!$fileaction) {
 		$! = 5;
-		FreshPorts::Utilities::ReportError('warning', "invalid file ('$FileAction') action found", 1);
+		FreshPorts::Utilities::ReportError('warning', "invalid file action ('$FileAction') found in $inputfile", 1);
 	}
 
 	print "FileActionValid ==> " . $fileaction . "\n";
@@ -592,10 +592,6 @@ sub SaveUpdateToDB {
 			return $nullvalue;
 		}
 	}
-
-
-#	my $id = FreshPorts::Database::GetNextValue($FreshPorts::Constants::commit_log_seq, $dbh);
-#	$commit_log->{id} = $id;
 
 	$message_date       = $dbh->quote(
 							sprintf "%04u/%02u/%02u %02u:%02u:%02u %s", 
