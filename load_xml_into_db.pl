@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: load_xml_into_db.pl,v 1.33 2002-01-30 14:39:04 dan Exp $
+# $Id: load_xml_into_db.pl,v 1.34 2002-01-30 16:06:20 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -23,7 +23,7 @@
 
 push (@INC, '~/scripts');
 
-use lib '$ENV{HOME}/scripts';
+use lib "$ENV{HOME}/scripts";
 
 require Sys::Syslog;
 
