@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: vuxml_names.pm,v 1.1.2.5 2004-12-12 15:48:14 dan Exp $
+# $Id: vuxml_names.pm,v 1.1.2.6 2004-12-12 23:24:03 dan Exp $
 #
 # Copyright (c) 2004 DVL Software
 #
@@ -59,7 +59,7 @@ sub save {
 	} else {
 		$sql = "UPDATE vuxml_names
 				   SET vuxml_affected_id = " . $this->{id}                . ",
-				       name              = " . $dbh->quote($this->{name}) . ",
+				       name              = " . $dbh->quote($this->{name}) . "
 				 WHERE id                = " . $this->{id};
 	}
 
