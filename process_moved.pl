@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: process_moved.pl,v 1.1.2.2 2003-12-31 16:09:31 dan Exp $
+# $Id: process_moved.pl,v 1.1.2.3 2003-12-31 17:15:30 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -89,7 +89,7 @@ sub parsefile ($) {
 	print "reading from STDIN...\n";
 	while (defined(my $line = <STDIN> ) ) {
 		# remove the trailing CR/LF
-		$line =~ s/\n//g;
+		chomp $line;
 
 		if ($line =~ /^.*\/.*\|.*\|\d{4}-\d{2}-\d{2}\|.*$/) {
 			print $line . "\n";
