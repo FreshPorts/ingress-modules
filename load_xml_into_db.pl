@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: load_xml_into_db.pl,v 1.46.2.17 2003-09-24 13:49:50 dan Exp $
+# $Id: load_xml_into_db.pl,v 1.46.2.18 2003-10-04 21:03:06 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -486,7 +486,7 @@ sub handle_file_end
 	# accumulate a list of files which will be updated later
 	#
 
-	push @Files, [$FileAction, $FilePath, $FileRevision, $commit_log_element->{id}];
+	push @Files, [$FileAction, $FilePath, $FileRevision, $commit_log_element->{id}, $element_id];
 
 	undef $Updates{FileAction};
 	undef $Updates{FilePath};
