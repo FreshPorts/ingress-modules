@@ -22,10 +22,14 @@ my $Debug = 0;
 #
 # DO NOT MODIFY THE BELOW VALUES WITHOUT ALSO CHANGING THE SAME VALUES IN fetch-refresh-ports
 
+my $FILE_MAKEFILE    = "Makefile";
+my $FILE_DESCRIPTION = "pkg-descr";
+my $FILE_COMMENT     = "pkg-comment";
+
 my %FilesWhichPromptRefresh = (
-   "Makefile"    => "1",
-   "pkg/DESCR"   => "2",
-   "pkg/COMMENT" => "4",
+    $FILE_MAKEFILE    => "1",
+    $FILE_DESCRIPTION => "2",
+    $FILE_COMMENT     => "4",
 );
 
 # DO NOT MODIFY THE ABOVE VALUES WITHOUT ALSO CHANGING THE SAME VALUES IN fetch-refresh-ports
@@ -300,7 +304,7 @@ for(my $i=0; $i<=$#file; $i++) {
    print "committer=", $committer, "\ntimestamp=", $timestamp, "\naction='",  $action, "'\nfilename=", $filename, "\ndescription=", $description, "\n";
 
    # split the file name into three parts.
-   # $entry might have something like pkg/DESCR
+   # $entry might have something like pkg-descr
    ($category, $port, $entry) = split/\//,$filename, 3;
 
   print "category=$category\nport=$port\nentry=$entry\n";
