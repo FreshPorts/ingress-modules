@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.38.2.12 2002-11-21 20:49:15 dan Exp $
+# $Id: port.pm,v 1.38.2.13 2002-12-10 15:38:53 dan Exp $
 #
 #
 # Copyright (c) 2001-2002 DVL Software
@@ -9,8 +9,8 @@ package FreshPorts::Utilities;
 
 package FreshPorts::Port;
 require Exporter;
-require	config;
-require	element;
+require config;
+require element;
 require utilities;
 require committer_opt_in;
 
@@ -36,18 +36,18 @@ sub freshports_ConvertPortPathToStandardLocation($) {
 sub _initialize {
 	my $this = shift;
 
-	$this->{portname}			= '';
+	$this->{portname}				= '';
 	$this->{short_description}	= '';
 	$this->{long_description}	= '';
-	$this->{version}			= '';
-	$this->{revision}			= '';
+	$this->{version}				= '';
+	$this->{revision}				= '';
 	$this->{maintainer}			= '';
-	$this->{homepage}			= '';
+	$this->{homepage}				= '';
 	$this->{master_sites}		= '';
 	$this->{extract_suffix}		= '';
 	$this->{package_exists}		= '';
 	$this->{depends_build}		= '';
-	$this->{depends_run}		= '';
+	$this->{depends_run}			= '';
 	$this->{forbidden}			= '';
 	$this->{broken}				= '';
 	$this->{categories}			= '';
@@ -62,27 +62,27 @@ sub _GetValuesFromRow {
 	my $this = shift;
 	my $row  = shift;
 
-	$this->{id} 				= $row->{id};
+	$this->{id} 					= $row->{id};
 	$this->{element_id}			= $row->{element_id};
-	$this->{category_id}		= $row->{category_id};
-	$this->{category}			= $row->{category};
-	$this->{name}				= $row->{name};
+	$this->{category_id}			= $row->{category_id};
+	$this->{category}				= $row->{category};
+	$this->{name}					= $row->{name};
 
 	$this->{short_description}	= $row->{short_description};
 	$this->{long_description}	= $row->{long_description};
-	$this->{version}			= $row->{version};
-	$this->{revision}			= $row->{revision};
+	$this->{version}				= $row->{version};
+	$this->{revision}				= $row->{revision};
 	$this->{maintainer}			= $row->{maintainer};
-	$this->{homepage}			= $row->{homepage};
+	$this->{homepage}				= $row->{homepage};
 	$this->{master_sites}		= $row->{master_sites};
 	$this->{extract_suffix}		= $row->{extract_suffix};
 	$this->{package_exists}		= $row->{package_exists};
 	$this->{depends_build}		= $row->{depends_build};
-	$this->{depends_run}		= $row->{depends_run};
+	$this->{depends_run}			= $row->{depends_run};
 	$this->{forbidden}			= $row->{forbidden};
 	$this->{broken}				= $row->{broken};
 	$this->{categories}			= $row->{categories};
-	$this->{last_commit_id}     = $row->{last_commit_id};
+	$this->{last_commit_id}		= $row->{last_commit_id};
 	$this->{status}				= $row->{status};
 }
 
@@ -121,17 +121,17 @@ sub save {
 		$sql = "update ports  \
 				set \
 				short_description	= " . $dbh->quote($this->{short_description})	. ", \
-				long_description	= " . $dbh->quote($this->{long_description})	. ", \
-				version				= " . $dbh->quote($this->{version})				. ", \
-				revision			= " . $dbh->quote($this->{revision})			. ", \
-				maintainer			= " . $dbh->quote($this->{maintainer})			. ", \
-				homepage			= " . $dbh->quote($this->{homepage})			. ", \
-				master_sites		= " . $dbh->quote($this->{master_sites})		. ", \
+				long_description	= " . $dbh->quote($this->{long_description})		. ", \
+				version				= " . $dbh->quote($this->{version})					. ", \
+				revision				= " . $dbh->quote($this->{revision})				. ", \
+				maintainer			= " . $dbh->quote($this->{maintainer})				. ", \
+				homepage				= " . $dbh->quote($this->{homepage})				. ", \
+				master_sites		= " . $dbh->quote($this->{master_sites})			. ", \
 				extract_suffix		= " . $dbh->quote($this->{package_exists})		. ", \
-				depends_build		= " . $dbh->quote($this->{depends_build})		. ", \
+				depends_build		= " . $dbh->quote($this->{depends_build})			. ", \
 				depends_run			= " . $dbh->quote($this->{depends_run})			. ", \
-				forbidden			= " . $dbh->quote($this->{forbidden})			. ", \
-				broken				= " . $dbh->quote($this->{broken})				. ", \
+				forbidden			= " . $dbh->quote($this->{forbidden})				. ", \
+				broken				= " . $dbh->quote($this->{broken})					. ", \
 				categories			= " . $dbh->quote($this->{categories});
 
 				# we don't always have this value, so we don't change it....
@@ -433,18 +433,18 @@ sub _ExtractValuesFromMakefile {
 
 			# put everything into the hash...
 
-			$this->{portname}			= $portname;
+			$this->{portname}				= $portname;
 			$this->{short_description}	= $shortdescription;
 			$this->{long_description}	= $longdescription;
-			$this->{version}			= $portversion;
-			$this->{revision}			= $portrevision;
+			$this->{version}				= $portversion;
+			$this->{revision}				= $portrevision;
 			$this->{maintainer}			= $maintainer;
-			$this->{homepage}			= $homepage;
+			$this->{homepage}				= $homepage;
 			$this->{master_sites}		= $mastersites;
 			$this->{extract_suffix}		= $extractsuffix;
 			$this->{package_exists}		= $packageexists;
 			$this->{depends_build}		= $builddepends;
-			$this->{depends_run}		= $rundepends;
+			$this->{depends_run}			= $rundepends;
 			$this->{forbidden}			= $forbidden;
 			$this->{broken}				= $broken;
 			$this->{categories}			= $categories;
@@ -683,9 +683,9 @@ sub RefreshFromFiles($;$) {
 # refresh this port based on the make files associated with it and the value of needs_refresh
 # returns 0 for success, 1 for failure
 #
-	my $this			= shift;
+	my $this				= shift;
 	my $needs_refresh	= shift;
-	my $fetch_files		= shift;
+	my $fetch_files	= shift;
 
 	if (!defined($needs_refresh)) {
 		FreshPorts::Utilities::ReportError('warning', "needs_refresh has no value", 1);
@@ -777,7 +777,7 @@ sub GetNeedsRefreshForNewPort {
 	}
 
 	my $category	= $this->{category};
-	my $port		= $this->{name};
+	my $port			= $this->{name};
 
 	if (!defined($category) || !defined($port)) {
 		FreshPorts::Utilities::ReportError('warning', "Cannot GetNeedsRefreshForNewPort.  Insufficient data", 1);
@@ -789,10 +789,10 @@ sub GetNeedsRefreshForNewPort {
 	#
 	# fetch the makefile for this port
 	#
-	my $DESTDIR		= "$FreshPorts::Config::path_to_ports/$category/$port";
-	my $SRCDIR		= "$FreshPorts::Config::ports_prefix/$category/$port";
-	my $FILE		= $FreshPorts::Constants::FILE_MAKEFILE;
-	my $REVISION	= $FreshPorts::Constants::HEAD;
+	my $DESTDIR			= "$FreshPorts::Config::path_to_ports/$category/$port";
+	my $SRCDIR			= "$FreshPorts::Config::ports_prefix/$category/$port";
+	my $FILE				= $FreshPorts::Constants::FILE_MAKEFILE;
+	my $REVISION		= $FreshPorts::Constants::HEAD;
 	my $FetchAttempts = 5;
 
 	while ($FetchAttempts) {
