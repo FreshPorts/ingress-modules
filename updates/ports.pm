@@ -116,12 +116,12 @@ sub GetNeedsRefreshForNewPort($;$) {
       # create this directory to catch errors
       # such as the pre-everything having only one ':'
       #
-      mkdir pkg,0
+      mkdir pkg,0;
 
       my $makecommand = "make -V DESCR -V COMMENT -f $PORTSBASEDIR/$category/$port/$FILE_MAKEFILE";
 
       # remove previously created directory
-      rmdir pkg
+      rmdir pkg;
 
       print "makecommand = $makecommand\n";
       (my $DESCR, my $COMMENT) = split(/\n/s, `$makecommand`);
@@ -559,7 +559,7 @@ sub RefreshPortNoChecking($;$;$;$;$) {
    # create this directory to catch errors
    # such as the pre-everything having only one ':'
    #
-   mkdir pkg,0
+   mkdir pkg,0;
 
    my $makecommand = "make -V PORTNAME -V PKGNAME -V DESCR -V CATEGORIES -V PORTVERSION " .
          "-V COMMENT -V MAINTAINER -V EXTRACT_SUFX -V MASTER_SITES " .
@@ -573,7 +573,7 @@ sub RefreshPortNoChecking($;$;$;$;$) {
     my $rundepends, my $forbidden, my $broken) = split(/\n/s, `$makecommand`);
 
    # remove previously created directory
-   rmdir pkg
+   rmdir pkg;
 
    #
    # we need to check this return value.  if it fails, we need to know
