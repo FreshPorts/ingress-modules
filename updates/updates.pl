@@ -39,6 +39,19 @@ my %FilesWhichPromptRefresh = (
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
+sub StripTimezone($) {
+   my $timestamp = shift;
+
+   my $date;
+   my $time;
+   ($date, $time) = split/ /,$timestamp,3;
+
+   $timestamp = $date . " " . $time;
+
+   return $timestamp;
+}
+
+
 #ChangeLogInsert($committer, $timestamp, $description, $dbh);
 sub ChangeLogInsert($;$;$;$) {
    my $committer   = shift;
@@ -49,6 +62,7 @@ sub ChangeLogInsert($;$;$;$) {
    my $sql = "INSERT INTO change_log (commit_date, committer, update_description) \
            values ('$timestamp', '$committer', '$description')";
 
+   print "ChangeLogInsert sql => " . $sql;
    my $sth = $dbh->prepare($sql);
 
    $sth->execute ||
@@ -288,6 +302,8 @@ my $entry;
 my $categoryid;
 
 
+print "start  " . `date "+%Y-%m-%d %H:%M:%S"`;
+
 my @file=<STDIN>;
 close(STDIN);
 chomp(@file);
@@ -300,6 +316,9 @@ for(my $i=0; $i<=$#file; $i++) {
 #  these bits might have quotes.
    $committer   =~ s/\'/\\'/g;
    $description =~ s/\'/\\'/g;
+
+#  strip off the timezone from the timestamp
+   $timestamp = StripTimezone($timestamp);   
 
    print "committer=", $committer, "\ntimestamp=", $timestamp, "\naction='",  $action, "'\nfilename=", $filename, "\ndescription=", $description, "\n";
 
@@ -486,3 +505,5 @@ $dbh->disconnect();
 # and therefore their cache files are out of date
 #
 `touch /www/freshports.org/lastupdate`;
+
+print "finish " . `date "+%Y-%m-%d %H:%M:%S"`;
