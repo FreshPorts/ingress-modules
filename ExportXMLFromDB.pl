@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: ExportXMLFromDB.pl,v 1.1 2002-02-02 23:29:52 dan Exp $
+# $Id: ExportXMLFromDB.pl,v 1.2 2002-02-03 01:50:32 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -249,7 +249,7 @@ sub GetFiles {
 		my $path = "ports/" . $files->{category} . "/" . $files->{port} . "/" .
 					$files->{details};
 		my $action = $files->{change_type};
-		if (!defined($action)) {
+		if ($action eq 'M') {
 			$action = 'Modify';
 		} else {
 			if ($action eq 'R') {
@@ -335,7 +335,7 @@ sub GetMessage_Time($) {
 	$hour		= substr($time, 11, 2);
 	$minute		= substr($time, 14, 2);
 	$second		= substr($time, 17, 2);
-	$timezone	= 'EST';
+	$timezone	= 'PST';
 
 	$time = {	Hour		=> int($hour),
 				Minute		=> int($minute),
