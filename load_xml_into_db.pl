@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: load_xml_into_db.pl,v 1.46.2.7 2002-11-15 20:15:31 dan Exp $
+# $Id: load_xml_into_db.pl,v 1.46.2.8 2002-11-25 23:02:35 dan Exp $
 #
 # Copyright (c) 2001-2002 DVL Software
 #
@@ -439,9 +439,9 @@ sub handle_file_end
 
 	print "saving commit_log_element\n";
 
-print "$FreshPorts::Constants::commit_log_seq\n";
-print "$FreshPorts::Constants::ports_seq\n";
-print "$FreshPorts::Constants::commit_log_elements_seq\n";
+	print "\$FreshPorts::Constants::commit_log_seq='$FreshPorts::Constants::commit_log_seq'\n";
+	print "\$FreshPorts::Constants::ports_seq='$FreshPorts::Constants::ports_seq'\n";
+	print "\$FreshPorts::Constants::commit_log_elements_seq='$FreshPorts::Constants::commit_log_elements_seq'\n";
 
 	$commit_log_element = FreshPorts::CommitLogElement->new($dbh);
 	$commit_log_element->{commit_log_id}	= $commit_log_id;
