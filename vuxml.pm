@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: vuxml.pm,v 1.1.2.1 2004-09-10 03:26:41 dan Exp $
+# $Id: vuxml.pm,v 1.1.2.2 2004-09-11 01:07:41 dan Exp $
 #
 # Copyright (c) 2004 DVL Software
 #
@@ -9,6 +9,7 @@ package FreshPorts::vuxml;
 
 use strict;
 use utilities;
+use constants;
 
 sub new {
 	my $this		= {};
@@ -35,6 +36,7 @@ sub _GetValuesFromRow {
 	$this->{date_discovery}	= $row->{date_discovery};
 	$this->{date_entry}		= $row->{date_entry};
 	$this->{date_modified}	= $row->{date_modified};
+	$this->{status}			= $row->{status};
 }
 
 sub save {
@@ -48,14 +50,15 @@ sub save {
 	$this->{id} = FreshPorts::Database::GetNextValue($FreshPorts::Constants::vuxml_seq, $dbh);
 
 	$sql = "insert into vuxml(id, vid, topic, description, date_discovery, 
-                               date_entry, date_modified) values (
+                               date_entry, date_modified, status) values (
 				$this->{id},
 				" . $dbh->quote($this->{vid})            . ",
 				" . $dbh->quote($this->{topic})          . ",
 				" . $dbh->quote($this->{description})    . ",
 				" . $dbh->quote($this->{date_discovery}) . ",
 				" . $dbh->quote($this->{date_entry})     . ",
-				" . $dbh->quote($this->{date_modified})  . ")";
+				" . $dbh->quote($this->{date_modified})  . ",
+                'A')";
 
 	print "sql is $sql\n";
 
