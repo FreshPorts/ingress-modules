@@ -1,4 +1,4 @@
-# $Id: xml_munge.pm,v 1.1.2.7 2005-01-26 20:53:20 dan Exp $
+# $Id: xml_munge.pm,v 1.1.2.8 2005-02-01 17:39:35 dan Exp $
 #
 # Copyright (c) 2001-2004 DVL Software
 #
@@ -79,6 +79,8 @@ sub new {
 	my $this		= {};
 	my $class		= shift;
 
+	$this->{dbh}    = shift;
+
 	bless $this;
 
 	$this->_initialize();
@@ -99,8 +101,6 @@ sub process {
 	my ( $this ) = @_;
 
 	$this->main;
-
-	exit;
 }
 
 sub usage {
@@ -177,21 +177,9 @@ sub main {
 
 	print "dbname = $FreshPorts::Config::dbname\n";
 
-	$dbh = FreshPorts::Database::GetDBHandle();
-	if ($dbh->{Active}) {
+	print "parsing file now\n";
 
-		print "parsing file now\n";
-
-		$p->parsefile($inputfile);
-
-# hmmm, this might be a good way to debug...
-# issue a rollback after each attempt...
-#
-#		$dbh->rollback();
-		$dbh->commit();
-
-		$dbh->disconnect();
-	}
+	$p->parsefile($inputfile);
 }
 
 sub SetupParser($) {
@@ -275,14 +263,14 @@ sub handle_os_end {
 	print "OS is '$Updates{os}' : branch = '$Updates{branch};\n";
 
 	# We know what branch this message is updating. Let's grab the IDs we will need.
-	$SystemID = SystemIDGet($Updates{os}, $dbh);
+	$SystemID = SystemIDGet($Updates{os}, $self->{dbh});
 	if (!defined($SystemID)) {
 		$! = 3;
 		FreshPorts::Utilities::ReportError('warning', "No SystemID found for OS = '$Updates{os}'", 1)
 	}
 
 	if ($Updates{branch} ne '') {  
-		$SystemBranchID = SystemBranchIDGetOrCreate($SystemID, $Updates{branch}, $dbh);
+		$SystemBranchID = SystemBranchIDGetOrCreate($SystemID, $Updates{branch}, $self->{dbh});
 		if (!defined($SystemBranchID)) {
 			$! = 4;
 			FreshPorts::Utilities::ReportError('warning', "No SystemBranchID found for OS = '$Updates{branch}'", 1);
@@ -318,13 +306,19 @@ sub handle_update_end {
 		FreshPorts::Utilities::ReportError('Err', "No files found in commit '$Updates{MessageId}'.  Has some done a cvs import instead of addport?", 1)
 	}
 
-	%CommitLogPorts = FreshPorts::VerifyPort::SaveChangesToPortsTree(commit_log_id(), \@Files, $dbh);
-	$dbh->commit();
+	%CommitLogPorts = FreshPorts::VerifyPort::SaveChangesToPortsTree(commit_log_id(), \@Files, $self->{dbh});
+
+	#
+	# commit what we have now, then start a new transaction.
+	#
+	$self->{dbh}->commit();
+
+#	$self->{dbh}->begin_work();
 
 	print "\n --- end of this update --- \n";
 
 	if ($fetch_before_refresh) {
-		FreshPorts::VerifyPort::FetchAllFiles(\@Files, $dbh);
+		FreshPorts::VerifyPort::FetchAllFiles(\@Files, $self->{dbh});
 		$self->notify_observers($FreshPorts::Messages::FilesFetched);
 	}
 
@@ -334,14 +328,14 @@ sub handle_update_end {
 	# as each port is refreshed, it will be committed
 
 	if ($refresh_ports) {
-		$ErrorFound = FreshPorts::VerifyPort::RefreshAllPortsTouchedByCommit(\%CommitLogPorts, 0, $dbh);
+		$ErrorFound = FreshPorts::VerifyPort::RefreshAllPortsTouchedByCommit(\%CommitLogPorts, 0, $self->{dbh});
 
 		if (!$ErrorFound) {
-			$ErrorFound = FreshPorts::VerifyPort::RefreshAllSlavePortsOfPortsTouchedByCommit(\%CommitLogPorts, 0, $dbh);
+			$ErrorFound = FreshPorts::VerifyPort::RefreshAllSlavePortsOfPortsTouchedByCommit(\%CommitLogPorts, 0, $self->{dbh});
 		}
 
 		if (!$ErrorFound) {
-			$ErrorFound = FreshPorts::VerifyPort::MarkVulnerableCommits(\%CommitLogPorts, 0, $dbh);
+			$ErrorFound = FreshPorts::VerifyPort::MarkVulnerableCommits(\%CommitLogPorts, 0, $self->{dbh});
 		}
 	}
 
@@ -351,15 +345,15 @@ sub handle_update_end {
 
 	if (scalar(keys %CommitLogPorts)) {
 		print "adding that commit date to the daily summary refresh list\n";
-		FreshPorts::Cache::DailySummaryDateAdd($commit_date, $dbh)
+		FreshPorts::Cache::DailySummaryDateAdd($commit_date, $self->{dbh})
 	} else {
 		print "that was not a port, so not adding to daily summary refresh list\n";
-		FreshPorts::NonPorts::RecordPortsTreeButNonPortCommits(commit_log_id(), \@Files, $dbh)
+		FreshPorts::NonPorts::RecordPortsTreeButNonPortCommits(commit_log_id(), \@Files, $self->{dbh})
 	}
 
 	if ($ErrorFound) {
 		print "sending NotifyCommitter to $Updates{committerAll}\n";
-		FreshPorts::CommitterOptIn::NotifyCommitter($Updates{committerAll}, $dbh);
+		FreshPorts::CommitterOptIn::NotifyCommitter($Updates{committerAll}, $self->{dbh});
 	} else {
 		print "No errors found during that commit\n";
 	}
@@ -447,7 +441,7 @@ sub handle_file_end {
 	}
 
 	# grab the element corresponding to this filename.
-	$element = FreshPorts::Element->new($dbh);
+	$element = FreshPorts::Element->new($self->{dbh});
 	$element->{pathname} = $filename;
 	$element_id = $element->FetchByName();
 
@@ -505,8 +499,8 @@ sub handle_file_end {
 	# messages being recieved out of order or because of items
 	# not on file because their creation pre-dates this database.
 	#
-	if (!ElementRevisionExists($element_id, $revisionname, $dbh)) {
-		ElementRevisionInsert($element_id, $revisionname, $dbh);
+	if (!ElementRevisionExists($element_id, $revisionname, $self->{dbh})) {
+		ElementRevisionInsert($element_id, $revisionname, $self->{dbh});
 	}
 
 	print "saving commit_log_element\n";
@@ -515,7 +509,7 @@ sub handle_file_end {
 	print "\$FreshPorts::Constants::ports_seq='$FreshPorts::Constants::ports_seq'\n";
 	print "\$FreshPorts::Constants::commit_log_elements_seq='$FreshPorts::Constants::commit_log_elements_seq'\n";
 
-	$commit_log_element = FreshPorts::CommitLogElement->new($dbh);
+	$commit_log_element = FreshPorts::CommitLogElement->new($self->{dbh});
 	$commit_log_element->{commit_log_id}	= commit_log_id();
 	$commit_log_element->{element_id}		= $element_id;
 	$commit_log_element->{revision_name}	= $revisionname;
@@ -527,7 +521,7 @@ sub handle_file_end {
 	# when adding new elements, be sure to record the new revision name.
 	#
 	if ($NewRevision) {
-		SystemBranchElementInsert($SystemBranchID, $element_id, $revisionname, $dbh);
+		SystemBranchElementInsert($SystemBranchID, $element_id, $revisionname, $self->{dbh});
 	}
 
 	#
@@ -660,13 +654,13 @@ sub SaveUpdateToDB {
 
 	my $temp;
 
-	my $commit_log = FreshPorts::Commit_Log->new($dbh);
+	my $commit_log = FreshPorts::Commit_Log->new($self->{dbh});
 
 	print "load_xml_into_db.pl::SaveUpdateToDB --- start\n";
 
-	my $message_id = $dbh->quote(id());
+	my $message_id = $self->{dbh}->quote(id());
 
-	my $existing_commit_id = GetExistingMessageID($message_id, $dbh);
+	my $existing_commit_id = GetExistingMessageID($message_id, $self->{dbh});
 
 	if (defined($existing_commit_id)) {
 		FreshPorts::Utilities::ReportError('warning', "message $message_id has already been added to the database", 0);
@@ -676,9 +670,9 @@ sub SaveUpdateToDB {
 
 			# delete that message
 			$sql = "delete from commit_log where message_id = $message_id";
-			$sth = $dbh->prepare($sql);
+			$sth = $self->{dbh}->prepare($sql);
 			if (!$sth->execute) {
-				FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql $dbh->err", 1);
+				FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql $self->{dbh}->err", 1);
 			}
 		} else {
 			my $nullvalue;
@@ -686,27 +680,27 @@ sub SaveUpdateToDB {
 		}
 	}
 
-	$message_date       = $dbh->quote(
+	$message_date       = $self->{dbh}->quote(
 							sprintf "%04u/%02u/%02u %02u:%02u:%02u %s", 
 							$Updates{messageyear}, $Updates{messagemonth},  $Updates{messageday}, 
 							$Updates{messagehour}, $Updates{messageminute}, $Updates{messagesecond}, 
 							$Updates{messagezone});
 
-	my $message_subject = $dbh->quote($Updates{MessageSubject});
+	my $message_subject = $self->{dbh}->quote($Updates{MessageSubject});
 
 	my $date_added      = "now()";
 	if (defined($Updates{DateAdded})) {
 		$date_added = $Updates{DateAdded};
 	}
 
-	my $commit_date     = $dbh->quote(
+	my $commit_date     = $self->{dbh}->quote(
 							sprintf "%04u/%02u/%02u %02u:%02u:%02u %s", 
 							$Updates{dateyear}, $Updates{datemonth}, $Updates{dateday}, 
 							$Updates{timehour}, $Updates{timeminute}, $Updates{timesecond}, 
 							$Updates{timezone});
 
-	my $committer       = $dbh->quote($Updates{committer});
-	my $description     = $dbh->quote($Updates{log});
+	my $committer       = $self->{dbh}->quote($Updates{committer});
+	my $description     = $self->{dbh}->quote($Updates{log});
    
 	$commit_log->{message_id}		= $message_id;
 	$commit_log->{message_date}		= $message_date;
