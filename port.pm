@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.20 2001-12-24 04:36:34 dan Exp $
+# $Id: port.pm,v 1.21 2001-12-28 22:37:18 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -400,7 +400,11 @@ sub _FetchFilesNeedingRefresh {
 	# this is where we fetch the files to disk
 	my $DESTDIR	= "$FreshPorts::Config::path_to_ports/$this->{category}/$this->{name}";
 
-	# this is the location in the repository.
+	#
+	# this is the location in the repository where our main files reside.
+	# in the case of a slave port, it's where the slave Makefile will be.
+	# it is not necessarily where the pkg-descr and pkg-comment will reside.
+	#
 	my $SRCDIR	= "$FreshPorts::Config::ports_prefix/$this->{category}/$this->{name}";
 
 	my $FILE	= $FreshPorts::Constants::FILE_MAKEFILE;
@@ -410,10 +414,16 @@ sub _FetchFilesNeedingRefresh {
 		#
 		# now that we have the Makefile for this port, let's figure out the full name
 		# of the pkg-descr and pkg-comment files.  They may belong to another port.
-		#
+ 		#
 
 		print "now doing a chdir to $DESTDIR\n";
-		chdir "$DESTDIR";
+		if (!chdir("$DESTDIR")) {
+			my $error = $!;
+			print "error doing a chdir $DESTDIR $error\n";
+			Sys::Syslog::syslog('warning', "error doing a chdir $DESTDIR $error");
+			die "error doing a chdir $DESTDIR $error\n";
+		}
+
 
 		#
 		# create this directory to catch errors
@@ -446,6 +456,8 @@ sub _FetchFilesNeedingRefresh {
 			$DESCR   = File::PathConvert::realpath($DESCR);
 			$COMMENT = File::PathConvert::realpath($COMMENT);
 
+			
+
 			print "converted data DESCR   = $DESCR\n";
 			print "converted data COMMENT = $COMMENT\n";
 
@@ -458,6 +470,7 @@ sub _FetchFilesNeedingRefresh {
 			my $directory	= File::Basename::dirname ($DESCR);
 			my $FILE		= File::Basename::basename($DESCR);
 			my $DESTDIR		= $directory;
+			$SRCDIR			= File::Basename::dirname(RemovePortsPrefix($DESCR));
 
 			print "fetching \$DESTDIR = [$DESTDIR], \$SRCDIR = [$SRCDIR], \$FILE = [$FILE]\n";
 
@@ -466,6 +479,7 @@ sub _FetchFilesNeedingRefresh {
 				my $directory	= File::Basename::dirname ($COMMENT);
 				my $FILE		= File::Basename::basename($COMMENT);
 				my $DESTDIR		= $directory;
+				$SRCDIR			= File::Basename::dirname(RemovePortsPrefix($COMMENT));
 
 				print "fetching \$DESTDIR = [$DESTDIR], \$SRCDIR = [$SRCDIR], \$FILE = [$FILE]\n";
 
@@ -476,9 +490,10 @@ sub _FetchFilesNeedingRefresh {
 			
 
 		} else {
-			print "error executing make command for $this->{category}/$this->{name}: Error Code = " . ($? >> 8) . "\n";
-			Sys::Syslog::syslog('warning', "error executing make command for $this->{category}/$this->{name}: Error Code = " . ($? >> 8));
-			die "error executing make command for $this->{category}/$this->{name}: Error Code = " . ($? >> 8) . "\n";
+			my $error = $?;
+			print "error executing make command for $this->{category}/$this->{name}: Error Code = " . ($error >> 8) . "\n";
+			Sys::Syslog::syslog('warning', "error executing make command for $this->{category}/$this->{name}: Error Code = " . ($error >> 8));
+			die "error executing make command for $this->{category}/$this->{name}: Error Code = " . ($error >> 8) . "\n";
 		}
 	} else {
 			print "error fetching Makefile\n";
@@ -728,9 +743,10 @@ sub GetNeedsRefreshForNewPort {
 
 			$result = 0;
 		} else {
-			print "error executing make command for $category/$port: Error Code = " . ($? >> 8) . "\n";
-			Sys::Syslog::syslog('warning', "error executing make command for $category/$port: Error Code = " . ($? >> 8));
-			die "error executing make command for $category/$port: Error Code = " . ($? >> 8) . "\n";
+			my $error = $?;
+			print "error executing make command for $category/$port: Error Code = " . ($error >> 8) . "\n";
+			Sys::Syslog::syslog('warning', "error executing make command for $category/$port: Error Code = " . ($error >> 8));
+			die "error executing make command for $category/$port: Error Code = " . ($error >> 8) . "\n";
 		}
 	}
 
@@ -743,6 +759,31 @@ sub GetNeedsRefreshForNewPort {
 	return $needs_refresh;
 }
 
+
+sub RemovePortsPrefix($) {
+	#
+	# remove the ports prefix from the pathname
+	# this gives us the path into the CVS repo
+	# example:
+	# input:  /home/dan/ports/devel/hypersrc/Makefile
+	# output: ports/devel/hypersrc/Makefile
+	#
+	# assumes $FreshPorts::Config::path_to_tree is correctly set
+	#
+
+	#
+	# convert to the real path.  e.g. /home/dan to /usr/home/dan
+	#
+	my $SuffixPath = File::PathConvert::realpath(shift);
+
+	# add a trailing slash to the real path!
+	my $Prefix = File::PathConvert::realpath($FreshPorts::Config::path_to_tree) . "/";
+
+	# use regex to remove the prefix
+	$SuffixPath =~ s/$Prefix//;
+
+	return $SuffixPath;
+}
 
 
 FreshPorts::Utilities::InitSyslog();
