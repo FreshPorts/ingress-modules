@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.25 2002-01-23 01:54:14 dan Exp $
+# $Id: port.pm,v 1.26 2002-01-23 02:46:56 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -574,6 +574,7 @@ sub _PackageExists($) {
 sub RefreshFromFiles($) {
 #
 # refresh this port based on the make files associated with it and the value of needs_refresh
+# returns 0 for success, 1 for failure
 #
 	my $this			= shift;
 	my $needs_refresh	= shift;
@@ -583,14 +584,15 @@ sub RefreshFromFiles($) {
 		die "needs_refresh has no value";
 	}
 
-	my $result	= 0;
+	my $result = 0;
+	my $AllOK;
 
 	my $FetchAttempts = 5;
 
 	if ($needs_refresh > 0) {
 		while ($FetchAttempts) {
 			if ($this->_FetchFilesNeedingRefresh()) {
-				$this->_ExtractValuesFromMakefile();
+				$AllOK = $this->_ExtractValuesFromMakefile();
 				last;
 			} else {
 				# fetch failed
@@ -605,7 +607,7 @@ sub RefreshFromFiles($) {
 		print "this port does not need a refresh\n";
 	}
 
-	if (!$FetchAttempts) {
+	if (!$FetchAttempts || !$AllOK) {
 		$result = 1;
 	}
 

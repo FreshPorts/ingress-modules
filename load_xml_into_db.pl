@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: load_xml_into_db.pl,v 1.31 2001-12-29 20:48:00 dan Exp $
+# $Id: load_xml_into_db.pl,v 1.32 2002-01-23 02:46:55 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -560,6 +560,8 @@ sub SaveUpdateToDB {
 
 	my $temp;
 
+	print "load_xml_into_db.pl::SaveUpdateToDB --- start\n";
+
 	my $message_id      = $dbh->quote($Updates{MessageId});
 
 	my $existing_commit_id = GetExistingMessageID($message_id, $dbh);
@@ -621,6 +623,8 @@ sub SaveUpdateToDB {
 
 		$sth->finish();
 	}
+
+	print "load_xml_into_db.pl::SaveUpdateToDB --- finish\n";
 
 	return $id;
 }

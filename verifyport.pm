@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: verifyport.pm,v 1.38 2001-12-31 15:26:29 dan Exp $
+# $Id: verifyport.pm,v 1.39 2002-01-23 02:46:56 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -459,6 +459,7 @@ sub RefreshAllPortsTouchedByCommit($) {
 	my %CommitLogPorts		= %{$CommitLogPortsRef};
 
 	my $port;
+	my $error = 0;
 
 	#
 	# refresh each and every port we are told about
@@ -468,18 +469,20 @@ sub RefreshAllPortsTouchedByCommit($) {
 		$port = $commit_log_ports->{port};
 		print "port = $portname, port_id = '$port->{id}', category_id='$port->{category_id}', needs_refresh='$commit_log_ports->{needs_refresh}'\n";
 
-		$port->RefreshFromFiles($commit_log_ports->{needs_refresh});
+		$error = $port->RefreshFromFiles($commit_log_ports->{needs_refresh});
+		if (!$error) {
+			
+			# after refreshing from the files, save the results
+			$port->save();
 
-		# after refreshing from the files, save the results
-		$port->save();
+			# and then update the commit_log_ports
 
-		# and then update the commit_log_ports
+			$commit_log_ports->{needs_refresh}	= 0;
+			$commit_log_ports->{port_version}	= $port->{version};
+			$commit_log_ports->{port_revision}	= $port->{revision};
 
-		$commit_log_ports->{needs_refresh}	= 0;
-		$commit_log_ports->{port_version}	= $port->{version};
-		$commit_log_ports->{port_revision}	= $port->{revision};
-
-		$commit_log_ports->save();
+			$commit_log_ports->save();
+		}
 	}
 
 	print "# # # # done refreshing ports # # # #\n\n";
