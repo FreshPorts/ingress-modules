@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: hourly_stats.pl,v 1.1.2.11 2004-11-27 13:54:06 dan Exp $
+# $Id: hourly_stats.pl,v 1.1.2.12 2004-12-03 01:36:12 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -14,16 +14,16 @@ use commit_log_ports_ignore;
 use system_status;
 
 my %Queries = (
-	new       => 'select Stats_PortCount()',
-	broken    => 'select Stats_PortCountBroken()',
+	new        => 'select Stats_PortCount()',
+	broken     => 'select Stats_PortCountBroken()',
 	deprecated => 'select Stats_PortCountDeprecated()',
 	ignore     => 'select Stats_PortCountIgnore()',
-	forbidden => 'select Stats_PortCountForbidden()',
-	today     => 'select Stats_PortCountNewToday()',
-	yesterday => 'select Stats_PortCountNewYesterday()',
-	week      => 'select Stats_PortCountNewThisWeek()',
-	fortnight => 'select Stats_PortCountNewInterval(\'2 weeks\')',
-	month     => 'select Stats_PortCountNewInterval(\'1 month\')',
+	forbidden  => 'select Stats_PortCountForbidden()',
+	today      => 'select Stats_PortCountNewToday()',
+	yesterday  => 'select Stats_PortCountNewYesterday()',
+	week       => 'select Stats_PortCountNewThisWeek()',
+	fortnight  => 'select Stats_PortCountNewInterval(\'2 weeks\')',
+	month      => 'select Stats_PortCountNewInterval(\'1 month\')',
 );
 
 my %Stats;
