@@ -1,11 +1,11 @@
 #!/bin/sh
 #
-# $Id: vacuum.sh.sample,v 1.1.2.3 2002-07-24 16:56:31 dan Exp $
+# $Id: vacuum.sh.sample,v 1.1.2.4 2002-07-24 17:21:17 dan Exp $
 #
 
-RESULT=`vacuumdb --analyze freshports`
-if [ $RESULT = 'VACUUM' ]; then
+RESULT=`/usr/local/bin/vacuumdb --analyze freshports`
+if [ $RESULT != 'VACUUM' ]; then
    echo $RESULT | mail -s "FAILED: vacuum analyze freshports" dan@langille.org
 else
-   echo $RESULT | mail -s "vacuum analyze freshports" dan@langille.org
+#   echo $RESULT | mail -s "vacuum analyze freshports" dan@langille.org
 fi
