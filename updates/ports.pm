@@ -316,6 +316,9 @@ sub RefreshPortNoChecking($;$;$;$;$) {
    my $NameOfMakefile      = shift;
    my $dbh                 = shift;
 
+   # a return of zero indicates success.
+   my $result = 0;
+
    #
    # if we don't change the working dir, stuff like descrpath will not
    # contain /usr/ports/...etc.  It will look more like this:
@@ -333,6 +336,12 @@ sub RefreshPortNoChecking($;$;$;$;$) {
    (my $portname, my $packagename, my $descrpath, my $categories, my $portversion, my $commentfile,
     my $maintainer, my $extractsuffix, my $mastersites, my $builddepends,
     my $rundepends) = split(/\n/s, `$makecommand`);
+
+   #
+   # we need to check this return value.  if it fails, we need to know
+   #
+
+   if ($? == 0) {
 
    print " 0 $Port\n";
    print " 1 $portname\n";
@@ -378,6 +387,11 @@ sub RefreshPortNoChecking($;$;$;$;$) {
    PortUpdate ($Port, $portname, $Category, $descrpath, $categories, $portversion,
       $commentfile, $maintainer, $extractsuffix, $mastersites, $builddepends,
       $rundepends, $shortdescription, $longdescription, $homepage, $packageexists, $dbh);
+   } else {
+      $result = -1;
+   }
+
+   return $result;
 }
 
 sub RefreshPort($;$;$) {
