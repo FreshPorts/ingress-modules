@@ -723,7 +723,7 @@ sub RefreshOnePort($;$;$;$) {
 }
 
 
-sub CreateDailySummary($;$;$) {
+sub CreateDailySummary($;$) {
 
    my $PathToUse       = "/www/freshports.org/archives";  # must NOT include a trailing /
    my @myrow;
@@ -754,7 +754,7 @@ sub CreateDailySummary($;$;$) {
    umask(02);
    # create the output file name gradually, ensuring the directories exist
 
-   my $OutputFile = $PathToUse . "/" . substr($CommitDate, 0, 4);
+   my $OutputFile = $PathToUse . "/" . substr($CommitDateStart, 0, 4);
 
    if (-d $OutputFile) {
       print "'$OutputFile' exists\n";
@@ -768,7 +768,7 @@ sub CreateDailySummary($;$;$) {
       }
    }
 
-   $OutputFile .= "/" . substr($CommitDate, 5, 2);
+   $OutputFile .= "/" . substr($CommitDateStart, 5, 2);
    if (-d $OutputFile) {
       print "'$OutputFile' exists\n";
    } else {
@@ -780,7 +780,7 @@ sub CreateDailySummary($;$;$) {
       }
    }
 
-   $OutputFile .= "/" .  substr($CommitDate, 8, 2) . ".inc";
+   $OutputFile .= "/" .  substr($CommitDateStart, 8, 2) . ".inc";
    print "   trying to open '$OutputFile'\n";
    open FILE, ">$OutputFile"  || die "Could not open $OutputFile";
    

@@ -34,12 +34,14 @@ tar cfz $BackupFile $WorkingDirectory$TempFreshportsFile $WorkingDirectory$TempF
 #
 # copy it offsite
 #
-ftp -n -v ducky.int.nz.freebsd.org  <<EoF
-        user ftpbackup ftpbackup
-        bin
-        prompt
-        mput $BackupFile
-EoF
+#ftp -n -v ducky.int.nz.freebsd.org  <<EoF
+#        user ftpbackup ftpbackup
+#        bin
+#        prompt
+#        mput $BackupFile
+#EoF
+
+/usr/bin/scp $BackupFile dan@ns1.unixathome.org:$BackupFile
 
 #
 # remove the files we created
