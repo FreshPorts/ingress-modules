@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: special_processing_files.pm,v 1.1.2.5 2004-10-12 00:43:51 dan Exp $
+# $Id: special_processing_files.pm,v 1.1.2.6 2004-12-21 14:57:01 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -27,21 +27,25 @@ sub Eat($;$;$;$) {
 	my @row;
 
 	if ($File eq 'ports/MOVED') {
+		echo "applying special processing to $File";
 		Sys::Syslog::syslog('notice', "applying special processing to $File");
 		`/usr/bin/touch $FreshPorts::Config::MovedFileFlag`
 	}
 
 	if ($File eq 'ports/UPDATING') {
+		echo "applying special processing to $File";
 		Sys::Syslog::syslog('notice', "applying special processing to $File");
 		`/usr/bin/touch $FreshPorts::Config::UpdatingFileFlag`
 	}
 
  	if ($File eq 'ports/security/vuxml/vuln.xml') {
+		echo "applying special processing to $File";
 		Sys::Syslog::syslog('notice', "applying special processing to $File");
 		`/usr/bin/touch $FreshPorts::Config::VuXMLFileFlag`
 	}
 
  	if ($File eq 'CVSROOT/approvers') {
+		echo "applying special processing to $File";
 		Sys::Syslog::syslog('notice', "applying special processing to $File");
 		`/bin/sh process_CVSROOT_approvers.sh`
 	}
