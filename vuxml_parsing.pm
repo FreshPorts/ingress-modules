@@ -27,7 +27,7 @@
 # SUCH DAMAGE.
 
 #
-# @(#) $Id: vuxml_parsing.pm,v 1.1.2.6 2004-09-11 14:04:35 dan Exp $
+# @(#) $Id: vuxml_parsing.pm,v 1.1.2.7 2004-09-17 02:08:12 dan Exp $
 #
 # Parse the Vulnerabilities and Exposures (vuxml) database extracting
 # the entries for loading into a RDBMS.
@@ -395,10 +395,10 @@ sub update_database_vuxml_affected
                       " " x ( 10 - length $range->[1] );
                 }
                 print $range->[2], ": ", $range->[3], "\n";
-                $vuxml_affected_ranges->{vuxml_name_id}         = $vuxml_affected_names_id;
+                $vuxml_affected_ranges->{vuxml_name_id}        = $vuxml_affected_names_id;
                 $vuxml_affected_ranges->{range_operator_start} = $range->[0];
-                $vuxml_affected_ranges->{range_operator_end}   = $range->[1];
-                $vuxml_affected_ranges->{range_version_start}  = $range->[2];
+                $vuxml_affected_ranges->{range_version_start}  = $range->[1];
+                $vuxml_affected_ranges->{range_operator_end}   = $range->[2];
                 $vuxml_affected_ranges->{range_version_end}    = $range->[3];
 
                 $vuxml_affected_ranges->save();
