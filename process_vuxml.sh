@@ -1,8 +1,8 @@
 #!/bin/sh
 #
-# $Id: process_vuxml.sh,v 1.1.2.3 2004-12-09 02:08:36 dan Exp $
+# $Id: process_vuxml.sh,v 1.1.2.4 2005-01-03 21:35:48 dan Exp $
 #
-# Copyright (c) 2003-2004 DVL Software Limited
+# Copyright (c) 2003-2005 DVL Software Limited
 #
 # Check to see if the switch is set, and if so, load the
 # security/vuxml/vuln.xml file into the database
@@ -37,4 +37,5 @@ if [ -r ${VUXMLFLAGFILE} ]
 then
 	rm ${VUXMLFLAGFILE}
 	/usr/bin/perl ./process_vuxml.pl -w < ${PORTSDIR}/security/vuxml/vuln.xml
+	/usr/bin/perl ./vuxml_ident.pl      < ${PORTSDIR}/security/vuxml/vuln.xml > ${BASEDIR}/dynamic/vuxml_revision
 fi
