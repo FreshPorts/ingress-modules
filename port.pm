@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.38.2.4 2002-07-16 12:54:47 dan Exp $
+# $Id: port.pm,v 1.38.2.5 2002-08-12 03:11:10 dan Exp $
 #
 #
 # Copyright (c) 2001-2002 DVL Software
@@ -332,18 +332,15 @@ sub _ExtractValuesFromMakefile {
 	$makecommand = "make -V PORTNAME -V PKGNAME -V DESCR -V CATEGORIES -V PORTVERSION -V PORTREVISION " .
 		" -V COMMENT -V MAINTAINER -V EXTRACT_SUFX " .
 		" -V BUILD_DEPENDS -V RUN_DEPENDS -V FORBIDDEN -V BROKEN -f $MakefileDirectory/$FreshPorts::Constants::FILE_MAKEFILE " . 
-		" PORTSDIR=$FreshPorts::Config::path_to_ports ";
+		" PORTSDIR=$FreshPorts::Config::path_to_ports 2>&1";
 
 	print "makecommand = $makecommand\n";
 
-	(my $portname, my $packagename, my $descrpath, my $categories, my $portversion, my $portrevision, my $commentfile,
-	 my $maintainer, my $extractsuffix, my $builddepends,
-	 my $rundepends, my $forbidden, my $broken) = split(/\n/s, `$makecommand`);
-
+	my $MakeResults = `$makecommand`;
 	# save this for later reference
 	$result = $?;
 
-	my $mastersites;
+	my $mastersites = '';
 	if ($result == 0) {
 		print "trying to get master sites\n";
 		$mastersites = `make master-sites-all -f $MakefileDirectory/$FreshPorts::Constants::FILE_MAKEFILE PORTSDIR=$FreshPorts::Config::path_to_ports`;
@@ -359,12 +356,15 @@ sub _ExtractValuesFromMakefile {
 		rmdir "pkg";
 	}
 
-
 	#
 	# we need to check this return value.  if it fails, we need to know
 	#
 
 	if ($result == 0) {
+
+		(my $portname, my $packagename, my $descrpath, my $categories, my $portversion, my $portrevision, my $commentfile,
+		 my $maintainer, my $extractsuffix, my $builddepends,
+		 my $rundepends, my $forbidden, my $broken) = split(/\n/s, $MakeResults);
 
 		$builddepends	= freshports_ConvertPortPathToStandardLocation($builddepends);
 		$rundepends		= freshports_ConvertPortPathToStandardLocation($rundepends);
@@ -440,6 +440,9 @@ sub _ExtractValuesFromMakefile {
 		$this->{categories}			= $categories;
 
 	} else {
+		print "That make failed:\n\n$MakeResults\n\n";
+		FreshPorts::Utilities::ReportError('warning', "error executing make command for $this->{category}/$this->{name}: " . $MakeResults, 0);
+		FreshPorts::CommitterOptIn::RecordErrorDetails("\n\n" . $MakeResults. "\n\n");
 		$result = -1;
 	}
 
@@ -501,19 +504,20 @@ sub _FetchFilesNeedingRefresh {
 			mkdir "pkg",0;
 		}
 
-		my $makecommand = "make -V DESCR -V COMMENT -f $DESTDIR/$FILE PORTSDIR=$FreshPorts::Config::path_to_ports";
+		my $makecommand = "make -V DESCR -V COMMENT -f $DESTDIR/$FILE PORTSDIR=$FreshPorts::Config::path_to_ports 2>&1";
 
 		# remove previously created directory
 		rmdir "pkg";
 
 		print "makecommand = $makecommand\n";
-		(my $DESCR, my $COMMENT) = split(/\n/s, `$makecommand`);
+		my $MakeResults = `$makecommand`;
 
 		#
 		# we need to check this return value.  if it fails, we need to know
 		#
 
 		if ($? == 0) {
+			(my $DESCR, my $COMMENT) = split(/\n/s, $MakeResults);
 			print "raw       data DESCR   = $DESCR\n";
 			print "raw       data COMMENT = $COMMENT\n";
 
@@ -565,8 +569,10 @@ sub _FetchFilesNeedingRefresh {
 			
 
 		} else {
+			print "That make failed:\n\n$MakeResults\n\n";
 			my $error = $?;
-			FreshPorts::Utilities::ReportError('warning', "error executing make command for $this->{category}/$this->{name}: Error Code = " . ($error >> 8), 1);
+			FreshPorts::Utilities::ReportError('warning', "error executing make command for $this->{category}/$this->{name}: Error Code = " . ($error >> 8), 0);
+			FreshPorts::CommitterOptIn::RecordErrorDetails("\n\n" . $MakeResults. "\n\n");
 		}
 	} else {
 		FreshPorts::Utilities::ReportError('warning', "error fetching Makefile", 0);
