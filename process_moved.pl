@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: process_moved.pl,v 1.1.2.4 2003-12-31 20:29:01 dan Exp $
+# $Id: process_moved.pl,v 1.1.2.5 2004-08-01 23:05:23 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -113,7 +113,6 @@ sub EmptyMoved($) {
 
 	my $sth;
 	my $sql;
-	my @row;
 
 	# quote everything going to the database
 	$sql = "DELETE FROM ports_moved";
