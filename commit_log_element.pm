@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: commit_log_element.pm,v 1.4 2002-02-02 04:46:41 dan Exp $
+# $Id: commit_log_element.pm,v 1.4.2.1 2002-11-25 23:02:57 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -37,10 +37,10 @@ sub save {
 	my $sql;
 	my @row;
 
-print "$FreshPorts::Constants::commit_log_seq\n";
-print "$FreshPorts::Constants::ports_seq\n";
-print "$FreshPorts::Constants::commit_log_elements_seq\n";
-
+	print "commit_log_element::save..........\n";
+	print "\$FreshPorts::Constants::commit_log_seq='$FreshPorts::Constants::commit_log_seq'\n";
+	print "\$FreshPorts::Constants::ports_seq='$FreshPorts::Constants::ports_seq'\n";
+	print "\$FreshPorts::Constants::commit_log_elements_seq='$FreshPorts::Constants::commit_log_elements_seq'\n";
 
 	if (!$this->{id}) {
 		print "getting id from '" . "$FreshPorts::Constants::commit_log_elements_seq\n";
