@@ -1,8 +1,8 @@
 #!/usr/bin/perl -w
 #
-# $Id: report-notification.pl,v 1.1.2.22 2003-09-11 20:17:03 dan Exp $
+# $Id: report-notification.pl,v 1.1.2.23 2004-01-29 15:29:11 dan Exp $
 #
-# Copyright (c) 2001-2003 DVL Software
+# Copyright (c) 2001-2004 DVL Software
 #
 
 use strict;
@@ -18,7 +18,6 @@ use Text::Wrap;
 use email;
 
 my $Debug = 0;
-my $dirname='';
 my @USERS;
 my $sql;
 my $sth;
@@ -30,8 +29,6 @@ my $NumPorts   = 0;
 
 my $FormatDate	= "%W, %b %e";
 my $FormatTime	= "%H:%i";
-my $WatchURL	= $FreshPorts::Config::FreshPortsURL . "watch.php";
-my $AdjustURL	= $FreshPorts::Config::FreshPortsURL . "report-subscriptions.php";
 
 my $ReportID	= $FreshPorts::ReportConstants::Notification;
 
@@ -52,20 +49,8 @@ your selected ports which have changed since the last notification.  You
 have chosen to receive these notices on a $FrequencyLong basis.
 
 $BodyIn
-======================================
-
-Please refer to $WatchURL for details.
-
-Cheers and thanks for your support.
-
--- 
-
-You are receiving this message as part of the service you joined at
-$FreshPorts::Config::FreshPortsURL but if you no longer wish to receive such messages,
-please go to $AdjustURL.
-
-If a problem occurs, please send details, including the email address in
-question, to postmaster\@FreshPorts.org.";
+$FreshPorts::ReportConstants::Footer
+";
 
 	my $Headers = '';
 	$Headers .= 'X-FreshPorts-WatchListName: '      . $WatchListName . "\n";
