@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.38.2.37 2004-03-22 20:32:58 dan Exp $
+# $Id: port.pm,v 1.38.2.38 2004-07-05 19:35:06 dan Exp $
 #
 #
 # Copyright (c) 2001-2003 DVL Software
@@ -48,18 +48,18 @@ sub _initialize {
 	$this->{package_exists}		= '';
 	$this->{depends_build}		= '';
 	$this->{depends_run}		= '';
+	$this->{depends_lib}		= '';
 	$this->{forbidden}			= '';
 	$this->{broken}				= '';
 	$this->{deprecated}			= '';
 	$this->{ignore}				= '';
+	$this->{master_port}		= '';
+	$this->{latest_link}		= '';
 	$this->{categories}			= '';
 	$this->{status}				= '';
 	$this->{element_pathname}   = '';
 
 
-print "$FreshPorts::Constants::commit_log_seq\n";
-print "$FreshPorts::Constants::ports_seq\n";
-print "$FreshPorts::Constants::commit_log_elements_seq\n";
 }
 
 sub _GetValuesFromRow {
@@ -83,10 +83,13 @@ sub _GetValuesFromRow {
 	$this->{package_exists}		= $row->{package_exists};
 	$this->{depends_build}		= $row->{depends_build};
 	$this->{depends_run}		= $row->{depends_run};
+	$this->{depends_lib}		= $row->{depends_lib};
 	$this->{forbidden}			= $row->{forbidden};
 	$this->{broken}				= $row->{broken};
 	$this->{deprecated}			= $row->{deprecated};
 	$this->{ignore}				= $row->{ignore};
+	$this->{master_port}		= $row->{master_port};
+	$this->{latest_link}		= $row->{latest_link};
 	$this->{categories}			= $row->{categories};
 	$this->{last_commit_id}		= $row->{last_commit_id};
 	$this->{status}				= $row->{status};
@@ -137,10 +140,13 @@ update ports
        extract_suffix    = " . $dbh->quote($this->{package_exists})		. ", 
        depends_build     = " . $dbh->quote($this->{depends_build})		. ", 
        depends_run       = " . $dbh->quote($this->{depends_run})		. ", 
+       depends_lib       = " . $dbh->quote($this->{depends_lib})		. ", 
        forbidden         = " . $dbh->quote($this->{forbidden})			. ", 
        broken            = " . $dbh->quote($this->{broken})				. ", 
        deprecated        = " . $dbh->quote($this->{deprecated})			. ", 
-       ignore            = " . $dbh->quote($this->{ignore})			. ", 
+       ignore            = " . $dbh->quote($this->{ignore})				. ", 
+       master_port       = " . $dbh->quote($this->{master_port})		. ",
+       latest_link       = " . $dbh->quote($this->{latest_link})		. ", 
        categories        = " . $dbh->quote($this->{categories});
 
 		# we don't always have this value, so we don't change it....
@@ -372,7 +378,8 @@ sub _ExtractValuesFromMakefile {
 	#
 	$makecommand = "make -V PORTNAME -V PKGNAME -V DESCR -V CATEGORIES -V PORTVERSION -V PORTREVISION " .
 		" -V COMMENT -V COMMENTFILE -V MAINTAINER -V EXTRACT_SUFX " .
-		" -V BUILD_DEPENDS -V RUN_DEPENDS -V FORBIDDEN -V BROKEN -V DEPRECATED -V IGNORE -f $Makefile " . 
+		" -V BUILD_DEPENDS -V RUN_DEPENDS -V LIB_DEPENDS -V FORBIDDEN -V BROKEN -V DEPRECATED -V IGNORE ". 
+		" -V MASTERPORT -V LATEST_LINK -f $Makefile " . 
 		" PORTSDIR=$FreshPorts::Config::path_to_ports LOCALBASE=/nonexistentlocal X11BASE=/nonexistentx 2>$TmpFile";
 
 	print "makecommand = $makecommand\n";
@@ -457,10 +464,12 @@ sub _ExtractValuesFromMakefile {
 
 		(my $portname, my $packagename, my $descrpath, my $categories, my $portversion, my $portrevision, my $shortdescription,
 		 my $CommentFile, my $maintainer, my $extractsuffix, my $builddepends,
-		 my $rundepends, my $forbidden, my $broken, my $deprecated, my $ignore) = split(/\n/s, $MakeResults);
+		 my $rundepends, my $libdepends, my $forbidden, my $broken, my $deprecated, my $ignore,
+		 my $master_port, my $latest_link) = split(/\n/s, $MakeResults);
 
 		$builddepends	= freshports_ConvertPortPathToStandardLocation(FreshPorts::Utilities::trim_multiple_to_single(FreshPorts::Utilities::trim($builddepends)));
 		$rundepends		= freshports_ConvertPortPathToStandardLocation(FreshPorts::Utilities::trim_multiple_to_single(FreshPorts::Utilities::trim($rundepends)));
+		$libdepends		= freshports_ConvertPortPathToStandardLocation(FreshPorts::Utilities::trim_multiple_to_single(FreshPorts::Utilities::trim($libdepends)));
 
 		print " portname     ='$this->{name}'\n";
 		print " packagename  ='$portname'\n";
@@ -477,6 +486,7 @@ sub _ExtractValuesFromMakefile {
 		print " mastersites  ='$mastersites'\n";
 		print " builddepends ='$builddepends'\n";
 		print " rundepends   ='$rundepends'\n";
+		print " libdepends   ='$libdepends'\n";
 
 		# eliminate multiple // : PR 174
 		# to compensate for bug in File::PathConvert::realpath
@@ -507,12 +517,14 @@ sub _ExtractValuesFromMakefile {
 		}
 		print "'\n";
 
-		print "15 \$packageexists='$packageexists'\n";
-		print "16 \$forbidden    ='$forbidden'\n";
-		print "17 \$broken       ='$broken'\n";
-		print "18 \$deprecated   ='$deprecated'\n";
-		print "19 \$ignore       ='$ignore'\n";
-		print "20 \$categories   ='$categories'\n";
+		print "15 \$packageexists = '$packageexists'\n";
+		print "16 \$forbidden     = '$forbidden'\n";
+		print "17 \$broken        = '$broken'\n";
+		print "18 \$deprecated    = '$deprecated'\n";
+		print "19 \$ignore        = '$ignore'\n";
+		print "20 \$master_port   = '$master_port'\n";
+		print "21 \$latest_link   = '$latest_link'\n";
+		print "22 \$categories    = '$categories'\n";
 
 		print "\n ---------------------------------------- \n";
 
@@ -547,10 +559,13 @@ sub _ExtractValuesFromMakefile {
 		$this->{package_exists}		= $packageexists;
 		$this->{depends_build}		= $builddepends;
 		$this->{depends_run}		= $rundepends;
+		$this->{depends_lib}		= $libdepends;
 		$this->{forbidden}			= $forbidden;
 		$this->{broken}				= $broken;
 		$this->{deprecated}			= $deprecated;
 		$this->{ignore}				= $ignore;
+		$this->{master_port}		= $master_port;
+		$this->{latest_link}		= $latest_link;
 		$this->{categories}			= $categories;
 
 	} else {
