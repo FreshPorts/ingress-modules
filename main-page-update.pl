@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: main-page-update.pl,v 1.5 2002-02-18 04:12:23 dan Exp $
+# $Id: main-page-update.pl,v 1.6 2002-02-21 17:48:41 dan Exp $
 #
 # Copyright (c) 1999-2002 DVL Software
 #
@@ -23,12 +23,15 @@ sub RefreshMainPage($) {
 	$sql = "select RecordLastestPortCommits('2002-01-01');";
 	print "sql = $sql\n";
 
-	$sth = $dbh->prepare($sql) ||
-		FreshPorts::Utilities::ReportError('warning', "Could not prepare SQL $sql ... maybe invalid?", 1);
-	$sth->execute ||
-		FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql ... maybe invalid?", 1);
-
-	@row=$sth->fetchrow_array;
+	if ($sth = $dbh->prepare($sql)) {
+		if ($sth->execute) {
+			@row=$sth->fetchrow_array;
+		} else {
+			FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql ... maybe invalid?", 0);
+		}
+	} else {
+		FreshPorts::Utilities::ReportError('warning', "Could not prepare SQL $sql ... maybe invalid?", 0);
+	}
 
 	$sth->finish();
 	$dbh->commit();
@@ -47,14 +50,17 @@ sub GetMaxCommitLogPortId($) {
 	my $MaxCommitLogPortId;
 
 	$sql = "select max(commit_log_id) from commit_log_ports";
-	$sth = $dbh->prepare($sql) ||
-		FreshPorts::Utilities::ReportError('warning', "Could not prepare SQL $sql ... maybe invalid?", 1);
-	$sth->execute ||
-		FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql ... maybe invalid?", 1);
+	if ($sth = $dbh->prepare($sql)) {
+		if ( $sth->execute) {
+			@row=$sth->fetchrow_array;
 
-	@row=$sth->fetchrow_array;
-
-	$sth->finish();
+			$sth->finish();
+		} else {
+			FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql ... maybe invalid?", 0)
+		}
+	} else {
+		FreshPorts::Utilities::ReportError('warning', "Could not prepare SQL $sql ... maybe invalid?", 0);
+	}
 
 	$MaxCommitLogPortId = $row[0];
 
@@ -91,18 +97,20 @@ while (1) {
 	print "\$housekeeping->{refresh_now}      = '$housekeeping->{refresh_now}'\n";
 
 	if ($housekeeping->{refresh_now} || $MaxCommitLogPortId > $housekeeping->{last_port_commit}) {
-		RefreshMainPage($dbh);
-	}
 
-	#
-	# daily summaries are suspended until I figure out a good way to handle them...
-	#
-	## create the daily summaries (if we have a port there..)
-	#if (keys %CommitLogPorts) {
-	#	FreshPorts::VerifyPort::CreateDailySummary($commit_date, $dbh);
-	#} else {
-	#	print "No ports found: CreateDailySummary not being called\n";
-	#}
+		$sql = "UPDATE housekeeping SET refresh_now = 0";
+		if ($sth = $dbh->prepare($sql)) {
+			if ($sth->execute) {
+				$dbh->commit;
+				RefreshMainPage($dbh);
+			} else {
+	            FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql ... maybe invalid?", 0);
+			}
+		} else {
+			FreshPorts::Utilities::ReportError('warning', "Could not prepare SQL $sql ... maybe invalid?", 0);
+		}
+		
+	}
 
 	$dbh->disconnect();
 
