@@ -1,7 +1,7 @@
 #
-# $Id: config.pm.sample,v 1.13.2.10 2003-09-09 10:35:27 dan Exp $
+# $Id: config.pm.sample,v 1.13.2.11 2004-01-02 18:07:34 dan Exp $
 #
-# Copyright (c) 2001-2003 DVL Software
+# Copyright (c) 2001-2004 DVL Software
 #
 
 package FreshPorts::Config;
@@ -45,6 +45,7 @@ $FreshPorts::Config::DailySummaryDir	= $BaseDir . "/www/archives"; # no trailing
 $FreshPorts::Config::HourlySummaryDir	= $BaseDir . "/dynamic";
 
 $FreshPorts::Config::CommitterNotify	= 0;	# Should we notify committers of problems?
+$FreshPorts::Config::NotifyAdmin        = 1;	# Notify me
 
 #
 # Change only above. Do not change below.
@@ -64,11 +65,13 @@ $FreshPorts::Config::email_client		= 'localhost';
 
 $FreshPorts::Config::SystemOwnerEmail	= 'dan@langille.org';
 
+$FreshPorts::Config::MovedFileFlag		= $BaseDir . '/dynamic/refresh_moved';
+
 #
 # for debugging....
 #
-print "\$FreshPorts::Config::scriptpath    '$FreshPorts::Config::scriptpath'\n";
-print "\$FreshPorts::Config::path_to_tree  '$FreshPorts::Config::path_to_tree'\n";
-print "\$FreshPorts::Config::path_to_ports '$FreshPorts::Config::path_to_ports'\n";
+#print "\$FreshPorts::Config::scriptpath    '$FreshPorts::Config::scriptpath'\n";
+#print "\$FreshPorts::Config::path_to_tree  '$FreshPorts::Config::path_to_tree'\n";
+#print "\$FreshPorts::Config::path_to_ports '$FreshPorts::Config::path_to_ports'\n";
 
 1;
