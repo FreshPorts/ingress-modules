@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.22 2001-12-29 21:25:19 dan Exp $
+# $Id: port.pm,v 1.23 2001-12-30 23:20:06 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -397,6 +397,8 @@ sub _FetchFilesNeedingRefresh {
 	my $this	= shift;
 	my $result	= 0;
 
+	print "into _FetchFilesNeedingRefresh ------------\n";
+
 	# this is where we fetch the files to disk
 	my $DESTDIR	= "$FreshPorts::Config::path_to_ports/$this->{category}/$this->{name}";
 
@@ -409,6 +411,10 @@ sub _FetchFilesNeedingRefresh {
 
 	my $FILE	= $FreshPorts::Constants::FILE_MAKEFILE;
 
+
+	print "\$DESTDIR = $DESTDIR\n";
+	print "\$SRCDIR  = $SRCDIR\n";
+	print "\$FILE    = $FILE\n";
 
 	if (FreshPorts::Utilities::FetchFile($DESTDIR, $SRCDIR, $FILE)) {
 		#
@@ -500,6 +506,8 @@ sub _FetchFilesNeedingRefresh {
 			Sys::Syslog::syslog('warning', "error fetching Makefile");
 			die "error executing merror fetching Makefile\n";
 	}
+
+	print "exit _FetchFilesNeedingRefresh ------------\n";
 
 	return $result;
 }
@@ -618,8 +626,14 @@ sub GetNeedsRefreshForNewPort {
 	# this function tells you what files are needed by first fetching the Makefile
 	# and using that to determine the other information.
 
-
-	return 7;  # Let's just use this for now.  See how it goes.
+	#
+	# Let's just use this for now.  See how it goes.
+	#
+	if (!defined($this->{deleted})) {
+		return 7;
+	} else {
+		return 0
+	}
 
 	#
 	# we might be creating a new port for a port which has just been deleted.
@@ -774,13 +788,24 @@ sub RemovePortsPrefix($) {
 	#
 	# convert to the real path.  e.g. /home/dan to /usr/home/dan
 	#
-	my $SuffixPath = File::PathConvert::realpath(shift);
+
+	my $SuffixPath = shift;
+	print "into RemovePortsPrefix => $SuffixPath\n";
+
+	$SuffixPath = File::PathConvert::realpath($SuffixPath);
 
 	# add a trailing slash to the real path!
-	my $Prefix = File::PathConvert::realpath($FreshPorts::Config::path_to_tree) . "/";
+	my $Prefix = File::PathConvert::realpath($FreshPorts::Config::path_to_ports) . "/";
+
+	print "\$Prefix => $Prefix\n";
+
+	#print "RemovePortsPrefix \$Prefix = $Prefix\n";
 
 	# use regex to remove the prefix
 	$SuffixPath =~ s/$Prefix//;
+	$SuffixPath = $FreshPorts::Config::ports_prefix . '/' . $SuffixPath;
+
+	print "exit RemovePortsPrefix => $SuffixPath\n";
 
 	return $SuffixPath;
 }
