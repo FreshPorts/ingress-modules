@@ -1,5 +1,5 @@
 #
-# $Id: crontab.sample,v 1.7.2.4 2002-11-26 03:46:08 dan Exp $
+# $Id: crontab.sample,v 1.7.2.5 2003-04-23 19:47:07 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -8,26 +8,28 @@ SHELL=/bin/sh
 # mail any output to `paul', no matter whose crontab this is
 MAILTO=dan
 
-0	1	*		*	*	nice -15 sh -c '(${HOME}/scripts/database_dump.sh 2>&1 | mail -s "freshports Backup" root)'
+DIR=/usr/websites/WEBSITE-NAME/scripts
 
-10	18	*		*	*	nice -15 sh -c '(cd ${HOME}/scripts ; /usr/bin/perl ${HOME}/scripts/report-notification.pl D 2>&1 | mail -s "freshports NEW daily notice"       root)'
-0	19	*		*	2	nice -15 sh -c '(cd ${HOME}/scripts ; /usr/bin/perl ${HOME}/scripts/report-notification.pl W 2>&1 | mail -s "freshports NEW weekly notice"      root)'
-20	19	9,23	*	*	nice -15 sh -c '(cd ${HOME}/scripts ; /usr/bin/perl ${HOME}/scripts/report-notification.pl F 2>&1 | mail -s "freshports NEW fortnightly notice" root)'
-40	19	23		*	*	nice -15 sh -c '(cd ${HOME}/scripts ; /usr/bin/perl ${HOME}/scripts/report-notification.pl M 2>&1 | mail -s "freshports NEW monthly notice"     root)'
+0	1	*		*	*	nice -15 sh -c '(cd ${DIR} && sh ./database_dump.sh 2>&1 | mail -s "freshports Backup" root)'
 
-10	18	*		*	*	nice -15 sh -c '(cd ${HOME}/scripts ; /usr/bin/perl ${HOME}/scripts/report-new-ports.pl D 2>&1 | mail -s "freshports NEW ports daily notice"       root)'
-0	19	*		*	2	nice -15 sh -c '(cd ${HOME}/scripts ; /usr/bin/perl ${HOME}/scripts/report-new-ports.pl W 2>&1 | mail -s "freshports NEW ports weekly notice"      root)'
-20	19	9,23	*	*	nice -15 sh -c '(cd ${HOME}/scripts ; /usr/bin/perl ${HOME}/scripts/report-new-ports.pl F 2>&1 | mail -s "freshports NEW ports fortnightly notice" root)'
-40	19	23		*	*	nice -15 sh -c '(cd ${HOME}/scripts ; /usr/bin/perl ${HOME}/scripts/report-new-ports.pl M 2>&1 | mail -s "freshports NEW ports monthly notice"     root)'
+10	18	*		*	*	nice -15 sh -c '(cd ${DIR} && /usr/bin/perl ./report-notification.pl D 2>&1 | mail -s "freshports NEW daily notice"       root)'
+0	19	*		*	2	nice -15 sh -c '(cd ${DIR} && /usr/bin/perl ./report-notification.pl W 2>&1 | mail -s "freshports NEW weekly notice"      root)'
+20	19	9,23	*	*	nice -15 sh -c '(cd ${DIR} && /usr/bin/perl ./report-notification.pl F 2>&1 | mail -s "freshports NEW fortnightly notice" root)'
+40	19	23		*	*	nice -15 sh -c '(cd ${DIR} && /usr/bin/perl ./report-notification.pl M 2>&1 | mail -s "freshports NEW monthly notice"     root)'
 
-58	15	*		*	*	/usr/local/bin/cvsup -b ${HOME} -h xeon ${HOME}/scripts/ports-supfile | mail -s "lists-test cvsup" root
+10	18	*		*	*	nice -15 sh -c '(cd ${DIR} && /usr/bin/perl ./report-new-ports.pl D 2>&1 | mail -s "freshports NEW ports daily notice"       root)'
+0	19	*		*	2	nice -15 sh -c '(cd ${DIR} && /usr/bin/perl ./report-new-ports.pl W 2>&1 | mail -s "freshports NEW ports weekly notice"      root)'
+20	19	9,23	*	*	nice -15 sh -c '(cd ${DIR} && /usr/bin/perl ./report-new-ports.pl F 2>&1 | mail -s "freshports NEW ports fortnightly notice" root)'
+40	19	23		*	*	nice -15 sh -c '(cd ${DIR} && /usr/bin/perl ./report-new-ports.pl M 2>&1 | mail -s "freshports NEW ports monthly notice"     root)'
 
-0	0	*		*	*	nice -15 sh -c '(cd ${HOME}/scripts ; /bin/sh  ${HOME}/scripts/searchlog.sh 2>&1 | mail -s "freshports searchlog" dan@langille.org)'
+0	0	*		*	*	nice -15 sh -c '(cd ${DIR} && /bin/sh ./searchlog.sh 2>&1 | mail -s "freshports searchlog" dan@langille.org)'
+0	0	*		*	*	nice -15 sh -c '(cd ${DIR} && /bin/sh ./newusers.sh  2>&1 | mail -s "FreshPorts users"     dan@langille.org)'
 
-0	0	*		*	*	nice -15 sh -c '(cd ${HOME}/scripts ; /bin/sh newusers.sh 2>&1 | mail -s "FreshPorts users" dan@langille.org)'
-*/10	*	*	*	*	perl ${HOME}/scripts/unrefreshed.pl 2>&1 > /dev/null
-0	*	*		*	*	perl ${HOME}/scripts/hourly_stats.pl 2>&1 > /dev/null
-0	0	*		*	*	perl ${HOME}/scripts/daily_stats.pl 2>&1 > /dev/null
-10	0	*		*	*	${HOME}/scripts/archive-messages.sh >> /dev/null
+10	15	*		*	*	/usr/local/bin/cvsup -b ${HOME} -h xeon ${DIR}/ports-supfile | mail -s "working-copy cvsup" root
 
-17	0	*		*	*	sh /usr/websites/freshports.org/scripts/vacuum.sh 2>&1 > /dev/null
+*/10	*	*	*	*	cd $DIR && perl unrefreshed.pl  2>&1 > /dev/null
+0	*	*		*	*	cd $DIR && perl hourly_stats.pl 2>&1 > /dev/null
+0	0	*		*	*	cd $DIR && perl daily_stats.pl  2>&1 > /dev/null
+10	0	*		*	*	cd $DIR && ./archive-messages.sh >> /dev/null
+
+17	0	*		*	*	cd $DIR && sh ./vacuum.sh 2>&1 > /dev/null
