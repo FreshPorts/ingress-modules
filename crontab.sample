@@ -1,5 +1,5 @@
 #
-# $Id: crontab.sample,v 1.7.2.9 2004-01-12 19:02:50 dan Exp $
+# $Id: crontab.sample,v 1.7.2.10 2004-04-23 19:21:03 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -27,7 +27,7 @@ DIR=/usr/websites/WEBSITE-NAME/scripts
 0	0	*		*	*	nice -15 sh -c '(cd ${DIR} && /bin/sh ./searchlog.sh 2>&1 | mail -s "freshports searchlog" dan@langille.org)'
 0	0	*		*	*	nice -15 sh -c '(cd ${DIR} && /bin/sh ./newusers.sh  2>&1 | mail -s "FreshPorts users"     dan@langille.org)'
 
-10	15	*		*	*	/usr/local/bin/cvsup -b ${HOME} -h xeon ${DIR}/ports-supfile | mail -s "working-copy cvsup" root
+10	15	*		*	*	/usr/local/bin/cvsup -b ${HOME} -h cvsup ${DIR}/ports-supfile | mail -s "working-copy cvsup" root
 
 */10	*	*	*	*	cd $DIR && perl unrefreshed.pl    2>&1 > /dev/null
 0		0	*	*	*	cd $DIR && perl unrefreshed.pl -i 2>&1 > /dev/null
