@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.34 2002-02-21 17:59:33 dan Exp $
+# $Id: port.pm,v 1.35 2002-02-22 01:39:43 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -305,8 +305,11 @@ sub _ExtractValuesFromMakefile {
 		mkdir "pkg",0;
 	}
 
-	
-
+	#
+	#
+	# IF YOU CHANGE THE MAKE COMMAND, CHANTGE THE SPLIT!!!!!!!!!!!!!!!
+	#
+	#
 	$makecommand = "make -V PORTNAME -V PKGNAME -V DESCR -V CATEGORIES -V PORTVERSION -V PORTREVISION " .
 		" -V COMMENT -V MAINTAINER -V EXTRACT_SUFX " .
 		" -V BUILD_DEPENDS -V RUN_DEPENDS -V FORBIDDEN -V BROKEN -f $MakefileDirectory/$FreshPorts::Constants::FILE_MAKEFILE";
@@ -314,12 +317,13 @@ sub _ExtractValuesFromMakefile {
 	print "makecommand = $makecommand\n";
 
 	(my $portname, my $packagename, my $descrpath, my $categories, my $portversion, my $portrevision, my $commentfile,
-	 my $maintainer, my $extractsuffix, my $mastersites, my $builddepends,
+	 my $maintainer, my $extractsuffix, my $builddepends,
 	 my $rundepends, my $forbidden, my $broken) = split(/\n/s, `$makecommand`);
 
 	# save this for later reference
 	$result = $?;
 
+	my $mastersites;
 	if ($result == 0) {
 		$mastersites = `make master-sites-all`;
 		# save this for later reference
