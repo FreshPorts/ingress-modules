@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: process_cvs_mail.pl,v 1.8.2.8 2002-12-10 16:16:00 dan Exp $
+# $Id: process_cvs_mail.pl,v 1.8.2.9 2002-12-10 16:50:55 dan Exp $
 #
 # Copyright (c) 2001-2002  DVL Software
 #
@@ -8,8 +8,14 @@
 # and convert it to XML output according to the FreshPorts DTD.
 #
 
+push (@INC, '~/scripts');
+
+use lib "$ENV{HOME}/scripts";
+
+
 use strict;
 use XML::Writer;
+use constants;
 
 &main;
 exit;
@@ -347,7 +353,7 @@ sub GetFiles {
 				$action = $FreshPorts::Constants::REMOVE;
 			} else {
 				if ($action eq '(new)') {
-					$action = '$FreshPorts::Constants::ADD;
+					$action = $FreshPorts::Constants::ADD;
 				} else {
 					$action = 'unknown action';
 				}
