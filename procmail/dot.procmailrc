@@ -1,0 +1,56 @@
+#
+# $Id: dot.procmailrc,v 1.1 2002-02-18 05:38:12 dan Exp $
+#
+# Copyright (c) 1999-2002 DVL Software
+#
+# Please check if all the paths in PATH are reachable, 
+# remove the ones that are not.
+
+PATH=$HOME/bin:/usr/bin:/usr/ucb:/bin:/usr/local/bin:.
+MAILDIR=$HOME/mail	# You'd better make sure it exists
+DEFAULT=$MAILDIR/mbox
+LOGFILE=$MAILDIR/procmail.log
+LOCKFILE=$HOME/.lockmail
+TMPDIR=$HOME/msgs/spooling
+UMASK=022
+
+#
+# a file of the form YYYY.MM.DD.HH.MM.SS.PID.txt
+#
+FILE=`date +%Y.%m.%d.%H.%M.%S`.$$.txt
+
+:0
+* ^Sender: owner-cvs-all@FreeBSD\.ORG
+{
+   #
+   # this should restrict all entries to just that from the mailing list
+   # 
+   :0
+   * ^X-FreeBSD-CVS-Branch: *
+   {
+
+      MSGDIR=$HOME/msgs/FreeBSD
+      :0c
+         $MSGDIR/raw/$FILE
+
+      :0
+         | cat > $TMPDIR/$FILE && \
+         mv $TMPDIR/$FILE $MSGDIR/incoming/$FILE
+   }
+
+   #
+   # we don't want anything else from this list
+   #
+   :0
+      /dev/null
+}
+
+:0
+{
+   :0fwh  # Adjust some headers before forwarding
+      | formail -A"X-Folder: cvs@freebsddiary.org"
+
+   # forward the email
+   :0
+      !dan
+!dan
