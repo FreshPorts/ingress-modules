@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $Id: config.sh.sample,v 1.1.2.8 2004-10-10 17:56:59 dan Exp $
+# $Id: config.sh.sample,v 1.1.2.9 2005-01-13 23:06:51 dan Exp $
 #
 
 BASEDIR="/usr/websites/DIRNAME"
@@ -35,6 +35,7 @@ UPDATINGFLAGFILE="${BASEDIR}/dynamic/refresh_updating"
 PORTSFREEZEFILE="${BASEDIR}/dynamic/PortsFreezeIsOn"
 
 VUXMLFLAGFILE="${BASEDIR}/dynamic/vuxml"
+VUXMLMUTEX="${BASEDIR}/dynamic/vuxml_mutex"
 
 PORTSDIR="PORTS_DIR"
 ADMINEMAIL="ADMIN_EMAIL"
