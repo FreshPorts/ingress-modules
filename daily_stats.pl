@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: daily_stats.pl,v 1.1.2.2 2002-05-19 17:32:05 dan Exp $
+# $Id: daily_stats.pl,v 1.1.2.3 2002-06-02 14:03:01 dan Exp $
 #
 # Copyright (c) 2001-2002 DVL Software
 #
@@ -13,6 +13,10 @@ use database;
 use DBI;
 
 require config;
+
+print "\$FreshPorts::Config::dbname='$FreshPorts::Config::dbname'\n";
+print "\$FreshPorts::Config::user='$FreshPorts::Config::user'\n";
+print "\$FreshPorts::Config::password='$FreshPorts::Config::password'\n";
 
 
 my $dbh = FreshPorts::Database::GetDBHandle();
