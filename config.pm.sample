@@ -1,5 +1,5 @@
 #
-# $Id: config.pm.sample,v 1.12 2001-12-30 23:18:47 dan Exp $
+# $Id: config.pm.sample,v 1.13 2002-01-23 01:54:14 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -12,11 +12,17 @@ use File::PathConvert;
 # This section contains local settings.  Change them to suit your environment.
 #
 
+$FreshPorts::Config::FreshPortsURL		= 'http://lists-test.freshports.org/';
+
+$FreshPorts::Config::TimeAdjust			= '-10800 seconds';
+
 $FreshPorts::Config::dbname				= 'databasename';
 $FreshPorts::Config::user				= 'user';
 $FreshPorts::Config::password			= 'password';
 
 $FreshPorts::Config::scriptpath			= $ENV{HOME} . "/scripts";
+
+$FreshPorts::Config::mkdir_pkg			= 0;
 
 #
 # where on disk is the ports tree?
