@@ -1,5 +1,5 @@
 #
-# $Id: crontab.sample,v 1.7.2.7 2003-07-17 12:54:50 dan Exp $
+# $Id: crontab.sample,v 1.7.2.8 2003-11-20 14:17:18 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -31,6 +31,8 @@ DIR=/usr/websites/WEBSITE-NAME/scripts
 0		0	*	*	*	cd $DIR && perl unrefreshed.pl -i 2>&1 > /dev/null
 0		*	*	*	*	cd $DIR && perl hourly_stats.pl   2>&1 > /dev/null
 0		0	*	*	*	cd $DIR && perl daily_stats.pl    2>&1 > /dev/null
+
+*/5 *   *       *   *   cd $DIR && ./cache-refresh.sh  > /dev/null 2>&1
 
 10	0	*		*	*	cd $DIR && ./archive-messages.sh >> /dev/null
 
