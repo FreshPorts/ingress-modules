@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.38.2.38 2004-07-05 19:35:06 dan Exp $
+# $Id: port.pm,v 1.38.2.39 2004-09-13 12:52:49 dan Exp $
 #
 #
 # Copyright (c) 2001-2003 DVL Software
@@ -55,6 +55,11 @@ sub _initialize {
 	$this->{ignore}				= '';
 	$this->{master_port}		= '';
 	$this->{latest_link}		= '';
+	$this->{no_latest_link}		= '';
+	$this->{no_package}			= '';
+	$this->{pkgname}			= '';
+	$this->{portepoch}			= '';
+
 	$this->{categories}			= '';
 	$this->{status}				= '';
 	$this->{element_pathname}   = '';
@@ -90,6 +95,11 @@ sub _GetValuesFromRow {
 	$this->{ignore}				= $row->{ignore};
 	$this->{master_port}		= $row->{master_port};
 	$this->{latest_link}		= $row->{latest_link};
+	$this->{no_latest_link}		= $row->{no_latest_link};
+	$this->{no_package}			= $row->{no_package};
+	$this->{pkgname}			= $row->{pkgname};
+	$this->{portepoch}			= $row->{portepoch};
+
 	$this->{categories}			= $row->{categories};
 	$this->{last_commit_id}		= $row->{last_commit_id};
 	$this->{status}				= $row->{status};
@@ -147,6 +157,11 @@ update ports
        ignore            = " . $dbh->quote($this->{ignore})				. ", 
        master_port       = " . $dbh->quote($this->{master_port})		. ",
        latest_link       = " . $dbh->quote($this->{latest_link})		. ", 
+       no_latest_link    = " . $dbh->quote($this->{no_latest_link})		. ", 
+       no_package        = " . $dbh->quote($this->{no_package})			. ", 
+       pkgname           = " . $dbh->quote($this->{pkgname})			. ", 
+       portepoch         = " . $dbh->quote($this->{portepoch})			. ", 
+
        categories        = " . $dbh->quote($this->{categories});
 
 		# we don't always have this value, so we don't change it....
@@ -379,7 +394,7 @@ sub _ExtractValuesFromMakefile {
 	$makecommand = "make -V PORTNAME -V PKGNAME -V DESCR -V CATEGORIES -V PORTVERSION -V PORTREVISION " .
 		" -V COMMENT -V COMMENTFILE -V MAINTAINER -V EXTRACT_SUFX " .
 		" -V BUILD_DEPENDS -V RUN_DEPENDS -V LIB_DEPENDS -V FORBIDDEN -V BROKEN -V DEPRECATED -V IGNORE ". 
-		" -V MASTERPORT -V LATEST_LINK -f $Makefile " . 
+		" -V MASTERPORT -V LATEST_LINK -V NO_LATEST_LINK -V NO_PACKAGE -V PKGNAME -V PORTEPOCH -f $Makefile " . 
 		" PORTSDIR=$FreshPorts::Config::path_to_ports LOCALBASE=/nonexistentlocal X11BASE=/nonexistentx 2>$TmpFile";
 
 	print "makecommand = $makecommand\n";
@@ -465,7 +480,7 @@ sub _ExtractValuesFromMakefile {
 		(my $portname, my $packagename, my $descrpath, my $categories, my $portversion, my $portrevision, my $shortdescription,
 		 my $CommentFile, my $maintainer, my $extractsuffix, my $builddepends,
 		 my $rundepends, my $libdepends, my $forbidden, my $broken, my $deprecated, my $ignore,
-		 my $master_port, my $latest_link) = split(/\n/s, $MakeResults);
+		 my $master_port, my $latest_link, my $no_latest_link, my $no_package, my $pkgname, my $portepoch) = split(/\n/s, $MakeResults);
 
 		$builddepends	= freshports_ConvertPortPathToStandardLocation(FreshPorts::Utilities::trim_multiple_to_single(FreshPorts::Utilities::trim($builddepends)));
 		$rundepends		= freshports_ConvertPortPathToStandardLocation(FreshPorts::Utilities::trim_multiple_to_single(FreshPorts::Utilities::trim($rundepends)));
@@ -509,22 +524,27 @@ sub _ExtractValuesFromMakefile {
 
 		chomp($longdescription); # get rid of the trailing whitespace.
 
-		print "12 \$shortdescription= '$shortdescription'\n";
-		print "13 \$longdescription ='$longdescription'\n";
+		print "12 \$shortdescription = '$shortdescription'\n";
+		print "13 \$longdescription  ='$longdescription'\n";
 		print "14 \$homepage='";
 		if (defined($homepage)) {
 			print "$homepage";
 		}
 		print "'\n";
 
-		print "15 \$packageexists = '$packageexists'\n";
-		print "16 \$forbidden     = '$forbidden'\n";
-		print "17 \$broken        = '$broken'\n";
-		print "18 \$deprecated    = '$deprecated'\n";
-		print "19 \$ignore        = '$ignore'\n";
-		print "20 \$master_port   = '$master_port'\n";
-		print "21 \$latest_link   = '$latest_link'\n";
-		print "22 \$categories    = '$categories'\n";
+		print "15 \$packageexists    = '$packageexists'\n";
+		print "16 \$forbidden        = '$forbidden'\n";
+		print "17 \$broken           = '$broken'\n";
+		print "18 \$deprecated       = '$deprecated'\n";
+		print "19 \$ignore           = '$ignore'\n";
+		print "20 \$master_port      = '$master_port'\n";
+		print "21 \$latest_link      = '$latest_link'\n";
+		print "22 \$no_latest_link   = '$no_latest_link'\n";
+		print "23 \$no_package       = '$no_package'\n";
+		print "24 \$pkgname          = '$pkgname'\n";
+		print "25 \$portepoch        = '$portepoch'\n";
+
+		print "26 \$categories       = '$categories'\n";
 
 		print "\n ---------------------------------------- \n";
 
@@ -566,6 +586,10 @@ sub _ExtractValuesFromMakefile {
 		$this->{ignore}				= $ignore;
 		$this->{master_port}		= $master_port;
 		$this->{latest_link}		= $latest_link;
+		$this->{no_latest_link}		= $no_latest_link;
+		$this->{no_package}			= $no_package;
+		$this->{pkgname}			= $pkgname;
+		$this->{portepoch}			= $portepoch;
 		$this->{categories}			= $categories;
 
 	} else {
