@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: ExportXMLFromDB.pl,v 1.6 2002-02-20 23:20:28 dan Exp $
+# $Id: ExportXMLFromDB.pl,v 1.7 2002-03-11 00:13:17 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -41,6 +41,7 @@ sub main {
 			   where ports.status  = 'A'
 			 	 and ports.id      = change_log_port.port_id
                  and change_log.id = change_log_port.change_log_id
+and change_log.id = 24410
             order by change_log.id
 			limit 1";
 
@@ -212,13 +213,15 @@ sub GetPR {
 }
 
 sub GetPeople {
-	my ($message) = shift;
+    my ($tmp)       = shift;
+    my %message     = %{$tmp};
 	my (@people);
 
 	#
 	# this is where we should be finding the committer
 	#
-	push @people, 'UPDATER',   [ { Handle =>  $message{commit_date} } ];
+	my $committer =   $message{committer};
+	push @people, 'UPDATER',   [ { Handle =>  $committer } ];
 	push @people, 'SUBMITTER', [ { Handle => 'unknown' } ];
 
 	return @people;
