@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: process_cvs_mail.pl,v 1.7 2001-12-22 04:30:40 dan Exp $
+# $Id: process_cvs_mail.pl,v 1.8 2002-01-07 21:15:12 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -51,6 +51,16 @@ sub GetData {
 	my ($message) = shift;
 	my (@Data);
 
+	my $Message_Subject;
+	my $Log;
+
+	$Message_Subject	= &GetMessage_Subject($message);
+	$Log				= &GetLog($message);
+
+	if ($Log eq '') {
+		$Log = $Message_Subject;
+	}
+
 	@Data =	[	'UPDATES', [ { Version => '0.13' },
 				'UPDATE', [ {},
 					'DATE', [ &GetDate($message)
@@ -63,14 +73,14 @@ sub GetData {
 					],
 					'LOG', [ {},
 						0,
-						&GetLog($message)
+						$Log
 					],
 					'PEOPLE', [ {},
 						&GetPeople($message)
 					],
 					'MESSAGE', [ {
 						Id	=> &GetMessage_Id($message),
-						Subject	=> &GetMessage_Subject($message) },
+						Subject	=> $Message_Subject },
 						'DATE', [ &GetMessage_Date($message)
 						],
 						'TIME', [ &GetMessage_Time($message)
@@ -346,42 +356,43 @@ sub GetOS_Branch {
 }
 
 sub GetLog {
-        my ($message) = @_;
-        my ($log);
-        my ($log_done) = 0;
+	my ($message) = @_;
+	my ($log);
+	my ($log_done) = 0;
 
-		#
-        # List of phrases marking the end of the log
-		# see also GetFiles for use of Revision
-		#
-        my (@log_endings) = (   '  Revision',
-				'To Unsubscribe' );
+	#
+	# List of phrases marking the end of the log
+	# see also GetFiles for use of Revision
+	#
+	my (@log_endings) = (   '  Revision',
+							'To Unsubscribe' );
 
-        my (@lines) = split("\n", $message);
+	my (@lines) = split("\n", $message);
 
-        my ($log_found) = 0;
-        for (@lines) {
-                my ($line) = $_;
+	my ($log_found) = 0;
+	for (@lines) {
+		my ($line) = $_;
 
-                if ($line =~ /  Log:/) { $log_found = 1; next; }
-                next unless ($log_found == 1);
+		if ($line =~ /  Log:/) { $log_found = 1; next; }
+		next unless ($log_found == 1);
 
-                # Check to see if we've gone too far
-                for (@log_endings) {
-                        if ($line =~ /^$_/) { $log_done = 1; };
-                }
-                last if ($log_done == 1);
-                if (length($line) >= 2) {
+		# Check to see if we've gone too far
+		for (@log_endings) {
+			if ($line =~ /^$_/) { $log_done = 1; };
+		}
+		last if ($log_done == 1);
+		if (length($line) >= 2) {
 			$log .= substr($line,2) . "\n";
 		}
-        }
+	}
 
 	if (defined($log)) {
 		$log =~ s/(^\s+)|(\s+$)//g;;
 	} else {
 		$log = '';
 	}
-        return $log;
+
+	return $log;
 }
 
 sub GetUpdater_Handle {
