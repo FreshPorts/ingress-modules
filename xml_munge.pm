@@ -1,4 +1,4 @@
-# $Id: xml_munge.pm,v 1.1.2.4 2004-12-19 23:16:48 dan Exp $
+# $Id: xml_munge.pm,v 1.1.2.5 2005-01-06 04:25:58 dan Exp $
 #
 # Copyright (c) 2001-2004 DVL Software
 #
@@ -617,7 +617,7 @@ sub handle_message_end {
 
 	if (!defined(commit_log_id())) {
 		print "no commit id returned.  we'll just exit now shall we?\n";
-		exit 2;
+		exit 0;
 	}
 }
 
