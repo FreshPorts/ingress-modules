@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: hourly_stats.pl,v 1.1.2.13 2004-12-03 01:41:23 dan Exp $
+# $Id: hourly_stats.pl,v 1.1.2.14 2004-12-09 13:49:17 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -84,7 +84,7 @@ sub CreateHourlySummary() {
 		print FILE '<TABLE WIDTH="100%">' . "\n";
 		print FILE '<TR><TD><A HREF="/categories.php" TITLE="Number of ports in the database">Port count</A></TD> <TD ALIGN="right">'      . $Stats{new}       . '</TD></TR>' . "\n";
 
-		print FILE '<TR><TD><A HREF="/ports-broken.php" TITLE"Broken ports">Broken</A></TD>     <TD ALIGN="right">'    . $Stats{broken}    . '</TD></TR>' . "\n";
+		print FILE '<TR><TD><A HREF="/ports-broken.php" TITLE="Broken ports">Broken</A></TD>     <TD ALIGN="right">'    . $Stats{broken}    . '</TD></TR>' . "\n";
 		print FILE '<TR><TD><A HREF="/ports-deprecated.php" TITLE="Ports that have been deprecated">Deprecated</A></TD>     <TD ALIGN="right">'    . $Stats{deprecated}    . '</TD></TR>' . "\n";
 		print FILE '<TR><TD><A HREF="/ports-ignore.php" TITLE="Ports that you should ignore">Ignore</A></TD>     <TD ALIGN="right">'    . $Stats{ignore}    . '</TD></TR>' . "\n";
 
