@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.38.2.13 2002-12-10 15:38:53 dan Exp $
+# $Id: port.pm,v 1.38.2.14 2002-12-10 15:56:38 dan Exp $
 #
 #
 # Copyright (c) 2001-2002 DVL Software
@@ -181,7 +181,7 @@ print "sql = $sql\n";
 
 	}
 
-	# after saving, return the ID
+	# after savings, return the ID
 	return $this->{id};
 }
 
@@ -195,11 +195,16 @@ sub FetchByID {
 
 	$dbh = $this->{dbh};
 
-	$sql = "select ports.*, categories.name as category, element.name as name, element.status \
-              from ports, categories, element \
-             where ports.id          = $this->{id} \
-               and ports.category_id = categories.id \
-               and ports.element_id  = element.id";
+	$sql = "
+   select ports.*, 
+          categories.name as category, 
+          element.name    as name, 
+          element.status
+     from ports, categories, element 
+    where ports.id          = $this->{id} 
+      and ports.category_id = categories.id 
+      and ports.element_id  = element.id";
+ 
 #	print "sql = '$sql'\n";
 
 	$sth = $dbh->prepare($sql);
@@ -245,11 +250,17 @@ sub FetchByPartialPathName {
 	}
 
 	$tmp = $dbh->quote($this->{name});
-	$sql = "select ports.*, categories.name as category, element.name as name, element.status \
-              from ports, categories, element \
-             where ports.element_id  = $this->{element_id} \
-               and ports.category_id = categories.id \
-               and ports.element_id  = element.id";
+
+	$sql = "
+   select ports.*,
+          categories.name as category,
+          element.name    as name,
+          element.status
+     from ports, categories, element
+    where ports.element_id  = $this->{element_id}
+      and ports.category_id = categories.id
+      and ports.element_id  = element.id";
+
 #	print "sql = '$sql'\n";
 
 	$sth = $dbh->prepare($sql);
