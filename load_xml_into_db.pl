@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: load_xml_into_db.pl,v 1.37 2002-02-03 01:51:24 dan Exp $
+# $Id: load_xml_into_db.pl,v 1.38 2002-02-03 02:21:34 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -266,7 +266,7 @@ sub handle_update_end
 	undef $Updates{messageminute};
 	undef $Updates{messagesecond};
 	undef $Updates{messagezone};
-	undef $Updates{MessageToAll};
+	undef $Updates{MessageTo};
 
 	undef $Updates{MessageSubject};
 
@@ -541,14 +541,19 @@ sub handle_updater_end {
 
 sub handle_messageto_end
 {
-    if (defined($Updates{MessageToAll})) {
-       $Updates{MessageToAll} .= ", " . $Updates{MessageTo};
-    } else {
-       $Updates{MessageToAll} = $Updates{MessageTo};
-    }
-    print "found To       = [$Updates{MessageToAll}]\n";
+	#
+	# this function is called several times.
+	#
+	if (defined($Updates{MessageToAll})) {
+		print "...$Updates{MessageTo}\n";
+		$Updates{MessageToAll} .= ", " . $Updates{MessageTo};
+	} else {
+		print "***$Updates{MessageTo}\n";
+		$Updates{MessageToAll} = $Updates{MessageTo};
+	}
+	undef $Updates{MessageTo};
 
-
+	print "found To       = [$Updates{MessageToAll}]\n";
 }
 
 sub SaveUpdateToDB {
