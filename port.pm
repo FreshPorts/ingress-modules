@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.30 2002-02-09 22:52:44 dan Exp $
+# $Id: port.pm,v 1.31 2002-02-16 07:19:40 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -283,6 +283,11 @@ sub _ExtractValuesFromMakefile {
 
 	my $MakefileDirectory = "$FreshPorts::Config::path_to_ports/$this->{category}/$this->{name}";
 
+	if (!LooksLikeAMakefile("$MakefileDirectory/$FreshPorts::Constants::FILE_MAKEFILE")) {
+		FreshPorts::Utilities::ReportError('warning', "$MakefileDirectory/$FreshPorts::Constants::FILE_MAKEFILE does not look like a makefile", 0);
+		return -1;
+	}
+
 	#
 	# if we don't change the working dir, stuff like descrpath will not
 	# contain /usr/ports/...etc.  It will look more like this:
@@ -299,6 +304,8 @@ sub _ExtractValuesFromMakefile {
 	if ($FreshPorts::Config::mkdir_pkg) {
 		mkdir "pkg",0;
 	}
+
+	
 
 	$makecommand = "make -V PORTNAME -V PKGNAME -V DESCR -V CATEGORIES -V PORTVERSION -V PORTREVISION " .
 		" -V COMMENT -V MAINTAINER -V EXTRACT_SUFX " .
@@ -405,10 +412,11 @@ print "\$result='$result'\n";
 }
 
 sub _FetchFilesNeedingRefresh {
-	# a return of 1 indicates success.
+	# returns 0 for success, 1 for failure
+	# a return of -1 indicates an error.
 
 	my $this	= shift;
-	my $result	= 0;
+	my $result	= 1;
 
 	print "into _FetchFilesNeedingRefresh ------------\n";
 
@@ -433,6 +441,11 @@ sub _FetchFilesNeedingRefresh {
 		# now that we have the Makefile for this port, let's figure out the full name
 		# of the pkg-descr and pkg-comment files.  They may belong to another port.
  		#
+
+		if (!LooksLikeAMakefile("$DESTDIR/$FILE")) {
+			FreshPorts::Utilities::ReportError('warning', "$DESTDIR/$FILE does not look like a makefile", 0);
+			return -1;
+		}
 
 		print "now doing a chdir to $DESTDIR\n";
 		if (!chdir("$DESTDIR")) {
@@ -502,7 +515,7 @@ sub _FetchFilesNeedingRefresh {
 				print "fetching \$DESTDIR = [$DESTDIR], \$SRCDIR = [$SRCDIR], \$FILE = [$FILE]\n";
 
 				if (FreshPorts::Utilities::FetchFile($DESTDIR, $SRCDIR, $FILE)) {
-					$result = 1;
+					$result = 0;
 				}
 			}
 			
@@ -596,15 +609,21 @@ sub RefreshFromFiles($;$) {
 	#
 	if ($needs_refresh > 0 && $fetch_files) {
 		while ($FetchAttempts) {
-			if ($this->_FetchFilesNeedingRefresh()) {
-				last;
+			$result = $this->_FetchFilesNeedingRefresh();
+			if ($result == -1) {
+				$FetchAttempts = 0;
+				$error = 1;
 			} else {
-				# fetch failed
-				# sleep, then try again
-				Sys::Syslog::syslog('warning', "sleeping after fetch failed for ($this->{id}, $this->{category}, $this->{name}, $needs_refresh)");
-				print "fetch failed, sleeping...\n";
-				sleep 10;
-				$FetchAttempts--;
+				if ($result == 0) {
+					last;
+				} else {
+					# fetch failed
+					# sleep, then try again
+					Sys::Syslog::syslog('warning', "sleeping after fetch failed for ($this->{id}, $this->{category}, $this->{name}, $needs_refresh)");
+					print "fetch failed, sleeping...\n";
+					sleep 10;
+					$FetchAttempts--;
+				}
 			}
 		}
 	} else {
@@ -825,6 +844,24 @@ sub RemovePortsPrefix($) {
 	print "exit RemovePortsPrefix => $SuffixPath\n";
 
 	return $SuffixPath;
+}
+
+sub LooksLikeAMakefile($) {
+	my $Makefile = shift;
+	my $Result   = 0;
+
+	my $filetype = `file -b $Makefile`;
+	chomp($filetype);
+
+	print "$filetype\n";
+
+	if ($filetype eq 'ASCII English text' || $filetype eq 'ASCII text') {
+		print "yep, that's a Makefile as far as I'm concerned....\n";
+		$Result = 1;
+	}
+
+	return $Result;
+	
 }
 
 
