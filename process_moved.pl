@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: process_moved.pl,v 1.1.2.3 2003-12-31 17:15:30 dan Exp $
+# $Id: process_moved.pl,v 1.1.2.4 2003-12-31 20:29:01 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -38,30 +38,16 @@ sub usage {
 
 sub main {
 
-	my $inputfile;
-
-#	if (($#ARGV+1) == 1) {
-#		$inputfile = $ARGV[0];
-#		if (-f $inputfile) {
-#		} else {
-#			print "please specify an input file name which exists\n";
-#			exit 1;
-#		}
-#	} else {
-#		usage();
-#		exit 1;
-#	}
-
 	my $dbh;
-
-	print "Processing file [$inputfile]...\n";
 
 	print "dbname = $FreshPorts::Config::dbname\n";
 
 	$dbh = FreshPorts::Database::GetDBHandle();
 	if ($dbh->{Active}) {
 
-		parsefile($dbh, $inputfile);
+		EmptyMoved($dbh);
+
+		parsefile($dbh);
 
 # hmmm, this might be a good way to debug...
 # issue a rollback after each attempt...
@@ -75,7 +61,6 @@ sub main {
 
 sub parsefile ($) {
 	my $dbh       = shift;
-	my $inputfile = shift;
 
 	my $line;
 	my $result;
@@ -92,10 +77,8 @@ sub parsefile ($) {
 		chomp $line;
 
 		if ($line =~ /^.*\/.*\|.*\|\d{4}-\d{2}-\d{2}\|.*$/) {
-			print $line . "\n";
 
 			($From, $To, $Date, $Why) = $line =~ /^(.*\/.*)\|(.*)\|(\d{4}-\d{2}-\d{2})\|(.*)$/;
-			print "$From $To $Date $Why\n";
 			$ID = AddMoved($dbh, $From, $To, $Date, $Why);
 		}
 	}
@@ -122,4 +105,20 @@ sub AddMoved($;$;$;$;$) {
 	$sth->finish();
 
 	return $row[0];
+}
+
+
+sub EmptyMoved($) {
+	my $dbh = shift;
+
+	my $sth;
+	my $sql;
+	my @row;
+
+	# quote everything going to the database
+	$sql = "DELETE FROM ports_moved";
+	$sth = $dbh->prepare($sql);
+	if (!$sth->execute())  {
+		FreshPorts::Utilities::ReportError('warning', "Could not execute sql", 1);
+	}
 }
