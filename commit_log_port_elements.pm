@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: commit_log_port_elements.pm,v 1.3.2.2 2003-05-16 01:14:00 dan Exp $
+# $Id: commit_log_port_elements.pm,v 1.3.2.3 2003-12-31 22:48:58 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -11,7 +11,7 @@ use strict;
 use utilities;
 
 sub new {
-	my $this			= {};
+	my $this		= {};
 	my $class		= shift;
 	$this->{dbh}	= shift;
 	bless $this;
