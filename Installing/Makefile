@@ -1,5 +1,5 @@
 #
-# $Id: Makefile,v 1.1.2.3 2004-08-12 16:32:08 dan Exp $
+# $Id: Makefile,v 1.1.2.4 2005-01-23 00:27:37 dan Exp $
 #
 # Install the ports needed by FreshPorts
 #
@@ -20,7 +20,8 @@ RUN_DEPENDS=	svscan:${PORTSDIR}/sysutils/daemontools \
 				${SITE_PERL}/${PERL_ARCH}/DBD/Pg.pm:${PORTSDIR}/databases/p5-DBD-Pg \
 				${SITE_PERL}/${PERL_ARCH}/DBI.pm:${PORTSDIR}/databases/p5-DBI \
 				procmail:${PORTSDIR}/mail/procmail \
-				${SITE_PERL}/Mail/Sender.pm:${PORTSDIR}/mail/p5-Mail-Sender
+				${SITE_PERL}/Mail/Sender.pm:${PORTSDIR}/mail/p5-Mail-Sender \
+				${PREFIX}/share/pear/HTML/Page2::${PORTSDIR}/devel/pear-HTML_Page2
 
 NO_WRKSUBDIR=	YES
 NO_BUILD=		YES
