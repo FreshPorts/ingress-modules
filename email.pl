@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: email.pl,v 1.8.2.6 2002-05-28 15:15:11 dan Exp $
+# $Id: email.pl,v 1.8.2.7 2002-05-29 01:19:15 dan Exp $
 #
 # Copyright (c) 2001-2002 DVL Software
 #
@@ -114,17 +114,26 @@ sub CompileWatchNotifyList($;$;$;$) {
 	my $Body;
 	my $To;
 	my $FrequencyLong;
+	my $Interval;
 
 	undef($LastID);
 
-	if ($Frequency eq 'D') { $FrequencyLong = 'daily'};
-	if ($Frequency eq 'W') { $FrequencyLong = 'weekly'};
-	if ($Frequency eq 'F') { $FrequencyLong = 'fortnightly'};
-	if ($Frequency eq 'M') { $FrequencyLong = 'monthly'};
-
-
-	$Body .= "Port count: $PortCount\n";
-	$Body .= " New ports: $NewPorts\n\n";
+	if ($Frequency eq 'D') {
+		$FrequencyLong = 'daily';
+		$Interval      = 'today';
+	}
+	if ($Frequency eq 'W') {
+		$FrequencyLong = 'weekly';
+		$Interval      = 'week';
+	}
+	if ($Frequency eq 'F') {
+		$FrequencyLong = 'fortnightly';
+		$Interval      = 'fortnight';
+	}
+	if ($Frequency eq 'M') {
+		$FrequencyLong = 'monthly';
+		$Interval      = 'month';
+	}
 
 	while (@row=$sth->fetchrow_array) {
 		print "now processing @row\n";
@@ -148,6 +157,8 @@ sub CompileWatchNotifyList($;$;$;$) {
 			print "Body = $Body\n";
 
 			$Body   = '';
+			$Body .= "Port count: $PortCount http://www.freshports.org/categories.php\n";
+			$Body .= " New ports: $NewPorts  http://migration.freshports.org/ports-new.php?interval=$Interval\n\n";
 			$To     = $row[1];
 			$LastID = $row[0];
 		}
