@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: vuxml_ranges.pm,v 1.1.2.2 2004-09-11 14:03:43 dan Exp $
+# $Id: vuxml_ranges.pm,v 1.1.2.3 2004-09-17 02:07:23 dan Exp $
 #
 # Copyright (c) 2004 DVL Software
 #
@@ -46,13 +46,13 @@ sub save {
 
 	$this->{id} = FreshPorts::Database::GetNextValue($FreshPorts::Constants::vuxml_ranges_seq, $dbh);
 
-	$sql = "insert into vuxml_ranges(id, vuxml_name_id, range_operator_start, range_operator_end, 
-					range_version_start, range_version_end) values (
+	$sql = "insert into vuxml_ranges(id, vuxml_name_id, range_version_start, range_operator_start,
+					range_operator_end, range_version_end) values (
 				$this->{id},
 				" . $dbh->quote($this->{vuxml_name_id})        . ",
-				" . $dbh->quote($this->{range_operator_start}) . ",
-				" . $dbh->quote($this->{range_operator_end})   . ",
-				" . $dbh->quote($this->{range_version_start})  . ",
+				" . $dbh->quote($this->{range_version_start}) . ",
+				" . $dbh->quote($this->{range_operator_start})   . ",
+				" . $dbh->quote($this->{range_operator_end})  . ",
 				" . $dbh->quote($this->{range_version_end})    . ")";
 
 	print "sql is $sql\n";
