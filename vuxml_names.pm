@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: vuxml_names.pm,v 1.1.2.4 2004-12-11 00:58:31 dan Exp $
+# $Id: vuxml_names.pm,v 1.1.2.5 2004-12-12 15:48:14 dan Exp $
 #
 # Copyright (c) 2004 DVL Software
 #
@@ -30,6 +30,15 @@ sub _GetValuesFromRow {
 	$this->{id}                = $row->{id};
 	$this->{vuxml_affected_id} = $row->{vuxml_affected_id};
 	$this->{name}              = $row->{name};
+}
+
+sub empty {
+	my $this = shift;
+	my $row  = shift;
+
+	$this->{id}                = undef;
+	$this->{vuxml_affected_id} = undef;
+	$this->{name}              = undef;
 }
 
 sub save {
@@ -63,6 +72,45 @@ sub save {
 
 	# after saving, return the ID
 	return $this->{id};
+}
+
+sub FetchByVuXMLAffectedID {
+	my $this              = shift;
+	my $vuxml_affected_id = shift;
+
+	my $dbh;
+	my $sql;
+	my $sth;
+	my $row;
+
+	my @Names;
+	my $vuxml_names;
+
+	$dbh = $this->{dbh};
+
+	$sql = "SELECT vuxml_names.*
+              FROM vuxml_names
+             WHERE vuxml_names.vuxml_affected_id = $vuxml_affected_id";
+
+	print "sql = '$sql'\n";
+
+	$sth = $dbh->prepare($sql);
+	if (!$sth->execute) {
+		FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql", 1);
+	}
+
+	while ($row = $sth->fetchrow_hashref()) {
+		$vuxml_names = FreshPorts::vuxml_names->new( $this->{dbh} );
+
+		$vuxml_names->set_id               ($row->{id});
+		$vuxml_names->set_vuxml_affected_id($row->{vuxml_affected_id});
+		$vuxml_names->set_name             ($row->{name});
+
+		push @Names, $vuxml_names;
+	}
+	$sth->finish();
+
+	return @Names;
 }
 
 1;
