@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: verifyport.pm,v 1.42.2.14 2003-07-31 18:01:44 dan Exp $
+# $Id: verifyport.pm,v 1.42.2.15 2003-09-23 15:49:05 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -34,7 +34,7 @@ sub _CompileListOfPorts($;$;$) {
 	my $Files			= shift;
 	my $dbh				= shift;
 
-	my %ListOfPorts;			# returned from this function
+	my %ListOfPorts;		# returned from this function
 	my %CategoriesChecked;	# contains category class objects.
 
 	my $value;
@@ -237,7 +237,7 @@ sub SaveChangesToPortsTree($;$;$) {
 			$commit_log_ports = FreshPorts::CommitLogPorts->new($dbh);
 
 			$commit_log_ports->{commit_log_id}	= $commit_log_id;
-			$commit_log_ports->{port_id}			= $port->{id};
+			$commit_log_ports->{port_id}		= $port->{id};
 			$commit_log_ports->{needs_refresh}	= $needs_refresh;
 
 			if ($commit_log_ports->{needs_refresh} == -1) {
@@ -272,8 +272,8 @@ sub FetchAllFiles($;$) {
 	# fetch all the files associated with this commit
 	#
 
-	my $Files		= shift;
-	my $dbh			= shift;
+	my $Files	= shift;
+	my $dbh		= shift;
 
 	
 	my $action;
@@ -331,8 +331,8 @@ sub _RecordPortFilesTouchedByThatCommit($;$;$;$) {
 
 	my %Ports 			= %{$PortsRef};
 
-	my $portname;						# of the form "$category/$port"
-	my $port;							# of type FreshPorts::Element
+	my $portname;					# of the form "$category/$port"
+	my $port;						# of type FreshPorts::Element
 	my $commit_log_port_elements;	# of type FreshPorts::CommitLogPortElements
 
 	my $action;
@@ -386,7 +386,7 @@ sub _RecordPortFilesTouchedByThatCommit($;$;$;$) {
 				# record which files go with what port...
 				#
 				$commit_log_port_elements->{commit_log_id}			= $commit_log_id;
-				$commit_log_port_elements->{port_id}					= $port->{id};
+				$commit_log_port_elements->{port_id}				= $port->{id};
 				$commit_log_port_elements->{commit_log_element_id}	= $commit_log_element_id;
 				$commit_log_port_elements->save();
 			} else {
@@ -405,7 +405,7 @@ sub RefreshAllPortsTouchedByCommit($;$;$) {
 	my $CommitLogPortsRef		= shift;
 	my %CommitLogPorts			= %{$CommitLogPortsRef};
 	my $fetch_before_refresh	= shift;
-	my $dbh							= shift;
+	my $dbh						= shift;
 
 	my $port;
 	my $error;
