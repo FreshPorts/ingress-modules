@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.38.2.34 2003-11-20 14:16:46 dan Exp $
+# $Id: port.pm,v 1.38.2.35 2003-12-19 13:53:03 dan Exp $
 #
 #
 # Copyright (c) 2001-2003 DVL Software
@@ -382,29 +382,34 @@ sub _ExtractValuesFromMakefile {
 	# (caused by spaces instead of tabs in a section such as do-install:), then $MakeResults will be empty
 	# and the errors will be captured in the tmp file we created.
 	#
-	if ($result != 0 && $MakeResults ne '') {
-		# save the results for error reporting
-		$ErrorMessage = $MakeResults;
-	}
+	if ($result != 0) {
+		if ($MakeResults ne '') {
+			# save the results for error reporting
+			$ErrorMessage = $MakeResults;
+		} else {
 
-	#
-	# Some errors aren't caught by the Makefile script, but are grabbed in the tmp file
-	# Such as:
-	# -s: not found
-	# "/usr/home/dan/ports/french/homard/Makefile", line 39: warning: " -s"
-	# returned non-zero status
-	# caused by doing:     unames!= ${UNAME} -s
-	# without first doing: .include  <bsd.port.pre.mk>
-	#
+			#
+			# Some errors aren't caught by the Makefile script, but are grabbed in the tmp file
+			# Such as:
+			# -s: not found
+			# "/usr/home/dan/ports/french/homard/Makefile", line 39: warning: " -s"
+			# returned non-zero status
+			# caused by doing:     unames!= ${UNAME} -s
+			# without first doing: .include  <bsd.port.pre.mk>
+			#
 
-	print 'size is '  . -s $TmpFile;
-	print "\n";
-	if ($result == 0 && -s $TmpFile > 0) {
-		$ErrorMessage = `cat $TmpFile`;
+			print 'size is '  . -s $TmpFile;
+			print "\n";
 
-		$ErrorMessage = "This command:\n\n$makecommand\n\nproduced this error:\n\n$ErrorMessage";
-		FreshPorts::CommitterOptIn::RecordErrorDetails("$this->{category}/$this->{name}", $ErrorMessage);
-		$result = -1;
+			if (-s $TmpFile > 0) {
+				print "getting error message from temp file\n";
+				$ErrorMessage = `cat $TmpFile`;
+
+				$ErrorMessage = "This command (FreshPorts code 1):\n\n$makecommand\n\nproduced this error:\n\n$ErrorMessage";
+				FreshPorts::CommitterOptIn::RecordErrorDetails("$this->{category}/$this->{name}", $ErrorMessage);
+				$result = -1;
+			}
+		}
 	}
 
 	# remove that error collection file
@@ -424,13 +429,13 @@ sub _ExtractValuesFromMakefile {
 		# we'll need this for error reporting
 		if ($result != 0) {
 			# save the results for error reporting
-			FreshPorts::CommitterOptIn::RecordErrorDetails("$this->{category}/$this->{name}", "\n\n" . "This command:\n\n$makecommand\n\nproduced this error:\n\n$mastersites");
+			FreshPorts::CommitterOptIn::RecordErrorDetails("$this->{category}/$this->{name}", "\n\n" . "This command (FreshPorts code 2):\n\n$makecommand\n\nproduced this error:\n\n$mastersites");
 			$ErrorMessage = $mastersites;
 		}
 	}
 
 	print "\$result='$result'\n";
-	print "\$mastersites='$mastersites\n";
+	print "\$mastersites='$mastersites'\n";
 
 	# remove previously created directory
 	if ($FreshPorts::Config::mkdir_pkg) {

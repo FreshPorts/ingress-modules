@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: process_cvs_mail.pl,v 1.8.2.16 2003-11-29 15:40:48 dan Exp $
+# $Id: process_cvs_mail.pl,v 1.8.2.17 2003-12-19 13:53:03 dan Exp $
 #
 # Copyright (c) 2001-2003  DVL Software
 #
@@ -330,6 +330,8 @@ sub GetFiles {
 	my (@lines) = split("\n", $message);
 
 	my $EndOfFiles = '_____';
+	
+	my %TrackDuplicates;
 
 	# Modified Files
 	my ($found) = 0;
@@ -360,7 +362,13 @@ sub GetFiles {
 			}
 		}
 
-		push @files, 'FILE', [ { Action => $action, Revision => $revision, Changes => "$changes1 $changes2", Path => $path } ]; 
+		if (defined($TrackDuplicates{$path})) {
+			die("Duplicate file name ('$path') found in commit message.  Is this a corrupted commit or email?")
+		} else {
+			$TrackDuplicates{$path} = 1;
+		}
+
+		push @files, 'FILE', [ { Action => $action, Revision => $revision, Changes => "$changes1 $changes2", Path => $path } ];
 	}
 
 	if (scalar(@files) == 0) {
@@ -376,6 +384,8 @@ sub GetFilesImported {
 	my (@lines) = split("\n", $message);
 
 	my $EndOfFiles = 'by this import';
+
+	my %TrackDuplicates;
 
 	# Modified Files
 	my ($found) = 0;
@@ -402,6 +412,12 @@ sub GetFilesImported {
 		my $revision = '1.1.1.1';
 		my $changes1 = '0';
 		my $changes2 = '0';
+
+		if (defined($TrackDuplicates{$path})) {
+			die("Duplicate file name ('$path') found in commit message.  Is this a corrupted commit or email?")
+		} else {
+			$TrackDuplicates{$path} = 1;
+		}
 
 		push @files, 'FILE', [ { Action => $action, Revision => $revision, Changes => "$changes1 $changes2", Path => $path } ]; 
 	}
