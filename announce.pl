@@ -1,14 +1,13 @@
 #!/usr/bin/perl -w
 #
-# $Id: announce.pl,v 1.3 2002-01-06 07:21:05 dan Exp $
+# $Id: announce.pl,v 1.3.2.1 2002-04-25 03:02:03 dan Exp $
 #
 # Copyright (c) 1999-2000 DVL Software
 #
 use strict;
 use DBI;
 
-use lib '/home/freshports.org/scripts';
-use freshports_database;
+use database;
 
 
 my $dirname='';
@@ -21,29 +20,35 @@ my $Bcc;
 
 sub SendAnnouncement($) {
 
-  my $Bcc = shift;
+  my $To = shift;
 
    open(SENDMAIL, "|/usr/sbin/sendmail -oi -t")
                     or die "Can't fork for sendmail: $!\n";
 
 print SENDMAIL <<"EOF";
 From: FreshPorts announcement <freshports-announce\@freshports.org>
-To: freshports-watch\@freshports.org
-Bcc: $Bcc
+To: $To
 Subject: FreshPorts announcement
 
 Folks,
 
-FreshPorts is looking for a new home, preferably in Ottawa. 
-If you can host a single mini-tower box for us, please let us know.
+The testing at http://test.freshports.org/ has gone well.
+The site is done and is ready to go into production.  We
+have already gone through a trail migration of the user
+logins and watch lists.  I'm not sure when we will go live
+but it will probably be within the next couple of weeks.
 
-Thank you.
+In the meantime, if you haven't already checked the above
+URL, I urge you to do so.  If you have any suggestions or
+comment *now* is the time to submit them.
 
-p.s. we're upgrading the box from a P120 to a dual PPro 200.
+My thanks to the people who have been helping with the
+testing and those who provided suggestions over the past
+couple of months.  It has been very useful.
 
 --
 
-You are receiving this message as part of the service
+You are recieving this message as part of the service
 you joined at http://freshports.org/ but if you no longer
 wish to recieve such messages, please go to
 http://freshports.org/customize.php3 and disable announcements.
@@ -56,7 +61,7 @@ EOF
 
 }
 
-sub CompileAnnouncementList($) {
+sub SendToEachListMember($) {
 
    my $dbh = shift;
    my $sth;
@@ -68,12 +73,11 @@ sub CompileAnnouncementList($) {
    # the following line restricts mailouts to just me.
    #               and users.id                      = 2
 
-   $sql = "select users.email               \
-             from users                     \
-            where length(users.email) > 0   \
-              and emailsitenotices_yn = 'Y' \
-              and emailbouncecount    = 0   \
-            group by users.id";
+   $sql = "select users.email
+             from users
+            where length(users.email) > 0
+              and emailsitenotices_yn = 'Y'
+              and emailbouncecount    = 0";
 
    print "sql is $sql\n";
 
@@ -82,31 +86,16 @@ sub CompileAnnouncementList($) {
            die "Could not execute SQL $sql ... maybe invalid?";
 
    while (@row=$sth->fetchrow_array) {
-      print "now processing @row\n";
-      push @USERS, "$row[0]"
+      SendAnnouncement($row[0]);
    }
-
-   foreach $dirname (@USERS) {
-      $Bcc .= $dirname . ',';
-      print "found $dirname\n";
-   }
-
-   $Bcc .= 'freshports-watch@freshports.org';
-
-   print "and the Bcc list is $Bcc\n";
-
-   return $Bcc
 }
 
 
-      my $dbh = freshports_connect();
+      my $dbh = FreshPorts::Database::GetDBHandle();
 
-      $Bcc = CompileAnnouncementList($dbh);
+      SendToEachListMember($dbh);
 
       $dbh->disconnect();
-
-#      $Bcc = "dan\@langille.org";
-      SendAnnouncement($Bcc);
 
       print "message sent to users\n";
 
