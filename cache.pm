@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: cache.pm,v 1.1.2.2 2002-04-01 23:12:47 dan Exp $
+# $Id: cache.pm,v 1.1.2.3 2002-04-02 01:45:56 dan Exp $
 #
 # Copyright (c) 2001-2002 DVL Software
 #
@@ -135,7 +135,7 @@ sub CreateDailySummary($;$) {
 				       commit_log_ports.port_version as version, commit_log_ports.port_revision as revision
 				  from commit_log, commit_log_ports, ports, categories, element
 				 where commit_date between ('" . $CommitDateStart . "'::timestamp + SystemTimeAdjust())::timestamp
-				                       and ('" . $CommitDateStart . "'::timestamp + SystemTimeAdjust()+ INTERVAL '1 DAY')::timestamp
+				                       and ('" . $CommitDateStart . "'::timestamp + SystemTimeAdjust() + INTERVAL '1 DAY')::timestamp
 				   and commit_log_ports.commit_log_id = commit_log.id
 				   and ports.id                       = commit_log_ports.port_id
 				   and ports.category_id              = categories.id
