@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: load_xml_into_db.pl,v 1.46.2.5 2002-08-12 03:12:54 dan Exp $
+# $Id: load_xml_into_db.pl,v 1.46.2.6 2002-08-12 04:30:59 dan Exp $
 #
 # Copyright (c) 2001-2002 DVL Software
 #
@@ -267,11 +267,6 @@ sub handle_update_end
 
 	if ($refresh_ports) {
 		$ErrorFound = FreshPorts::VerifyPort::RefreshAllPortsTouchedByCommit(\%CommitLogPorts, $fetch_before_refresh, $dbh);
-	}
-	if (!$ErrorFound) {
-		$ErrorFound = 1;	# testing
-		FreshPorts::CommitterOptIn::RecordErrorDetails('test error message' . "\n");
-		FreshPorts::CommitterOptIn::RecordErrorDetails('This is another error' . "\n");
 	}
 
 	if (scalar(keys %CommitLogPorts)) {
