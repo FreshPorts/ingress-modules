@@ -27,7 +27,7 @@
 # SUCH DAMAGE.
 
 #
-# @(#) $Id: vuxml_parsing.pm,v 1.1.2.9 2004-12-09 02:08:36 dan Exp $
+# @(#) $Id: vuxml_parsing.pm,v 1.1.2.10 2004-12-13 14:52:12 dan Exp $
 #
 # Parse the Vulnerabilities and Exposures (vuxml) database extracting
 # the entries for loading into a RDBMS.
@@ -346,7 +346,6 @@ sub update_database
 		} else {
 			print "Could not find vuln = '" . $self->vid() . "'.  A full insert will be done.\n";
 		}
-		exit;
 	}
 
 	if ($FullInsert) {
@@ -357,6 +356,44 @@ sub update_database
 
 
     return $self;
+}
+
+sub vuxml_affected_differs
+{
+	return 1;
+}
+
+
+
+sub vuxml_affected_differs_helper
+{
+    my __PACKAGE__ $self = shift;
+    my $vuxml            = shift;
+
+	my $differs = 0;
+
+	return $differs
+}
+
+sub vuxml_names_differ
+{
+    my __PACKAGE__ $self = shift;
+    my $vuxml            = shift;
+
+	my $differs = 0;
+
+	return $differs
+}
+
+
+sub vuxml_ranges_differ
+{
+    my __PACKAGE__ $self = shift;
+    my $vuxml            = shift;
+
+	my $differs = 0;
+
+	return $differs
 }
 
 sub values_differ
@@ -444,8 +481,8 @@ sub update_database_vuxml_affected
     use vuxml_ranges;
 
     my $vuxml_affected          = FreshPorts::vuxml_affected->new( $self->{db_handle} );
-    my $vuxml_affected_names    = FreshPorts::vuxml_names->new( $self->{db_handle} );
-    my $vuxml_affected_ranges   = FreshPorts::vuxml_ranges->new( $self->{db_handle} );
+    my $vuxml_affected_names    = FreshPorts::vuxml_names->new   ( $self->{db_handle} );
+    my $vuxml_affected_ranges   = FreshPorts::vuxml_ranges->new  ( $self->{db_handle} );
 
 	my $vuxml_affected_names_id;
 
@@ -462,6 +499,7 @@ sub update_database_vuxml_affected
                 $vuxml_affected_names->{name}              = $name;
 
                 $vuxml_affected_names_id = $vuxml_affected_names->save();
+				$vuxml_affected_names->empty();
             }
         }
 
@@ -493,10 +531,12 @@ sub update_database_vuxml_affected
                 $vuxml_affected_ranges->{version2}          = $range->[3];
 
                 $vuxml_affected_ranges->save();
+                $vuxml_affected_ranges->empty();
             }
         }
 
         $package_count++;
+		$vuxml_affected->empty();
     }
 
     return $package_count;
@@ -523,6 +563,8 @@ sub update_database_vuxml_references
         my $vuxml_references_id = $vuxml_references->save();
 
         $reference_count++;
+
+        $vuxml_references->empty();
     }
 
     return $reference_count;
