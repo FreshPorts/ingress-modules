@@ -55,7 +55,7 @@ $sth->execute ||
 my $rowcount = 0;
 while (@row=$sth->fetchrow_array) {
 	$rowcount++;
-	print "id=$row[0] $row[1]/$row[2]\n";
+	print "id=$row[0] $row[2]/$row[1]\n";
 }
 
 if ($rowcount > 0) {
