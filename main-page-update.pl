@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: main-page-update.pl,v 1.6 2002-02-21 17:48:41 dan Exp $
+# $Id: main-page-update.pl,v 1.7 2002-02-21 17:54:33 dan Exp $
 #
 # Copyright (c) 1999-2002 DVL Software
 #
@@ -18,7 +18,7 @@ sub RefreshMainPage($) {
 	my $sql;
 	my $sth;
 	my @row;
-	my $last_commit_date;
+	my $MaxCommitID;
 
 	$sql = "select RecordLastestPortCommits('2002-01-01');";
 	print "sql = $sql\n";
@@ -36,9 +36,9 @@ sub RefreshMainPage($) {
 	$sth->finish();
 	$dbh->commit();
 
-	$last_commit_date = $row[0];
+	$MaxCommitID = $row[0];
 
-	return $last_commit_date;
+	return $MaxCommitID
 }
 
 sub GetMaxCommitLogPortId($) {
@@ -74,10 +74,12 @@ my $sth;
 my $MaxCommitLogPortId;
 my $LastCommitLogIdProcessed;
 my $housekeeping;
+my $MaxCommitID;
 
 FreshPorts::Utilities::InitSyslog();
 
 while (1) {
+	undef $MaxCommitID;
 
 	$dbh = FreshPorts::Database::GetDBHandle();
 
@@ -102,7 +104,7 @@ while (1) {
 		if ($sth = $dbh->prepare($sql)) {
 			if ($sth->execute) {
 				$dbh->commit;
-				RefreshMainPage($dbh);
+				$MaxCommitID = RefreshMainPage($dbh);
 			} else {
 	            FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql ... maybe invalid?", 0);
 			}
@@ -110,6 +112,14 @@ while (1) {
 			FreshPorts::Utilities::ReportError('warning', "Could not prepare SQL $sql ... maybe invalid?", 0);
 		}
 		
+	}
+
+	if (defined($MaxCommitID)) {
+		print "update done... committing:";
+		$dbh->commit();
+		print " done!\n";
+	} else {
+		$dbh->rollback();
 	}
 
 	$dbh->disconnect();
