@@ -1,0 +1,8 @@
+#!/bin/sh
+#
+# $Id: config.sh.sample,v 1.1.2.1 2003-04-10 11:46:45 dan Exp $
+#
+
+SCRIPTDIR="/path/to/scripts/directory"
+MSGDIR="/path/to/msg/directory"
+
