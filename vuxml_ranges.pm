@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: vuxml_ranges.pm,v 1.1.2.9 2004-12-14 00:44:39 dan Exp $
+# $Id: vuxml_ranges.pm,v 1.1.2.10 2004-12-14 00:47:42 dan Exp $
 #
 # Copyright (c) 2004 DVL Software
 #
