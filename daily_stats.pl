@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: daily_stats.pl,v 1.1.2.1 2002-05-19 17:17:19 dan Exp $
+# $Id: daily_stats.pl,v 1.1.2.2 2002-05-19 17:32:05 dan Exp $
 #
 # Copyright (c) 2001-2002 DVL Software
 #
@@ -39,4 +39,5 @@ my $rowcount = 0;
 $sth->fetchrow_array;
 
 $sth->finish();
+$dbh->commit();
 $dbh->disconnect();
