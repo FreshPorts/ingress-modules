@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.38.2.44 2005-02-17 05:33:03 dan Exp $
+# $Id: port.pm,v 1.38.2.45 2005-02-21 01:19:18 dan Exp $
 #
 #
 # Copyright (c) 2001-2003 DVL Software
@@ -532,8 +532,6 @@ sub _ExtractValuesFromMakefile {
 			($longdescription, $homepage) = _GetDescrAndHomePage($RealDescrPath);
 		}
 
-		my $packageexists = _PackageExists($packagename . ".tgz");
-
 		chomp($longdescription); # get rid of the trailing whitespace.
 
 		print "12 \$shortdescription = '$shortdescription'\n";
@@ -544,7 +542,6 @@ sub _ExtractValuesFromMakefile {
 		}
 		print "'\n";
 
-		print "15 \$packageexists    = '$packageexists'\n";
 		print "16 \$forbidden        = '$forbidden'\n";
 		print "17 \$broken           = '$broken'\n";
 		print "18 \$deprecated       = '$deprecated'\n";
@@ -590,7 +587,6 @@ sub _ExtractValuesFromMakefile {
 		$this->{homepage}			= $homepage;
 		$this->{master_sites}		= $mastersites;
 		$this->{extract_suffix}		= $extractsuffix;
-		$this->{package_exists}		= $packageexists;
 		$this->{depends_build}		= $builddepends;
 		$this->{depends_run}		= $rundepends;
 		$this->{depends_lib}		= $libdepends;
@@ -806,29 +802,6 @@ sub _GetDescrAndHomePage($) {
 	return @result;
 }
 
-
-# =================================
-sub _PackageExists($) {
-	# returns "Y" if the package exists, "N" otherwise.
-
-	my $package = shift;
-	my $exists  = "N";
-
-	my $package_list = "$FreshPorts::Config::scriptpath/packages.exists";
-
-	#
-	# test for the file to grep
-	#
-	if (-f $package_list) {
-		`grep $package $package_list`;
-
-		if (!$?) {
-			$exists = "Y";
-		}
-	}
-
-	return $exists;
-}
 
 sub RefreshFromFiles($;$) {
 #
