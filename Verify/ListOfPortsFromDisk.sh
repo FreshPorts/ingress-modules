@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $Id: ListOfPortsFromDisk.sh,v 1.1.2.1 2002-05-19 18:42:54 dan Exp $
+# $Id: ListOfPortsFromDisk.sh,v 1.1.2.2 2003-01-15 04:55:51 dan Exp $
 #
 # Copyright (c) 2001-2002 DVL Software
 #
@@ -11,12 +11,12 @@
 #
 
 PORTSDIR=/usr/ports
-TMPFILE=/tmp/list-of-ports.txt
+TMPFILE=~/list-of-ports.txt
 
 cd ${PORTSDIR}
 find * -maxdepth 1 -type d |  \
          egrep -v "^Mk|^Templates|^Tools|^distfiles|*/pkg$" | \
-         grep "/" > ~/${TMPFILE}
+         grep "/" > ${TMPFILE}
 
-
-cat ~/list-of-ports.txt | perl ./INDEX-verify-ports.pl
+exit
+cat ${TMPFILE} | perl ~/scripts/Verify/INDEX-verify-ports.pl
