@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: test_hash_hash.pl,v 1.2 2001-12-22 04:30:43 dan Exp $
+# $Id: test_hash_hash.pl,v 1.3 2001-12-31 15:27:47 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -37,6 +37,14 @@ foreach $value (@Files) {
 	($action, $path, $revision) = @$value;
 	print "$action, $path, $revision\n";
 }
+
+print "scalar %Updates = '" . scalar %Updates . "'\n";
+
+my @keys = keys %Updates;
+
+print "size of keys    is '" . scalar(@keys)         . "'\n";
+print "size of Updates is '" . scalar(keys %Updates) . "'\n";
+
 
 #my $portname;
 #my %values;
