@@ -1,3 +1,9 @@
+#
+# $Id: README.txt,v 1.3 2002-02-24 02:36:19 dan Exp $
+#
+#
+# Copyright (c) 2001-2002 DVL Software
+#
 When installing the scripts, be sure to modify the "use lib" entry
 in load_xml_into_db.pl to point to the directory in which 
 load_xml_into_db.pl resides.
@@ -18,3 +24,6 @@ http://www.cpan.org/authors/id/DMEGG/XML-Writer-0.4.tar.gz
 adjust this line in load_xml_into_db.pl:
 use lib '/home/lists/scripts';
 
+
+
+And you also need to run dir-create.sh
