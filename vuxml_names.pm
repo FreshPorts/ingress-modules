@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: vuxml_names.pm,v 1.1.2.7 2004-12-13 21:34:27 dan Exp $
+# $Id: vuxml_names.pm,v 1.1.2.8 2004-12-14 00:43:47 dan Exp $
 #
 # Copyright (c) 2004 DVL Software
 #
@@ -14,8 +14,10 @@ sub new {
 	my $this		= {};
 	my $class		= shift;
 	$this->{dbh}	= shift;
+
 	bless $this;
 	$this->_initialize();
+
 	return $this
 }
 
@@ -58,12 +60,13 @@ sub save {
 				" . $dbh->quote($this->{name}) . ')';
 	} else {
 		$sql = "UPDATE vuxml_names
-				   SET vuxml_affected_id = " . $this->{id}                . ",
+				   SET vuxml_affected_id = " . $this->{vuxml_affected_id} . ",
 				       name              = " . $dbh->quote($this->{name}) . "
-				 WHERE id                = " . $this->{id};
+				 WHERE id                = " . $this->{id}                . "
+              ORDER BY id";
 	}
 
-	print "sql is $sql\n";
+#	print "sql is $sql\n";
 
 	$sth = $this->{dbh}->prepare($sql);
 	if (!$sth->execute) {
@@ -102,6 +105,8 @@ sub FetchByVuXMLAffectedID {
 	while ($row = $sth->fetchrow_hashref()) {
 		$vuxml_names = FreshPorts::vuxml_names->new( $this->{dbh} );
 
+#		print "vuxml_names.pm:111 reading " . $vuxml_names->{id} . "\n";
+
 		$vuxml_names->set_id               ($row->{id});
 		$vuxml_names->set_vuxml_affected_id($row->{vuxml_affected_id});
 		$vuxml_names->set_name             ($row->{name});
@@ -111,6 +116,43 @@ sub FetchByVuXMLAffectedID {
 	$sth->finish();
 
 	return @Names;
+}
+
+sub set_id {
+	my $this = shift;
+	my $id   = shift;
+
+	$this->{id} = $id;
+
+	return $this->{id};
+}
+
+sub set_vuxml_affected_id {
+	my $this              = shift;
+	my $vuxml_affected_id = shift;
+
+	$this->{vuxml_affected_id} = $vuxml_affected_id;
+
+	return $this->{vuxml_affected_id};
+}
+
+sub set_name {
+	my $this = shift;
+	my $name = shift;
+
+	$this->{name} = $name;
+
+	return $this->{name};
+}
+
+sub print {
+	my $this = shift;
+
+	print "\n   vuxml_names.pm:150\n";
+
+	print "   id                = '" . $this->{id}                . "'\n";
+	print "   vuxml_affected_id = '" . $this->{vuxml_affected_id} . "'\n";
+	print "   name              = '" . $this->{name}              . "'\n";
 }
 
 1;
