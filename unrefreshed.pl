@@ -48,11 +48,11 @@ my @row;
 
 $sql = "select ports.id, element.name as port, categories.name as category \
         from ports, categories, element, commit_log_ports \
-        where commit_log_ports.needs_refresh <> 0 \
-          and ports.category_id              = categories.id \
+        where ports.category_id              = categories.id \
 		  and ports.element_id               = element.id \
 		  and commit_log_ports.port_id       = ports.id \
-    order by  category, port";
+          and commit_log_ports.needs_refresh <> 0 \
+        order by category, port";
 
 $sth = $dbh->prepare($sql);
 $sth->execute ||
