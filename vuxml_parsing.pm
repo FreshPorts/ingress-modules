@@ -27,7 +27,7 @@
 # SUCH DAMAGE.
 
 #
-# @(#) $Id: vuxml_parsing.pm,v 1.1.2.3 2004-09-11 00:03:59 dan Exp $
+# @(#) $Id: vuxml_parsing.pm,v 1.1.2.4 2004-09-11 00:45:46 dan Exp $
 #
 # Parse the Vulnerabilities and Exposures (vuxml) database extracting
 # the entries for loading into a RDBMS.
@@ -56,13 +56,22 @@ use base qw( Class::Observable );
 
 our ($VuXML);
 
+# Call like this:
+#
+# $v = new FreshPorts::vuxml_parsing(DBHandle => $dbh,
+#                                    Stream   => *STDIN);
+#
+# DBHandle is a database handle from the DBI module. Required (well,
+# if you want to write to a database it's necessary)
+#
+# Stream is optional, and defaults to reading STDIN.  Pass either an
+# IO::Handle or a glob: *GLOB or a glob ref: \*GLOB
+
 sub new
 {
     my $caller = shift;
-    my $stream = shift;
-    my $dbh    = shift;
-    my $class  = ref($caller) || $caller || __PACKAGE__;
-
+    my $class  = ref($caller) || $caller;
+    my %args   = ref( $_[0] ) eq 'HASH' ? %{ shift() } : @_;
     my $self;
 
     # There can be only one! Since we keep $self hanging around as a
@@ -73,89 +82,100 @@ sub new
 
     if ( $VuXML && $VuXML->isa(__PACKAGE__) ) {
         $self = $VuXML;
-    } else {
-        $VuXML = $self = {};
-        bless $self, $class;
-
-        # Initialise various instance variables
-
-        $self->{_known_ref_types} = qr/
-			^( url       |
-			   mlist     |
-			   cvename   |
-			   bid       |
-			   certsa    |
-			   certvu    |
-			   uscertsa  |
-			   uscertta  |
-			   freebsdsa |
-			   freebsdpr )$
-			   /x;
-
-        # Dispatch table for call-back functions triggered on starting
-        # <element> tags
-        $self->{start_handlers} = {};
-        for my $tag (qw(vuln cancelled package system range)) {
-            no strict qw(refs);
-            my $handle_start_tag = "handle_start_$tag";
-
-            $self->{start_handlers}{$tag} = \&$handle_start_tag;
-        }
-
-        # Dispatch table for call-back functions triggered on closing
-        # </element> tags
-        $self->{end_handlers} = {};
-        for my $tag (
-            qw( topic name architecture category range lt gt le ge eq
-            description url mlist cvename bid certsa certvu uscertsa
-            uscertta freebsdsa freebsdpr discovery entry modified )
-          )
-        {
-            no strict qw(refs);
-            my $handle_end_tag = "handle_end_$tag";
-
-            $self->{end_handlers}{$tag} = \&$handle_end_tag;
-        }
-
-        # Remember context when saving <package> or <system> data
-        $self->{_target} = undef;
-
-        unless ( $self->{xml_parser}
-            && $self->{xml_parser}->isa('XML::Parser') )
-        {
-            $self->{xml_parser} = new XML::Parser(
-                Pkg      => __PACKAGE__,
-                Handlers => {
-                    Start => \&handle_start,
-                    End   => \&handle_end,
-                    Char  => \&handle_char,
-                }
-            );
-        }
-
-        # Marshalling operator+version values from the <range> element
-        $self->{_range_buffer} = [ undef, undef, undef, undef ];
-
-        # Read from stream given by first argument to new is a Filehandle
-        # glob or an IO::Handle: use 'undef' to default to STDIN.
-
-        if ( defined $stream ) {
-            $self->{input} = $stream;
-        } else {
-            $self->{input} = *STDIN;
-        }
-
-        # Second argument should be a database handle: again, use undef to
-        # avoid overwriting current value.
-
-        if ( defined $dbh ) {
-            $self->{db_handle} = $dbh;
-        }
-
-        # Initialise instance variables
-
-        $self->_initialise(@_);
+        return bless $self, $class;
     }
+
+    $VuXML = $self = {};
+    bless $self, $class;
+
+    # Initialise various instance variables
+
+    $self->{_known_ref_types} = qr/
+		^( url       |
+		   mlist     |
+		   cvename   |
+		   bid       |
+		   certsa    |
+		   certvu    |
+		   uscertsa  |
+		   uscertta  |
+		   freebsdsa |
+		   freebsdpr )$
+		   /x;
+
+    # Dispatch table for call-back functions triggered on starting
+    # <element> tags
+
+    $self->{start_handlers} = {};
+    for my $tag (qw(vuln cancelled package system range)) {
+        no strict qw(refs);
+        my $handle_start_tag = "handle_start_$tag";
+
+        $self->{start_handlers}{$tag} = \&$handle_start_tag;
+    }
+
+    # Dispatch table for call-back functions triggered on closing
+    # </element> tags
+
+    $self->{end_handlers} = {};
+    for my $tag (
+        qw( topic name architecture category range lt gt le ge eq
+        description url mlist cvename bid certsa certvu uscertsa
+        uscertta freebsdsa freebsdpr discovery entry modified )
+      )
+    {
+        no strict qw(refs);
+        my $handle_end_tag = "handle_end_$tag";
+
+        $self->{end_handlers}{$tag} = \&$handle_end_tag;
+    }
+
+    # Remember context when saving <package> or <system> data
+    $self->{_target} = undef;
+
+    unless ( $self->{xml_parser}
+        && $self->{xml_parser}->isa('XML::Parser') )
+    {
+        $self->{xml_parser} = new XML::Parser(
+            Pkg      => __PACKAGE__,
+            Handlers => {
+                Start => \&handle_start,
+                End   => \&handle_end,
+                Char  => \&handle_char,
+            }
+        );
+    }
+
+    # Marshalling operator+version values from the <range> element
+    $self->{_range_buffer} = [ undef, undef, undef, undef ];
+
+    # Argument handling.
+
+    if ( defined $args{Stream} ) {
+
+        # There are too many things that can be used as filehandles...
+
+        croak "new(): Argument is not a filehandle: Stream => $args{Stream}"
+          unless ( ref \$args{Stream} eq 'GLOB'
+            || ref $args{Stream} eq 'GLOB'
+            || $args{Stream}->isa("IO::Handle") );
+        $self->{input} = $args{Stream};
+    } else {
+        $self->{input} = *STDIN;
+    }
+
+    # DBHandle argument should be a database handle
+
+    if ( defined $args{DBHandle} ) {
+        croak "new(): Argument is not a DB handle: DBHandle => $args{DBHandle}"
+          unless ( $args{DBHandle}->isa("DBI::db") );
+        $self->{db_handle} = $args{DBHandle};
+    }
+
+    # Initialise parsed data area
+
+    $self->_initialise(@_);
+
     return $self;
 }
 
@@ -214,7 +234,7 @@ sub DESTROY
     undef($self);
 }
 
-# Wipe out all instance data -- reset to empty values
+# Wipe out all vuln data -- reset to empty values
 sub reset
 {
     my __PACKAGE__ $self = shift;
@@ -288,38 +308,37 @@ sub update_database
     #
     # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-#	my $vuxml_id =  $self->update_database_vuxml();
+    #	my $vuxml_id =  $self->update_database_vuxml();
 
     $self->print_self();    # For debugging purposes
 
     return $self;
 }
 
-sub update_database_vuxml {
+sub update_database_vuxml
+{
     my __PACKAGE__ $self = shift;
 
-	use vuxml;
-	use db_utils;
-	use vuxml_affected;
-	use vuxml_names;
-	use vuxml_ranges;
-	use vuxml_references;
+    use vuxml;
+    use db_utils;
+    use vuxml_affected;
+    use vuxml_names;
+    use vuxml_ranges;
+    use vuxml_references;
 
+    my $vuxml = FreshPorts::vuxml->new( $self->{db_handle} );
 
-	my $vuxml = FreshPorts::vuxml->new($self->{db_handle});
+    $vuxml->{vid}            = $self->vid();
+    $vuxml->{topic}          = $self->topic();
+    $vuxml->{description}    = $self->description();
+    $vuxml->{date_discovery} = $self->date_discovery();
+    $vuxml->{date_entry}     = $self->date_entry();
+    $vuxml->{date_modified}  = $self->date_modified();
 
-	$vuxml->{vid}            =  $self->vid();
-	$vuxml->{topic}          =  $self->topic();
-	$vuxml->{description}    =  $self->description();
-	$vuxml->{date_discovery} =  $self->date_discovery();
-	$vuxml->{date_entry}     =  $self->date_entry();
-	$vuxml->{date_modified}  =  $self->date_modified();
+    my $vuxml_id = $vuxml->save();
 
-	my $vuxml_id = $vuxml->save();
-
-	return $vuxml_id;
+    return $vuxml_id;
 }
-
 
 # Accessor methods
 
@@ -875,12 +894,14 @@ sub handle_start ($$;@)
     # than what's part of the xhtml included inside the <description>
     # tag.
 
-    if ( $VuXML->{save_text} eq 'description' ) {
-        $VuXML->{text_buffer} .= '<' . $element;
-        while (@_) {
-            $VuXML->{text_buffer} .= ' ' . shift() . '="' . shift() . '"';
+    if ( defined( $VuXML->{save_text} )) {
+        if ( $VuXML->{save_text} eq 'description' ) {
+            $VuXML->{text_buffer} .= '<' . $element;
+            while (@_) {
+                $VuXML->{text_buffer} .= ' ' . shift() . '="' . shift() . '"';
+            }
+            $VuXML->{text_buffer} .= '>';
         }
-        $VuXML->{text_buffer} .= '>';
     }
 
     # If this is one of the tags that contains content we're
@@ -987,10 +1008,12 @@ sub handle_end ($$)
     # If this is the matching closing tag, stop saving the text and
     # save it into the $VuXML object.
 
-    if ( $element eq $VuXML->{save_text} ) {
-        $VuXML->{save_text}   = undef;    # Done saving.
-        $VuXML->{text_buffer} = undef;
-    }
+    if ( defined( $VuXML->{save_text} )) {
+       if ( $element eq $VuXML->{save_text} ) {
+           $VuXML->{save_text}   = undef;    # Done saving.
+           $VuXML->{text_buffer} = undef;
+       }
+    } 
 
     # If we're in text saving mode, save this end tag
     if ( $VuXML->{save_text} ) {
