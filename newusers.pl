@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: newusers.pl,v 1.3 2002-01-06 07:17:04 dan Exp $
+# $Id: newusers.pl,v 1.3.2.1 2002-06-12 12:54:51 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -45,8 +45,7 @@ if (($#ARGV+1) == 2) {
    }
    my $sql = "select id, name, email, firstlogin \
               from users \
-              where firstlogin >= '$StartDate' \
-                and firstlogin <= '$EndDate' \
+              where date_trunc('day', firstlogin) = '$StartDate'
               order by id";
 
    print "sql is $sql\n";
