@@ -1,10 +1,7 @@
 #!/bin/sh
-
 #
-# mysql databse backup
+# postgresql database backup
 # Copyright 1999, 2000 DVL Software Limited
-#
-# Available from http://www.freebsddiary.org/samples/database_dump.sh.txt
 #
 
 #
@@ -26,29 +23,19 @@ TempFreshportsSurveyFile="freshports.survey.backup.txt"
 #     database   - the name of database to dump
 #     /pathto/   - the path to the backup file
 #
-/usr/local/bin/mysqldump -uroot -c --add-drop-table freshports   > $WorkingDirectory$TempFreshportsFile
-/usr/local/bin/mysqldump -uroot -c --add-drop-table fpfeedbackup > $WorkingDirectory$TempFreshportsForumFile
-/usr/local/bin/mysqldump -uroot -c --add-drop-table survey       > $WorkingDirectory$TempFreshportsSurveyFile
+/usr/local/bin/pg_dump FreshPorts2 > $WorkingDirectory$TempFreshportsFile
 #
 # compress it
 #
-zip -9 $BackupFile $WorkingDirectory$TempFreshportsFile $WorkingDirectory$TempFreshportsForumFile $WorkingDirectory$TempFreshportsSurveyFile
+zip -9 $BackupFile $WorkingDirectory$TempFreshportsFile
 
 #
 # copy it offsite
 #
-#ftp -n -v ducky.int.nz.freebsd.org  <<EoF
-#        user ftpbackup ftpbackup
-#        bin
-#        prompt
-#        mput $BackupFile
-#EoF
 
-#/usr/bin/scp $BackupFile dan@ns1.unixathome.org:$BackupFile
-#/usr/bin/scp $BackupFile dan@cvsup.nz.freebsd.org:$BackupFile
 /usr/bin/scp -P 2222 $BackupFile dan@diary.unixathome.org:$BackupFile
 
 #
 # remove the files we created
 #
-#rm $BackupFile $WorkingDirectory$TempFreshportsFile $WorkingDirectory$TempFreshportsForumFile $WorkingDirectory$TempFreshportsSurveyFile
+rm $BackupFile $WorkingDirectory$TempFreshportsFile $WorkingDirectory$TempFreshportsForumFile $WorkingDirectory$TempFreshportsSurveyFile
