@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: email.pl,v 1.7 2002-03-02 17:02:28 dan Exp $
+# $Id: email.pl,v 1.8 2002-03-14 20:28:31 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -162,8 +162,19 @@ sub AddToLogs($;$;$;$) {
 	my $NumCommits	= shift;
 	my $dbh			= shift;
 
-	my $sql = "insert into watch_notice_log (frequency, msg_count, commit_count)
-									values ('$Frequency', $NumMsgs, $NumCommits)";
+	my $sql;
+	my @row;
+
+	$sql = "select id from watch_notice where frequency = '$Frequency'";
+	$sth = $dbh->prepare($sql);
+	$sth->execute ||
+		die "Could not execute SQL $sql ... maybe invalid?";
+
+	@row=$sth->fetchrow_array;
+	my $frequency_id = $row[0];
+
+	$sql = "insert into watch_notice_log (frequency_id, msg_count, commit_count)
+									values ('$frequency_id', $NumMsgs, $NumCommits)";
 	$sth = $dbh->prepare($sql);
 	$sth->execute ||
            die "Could not execute SQL $sql ... maybe invalid?";
