@@ -1,5 +1,5 @@
 #
-# $Id: report_constants.pm,v 1.1.2.4 2004-01-29 15:21:06 dan Exp $
+# $Id: report_constants.pm,v 1.1.2.5 2004-01-29 16:28:02 dan Exp $
 #
 # Copyright (c) 2002-2004 DVL Software
 #
@@ -10,7 +10,7 @@ require config;
 
 $FreshPorts::ReportConstants::Notification	= 1;
 $FreshPorts::ReportConstants::NewPorts			= 2;
-$FreshPorts::ReportConstants::Security			= 6;
+$FreshPorts::ReportConstants::Security			= 5;
 
 my $WatchURL               = $FreshPorts::Config::FreshPortsURL . "watch.php";
 my $ReportSubscriptionURL	= $FreshPorts::Config::FreshPortsURL . "report-subscriptions.php";
@@ -19,8 +19,6 @@ my $ReportSubscriptionURL	= $FreshPorts::Config::FreshPortsURL . "report-subscri
 $FreshPorts::ReportConstants::Footer			= "======================================
 
 Please refer to $WatchURL for details.
-
-Cheers and thanks for your support.
 
 -- 
 
