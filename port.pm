@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.38.2.41 2005-01-12 14:57:38 dan Exp $
+# $Id: port.pm,v 1.38.2.42 2005-01-26 18:39:09 dan Exp $
 #
 #
 # Copyright (c) 2001-2003 DVL Software
@@ -115,7 +115,9 @@ sub new {
 	$this->{dbh}	= shift;
 
 	bless $this;
+
 	$this->_initialize();
+
 	return $this;
 }
 
