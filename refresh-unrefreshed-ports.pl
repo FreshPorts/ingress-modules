@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: refresh-unrefreshed-ports.pl,v 1.18 2002-02-14 23:35:47 dan Exp $
+# $Id: refresh-unrefreshed-ports.pl,v 1.19 2002-02-16 07:18:48 dan Exp $
 #
 # Copyright (c) 1999-2001 DVL Software
 #
@@ -38,6 +38,7 @@ $sql = "select ports.id, categories.name as category, element.name as port, comm
           and ports.element_id               = element.id
 		  and commit_log_ports.port_id       = ports.id  
           and commit_log_ports.needs_refresh <> 0 
+		  and element.status				 = 'A'
         order by category, port";
 
 print "sql = $sql\n";
@@ -75,7 +76,7 @@ foreach $porttorefresh (@PORTS) {
 				$result = 0;
 			} else {
 				$result = $port->RefreshFromFiles($needs_refresh, 1);
-				print "has been refreshed ($result)\n";
+				print "refresh attempt done ($result)\n";
 			}
 		} else {
 			FreshPorts::Utilities::ReportError('warning', "Could not retrieve element ($port_id, $category_name, $port_name, $needs_refresh, $commit_log_id)", 1);
@@ -99,6 +100,7 @@ foreach $porttorefresh (@PORTS) {
 			$dbh->commit();
 		} else {
 			print "update result is $result ******************************************\n";
+			$dbh->rollback();
 		}
 	} else {
 		FreshPorts::Utilities::ReportError('warning', "Could not retrieve port ($port_id, $category_name, $port_name, $needs_refresh, $commit_log_id)", 1);
