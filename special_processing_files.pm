@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: special_processing_files.pm,v 1.1.2.2 2004-09-17 03:14:06 dan Exp $
+# $Id: special_processing_files.pm,v 1.1.2.3 2004-10-03 02:20:15 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -34,7 +34,7 @@ sub Eat($;$;$;$) {
 	}
 
  	if ($File eq "ports/security/vuxml/vuln.xml") {
-		`/usr/bin/touch $FreshPorts::Config::MovedFileFlag`
+		`/usr/bin/touch $FreshPorts::Config:VuXMLFileFlag`
 	}
 
  	if ($File eq "CVSROOT-ports/approvers") {
