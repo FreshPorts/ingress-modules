@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: announce.pl,v 1.3.2.7 2003-05-16 01:13:58 dan Exp $
+# $Id: announce.pl,v 1.3.2.8 2003-07-31 17:54:25 dan Exp $
 #
 # Copyright (c) 1999-2003 DVL Software
 #
@@ -22,7 +22,13 @@ my $ReportID = $FreshPorts::Constants::ReportIDAnnouncements;
 
 sub SendAnnouncement($) {
 
-	my $To = shift;
+	my $To   = shift;
+
+	my $From         = 'FreshPorts Announcement Daemon <FreshPorts-Announce@FreshPorts.org>';
+	my $CC           = '';
+	my $Subject      = 'HEADS UP: FreshPorts announcement';
+	my $ExtraHeaders = 'X-FreshPorts-Announcement: HEADS UP';
+
 
 	my $Body = "Folks,
 
@@ -67,7 +73,7 @@ If a problem occurs, please send details, including the email
 address in question, to postmaster\@freshports.org
 ";
 
-	FreshPorts::email::SendMail('FreshPorts Announcement <FreshPorts-Announce@FreshPorts.org>', $To, 'HEADS UP: FreshPorts announcement', $Body, 'X-FreshPorts-Announcement: HEADS UP');
+	FreshPorts::email::SendMail($From, $To, $CC, $Subject, $Body, $ExtraHeaders);
 }
 
 sub SendToEachListMember($) {

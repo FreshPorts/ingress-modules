@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: unrefreshed.pl,v 1.11.2.11 2003-05-16 15:45:40 dan Exp $
+# $Id: unrefreshed.pl,v 1.11.2.12 2003-07-31 17:53:40 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -18,19 +18,25 @@ require config;
 
 
 sub SendNotice($;$;$) {
-	my $Address 	= shift;
+	my $To		 	= shift;
 	my $count		= shift;
 	my $list			= shift;
 	my $hostname	= `hostname`;
 
 	chomp $hostname;
 
+	my $From         = 'FreshPorts Daemon <FreshPorts@FreshPorts.org>';
+	my $CC           = '';
+	my $Subject      = 'FreshPorts -- ports needing refresh';
+	my $ExtraHeaders = 'X-FreshPorts-RefreshNeeded: ' . $count;
+
+
 	my $Body = 'At ' . $hostname . '::' . $FreshPorts::Config::dbname . ", there are $count ports needing refresh.
 
 $list
 ";
 
-	FreshPorts::email::SendMail('FreshPorts Daemon <FreshPorts@FreshPorts.org>', 'Dan Langille <dan@langille.org>', 'FreshPorts -- ports needing refresh', $Body, 'X-FreshPorts-RefreshNeeded: ' . $count);
+	FreshPorts::email::SendMail($From, $To, $CC, $Subject, $Body, $ExtraHeaders);
 }
 
 

@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: report-new-ports.pl,v 1.1.2.12 2003-05-16 01:14:07 dan Exp $
+# $Id: report-new-ports.pl,v 1.1.2.13 2003-07-31 17:53:39 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -40,6 +40,10 @@ sub SendWatchNoticePersonal($;$;$) {
 	my $FrequencyLong = shift;
 	my $Body          = shift;
 
+	my $From         = 'FreshPorts Watch Daemon <FreshPorts-Watch@FreshPorts.org>';
+	my $Subject      = "FreshPorts $FrequencyLong new ports";
+	my $ExtraHeaders = 'X-FreshPorts-NewPorts: ' . $FrequencyLong;
+	my $CC           = '';
 
 	$Body = "HEADS UP: multiple watch lists:
 see http://www.freshports.org/phorum/read.php?f=1&i=451&t=420
@@ -68,7 +72,7 @@ If a problem occurs, please send details, including the email address in
 question, to postmaster\@FreshPorts.org.
 ";
 
-	FreshPorts::email::SendMail('FreshPorts Watch Daemon <FreshPorts-Watch@FreshPorts.org>', $To, "FreshPorts $FrequencyLong new ports", $Body, 'X-FreshPorts-NewPorts: ' . $FrequencyLong);
+	FreshPorts::email::SendMail($From, $To, $CC, $Subject, $Body, $ExtraHeaders);
 }
 
 
