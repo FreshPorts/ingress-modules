@@ -42,21 +42,24 @@ my @row;
 # get a list of ports to update
 #
 
-$sql = "select count(*) \
-        from ports \
-        where ports.needs_refresh <> 0";
+$sql = "select ports.id, ports.name as port, categories.name as category \
+        from ports, categories \
+        where ports.needs_refresh      <> 0 \
+          and ports.primary_category_id = categories.id
+    order by  category, port";
 
 $sth = $dbh->prepare($sql);
 $sth->execute ||
         die "Could not execute SQL $sql ... maybe invalid?";
 
-@row=$sth->fetchrow_array;
+my $rowcount = 0;
+while (@row=$sth->fetchrow_array) {
+	$rowcount++;
+	print "id=$row[0] $row[1]/$row[2]\n";
+}
 
-if ($row[0] == 0) {
-   print "nothing needs refresh\n";
-} else {
-   print "$row[0] ports need refresh\n";
-   SendNotice("dan\@langille.org", $row[0]);
+if ($rowcount > 0) {
+	print "\n\n There are $rowcount ports requiring refresh\n"
 }
 
 $sth->finish();
