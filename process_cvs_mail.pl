@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: process_cvs_mail.pl,v 1.8.2.21 2004-06-02 12:37:16 dan Exp $
+# $Id: process_cvs_mail.pl,v 1.8.2.22 2004-06-29 18:44:40 dan Exp $
 #
 # Copyright (c) 2001-2003  DVL Software
 #
@@ -351,6 +351,14 @@ sub GetFiles {
 		next unless $found == 1;
 
 		last if (length($line) == 0 || substr($line, 0, length($EndOfFiles)) eq $EndOfFiles);
+
+		#
+		# trim any whitespace
+		# cater for blank lines...
+		# see 200406021718.i52HITQL013075@repoman.freebsd.org
+		#
+		$line = FreshPorts::Utilities::trim($line);
+		next if (length($line) == 0);
 
 		my ($revision, $changes1, $changes2, $path, $action) = split(" ", $line);
 
