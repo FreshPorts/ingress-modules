@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.38.2.10 2002-11-04 20:29:36 dan Exp $
+# $Id: port.pm,v 1.38.2.11 2002-11-09 15:04:16 dan Exp $
 #
 #
 # Copyright (c) 2001-2002 DVL Software
@@ -780,7 +780,7 @@ sub GetNeedsRefreshForNewPort {
 	my $port		= $this->{name};
 
 	if (!defined($category) || !defined($port)) {
-		FreshPorts::Utilities::ReportError('warning', "Cannot _GetNeedsRefreshForNewPort.  Insufficient data", 1);
+		FreshPorts::Utilities::ReportError('warning', "Cannot GetNeedsRefreshForNewPort.  Insufficient data", 1);
 	}
 
 	print "category = $category\n";
@@ -898,7 +898,7 @@ sub GetNeedsRefreshForNewPort {
 		}
 	}
 
-	print "\nand from _GetNeedsRefreshForNewPort we get needs_refresh = $needs_refresh\n";
+	print "\nand from GetNeedsRefreshForNewPort we get needs_refresh = $needs_refresh\n";
 
 	if ($result == -1) {
 		$needs_refresh = -1;
