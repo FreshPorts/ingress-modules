@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.38.2.25 2003-05-17 12:58:57 dan Exp $
+# $Id: port.pm,v 1.38.2.26 2003-07-17 12:45:38 dan Exp $
 #
 #
 # Copyright (c) 2001-2003 DVL Software
@@ -358,9 +358,10 @@ sub _ExtractValuesFromMakefile {
 	$result = $?;
 	if (-s $TmpFile > 0) {
 		my $Errors = `cat $TmpFile`;
-		`rm $TmpFile`;
 		FreshPorts::Utilities::ReportErrorEmail('warning', "error executing make command for $this->{category}/$this->{name} for database $FreshPorts::Config::dbname\n: $makecommand => " . $Errors, 1, 0);
 	}
+	# remove that error collection file
+	`rm $TmpFile`;
 
 	if ($result != 0) {
 		# save the results for error reporting
@@ -560,9 +561,10 @@ sub _FetchFilesNeedingRefresh {
 
 		if (-s $TmpFile > 0) {
 			my $Errors = `cat $TmpFile`;
-			`rm $TmpFile`;
 			FreshPorts::Utilities::ReportErrorEmail('warning', "error executing make command for $this->{category}/$this->{name} for database $FreshPorts::Config::dbname\n: '$makecommand' ->" . $Errors, 1, 0);
 		}
+		# remove the error collection file
+		`rm $TmpFile`;
 
 
 		# remove previously created directory
