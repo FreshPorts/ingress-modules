@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: hourly_stats.pl,v 1.1.2.1 2002-05-19 20:24:19 dan Exp $
+# $Id: hourly_stats.pl,v 1.1.2.2 2002-05-19 21:01:39 dan Exp $
 #
 # Copyright (c) 2001-2002 DVL Software
 #
@@ -81,11 +81,11 @@ sub CreateHourlySummary() {
 
 		print FILE '<TR><TD><A HREF="/ports-forbidden.php">Forbidden</A></TD>  <TD ALIGN="right">' . $Stats{forbidden} . '</TD></TR>' . "\n";
 
-		print FILE '<TR><TD><A HREF="/ports-new.php">new today</A></TD>    <TD ALIGN="right">'     . $Stats{today}     . '</TD></TR>' . "\n";
+		print FILE '<TR><TD><A HREF="/ports-new.php?interval=today">new 24 hours</A></TD>    <TD ALIGN="right">'     . $Stats{today}     . '</TD></TR>' . "\n";
 
-		print FILE '<TR><TD><A HREF="/ports-new.php">new yesterday</A></TD><TD ALIGN="right">'     . $Stats{yesterday} . '</TD></TR>' . "\n";
+		print FILE '<TR><TD><A HREF="/ports-new.php?interval=yesterday">new 48 hours</A></TD><TD ALIGN="right">'     . $Stats{yesterday} . '</TD></TR>' . "\n";
 
-		print FILE '<TR><TD><A HREF="/ports-new.php">new last week</A></TD><TD ALIGN="right">'     . $Stats{week}      . '</TD></TR>' . "\n";
+		print FILE '<TR><TD><A HREF="/ports-new.php?interval=week">new 7 days</A></TD><TD ALIGN="right">'     . $Stats{week}      . '</TD></TR>' . "\n";
 		print FILE '</TABLE>' . "\n";
 
 
