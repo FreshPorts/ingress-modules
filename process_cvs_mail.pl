@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: process_cvs_mail.pl,v 1.8.2.20 2004-01-30 00:16:57 dan Exp $
+# $Id: process_cvs_mail.pl,v 1.8.2.21 2004-06-02 12:37:16 dan Exp $
 #
 # Copyright (c) 2001-2003  DVL Software
 #
@@ -525,7 +525,7 @@ sub GetDate {
 		if (length == 0) { $newline_found = 1; next; }                
 		next unless ($newline_found == 1);
 		$date = (split /\s+/, $_, 3)[1];
-		($year, $month, $day) = split(/\//, $date);
+		($year, $month, $day) = split(/[\/-]/, $date);
 		last;
 	}
 
