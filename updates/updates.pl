@@ -9,7 +9,7 @@
 
 use DBI;
 use strict;
-use lib '/usr/local/etc/freshports.test/updates';
+use lib 'CHECKTHISPATH/usr/local/etc/freshports.test/updates';
 use portschange;
 
 my $Debug = 0;
@@ -291,7 +291,7 @@ my $NotifyByMail = "root";
 my $PortID;
 my $ChangePortID;
 
-my $dbh = DBI->connect('dbi:mysql:SETDATABSEHERE','updater','PASSWORD');
+my $dbh = DBI->connect('dbi:mysql:freshportsnew','updater','xyzzy');
 if (!$dbh) {
    # email the main man
    open  MAIL, "|mail -s 'freshports error' $NotifyByMail";
