@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: verifyport.pm,v 1.32 2001-12-24 04:36:35 dan Exp $
+# $Id: verifyport.pm,v 1.33 2001-12-29 20:58:08 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -461,6 +461,7 @@ sub RefreshAllPortsTouchedByCommit($) {
 
 		$commit_log_port->{needs_refresh}	= 0;
 		$commit_log_port->{port_version}	= $port->{version};
+		$commit_log_port->{port_revision}	= $port->{revision};
 		$commit_log_port->save();
 	}
 
@@ -507,7 +508,7 @@ sub CreateDailySummary($;$) {
 
 	my @myrow;
 
-	my $sql =	"select ports.id, element.name, ports.version " .
+	my $sql =	"select ports.id, element.name, commit_log_ports.port_version, commit_log_ports.port_revision " .
 				"from ports, commit_log, commit_log_ports, element ".
 				"where ports.id                       = commit_log_ports.port_id ".
 				"  and commit_log_ports.commit_log_id = commit_log.id ".
@@ -579,6 +580,9 @@ sub CreateDailySummary($;$) {
 			#
 			if (defined($myrow[2])) {
 				print FILE $myrow[2];
+			}
+			if (defined($myrow[3])) {
+				print FILE '-' . $myrow[3];
 			}
 			print FILE "</font></a><br>\n";     
 			$count++;
