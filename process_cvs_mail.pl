@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: process_cvs_mail.pl,v 1.8.2.12 2003-02-21 20:49:37 dan Exp $
+# $Id: process_cvs_mail.pl,v 1.8.2.13 2003-03-26 18:54:31 dan Exp $
 #
 # Copyright (c) 2001-2002  DVL Software
 #
@@ -83,6 +83,7 @@ sub GetData {
 
 
 	$Message_Subject	= &GetMessage_Subject($message);
+
 	$Log					= &GetLog($message);
 
 	if ($Log eq '') {
@@ -327,6 +328,8 @@ sub GetFiles {
 	my (@files);
 	my (@lines) = split("\n", $message);
 
+	my $EndOfFiles = '_____';
+
 	# Modified Files
 	my ($found) = 0;
 	for (@lines) {
@@ -340,7 +343,7 @@ sub GetFiles {
 		if ($line =~ /^  Revision .*Changes .*Path$/) { $found = 1; next; }
 		next unless $found == 1;
 
-		last if (length($line) == 0);
+		last if (length($line) == 0 || substr($line, 0, length($EndOfFiles)) eq $EndOfFiles);
 
 		my ($revision, $changes1, $changes2, $path, $action) = split(" ", $line);
 
