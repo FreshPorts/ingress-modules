@@ -1,5 +1,5 @@
 #
-# $Id: verifyport.pm,v 1.42.2.21 2004-01-05 05:02:07 dan Exp $
+# $Id: verifyport.pm,v 1.42.2.22 2004-04-01 18:32:38 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -476,7 +476,7 @@ sub _RecordPortsAndElements($;$;$;$) {
 				$ExtraElement = 0;
 				last;
 			} else {
-				print " OK, we'll try the next port\n";
+#				print " OK, we'll try the next port\n";
 			}
 		}
 		
