@@ -58,76 +58,86 @@ sub PortUpdate($;$;$;$;$;$;$;$) {
       close MAIL;
    } else {
 
-   # update the port, creating it if necessary
+      # update the port, creating it if necessary
 
-   $sql = "select id from ports where lower(name) = lower('" . $port . "') and primary_category_id = $categoryid";
-   print $sql, "\n";
-   $sth = $dbh->prepare($sql);
+      $sql = "select id from ports where lower(name) = lower('" . $port . "') and primary_category_id = $categoryid";
+      print $sql, "\n";
+      $sth = $dbh->prepare($sql);
    
-   $sth->execute ||
-      die "Could not execute SQL statement ... maybe invalid?";
-
-   @row=$sth->fetchrow_array;
-
-   if (@row) {
-      print "something found\n";
-   } else {
-      print "nothing found\n";
-   }
-
-   #
-   # depending on what has changed, we need to take action accordingly
-   #
-
-   if ($entry =~ /$FilesWhichPromptRefresh/) {
-      $refresh_needed = "Y";
-   }
-
-   print "port id = " . @row[0] . "\n";
-
-   if (!@row) {
-      # no such port.  create it.
-      $sql = "insert into ports (name, last_update, primary_category_id, " .
-             "last_update_description, committer, date_created, needs_refresh, " .
-             "status, package_exists, short_description) values (";
-      # we assume above that the package does not exist until we are told otherwise.
-
-      # we don't get a version when inserting, so we must fake it by supplying a name.
-      $sql .= "'$port', '$timestamp', $categoryid, '$description', " . 
-              "'$committer', current_timestamp, 'Y', 'A', 'N', '-- waiting for description --')";
-
-      print "$sql\n";
-
-      $sth = $dbh->prepare($sql);
-
       $sth->execute ||
          die "Could not execute SQL statement ... maybe invalid?";
 
-      $sql = "insert into newports (name, primary_category_id) values ('$port', $categoryid)";
+      @row=$sth->fetchrow_array;
 
-      $sth = $dbh->prepare($sql);
-
-      $sth->execute ||
-         die "Could not execute SQL statement ... maybe invalid?";
-
-   } else {
-      # update the time on the port
-      $sql = "update ports set last_update = '$timestamp', committer = '$committer', " .
-             "last_update_description = '$description' ";
-
-      if ($refresh_needed eq "Y") {
-         $sql .= ", needs_refresh = 'Y'";
+      if (@row) {
+         print "something found\n";
+      } else {
+         print "nothing found\n";
       }
 
-      $sql .= " where id = " . @row[0];
+      #
+      # depending on what has changed, we need to take action accordingly
+      # if we are removing a file, we definitely don't need to refresh.
+      # that's because any file which prompts a refresh, and is removed
+      # pretty much means the port is being deleted.
+      #
 
-      print "$sql\n";
+      if ($entry =~ /$FilesWhichPromptRefresh/ and $action ne "remove") {
+         $refresh_needed = "Y";
+      }
 
-      $sth = $dbh->prepare($sql);
+      print "port id = " . @row[0] . "\n";
 
-      $sth->execute ||
-         die "Could not execute SQL statement ... maybe invalid?";
-   }
+      if (!@row) {
+         # no such port.  create it.
+         $sql = "insert into ports (name, last_update, primary_category_id, " .
+                "last_update_description, committer, date_created, needs_refresh, " .
+                "status, package_exists, short_description) values (";
+         # we assume above that the package does not exist until we are told otherwise.
+
+         # we don't get a version when inserting, so we must fake it by supplying a name.
+         $sql .= "'$port', '$timestamp', $categoryid, '$description', " . 
+                 "'$committer', current_timestamp, 'Y', 'A', 'N', '-- waiting for description --')";
+
+         print "$sql\n";
+
+         $sth = $dbh->prepare($sql);
+
+         $sth->execute ||
+            die "Could not execute SQL statement ... maybe invalid?";
+
+         $sql = "insert into newports (name, primary_category_id) values ('$port', $categoryid)";
+
+         $sth = $dbh->prepare($sql);
+
+         $sth->execute ||
+            die "Could not execute SQL statement ... maybe invalid?";
+
+      } else {
+         # update the time on the port
+         $sql = "update ports set last_update = '$timestamp', committer = '$committer', " .
+                "last_update_description = '$description' ";
+
+         if ($refresh_needed eq "Y") {
+            $sql .= ", needs_refresh = 'Y'";
+         }
+
+         if ($action eq "remove") {
+            # make sure we aren't deleting this port!
+            if ($entry eq "Makefile") {
+               $sql .= ", status = 'D'";
+            }
+         }
+
+         $sql .= " where id = " . @row[0];
+
+         print "$sql\n";
+
+         $sth = $dbh->prepare($sql);
+
+         $sth->execute ||
+            die "Could not execute SQL statement ... maybe invalid?";
+      }
    } # else category is not blank
 }
 
