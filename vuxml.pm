@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: vuxml.pm,v 1.1.2.9 2004-12-13 23:22:43 dan Exp $
+# $Id: vuxml.pm,v 1.1.2.10 2004-12-14 00:42:43 dan Exp $
 #
 # Copyright (c) 2004 DVL Software
 #
@@ -89,7 +89,7 @@ sub save {
                 WHERE id       = $this->{id}";
 	}
 
-	print "sql is $sql\n";
+#	print "sql is $sql\n";
 
 	$sth = $this->{dbh}->prepare($sql);
 	if (!$sth->execute) {
@@ -114,7 +114,7 @@ sub FetchByID {
               FROM vuxml
              WHERE vuxml.id = $this->{id}";
 
-	print "sql = '$sql'\n";
+#	print "sql = '$sql'\n";
 
 	$sth = $dbh->prepare($sql);
 	if (!$sth->execute) {
@@ -147,7 +147,7 @@ sub FetchByVID {
               FROM vuxml
              WHERE vuxml.vid = '$VID'";
 
-	print "sql = '$sql'\n";
+#	print "sql = '$sql'\n";
 
 	$sth = $dbh->prepare($sql);
 	if (!$sth->execute) {
@@ -185,7 +185,7 @@ sub FetchPackages {
 sub print {
 	my $this = shift;
 
-	print "vuxml.pm:187 loop\n";
+	print "vuxml.pm:187\n";
 	print "vuxml id       = '" . $this->{id}             . "'\n";
 	print "vid            = '" . $this->{vid}            . "'\n";
 	print "topic          = '" . $this->{topic}          . "'\n";
@@ -196,7 +196,7 @@ sub print {
 	print "status         = '" . $this->{status}         . "'\n";
 
 	foreach my $package (@{$this->{packages}}) {
-		print $package->{id} . "\n";
+		$package->print();
 	}
 
 }
