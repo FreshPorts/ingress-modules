@@ -1,12 +1,12 @@
 #!/usr/bin/perl -w
 
 use strict;
-use lib '/home/freshports.org/scripts/updates';
-use ports;
+use lib '~/scripts';
+use lib '~/scripts/updates';
+use port;
  
 use DBI;
 
-use lib '/home/freshports.org/scripts';
 use freshports_database;
 
 sub SendNotice($;$) {
@@ -60,6 +60,8 @@ while (@row=$sth->fetchrow_array) {
 
 if ($rowcount > 0) {
 	print "\n$rowcount port[s] need[s] refresh\n"
+
+	print "$ENV{HOME} is where we were\n";
 }
 
 $sth->finish();
