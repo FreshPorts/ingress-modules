@@ -1,4 +1,4 @@
-# $Id: utilities.pm,v 1.11.2.10 2003-02-10 18:00:22 dan Exp $
+# $Id: utilities.pm,v 1.11.2.11 2003-04-23 14:29:12 dan Exp $
 #
 #
 # Copyright (c) 2001 DVL Software
@@ -41,7 +41,7 @@ sub FetchFile($;$;$;$) {
 	#
 	my $DESTDIR		= shift;
 	my $SRCDIR		= shift;
-	my $FILE		= shift;
+	my $FILE			= shift;
 	my $REVISION	= shift;
 
 	print "FetchFile $DESTDIR $SRCDIR $FILE $REVISION\n";
@@ -106,13 +106,36 @@ sub ReportError($;$;$) {
 	my $message	= shift;
 	my $die		= shift;
 
+	my $email   = $die;
+
+	_ReportErrorHelper($level, $message, $email, $die);
+}
+
+sub ReportErrorEmail($;$;$;$) {
+	my $level	= shift;
+	my $message	= shift;
+	my $email   = shift;
+	my $die		= shift;
+
+	_ReportErrorHelper($level, $message, $email, $die);
+}
+
+sub _ReportErrorHelper($;$;$;$) {
+	my $level	= shift;
+	my $message	= shift;
+	my $email   = shift;
+	my $die		= shift;
+
 	my $suffix = $FreshPorts::Config::scriptpath;
 
 	Sys::Syslog::syslog($level, $message . " ($suffix)");
 	print $message . "\n";
 
-	if ($die) {
+	if ($email) {
 		SendEmailNotice('dan@langille.org', $message);
+	}
+
+	if ($die) {
 		die $message . "\n";
 	}
 }
@@ -151,6 +174,23 @@ sub trim_multiple_to_single {
 	$s =~ s/\s+/ /g; # Convert multiple blank spaces to single spaces
 
 	return $s;
+}
+
+sub TmpFileName($) {
+	my $Tag = shift;
+
+	($sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst) = localtime(time);
+
+	$RealMonth = $mon  + 1;
+	$RealYear  = $year + 1900;
+
+	my $TmpFileName = '/tmp/FreshPorts.';
+	if ($Tag ne '') {
+		$TmpFileName .= "$Tag.";
+	}
+	$TmpFileName .= "$RealYear.$RealMonth.$mday.$hour.$min.$sec.$$";
+
+	return $TmpFileName;
 }
 
 1;
