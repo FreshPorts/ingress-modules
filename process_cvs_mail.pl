@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: process_cvs_mail.pl,v 1.8.2.5 2002-04-16 12:57:55 dan Exp $
+# $Id: process_cvs_mail.pl,v 1.8.2.6 2002-06-17 16:29:08 dan Exp $
 #
 # Copyright (c) 2001-2002  DVL Software
 #
@@ -59,12 +59,22 @@ sub GetData {
 	# look for non-printable characters.
 	# this shows you them: perl -le 'print map chr,0x20..0x7e'
 	#
-	if ($message =~ /[^\x0a\x09\x20-\x7E]/) {
+	if ($message =~ tr/\x0a\x09\x20-\x7E/?/c) {
 		# we have messy characters in there
-
-		$message =~ tr/\x0a\x09\x20-\x7E/?/c;
 		$EncodingLosses = 'true';
 	}
+
+#I'd also consider going one step further and doing:
+#
+#        $EncodingLosses = $message =~ tr/\x0a\x09\x20-\x7E/?/c;
+#
+#which stores the number of replaced characters into $EncodingLosses.
+#This might or might not be useful though, depending on the rest of the
+#environment.
+#
+# Piet Delport <pjd@303.za.net> - Sat, 1 Jun 2002 01:44:13 +0200
+#
+
 
 	$Message_Subject	= &GetMessage_Subject($message);
 	$Log				= &GetLog($message);
