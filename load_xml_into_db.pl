@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: load_xml_into_db.pl,v 1.46.2.11 2003-02-21 21:38:30 dan Exp $
+# $Id: load_xml_into_db.pl,v 1.46.2.12 2003-04-05 00:43:17 dan Exp $
 #
 # Copyright (c) 2001-2002 DVL Software
 #
@@ -74,6 +74,14 @@ my %Updates;
 &main;
 exit;
 
+sub usage {
+	print "USAGE : $0 INPUTFILE [-D] [-O] [-r] [-R]\n";
+	print "   -D : debug\n";
+	print "   -O : overwrite any existing commit with the same message id\n";
+	print "   -r : do not fetch from CVS before refreshing database\n";
+	print "   -R : do not refresh the port at all\n";
+}
+
 #####
 # Main Processing Routine
 ##### 
@@ -96,11 +104,13 @@ sub main {
 			if ($ARGV[$i] eq '-D') {
 				print "debugging....\n";
 				$debug = 1;
+				next;
 			}
 
 			if ($ARGV[$i] eq '-O') {
 				print "overwriting....\n";
 				$overwrite = 1;
+				next;
 			}
 
 			if ($ARGV[$i] eq '-r') {
@@ -108,17 +118,23 @@ sub main {
 				# what's on disk.
 				print "not fetching before refresh....\n";
 				$fetch_before_refresh = 0;
+				next;
 			}
 
 			if ($ARGV[$i] eq '-R') {
 				# do not refresh the ports.  just process the commit
 				print "not refreshing at all....\n";
 				$refresh_ports = 0;
+				next;
 			}
-		}
 
+			# we have found arguments we know nothing about
+			print 'unknown argument ' . $ARGV[$i] . "\n";
+			usage();
+			exit 1;
+		}
 	} else {
-		print "USAGE : $0 INPUTFILE [-D] [-O] [-r] [-R] <-D means debug, don't actually update the database> <-O means overwrite any existing message id>\n";
+		usage();
 		exit 1;
 	}
 
