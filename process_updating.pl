@@ -1,12 +1,15 @@
 #!/usr/bin/perl
 #
-# $Id: process_updating.pl,v 1.1.2.3 2004-08-09 22:35:42 dan Exp $
+# $Id: process_updating.pl,v 1.1.2.4 2004-08-11 16:00:28 dan Exp $
 #
 # Copyright (c) 2004 DVL Software
 #
 # Original code by Travis Campbell (HCoyote).
 #
 # Parse /usr/ports/UPDATING and load into ports_updating table
+#
+# pipe the UPDATING file into this script.  Output is for diagnostics only 
+# and can be dev/null'd.
 #
 
 
@@ -20,6 +23,7 @@ require Sys::Syslog;
 use db_utils;
 use database;
 use utilities;
+use config;
 
 use DBI;
 
@@ -107,7 +111,7 @@ sub parsefile ($) {
 						# suggested by mat@ for parsing
 						# affect ports that look like shell
 						# globs
-						chdir "/usr/ports";
+						chdir "$FreshPorts::Config::path_to_ports";
 						push @ports, glob $part;
 					} else {
 						push @ports, $part;
@@ -125,39 +129,25 @@ sub parsefile ($) {
 
 			my $ID = AddUpdating($dbh, $date, $affects, $author, $msg);
 
+			print "Date    : $date\n";
+			print "Affects : $affects\n";
 			for my $port (@ports) {
 				print "$date THE PORTS ARE: $port ($ID)\n";
 				AddUpdatingXref($dbh, $ID, $port);
 			}
+			if ($author) {
+				print "Author  : $author\n";
+			} else { 
+				print "Author  : unknown\n";
+			}
+			print "Message : $msg\n";
+			print "-"x72, "\n";
 
 
 		} elsif ($lines[$i] =~ m%^(\$FreeBSD: .+ \$)$%){
 			# get the UPDATING version in case we want it later.
 			$version = $1;
 		}
-	}
-
-	# ta da.  data parsed, now we can do whatever with it.
-	for my $date (@dates) {
-		print "Date    : $date->{date}\n";
-		print "Affects : $date->{affects}\n";
-		print "Port    : ";
-		if (scalar @{$date->{port}} > 1) {
-			print #"(", scalar @{$date->{port}}, ")", map {"$_ "} @{$date->{port}};
-			print "\n";
-		} elsif (scalar @{$date->{port}} == 1) {
-			print $date->{port}->[0],"\n";
-		} else {
-			print "Unknown port\n";
-		}
-
-		if (defined $date->{author}) {
-			print "Author  : $date->{author}\n";
-		} else { 
-			print "Author  : unknown\n";
-		}
-		print "Message : $date->{msg}\n";
-		print "-"x72, "\n";
 	}
 }
 
