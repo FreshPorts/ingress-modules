@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: load_xml_into_db.pl,v 1.46.2.19 2003-12-31 22:49:49 dan Exp $
+# $Id: load_xml_into_db.pl,v 1.46.2.20 2004-01-02 18:01:51 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -288,7 +288,7 @@ sub handle_update_end
 
 	print "\n --- end of this update --- \n";
 
-	if ($fetch_before_refresh && scalar(keys %CommitLogPorts)) {
+	if ($fetch_before_refresh) {
 		FreshPorts::VerifyPort::FetchAllFiles(\@Files, $dbh);
 	}
 
