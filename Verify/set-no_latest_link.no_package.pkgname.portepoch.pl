@@ -1,12 +1,12 @@
 #!/usr/bin/perl -w
 #
-# $Id: set-no_latest_link.no_package.pkgname.portepoch.pl,v 1.1.2.2 2004-09-13 22:23:34 dan Exp $
+# $Id: set-no_latest_link.no_package.pkgname.portepoch.pl,v 1.1.2.3 2004-11-19 02:39:40 dan Exp $
 #
 # Copyright (c) 1999-2004 DVL Software
 #
 
 use strict;
-use lib "$ENV{HOME}/scripts";
+#use lib "$ENV{HOME}/scripts-vuxml";
 use port;
 use DBI;
 use database;
@@ -63,13 +63,20 @@ foreach $porttorefresh (@PORTS) {
 		print "has been refreshed ($result)\n";
 
 		if ($result == 0) {
-			$sql = "update ports set package_name = " . $dbh->quote($port->{package_name})     .
-			        " where id = $port_id";
+			$sql = "update ports set package_name   = " . $dbh->quote($port->{package_name})   . ",
+                                     portepoch      = " . $dbh->quote($port->{portepoch})      . ",
+                                     latest_link    = " . $dbh->quote($port->{latest_link})    . ",
+                                     no_latest_link = " . $dbh->quote($port->{no_latest_link}) . ",
+                                     no_package     = " . $dbh->quote($port->{no_package})     . "
+ 			         where id = $port_id";
+
+			print $sql;
 			$sth = $dbh->prepare($sql);
 			$sth->execute ||
 				FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql ... maybe invalid?", 1);
 
 			$dbh->commit();
+
 		} else {
 			$dbh->rollback();
 			print "update result is $result ******************************************\n";
