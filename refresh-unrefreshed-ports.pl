@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: refresh-unrefreshed-ports.pl,v 1.20.2.2 2002-07-27 19:53:41 dan Exp $
+# $Id: refresh-unrefreshed-ports.pl,v 1.20.2.3 2002-09-09 18:35:04 dan Exp $
 #
 # Copyright (c) 1999-2001 DVL Software
 #
@@ -25,8 +25,24 @@ my $sql;
 my $sth;
 my @row;
 
+my $fetch_before_refresh = 1;
+
 
 FreshPorts::Utilities::InitSyslog();
+
+	if (($#ARGV+1) >= 1) {
+		my $i;
+
+		for ($i = 0; $i < ($#ARGV+1); $i++) {
+			print "checking arg $i\n";
+			if ($ARGV[$i] eq '-r') {
+				# useful if we only want to use
+				# what's on disk.
+				print "not fetching before refresh....\n";
+				$fetch_before_refresh = 0;
+			}
+		}
+	}
 
 $dbh = FreshPorts::Database::GetDBHandle();
 
@@ -89,7 +105,7 @@ foreach $porttorefresh (@PORTS) {
 
 	$port->{id} = $port_id;
 	if ($port->FetchByID()) {
-
+		$result = 0;
 		$element->{id} = $port->{element_id};
 		if (defined($element->FetchByID())) {
 			if ($element->{status} eq $FreshPorts::Element::Deleted) {
@@ -99,7 +115,7 @@ foreach $porttorefresh (@PORTS) {
 				print "that port has been deleted and will not be refreshed\n";
 				$result = 0;
 			} else {
-				$result = $port->RefreshFromFiles($needs_refresh, 1);
+				$result = $port->RefreshFromFiles($needs_refresh, $fetch_before_refresh);
 				print "refresh attempt done ($result)\n";
 			}
 		} else {
@@ -117,6 +133,7 @@ foreach $porttorefresh (@PORTS) {
 			$commit_log_ports->{port_id}		= $port->{id};
 			$commit_log_ports->{needs_refresh}	= 0;
 			$commit_log_ports->{port_version}	= $port->{version};
+			$commit_log_ports->{port_revision}	= $port->{revision};
 			$commit_log_ports->{saved}			= 1;	# this forces an update, instead of an insert
 
 			$commit_log_ports->save();
