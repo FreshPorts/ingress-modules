@@ -2,12 +2,16 @@
 
 use strict;
 use lib '~/scripts';
-use lib '~/scripts/updates';
+#use lib '~/scripts/updates';
+
 use port;
- 
+use database; 
 use DBI;
 
-use freshports_database;
+#use freshports_database;
+
+require config;
+
 
 sub SendNotice($;$) {
    my $Address = shift;
@@ -28,7 +32,7 @@ EOF
 }
 
 
-my $dbh = freshports_connect();
+my $dbh = FreshPorts::Database::GetDBHandle();
 
 my $maxlength=0;
 my $dirname='';
@@ -42,10 +46,12 @@ my @row;
 # get a list of ports to update
 #
 
-$sql = "select ports.id, ports.name as port, categories.name as category \
-        from ports, categories \
-        where ports.needs_refresh      <> 0 \
-          and ports.primary_category_id = categories.id
+$sql = "select ports.id, element.name as port, categories.name as category \
+        from ports, categories, element, commit_log_ports \
+        where commit_log_ports.needs_refresh <> 0 \
+          and ports.category_id              = categories.id \
+		  and ports.element_id               = element.id \
+		  and commit_log_ports.port_id       = ports.id \
     order by  category, port";
 
 $sth = $dbh->prepare($sql);
@@ -59,7 +65,7 @@ while (@row=$sth->fetchrow_array) {
 }
 
 if ($rowcount > 0) {
-	print "\n$rowcount port[s] need[s] refresh\n"
+	print "\n$rowcount port[s] need[s] refresh\n";
 
 	print "$ENV{HOME} is where we were\n";
 }
