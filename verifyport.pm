@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: verifyport.pm,v 1.42.2.7 2002-12-10 15:26:50 dan Exp $
+# $Id: verifyport.pm,v 1.42.2.8 2002-12-10 18:14:02 dan Exp $
 #
 # Copyright (c) 2001-2001 DVL Software
 #
@@ -112,7 +112,7 @@ sub _CompileListOfPorts($;$;$) {
 						$port = FreshPorts::Port->new($dbh);
 
 						# this is all that's needed to retrieve a port which exists
-						$port->{partialpathname}	= "$category_name/$port_name";
+						$port->{partialpathname} = "$category_name/$port_name";
 
 
 						$port->FetchByPartialPathName();
@@ -131,7 +131,7 @@ sub _CompileListOfPorts($;$;$) {
 							$port->{category}		= $category_name;
 						}
 
-						print "SETTING CATEGORY =  $port->{category_id}\n";
+						print "SETTING CATEGORY = $port->{category_id}\n";
 						$ListOfPorts{"$category_name/$port_name"} = $port;
 					} else {
 						print "found that port $category_name/$port_name in the cache\n";
@@ -236,7 +236,7 @@ sub SaveChangesToPortsTree($;$;$;$) {
 			$commit_log_ports = FreshPorts::CommitLogPorts->new($dbh);
 
 			$commit_log_ports->{commit_log_id}	= $commit_log_id;
-			$commit_log_ports->{port_id}		= $port->{id};
+			$commit_log_ports->{port_id}			= $port->{id};
 			$commit_log_ports->{needs_refresh}	= $needs_refresh;
 
 			if ($commit_log_ports->{needs_refresh} == -1) {
@@ -259,7 +259,8 @@ sub SaveChangesToPortsTree($;$;$;$) {
 
 		_RecordPortFilesTouchedByThatCommit($commit_log_id, $Files, \%ListOfPorts, $dbh);
 
-		_DeleteDeletedPorts(\%ListOfPorts, $dbh);
+		_DeleteDeletedPorts      (\%ListOfPorts, $dbh);
+		_UndeleteResurrectedPorts(\%ListOfPorts, $Files, $dbh);
 	}
 
 	return %CommitLogPorts;
@@ -465,7 +466,7 @@ sub _DeleteDeletedPorts($;$) {
 	my %Ports		= %{$PortsRef};
 	my $dbh			= shift;
 
-	my $element = FreshPorts::Element->new($dbh);
+	my $element		= FreshPorts::Element->new($dbh);
 
 	#
 	# refresh each and every port we are told about
@@ -483,6 +484,59 @@ sub _DeleteDeletedPorts($;$) {
 		}
 	}
 	print "# # # # Finished deleting deleted ports # # # #\n\n";
+}
+
+sub _UndeleteResurrectedPorts($;$;$) {
+	#
+	# For each port, see if it's deleted. If it is, then that was the
+	# state before we processed this commit.  For such ports, look for 
+	# a modify or add to a Makefile where
+	# the port is actually deleted.  Then set that port to undeleted
+	# and save.  Actually, it's port.element_id which needs to be reset
+	# in this case, but you get the point....
+	#
+
+	my $PortsRef	= shift;
+	my %Ports		= %{$PortsRef};
+	my $Files		= shift;
+	my $dbh			= shift;
+
+	my $element		= FreshPorts::Element->new($dbh);
+
+	my $value;
+
+	#
+	# refresh each and every port we are told about
+	#
+	print "# # # # Resurrecting deleted ports # # # #\n\n";
+	while (my ($portname, $port) = each %Ports) {
+		if ($port->{status} eq $FreshPorts::Element::Deleted) {
+			print "found a deleted port: port='$port->{name}', port_id='$port->{id}', element_id='$port->{element_id}'\n";
+			print "now looking for files which were modified...\n";
+
+			foreach $value (@{$Files}) {
+				my ($action, $filename, $revision, $commit_log_element_id) = @$value;
+		
+				my ($subtree, $category_name, $port_name, $extra) = split/\//,$filename, 4;
+				print "  inspecting: $action, $filename, $revision, $subtree, $category_name, $extra";
+
+				if ($category_name eq $port->{category} && $port->{name} eq $port_name) {
+					print "  ...found a file from that port\n";
+					if ($action eq $FreshPorts::Constants::ADD || $action eq $FreshPorts::Constants::MODIFY) {
+						print "  ...hmmm, we are modifying a file for a port which is deleted...";
+						print "  ........ I will resurrect that port for you\n";
+						FreshPorts::Utilities::ReportError('notice', "Port $category_name/$port_name needs to be Resurrected", 0);
+						$element->{id}     = $port->{element_id};
+						$element->{status} = $FreshPorts::Element::Active;
+						$element->update_status();
+						print "  ........ done!\n";
+					}
+				}
+			}
+			print "  finished looking through the files\n";
+		}
+	}
+	print "# # # # Finished resurrecting deleted ports # # # #\n\n";
 }
 
 FreshPorts::Utilities::InitSyslog();
