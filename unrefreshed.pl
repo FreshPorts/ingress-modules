@@ -1,8 +1,8 @@
 #!/usr/bin/perl -w
 #
-# $Id: unrefreshed.pl,v 1.10 2002-01-06 06:21:45 dan Exp $
+# $Id: unrefreshed.pl,v 1.11 2002-03-12 15:42:35 dan Exp $
 #
-# Copyright (c) 2001 DVL Software
+# Copyright (c) 2001-2002 DVL Software
 #
 
 use strict;
