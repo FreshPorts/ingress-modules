@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: CompareListofPortsWithDatabase.pl,v 1.1.2.2 2003-01-15 04:56:45 dan Exp $
+# $Id: CompareListofPortsWithDatabase.pl,v 1.1.2.3 2003-01-15 05:30:18 dan Exp $
 #
 # Copyright (c) 2001-2002 DVL Software
 #
@@ -54,8 +54,6 @@ if ($dbh) {
 	$sth = $dbh->prepare($sql);
 	$sth->execute ||
 		FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql ... maybe invalid?", 1);
-
-	$dbh->commit();
 
 	print "reading from STDIN...\n";
 	while (defined(my $IndexLine = <STDIN> ) ) {
