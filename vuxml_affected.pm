@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: vuxml_affected.pm,v 1.1.2.7 2004-12-13 14:49:53 dan Exp $
+# $Id: vuxml_affected.pm,v 1.1.2.8 2004-12-13 21:37:11 dan Exp $
 #
 # Copyright (c) 2004 DVL Software
 #
@@ -9,6 +9,8 @@ package FreshPorts::vuxml_affected;
 
 use strict;
 use utilities;
+
+use vuxml_package;
 
 sub new {
 	my $this		= {};
@@ -86,8 +88,8 @@ sub FetchByVID {
 	my $sth;
 	my $row;
 
-	my @Affected       = undef;
-	my $vuxml_affected = undef;
+	my @Packages      = ();
+	my $vuxml_package = undef;
 
 	$dbh = $this->{dbh};
 
@@ -104,46 +106,19 @@ sub FetchByVID {
 	}
 
 	while ($row = $sth->fetchrow_hashref()) {
-		$vuxml_affected = FreshPorts::vuxml_affected->new( $this->{dbh} );
+		$vuxml_package = FreshPorts::vuxml_package->new( $this->{dbh} );
 
-		$vuxml_affected->set_id      ($row->{id});
-		$vuxml_affected->set_vuxml_id($row->{vuxml_id});
-		$vuxml_affected->set_type    ($row->{type});
+		$vuxml_package->set_id      ($row->{id});
+		$vuxml_package->set_vuxml_id($row->{vuxml_id});
+		$vuxml_package->set_type    ($row->{type});
 
-		push @Affected, $vuxml_affected;
+#		print "checking universal vuxml_affected.pm:115 '" . UNIVERSAL::isa($vuxml_package, "FreshPorts::vuxml_package") . "'\n";
+		push @Packages, $vuxml_package;
 	}
 
 	$sth->finish();
 
-	return @Affected;
-}
-
-sub set_id {
-	my $this = shift;
-	my $id   = shift;
-
-	$this->{id} = $id;
-
-	return $this->{id};
-}
-
-sub set_vuxml_id {
-	my $this     = shift;
-	my $vuxml_id = shift;
-
-	$this->{vuxml_id} = $vuxml_id;
-
-	return $this->{vuxml_id};
-}
-
-
-sub set_type {
-	my $this = shift;
-	my $type = shift;
-
-	$this->{type} = $type;
-
-	return $this->{type};
+	return @Packages;
 }
 
 1;
