@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: vuxml.pm,v 1.1.2.4 2004-12-11 00:58:31 dan Exp $
+# $Id: vuxml.pm,v 1.1.2.5 2004-12-11 00:59:28 dan Exp $
 #
 # Copyright (c) 2004 DVL Software
 #
@@ -15,8 +15,11 @@ sub new {
 	my $this		= {};
 	my $class		= shift;
 	$this->{dbh}	= shift;
+
 	bless $this;
+
 	$this->_initialize();
+
 	return $this
 }
 
