@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: process_cvs_mail.pl,v 1.8.2.19 2003-12-31 01:16:45 dan Exp $
+# $Id: process_cvs_mail.pl,v 1.8.2.20 2004-01-30 00:16:57 dan Exp $
 #
 # Copyright (c) 2001-2003  DVL Software
 #
@@ -91,6 +91,12 @@ sub GetData {
 		$Log = $Message_Subject;
 	}
 
+	my $MessageID = &GetMessage_Id($message);
+	if (!defined($MessageID)) {
+		FreshPorts::Utilities::ReportError('err', "No message ID found for this commit message (" . $Message_Subject . ").\n\nIs this a corrupted commit or email?", 1)
+	}
+
+
 	@Data =	[	'UPDATES', [ { Version => '1.3.2.1' },
 				'UPDATE', [ {},
 					'DATE', [ &GetDate($message)
@@ -109,7 +115,7 @@ sub GetData {
 						&GetPeople($message)
 					],
 					'MESSAGE', [ {
-						Id             => &GetMessage_Id($message),
+						Id             => $MessageID,
 						Subject		   => $Message_Subject,
 						EncodingLosses => $EncodingLosses },
 						'DATE', [ &GetMessage_Date($message)
