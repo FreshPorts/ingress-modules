@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: category.pm,v 1.8.2.4 2003-02-10 15:31:19 dan Exp $
+# $Id: category.pm,v 1.8.2.5 2003-03-03 14:21:00 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -164,8 +164,8 @@ sub FetchByName {
 	$sth->finish();
 	if ($row) {
 		$this->{id} 			= $row->{id};
-		$this->{is_primary}		= $row->{is_primary};
-		$this->{element_id}		= $row->{element_id};
+		$this->{is_primary}	= $row->{is_primary};
+		$this->{element_id}	= $row->{element_id};
 		$this->{name}			= $row->{name};
 		$this->{description}	= $row->{description};
 	} else {
