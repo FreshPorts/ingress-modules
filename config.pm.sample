@@ -1,5 +1,5 @@
 #
-# $Id: config.pm.sample,v 1.13.2.7 2003-04-29 11:39:29 dan Exp $
+# $Id: config.pm.sample,v 1.13.2.8 2003-05-02 18:04:18 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -57,6 +57,10 @@ $FreshPorts::Config::CommitterNotify	= 0;	# Should we notify committers of probl
 $FreshPorts::Config::scriptpath			= File::PathConvert::realpath($FreshPorts::Config::scriptpath);
 $FreshPorts::Config::path_to_tree		= File::PathConvert::realpath($FreshPorts::Config::path_to_tree);	
 $FreshPorts::Config::path_to_ports		= File::PathConvert::realpath($FreshPorts::Config::path_to_ports);
+
+$FreshPorts::Config::email_server		= 'localhost';
+$FreshPorts::Config::email_port			= 25;
+$FreshPorts::Config::email_client		= 'localhost';
 
 #
 # for debugging....
