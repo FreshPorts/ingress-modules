@@ -1,5 +1,5 @@
 #
-# $Id: verifyport.pm,v 1.42.2.24 2004-07-05 19:31:51 dan Exp $
+# $Id: verifyport.pm,v 1.42.2.25 2004-09-17 02:07:47 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -555,6 +555,7 @@ sub RefreshAllPortsTouchedByCommit($;$;$) {
 			$commit_log_ports->{needs_refresh}	= 0;
 			$commit_log_ports->{port_version}	= $port->{version};
 			$commit_log_ports->{port_revision}	= $port->{revision};
+			$commit_log_ports->{port_epoch}		= $port->{portepoch};
 
 			$commit_log_ports->save();
 
