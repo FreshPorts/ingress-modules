@@ -396,10 +396,6 @@ for(my $i=0; $i<=$#file; $i++) {
                   print "ChangePortID = $ChangePortID\n";
                }
 
-               if (!$Debug) {
-                  MarkPortAsRefreshNeeded($PortID, $ChangeLogID, $action, $entry, $dbh);
-               }
-
                #
                # save these values for next time!
                #
@@ -410,6 +406,10 @@ for(my $i=0; $i<=$#file; $i++) {
                } else {
                   print "I just checked, and it was not in the has.  This is SERIOUS.\n";
                }
+            }
+
+            if (!$Debug) {
+               MarkPortAsRefreshNeeded($PortID, $ChangeLogID, $action, $entry, $dbh);
             }
 
             # by this point, ChangePortID and PortID are both assigned.  Time to put something into change_log_details
