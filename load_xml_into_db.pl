@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: load_xml_into_db.pl,v 1.46.2.2 2002-04-12 05:31:59 dan Exp $
+# $Id: load_xml_into_db.pl,v 1.46.2.3 2002-04-12 06:14:19 dan Exp $
 #
 # Copyright (c) 2001-2002 DVL Software
 #
@@ -631,7 +631,15 @@ sub SaveUpdateToDB {
 	$commit_log->{committer}		= $committer;
 	$commit_log->{description}		= $description;
 	$commit_log->{system_id}		= $SystemID;
-	$commit_log->{encoding_losses}	= $Updates{MessageEncodingLosses};
+
+	#
+	# MessageEncodingLosses is new.
+	# older templates do not contain it
+	# commit_log will contain an appropriate default value.
+	#
+	if (defined($Updates{MessageEncodingLosses})) {
+		$commit_log->{encoding_losses}	= $Updates{MessageEncodingLosses};
+	}
 
 	$id = $commit_log->save();
 
