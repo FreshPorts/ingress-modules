@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: report-notification.pl,v 1.1.2.2 2002-06-16 14:37:05 dan Exp $
+# $Id: report-notification.pl,v 1.1.2.3 2002-06-16 14:38:37 dan Exp $
 #
 # Copyright (c) 2001-2002 DVL Software
 #
@@ -296,7 +296,7 @@ if (($#ARGV+1) == 1) {
 				AddToLogs($FreshPorts::ReportConstants::Notification, $Frequency, $NumMsgs, $NumCommits, , $NumPorts, $dbh);
 			}
 
-#			$dbh->commit();
+			$dbh->commit();
 			$dbh->disconnect();
 
 			print "message sent to users\n";
