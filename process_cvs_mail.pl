@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: process_cvs_mail.pl,v 1.8.2.18 2003-12-19 13:54:38 dan Exp $
+# $Id: process_cvs_mail.pl,v 1.8.2.19 2003-12-31 01:16:45 dan Exp $
 #
 # Copyright (c) 2001-2003  DVL Software
 #
@@ -363,7 +363,7 @@ sub GetFiles {
 		}
 
 		if (defined($TrackDuplicates{$path})) {
-			die("Duplicate file name ('$path') found in commit message.  Is this a corrupted commit or email?")
+			FreshPorts::Utilities::ReportError('err', "Duplicate file name ('$path') found in commit message (" . GetMessage_Id($message) . ").\n\nIs this a corrupted commit or email?", 1)
 		} else {
 			$TrackDuplicates{$path} = 1;
 		}
@@ -414,7 +414,7 @@ sub GetFilesImported {
 		my $changes2 = '0';
 
 		if (defined($TrackDuplicates{$path})) {
-			die("Duplicate file name ('$path') found in commit message.  Is this a corrupted commit or email?")
+			FreshPorts::Utilities::ReportError('err', "Duplicate file name ('$path') found in commit message (" . GetMessage_Id($message) . ").\n\nIs this a corrupted commit or email?", 1)
 		} else {
 			$TrackDuplicates{$path} = 1;
 		}
