@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: special_processing_files.pm,v 1.1.2.1 2003-12-31 22:49:38 dan Exp $
+# $Id: special_processing_files.pm,v 1.1.2.2 2004-09-17 03:14:06 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -10,24 +10,35 @@ package FreshPorts::SpecialProcessingFiles;
 use strict;
 use utilities;
 
-%FreshPorts::SpecialProcessingFiles::Files = (
-	"ports/MOVED"		=> 1,
-);
-
-
 sub Eat($;$;$;$) {
 	my $dbh      = shift;
 	my $Action   = shift;
 	my $File     = shift;
 	my $Revision = shift;
 
+	#
+	# By the time we have been called, the file has been fetched
+	# so we are free to process as we please.
+
 	# we don't use the DB yet, but we have this code here in case we do.
 	my $sth;
 	my $sql;
 	my @row;
 
-	if (defined($FreshPorts::SpecialProcessingFiles::Files{$File})) {
+	if ($File eq "ports/MOVED") {
 		`/usr/bin/touch $FreshPorts::Config::MovedFileFlag`
+	}
+
+	if ($File eq "ports/UPDATING") {
+		`/usr/bin/touch $FreshPorts::Config::UpdatingFileFlag`
+	}
+
+ 	if ($File eq "ports/security/vuxml/vuln.xml") {
+		`/usr/bin/touch $FreshPorts::Config::MovedFileFlag`
+	}
+
+ 	if ($File eq "CVSROOT-ports/approvers") {
+		`/bin/sh process_CVSROOT_approvers.sh`
 	}
 }
 
