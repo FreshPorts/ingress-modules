@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.38.2.32 2003-10-04 21:02:33 dan Exp $
+# $Id: port.pm,v 1.38.2.33 2003-11-14 17:58:26 dan Exp $
 #
 #
 # Copyright (c) 2001-2003 DVL Software
@@ -372,7 +372,7 @@ sub _ExtractValuesFromMakefile {
 	if ($result != 0 && $MakeResults ne '') {
 		# save the results for error reporting
 		$ErrorMessage = $MakeResults;
-		FreshPorts::CommitterOptIn::RecordErrorDetails("This command:\n\n$makecommand\n\nproduced this error:\n\n$ErrorMessage");
+		FreshPorts::CommitterOptIn::RecordErrorDetails("$this->{category}/$this->{name}", "This command:\n\n$makecommand\n\nproduced this error:\n\n$ErrorMessage");
 	}
 
 	#
@@ -387,11 +387,11 @@ sub _ExtractValuesFromMakefile {
 
 	print 'size is '  . -s $TmpFile;
 	print "\n";
-	if (-s $TmpFile > 0) {
+	if ($result == 0 && -s $TmpFile > 0) {
 		$ErrorMessage = `cat $TmpFile`;
 
 		$ErrorMessage = "This command:\n\n$makecommand\n\nproduced this error:\n\n$ErrorMessage";
-		FreshPorts::CommitterOptIn::RecordErrorDetails($ErrorMessage);
+		FreshPorts::CommitterOptIn::RecordErrorDetails("$this->{category}/$this->{name}", $ErrorMessage);
 		$result = -1;
 	}
 
@@ -412,7 +412,7 @@ sub _ExtractValuesFromMakefile {
 		# we'll need this for error reporting
 		if ($result != 0) {
 			# save the results for error reporting
-			FreshPorts::CommitterOptIn::RecordErrorDetails("\n\n" . "This command:\n\n$makecommand\n\nproduced this error:\n\n$mastersites");
+			FreshPorts::CommitterOptIn::RecordErrorDetails("$this->{category}/$this->{name}", "\n\n" . "This command:\n\n$makecommand\n\nproduced this error:\n\n$mastersites");
 			$ErrorMessage = $mastersites;
 		}
 	}
@@ -651,7 +651,7 @@ sub _FetchFilesNeedingRefresh {
 				#
 
 				my $directory	= File::Basename::dirname ($DESCR);
-				my $FILE			= File::Basename::basename($DESCR);
+				my $FILE		= File::Basename::basename($DESCR);
 				my $DESTDIR		= $directory;
 				$SRCDIR			= File::Basename::dirname(RemovePortsPrefix($DESCR));
 
@@ -664,7 +664,7 @@ sub _FetchFilesNeedingRefresh {
 				print "That make failed to return values for '-V DESCR.  I suspect an embedded make has failed.\n\n";
 
 				FreshPorts::Utilities::ReportError('warning', "That make failed to return values for '-V DESCR'.  I suspect an embedded make has failed. $this->{category}/$this->{name}", 0);
-				FreshPorts::CommitterOptIn::RecordErrorDetails("\n\nThat make failed to return values for '-V DESCR'.  I suspect an embedded make has failed.\n\n");
+				FreshPorts::CommitterOptIn::RecordErrorDetails("$this->{category}/$this->{name}", "\n\nThat make failed to return values for '-V DESCR'.  I suspect an embedded make has failed.\n\n");
 				$result = -1;
 			}
 			
@@ -673,7 +673,7 @@ sub _FetchFilesNeedingRefresh {
 			my $error = $?;
 			print "That make failed:\n\n'$MakeResults' - '$error'\n\n";
 			FreshPorts::Utilities::ReportError('warning', "error executing make command for $this->{category}/$this->{name}: Error Code = " . ($error >> 8), 0);
-			FreshPorts::CommitterOptIn::RecordErrorDetails("\n\n" . $MakeResults. "\n\n");
+			FreshPorts::CommitterOptIn::RecordErrorDetails("$this->{category}/$this->{name}", "\n\n" . $MakeResults. "\n\n");
 			$result = -1;
 		}
 	} else {
