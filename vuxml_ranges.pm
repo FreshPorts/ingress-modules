@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: vuxml_ranges.pm,v 1.1.2.8 2004-12-13 21:35:26 dan Exp $
+# $Id: vuxml_ranges.pm,v 1.1.2.9 2004-12-14 00:44:39 dan Exp $
 #
 # Copyright (c) 2004 DVL Software
 #
@@ -14,8 +14,10 @@ sub new {
 	my $this		= {};
 	my $class		= shift;
 	$this->{dbh}	= shift;
+
 	bless $this;
 	$this->_initialize();
+
 	return $this
 }
 
@@ -72,7 +74,8 @@ sub save {
 				       operator1         = " . $dbh->quote($this->{operator1}) . ",
 				       operator2         = " . $dbh->quote($this->{operator2}) . ",
 				       version2          = " . $dbh->quote($this->{version2})  . "
-				 WHERE id                = " . $this->{id};
+				 WHERE id                = " . $this->{id}                     . "
+              ORDER BY id";
 	}
 
 #	print "sql is $sql\n";
@@ -148,7 +151,7 @@ sub set_vuxml_affected_id {
 
 
 sub set_operator1 {
-	my $this = shift;
+	my $this      = shift;
 	my $operator1 = shift;
 
 	$this->{operator1} = $operator1;
@@ -158,7 +161,7 @@ sub set_operator1 {
 
 
 sub set_version1 {
-	my $this = shift;
+	my $this     = shift;
 	my $version1 = shift;
 
 	$this->{version1} = $version1;
@@ -167,7 +170,7 @@ sub set_version1 {
 }
 
 sub set_operator2 {
-	my $this = shift;
+	my $this      = shift;
 	my $operator2 = shift;
 
 	$this->{operator2} = $operator2;
@@ -176,7 +179,7 @@ sub set_operator2 {
 }
 
 sub set_version2 {
-	my $this = shift;
+	my $this     = shift;
 	my $version2 = shift;
 
 	$this->{version2} = $version2;
@@ -184,7 +187,18 @@ sub set_version2 {
 	return $this->{version2};
 }
 
+sub print {
+	my $this = shift;
 
+	print "\n   vuxml_ranges.pm:150\n";
+
+	print "   id                = '" . $this->{id}                . "'\n";
+	print "   vuxml_affected_id = '" . $this->{vuxml_affected_id} . "'\n";
+	print "   operator1         = '" . $this->{operator1}         . "'\n";
+	print "   version1          = '" . $this->{version1}          . "'\n";
+	print "   operator2         = '" . $this->{operator2}         . "'\n";
+	print "   version2          = '" . $this->{version2}          . "'\n";
+}
 
 
 1;
