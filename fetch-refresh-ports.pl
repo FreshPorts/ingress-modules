@@ -1,15 +1,22 @@
 #!/usr/bin/perl -w
+#
+# $Id: fetch-refresh-ports.pl,v 1.6 2001-12-22 21:48:24 dan Exp $
+#
+# Copyright (c) 2001 DVL Software
+#
 
 use strict;
 use lib '/home/freshports.org/scripts/updates';
-use ports;
+use port;
  
 use DBI;
 
-use lib '/home/freshports.org/scripts';
-use freshports_database;
+use lib '~/tmp/scripts';
 
-my $dbh = freshports_connect();
+use database;
+use utilities;
+
+my $dbh;
 
 my $maxlength=0;
 my $dirname='';
@@ -19,14 +26,22 @@ my $sql;
 my $sth;
 my @row;
 
+
+FreshPorts::Utilities::InitSyslog();
+
+$dbh = FreshPorts::Database::GetDBHandle();
+
 #
 # get a list of ports to update
 #
 
-$sql = "select ports.id, categories.name, ports.name, needs_refresh \
-        from ports, categories \
-        where categories.id       = ports.primary_category_id \
+$sql = "select ports.id, categories.name, element.name, needs_refresh \
+        from ports, categories, element \
+        where categories.id       = ports.category_id \
+          and ports.element_id    = element.id
           and ports.needs_refresh <> 0";
+
+print "sql = $sql\n";
 
 $sth = $dbh->prepare($sql);
 $sth->execute ||
@@ -34,27 +49,54 @@ $sth->execute ||
 
 while (@row=$sth->fetchrow_array) {
    print "now processing @row\n";
-   push @PORTS, "$row[1]:$row[2]:$row[3]"
+   push @PORTS, "$row[0]:$row[1]:$row[2]:$row[3]"
 }
  
-#print "press enter to continue ";<STDIN>;
-
 foreach $porttorefresh (@PORTS) {
-    my $port;
-    my $category;
-    my $needs_refresh;
-    my $FetchWorked;
+	my $port_name;
+	my $category_name;
+	my $needs_refresh;
+	my $FetchWorked;
+	my $port;
+	my $port_id;
 
-    print "found $porttorefresh";
+	print "found $porttorefresh\n";
 
-   ($category, $port, $needs_refresh) = split /:/,$porttorefresh, 3;
+	($port_id, $category_name, $port_name, $needs_refresh) = split /:/,$porttorefresh, 4;
 
-   RefreshOnePort($category, $port, $needs_refresh, $dbh);
+	$port = FreshPorts::Port->new($dbh);
 
-#   print "press enter to continue ";<STDIN>;
+	$port->{id} = $port_id;
+	if ($port->FetchByID()) {
+		my $FetchAttempts = 5;
 
+		while ($FetchAttempts) {
+			if (!$port->FetchFilesNeedingRefresh()) {
+				$port->ExtractValuesFromMakefile();
+				$port->{needs_refresh} = 0;
+				$port->save();
+				last;
+			} else {
+				# fetch failed
+				# sleep, then try again
+				Sys::Syslog::syslog('warning', "sleeping after fetch failed for ($port_id, $category_name, $port_name, $needs_refresh)");
+				print "fetch failed, sleeping...\n";
+				sleep 10;
+				$FetchAttempts--;
+			}
+		}
+
+		if (!$FetchAttempts) {
+			# could not fetch those files....
+			Sys::Syslog::syslog('warning', "Failed to fetch any files for port ($port_id, $category_name, $port_name, $needs_refresh)");
+			die "Failed to fetch any files for port ($port_id, $category_name, $port_name, $needs_refresh)";
+		}
+	} else {
+		Sys::Syslog::syslog('warning', "Could not retrieve port ($port_id, $category_name, $port_name, $needs_refresh)");
+		die "Could not retrieve port ($port_id, $category_name, $port_name, $needs_refresh)";
+	}
 }
-
+$dbh->commit();
 $dbh->disconnect();
 
 `touch  /home/freshports.org/lastupdate`
