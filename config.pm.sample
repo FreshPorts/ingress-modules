@@ -1,5 +1,5 @@
 #
-# $Id: config.pm.sample,v 1.13 2002-01-23 01:54:14 dan Exp $
+# $Id: config.pm.sample,v 1.13.2.1 2002-05-19 20:27:28 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -40,6 +40,7 @@ $FreshPorts::Config::path_to_ports		= $FreshPorts::Config::path_to_tree . '/port
 $FreshPorts::Config::ports_prefix		= 'ports';
 
 $FreshPorts::Config::DailySummaryDir	= $ENV{HOME} . "/src/www/archives"; # no trailing /
+$FreshPorts::Config::HourlySummaryDir	= "/usr/websites/freshports.org/configuration";
 
 
 #
