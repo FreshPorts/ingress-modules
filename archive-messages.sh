@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $Id: archive-messages.sh,v 1.1.2.4 2003-05-19 14:03:50 dan Exp $
+# $Id: archive-messages.sh,v 1.1.2.5 2003-08-19 11:00:52 dan Exp $
 #
 # Copyright (c) 2003 DVL Software Limited
 #
