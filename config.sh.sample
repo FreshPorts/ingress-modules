@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $Id: config.sh.sample,v 1.1.2.4 2003-12-31 22:49:12 dan Exp $
+# $Id: config.sh.sample,v 1.1.2.5 2004-02-07 15:15:29 dan Exp $
 #
 
 BASEDIR="/usr/websites/working-copy.freshports.org"
@@ -30,3 +30,10 @@ MOVEDFLAGFILE="${BASEDIR}/dynamic/refresh_moved"
 
 PORTSDIR="/home/dan/ports"
 ADMINEMAIL="dan@langille.org"
+
+if [ -e 'OFFLINE' ]
+then
+	OFFLINE=1;
+else
+	OFFLINE=0;
+fi
