@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: report-notification.pl,v 1.1.2.4 2002-06-16 15:02:39 dan Exp $
+# $Id: report-notification.pl,v 1.1.2.5 2002-06-16 18:51:50 dan Exp $
 #
 # Copyright (c) 2001-2002 DVL Software
 #
@@ -31,6 +31,9 @@ my $FormatDate	= "%W, %b %e";
 my $FormatTime	= "%H:%i";
 my $WatchURL	= $FreshPorts::Config::FreshPortsURL . "watch.php";
 my $AdjustURL	= $FreshPorts::Config::FreshPortsURL . "report-subscriptions.php";
+
+my $ReportNumber = $FreshPorts::ReportConstants::Notification;
+
 sub SendWatchNoticePersonal($;$;$) {
 
 	my $To            = shift;
@@ -110,7 +113,7 @@ sub CompileWatchNotifyList($;$;$;$) {
 	           and ports.category_id                 = categories.id
 	           and ports.element_id                  = element.id 
                and users.id                          = report_subscriptions.user_id
-               and report_subscriptions.report_id    = $FreshPorts::ReportConstants::Notification
+               and report_subscriptions.report_id    = $ReportNumber
                and report_frequency.id               = report_subscriptions.report_frequency_id
 	      order by users.id, categories.name, element.name, commit_log.commit_date";
 
@@ -256,7 +259,10 @@ if (($#ARGV+1) == 1) {
 		my $dbh = FreshPorts::Database::GetDBHandle();
 		if ($dbh->{Active}) {
 
-			$sql = "select last_sent from report_log_latest where frequency = '$Frequency'";
+			$sql = "select last_sent 
+			          from report_log_latest
+			         where frequency = '$Frequency'
+			           and report_id = $ReportNumber";
 			$sth = $dbh->prepare($sql);
 			$sth->execute ||
 					die "Could not execute SQL $sql ... maybe invalid";
@@ -297,7 +303,7 @@ if (($#ARGV+1) == 1) {
 			CompileWatchNotifyList($Frequency, $NewPorts, $PortCount, $dbh);
 
 			if (!$Debug) {
-				AddToLogs($FreshPorts::ReportConstants::Notification, $Frequency, $NumMsgs, $NumCommits, , $NumPorts, $dbh);
+				AddToLogs($ReportNumber, $Frequency, $NumMsgs, $NumCommits, , $NumPorts, $dbh);
 			}
 
 			$dbh->commit();
