@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: process_vuxml.pl,v 1.1.2.5 2004-11-27 13:54:07 dan Exp $
+# $Id: process_vuxml.pl,v 1.1.2.6 2004-12-06 16:51:01 dan Exp $
 #
 # Copyright (c) 2001-2004 DVL Software
 #
@@ -38,10 +38,6 @@ sub EmptyVuXML($) {
 	if (!$sth->execute())  {
 		FreshPorts::Utilities::ReportError('warning', "Could not execute sql", 1);
 	}
-}
-
-sub usage {
-	print "USAGE : $0 INPUTFILE\n";
 }
 
 #####
