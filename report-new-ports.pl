@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: report-new-ports.pl,v 1.1.2.1 2002-06-16 19:43:56 dan Exp $
+# $Id: report-new-ports.pl,v 1.1.2.2 2002-06-16 19:48:41 dan Exp $
 #
 # Copyright (c) 2001-2002 DVL Software
 #
@@ -298,7 +298,7 @@ if (($#ARGV+1) == 1) {
 				AddToLogs($ReportID, $Frequency, $NumMsgs, $NumCommits, $NumPorts, $dbh);
 			}
 
-#			$dbh->commit();
+			$dbh->commit();
 			$dbh->disconnect();
 
 			print "message sent to users\n";
