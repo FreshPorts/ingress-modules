@@ -348,8 +348,24 @@ for(my $i=0; $i<=$#file; $i++) {
                $categoryid = GetPortCategory($category, $dbh);
                if ($categoryid == '') {
                   # email the main man
-                  open  MAIL, "|mail -s 'freshports error' $NotifyByMail";
+                  open  MAIL, "|mail -s 'freshports notice' $NotifyByMail";
                   print MAIL "A category ('$category') was not found\n";
+                  print MAIL "$committer\n$timestamp\n$action\n$description\n$category\n$port\n$entry\n";
+                  close MAIL;
+
+                  #
+                  # the category was not found.  Let's create a new primary category.
+                  #
+                  $categoryid = CreateCategory("FreeBSD", $category, "", "Y", $dbh);
+               }
+
+               if ($categoryid == '') {
+                  #
+                  # hmmm, still not found.  This is a problem.
+                  # email the main man
+                  #
+                  open  MAIL, "|mail -s 'freshports notice' $NotifyByMail";
+                  print MAIL "Category ('$category') was created\n";
                   print MAIL "$committer\n$timestamp\n$action\n$description\n$category\n$port\n$entry\n";
                   close MAIL;
                } else {
