@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: vuxml_affected.pm,v 1.1.2.1 2004-09-10 03:26:41 dan Exp $
+# $Id: vuxml_affected.pm,v 1.1.2.2 2004-09-11 14:02:33 dan Exp $
 #
 # Copyright (c) 2004 DVL Software
 #
@@ -45,7 +45,7 @@ sub save {
 
 	$this->{id} = FreshPorts::Database::GetNextValue($FreshPorts::Constants::vuxml_affected_seq, $dbh);
 
-	$sql = "insert into vuxml_affected(id, vuxml_id, type, date_modified) values (
+	$sql = "insert into vuxml_affected(id, vuxml_id, type) values (
 				$this->{id},
 				$this->{vuxml_id},
 				" . $dbh->quote($this->{type}) . ')';

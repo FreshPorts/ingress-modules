@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: vuxml_ranges.pm,v 1.1.2.1 2004-09-10 03:26:41 dan Exp $
+# $Id: vuxml_ranges.pm,v 1.1.2.2 2004-09-11 14:03:43 dan Exp $
 #
 # Copyright (c) 2004 DVL Software
 #
@@ -34,7 +34,6 @@ sub _GetValuesFromRow {
 	$this->{range_operator_end}   = $row->{range_operator_end};
 	$this->{range_version_start}  = $row->{range_version_start};
 	$this->{range_version_end}    = $row->{range_version_end};
-	$this->{date_modified}        = $row->{date_modified};
 }
 
 sub save {
