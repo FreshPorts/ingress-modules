@@ -11,10 +11,10 @@
 
 
 BEGIN {
- OUTDIR="CHECKTHISDIR/usr/local/etc/freshports.test/msgs/" ;
- MUNGER="CHECKTHISDIR/usr/bin/awk -f /usr/local/etc/freshports.test/log-munger.awk";
+ OUTDIR="/usr/local/etc/freshports/msgs/" ;
+ MUNGER="/usr/bin/awk -f /usr/local/etc/freshports/log-munger.awk";
 
- UPDATER = "CHECKTHISDIR/usr/bin/perl /usr/local/etc/freshports.test/updates/updates.pl";
+ UPDATER = "/usr/bin/perl /usr/local/etc/freshports/updates/updates.pl";
 
  getline pid<"/dev/pid"
 
@@ -37,7 +37,10 @@ if(inheader==0) {
  next;
  }
 if($1=="In-Reply-To:") exit;
-if($1=="Subject:" && ($2!="cvs" || $3!="commit:" || substr($4,1,6)!="ports/")) exit;
+if($1=="Subject:" && ($2!="cvs" || $3!="commit:" || !index($0,"ports/"))) {
+ exit;
+}
+
 if(NF==0) {
  inheader=0;getline;
  if(NF!=4 || length($4)!=3 || length($2)!=10 || length($3)!=8) exit;
@@ -54,14 +57,13 @@ if(wasport) {
  /* cmd2=MUNGER " <" file "|" UPDATER; */
  system(cmd);
 
- print "cmd = " cmd;
+  print "cmd = " cmd;
 
  /* now invoke the updater */
  cmd2 = "/bin/cat " filenext " | " UPDATER " 2>&1 | cat - > " filenext ".out";
- system(cmd2);
+ system(cmd2); 
 
- print "cmd2 = " cmd2;;
-/* print cmd2; */
+ print "cmd2 = " cmd2
 }
 }
 
