@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: portschange.pm,v 1.3 2001-10-31 01:51:10 dan Exp $
+# $Id: portschange.pm,v 1.4 2001-11-13 14:52:58 dan Exp $
 #
 package	portschange;
 require	Exporter;
@@ -57,7 +57,7 @@ Cheers and thanks for your support.
 
 You are receiving this message as part of the service
 you joined at http://freshports.org/ but if you no longer
-wish to recieve such messages, please go to
+wish to receive such messages, please go to
 http://freshports.org/customize.php3 and disable mailings.
 
 If a problem occurs, please send details, including the email
