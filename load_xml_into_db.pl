@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: load_xml_into_db.pl,v 1.28 2001-12-22 21:50:12 dan Exp $
+# $Id: load_xml_into_db.pl,v 1.29 2001-12-23 18:50:34 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -235,11 +235,7 @@ sub handle_update_end
 
 	print "\n --- end of this update --- \n";
 
-	# this is where we set the needs_refresh field for each port touched by this commit.
-	# once that is done, we commit.
-	# This needs to be done before re undef everything.
-
-    my $commit_date     = sprintf "%04u-%02u-%02u", $Updates{dateyear}, $Updates{datemonth}, $Updates{dateday};
+    my $commit_date = sprintf "%04u-%02u-%02u", $Updates{dateyear}, $Updates{datemonth}, $Updates{dateday};
 
 	# we don't clear these values until the end of the update
 	undef $Updates{os};
