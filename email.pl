@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: email.pl,v 1.8.2.8 2002-05-30 12:18:19 dan Exp $
+# $Id: email.pl,v 1.8.2.9 2002-06-17 16:24:31 dan Exp $
 #
 # Copyright (c) 2001-2002 DVL Software
 #
@@ -85,7 +85,7 @@ sub CompileWatchNotifyList($;$;$;$) {
 	               users.email, 
 	               categories.name as category, 
 	               element.name as port, 
-	               to_char(commit_log.commit_date + INTERVAL '$FreshPorts::Config::TimeAdjust', 'DD Mon YYYY') as commit_date,
+	               to_char(commit_log.commit_date + SystemTimeAdjust(), 'DD Mon YYYY') as commit_date,
 	               commit_log.description,
 				   commit_log.committer
 	          from commit_log, watch_notice, watch_list_element, 
