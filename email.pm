@@ -1,5 +1,5 @@
 #
-# $Id: email.pm,v 1.1.2.9 2003-07-31 17:46:59 dan Exp $
+# $Id: email.pm,v 1.1.2.10 2003-09-11 20:09:33 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -18,7 +18,7 @@ sub SendMail($;$;$;$;$;$) {
 	my $To		= shift;
 	my $CC      = shift;
 	my $Subject	= shift;
-	my $Body		= shift;
+	my $Body	= shift;
 	my $Headers = shift;
 	
 	my $result;
@@ -37,7 +37,7 @@ sub SendMail($;$;$;$;$;$) {
 		$sender->Close;
 	} else {
 		# we set the last parameter to zero to avoid recursion - if 1, that function would call this function...etc.
-		FreshPorts::Utilities::ReportError('LOG_NOTICE', "could not open Mail::Sender.  from='$From' to='$To' subject='$Subject' errorcode='$result' errormsg='$Mail::Sender::Error'", 0);
+		FreshPorts::Utilities::ReportError('LOG_ERR', "could not open Mail::Sender.  from='$From' to='$To' subject='$Subject' errorcode='$result' errormsg='$Mail::Sender::Error'", 0);
 		exit;
 	}
 }
