@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: vuxml_mark_commits.pm,v 1.1.2.4 2005-01-13 15:59:26 dan Exp $
+# $Id: vuxml_mark_commits.pm,v 1.1.2.5 2005-01-22 14:40:48 dan Exp $
 #
 # Copyright (c) 1999-2004 DVL Software
 #
@@ -90,6 +90,27 @@ sub ValueOrNull($) {
 	return $Result;
 }
 
+sub MarkOneCommit($) {
+	my $this        = shift;
+    my $VID         = shift;
+	my $PortID      = shift;
+	my $CommitLogID = shift;
+
+	my $Commit;
+	my $dbh = $this->{dbh};
+    my $sth;
+    my $sql;
+
+	$sql = "INSERT INTO commit_log_ports_vuxml(commit_log_id, port_id, vuxml_id)
+            values ($CommitLogID, $PortID, $VID)";
+
+#	print "sql is $sql\n";
+
+	$sth = $dbh->prepare($sql);
+	$sth->execute ||
+		die "Could not execute SQL $sql ... maybe invalid?";
+}
+
 sub MarkTheseCommits($) {
 	my $this    = shift;
     my $Commits = shift;
@@ -103,6 +124,7 @@ sub MarkTheseCommits($) {
 
 	my $OldValue = $|;
 
+	# This forces a flush right away and after every write or print
 	$| = 1;
 
 #	print "but first, let's display them all\n";
@@ -114,6 +136,13 @@ sub MarkTheseCommits($) {
 #		}
 #
 #		print "that was VULN => $Commit->{vid}\n";
+
+		#
+		# when marking multiple commits
+		# we optimize by only pulling in distinct values of version, revision, epoch.
+		# we don't pull in commit_log_ids.
+		# this SQL will add all the commit_log_id values we need.
+		#
 
         $sql = "
 INSERT INTO commit_log_ports_vuxml(commit_log_id, port_id, vuxml_id)
@@ -138,7 +167,6 @@ SELECT commit_log_id,
 
 	print "\nfinished marking those commits\n";
 }
-
 sub PackageVersion($;$;$) {
 	my $this         = shift;
 	my $PortVersion  = shift;
@@ -303,6 +331,46 @@ sub ProcessEachRangeRecord() {
     }
 
 	$this->MarkTheseCommits(\@AffectedCommits);
+
+    return $i;
+}
+
+sub RecordVulnerabilitiesForThisPortVersion($;$;$) {
+	my $this         = shift;
+	my $CommitLogID  = shift;
+	my $PortID       = shift;
+	my $Package      = shift;
+	my $PortVersion  = shift;
+	my $PortRevision = shift;
+	my $PortEpoch    = shift;
+
+	my $dbh = $this->{dbh};
+	my $sth;
+	my $sql;
+	my $range;
+	my $i           = 0;
+	my $LastPackage = undef;
+
+	my @Commits         = undef;
+	my @AffectedCommits = ();
+
+	my $Version = $this->PackageVersion($PortVersion, $PortRevision, $PortEpoch);
+
+	$sql = 'select * from vuxml_ranges_package(' . $dbh->quote($Package) . ')';
+
+	print "sql is $sql\n";
+
+	$sth = $dbh->prepare($sql);
+	$sth->execute ||
+		die "Could not execute SQL $sql ... maybe invalid?";
+
+    while ($range = $sth->fetchrow_hashref()) {
+		$i++;
+		if ($this->IsCommitAffected($Version, $range)) {
+			print '### this version is affected by ' . $range->{id} . "\n";
+			$this->MarkOneCommit($range->{id}, $PortID, $CommitLogID);
+		}
+	}
 
     return $i;
 }
