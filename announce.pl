@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: announce.pl,v 1.3.2.2 2002-09-09 18:08:11 dan Exp $
+# $Id: announce.pl,v 1.3.2.3 2002-09-09 18:46:17 dan Exp $
 #
 # Copyright (c) 1999-2000 DVL Software
 #
@@ -30,11 +30,24 @@ sub SendAnnouncement($) {
 print SENDMAIL <<"EOF";
 From: FreshPorts announcement <freshports-announce\@freshports.org>
 To: $To
-Subject: FreshPorts announcement
+Subject: HEADS UP: FreshPorts announcement
 
 Folks,
 
-This is me testing the new test facility.
+A new reporting facility has been created.  This allows
+new reports to be easily added.  It also puts all of your
+subscriptions in one easy place:
+
+   http://www.FreshPorts.org/report-subscriptions.php
+
+Please visit the above URL to ensure you are subscribed to the
+reports you want.
+
+HEADS UP: If you subscribed or changed your report preferences
+on Monday September 9, 2002 around 2-3 pm EST, you should review
+your settings.  This was about the time which we converted the 
+database.  If you made no changes on this day, your previous settings
+should have been copied over to the new setup.
 --
 
 You are recieving this message as part of the service
