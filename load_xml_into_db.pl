@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: load_xml_into_db.pl,v 1.46 2002-03-12 15:41:35 dan Exp $
+# $Id: load_xml_into_db.pl,v 1.46.2.1 2002-04-01 22:52:06 dan Exp $
 #
 # Copyright (c) 2001-2002 DVL Software
 #
@@ -37,6 +37,7 @@ use db_utils;
 use database;
 use utilities;
 use housekeeping;
+use cache;
 
 use XML::Node;
 use DBI;
@@ -293,6 +294,13 @@ sub handle_update_end
 	if ($refresh_ports) {
 		FreshPorts::VerifyPort::RefreshAllPortsTouchedByCommit(\%CommitLogPorts, $fetch_before_refresh, $dbh);
 	}
+
+	if (scalar(keys %CommitLogPorts)) {
+		print "adding that commit date to the daily summary refresh list\n";
+		FreshPorts::Cache::DailySummaryDateAdd($commit_date, $dbh)
+	} else {
+		print "that was not a port, so not adding to daily summary refresh list\n";
+	}
 }
 
 sub handle_updates_end {
@@ -340,7 +348,7 @@ sub handle_file_end
 	$fileaction = FileActionValid($FileAction);
 	if (!$fileaction) {
 		$! = 5;
-		FreshPorts::Utilities::ReportError('warning', "invalid file ('$FileAction') action found", 1);
+		FreshPorts::Utilities::ReportError('warning', "invalid file action ('$FileAction') found in $inputfile", 1);
 	}
 
 	print "FileActionValid ==> " . $fileaction . "\n";
@@ -592,10 +600,6 @@ sub SaveUpdateToDB {
 			return $nullvalue;
 		}
 	}
-
-
-#	my $id = FreshPorts::Database::GetNextValue($FreshPorts::Constants::commit_log_seq, $dbh);
-#	$commit_log->{id} = $id;
 
 	$message_date       = $dbh->quote(
 							sprintf "%04u/%02u/%02u %02u:%02u:%02u %s", 
