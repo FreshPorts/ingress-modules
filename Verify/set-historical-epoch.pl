@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: set-historical-epoch.pl,v 1.1.2.1 2004-09-23 03:03:08 dan Exp $
+# $Id: set-historical-epoch.pl,v 1.1.2.2 2004-09-23 13:00:03 dan Exp $
 #
 # Copyright (c) 1999-2004 DVL Software
 #
@@ -12,97 +12,148 @@ use DBI;
 use database;
 use utilities;
 
-my $dbh;
+sub PackageVersion($;$;$) {
+	my $PortVersion  = shift;
+	my $PortRevision = shift;
+	my $PortEpoch    = shift;
 
-my $porttorefresh;
-my @PORTS;
-my $sql;
-my $sth;
-my $row;
+	my $PackageVersion = '';
 
-FreshPorts::Utilities::InitSyslog();
+	if (length($PortVersion) > 0) {
+    	$PackageVersion .= $PortVersion;
+		if (defined($PortRevision) && length($PortRevision) > 0 && $PortRevision ne "0") {
+    		$PackageVersion .= '_' . $PortRevision;
+		}
 
-$dbh = FreshPorts::Database::GetDBHandle();
+		if (defined($PortEpoch)    && length($PortEpoch)    > 0 && $PortEpoch    ne "0") {
+    		$PackageVersion .= ',' . $PortEpoch;
+		}
+	}
 
-#
-# get a list of ports to update
-#
+	return $PackageVersion;
+}
 
-$sql = "
-  select PA.category || '/' || PA.name as port, CL.id, CLP.port_version || '_' || CLP.port_revision as version, CLP.port_epoch, CL.commit_date
-    from commit_log_ports CLP, commit_log CL, ports_active PA
-   where PA.portepoch != '0'
+sub FetchCommitsForThisPort($;$) {
+	my $dbh  = shift;
+	my $Port = shift;
+
+	my $sql;
+	my $sth;
+
+	$sql = "
+    SELECT C.commit_log_id,
+           C.port_id,
+           C.port_version,
+           C.port_revision,
+           C.port_epoch,
+           C.commit_date,
+           C.pathname,
+           M.revision_name
+FROM
+    (SELECT P.id,
+           CLP.commit_log_id,
+           CLP.port_id,
+           CLP.port_version,
+           CLP.port_revision,
+           CLP.port_epoch,
+           CL.commit_date,
+           element_pathname(P.element_id, FALSE) as pathname
+      FROM ports               P,
+           commit_log_ports    CLP,
+           commit_log          CL
+     WHERE P.id              = " . $Port->{'id'} . "
+       AND P.id              = CLP.port_id
+       AND CLP.port_version != ''
+       AND CLP.commit_log_id = CL.id) AS C left outer join
+
+(  SELECT P.id,
+         CLP.commit_log_id,
+         CLP.port_id,
+         CLP.port_version,
+         CLP.port_revision,
+         CLP.port_epoch,
+         CL.commit_date,
+         element_pathname(CLE.element_id, FALSE),
+         CLE.revision_name
+    FROM ports               P, 
+         commit_log_ports    CLP,
+         element             E,
+         commit_log_elements CLE,
+         commit_log          CL
+   WHERE P.id              = " . $Port->{'id'} . "
+     AND P.id              = CLP.port_id
+     AND CLE.commit_log_id = CLP.commit_log_id
+     AND CLE.element_id    = E.id
+     AND E.name            = 'Makefile'
+     AND E.parent_id       = P.element_id
      AND CLP.commit_log_id = CL.id
-     AND CLP.port_id       = PA.id
-     AND PA.id in (
-select distinct CLPV.port_id
-  from ports_active PA, commit_log_ports_vuxml CLPV
- WHERE PA.id = CLPV.port_id
-   AND PA.portepoch != '0'
-)
+     AND CLP.port_version != '') AS M
 
-ORDER BY name, category, CL.commit_date desc
-";
-print "sql = $sql\n";
+on (M.commit_log_id = C.commit_log_id)
 
-$sth = $dbh->prepare($sql);
-$sth->execute ||
+order by C.commit_date desc";
+
+#	print "sql = $sql\n";
+
+	$sth = $dbh->prepare($sql);
+	$sth->execute ||
 		FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql ... maybe invalid?", 1);
 
-my $LastPort        = undef;
-my $LastVersion     = undef;
-my $LastCommitLogID = undef;
-
-LOOP:
-while ($row=$sth->fetchrow_hashref()) {
-	if (!defined($LastPort) || $LastPort ne $row->{'port'}) {
-		$LastPort        = $row->{'port'};
-		$LastVersion     = $row->{'port_version'};
-		$LastCommitLogID = $row->{'id'};
-		next LOOP;
-	}
-	if ($row->{'port_version'} ne '' && $LastVersion gt $row->{'port_version'}) {
-		# we have a bump here....
-#		push @PORTS, [  $LastPort, $LastRevision. $LastCommitLogID ];
-		print $row;
-	}
-}
-
-my $port = FreshPorts::Port->new($dbh);
-
-foreach $porttorefresh (@PORTS) {
-	my $result;
-
-	print "found $porttorefresh\n";
-
-	my ($port_id, $category_name, $port_name) = split /\t/,$porttorefresh, 3;
-
-	$port->{id} = $port_id;
-	if ($port->FetchByID()) {
-
-		# needs_refresh = 0, and fetch_files = 0
-		$result = $port->RefreshFromFiles(0, 0);
-		print "has been refreshed ($result)\n";
-
-		if ($result == 0) {
-			$sql = "update ports set broken = " . $dbh->quote($port->{broken}) .
-					" where id = $port_id";
-			$sth = $dbh->prepare($sql);
-			$sth->execute ||
-				FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql ... maybe invalid?", 1);
-
-			$dbh->commit();
+	while (my $commit=$sth->fetchrow_hashref()) {
+		print sprintf "commit_log_id = %8d commit_date = %s", $commit->{'commit_log_id'}, $commit->{'commit_date'};
+		print sprintf "%20s", PackageVersion($commit->{'port_version'}, $commit->{'port_revision'}, $commit->{'port_epoch'});
+		print " => ";
+		if (defined($commit->{'revision_name'})) {
+        	print 'revision_name = ' . $commit->{'revision_name'};
 		} else {
-			$dbh->rollback();
-			print "update result is $result ******************************************\n";
+			print 'Makefile not touched in this commit'
 		}
-	} else {
-		FreshPorts::Utilities::ReportError('warning', "Could not retrieve port ($port_id, $category_name, $port_name)", 1);
+		print "\n";
 	}
+
+	print "----- that's all for this port -----\n\n";
 }
 
-$sth->finish();
 
-#$dbh->commit();
-$dbh->disconnect();
+sub main() {
+	my $dbh;
 
+	my $sql;
+	my $sth;
+
+	FreshPorts::Utilities::InitSyslog();
+
+	$dbh = FreshPorts::Database::GetDBHandle();
+
+	#
+	# get a list of ports to update
+	#
+
+	$sql = "
+SELECT P.id,
+       C.name || '/' || E.name as portname
+  FROM ports P, categories C, element E
+ WHERE P.portepoch   != '0'
+   AND P.category_id  = C.id
+   AND P.element_id   = E.id;
+";
+	$sth = $dbh->prepare($sql);
+	$sth->execute ||
+			FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql ... maybe invalid?", 1);
+
+	my $LastCommitLogID = undef;
+
+	while (my $Port = $sth->fetchrow_hashref()) {
+		print ' * * * * * *  now processing ' . $Port->{'id'} . ' => ' . $Port->{'portname'} . "\n";
+		print ' http://beta.freshports.org/' . $Port->{'portname'} . "/\n";
+		FetchCommitsForThisPort($dbh, $Port);
+	}
+	
+	$sth->finish();
+
+	#$dbh->commit();
+	$dbh->disconnect();
+
+}
+
+main();
