@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: vuxml_affected.pm,v 1.1.2.8 2004-12-13 21:37:11 dan Exp $
+# $Id: vuxml_affected.pm,v 1.1.2.9 2004-12-13 23:22:59 dan Exp $
 #
 # Copyright (c) 2004 DVL Software
 #
@@ -98,7 +98,7 @@ sub FetchByVID {
              WHERE vuxml_affected.vuxml_id = vuxml.id
                AND vuxml.vid = " .  $dbh->quote($VID);
 
-	print "sql = '$sql'\n";
+#	print "sql = '$sql'\n";
 
 	$sth = $dbh->prepare($sql);
 	if (!$sth->execute) {
