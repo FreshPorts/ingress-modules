@@ -27,7 +27,7 @@
 # SUCH DAMAGE.
 
 #
-# @(#) $Id: vuxml_parsing.pm,v 1.1.2.10 2004-12-13 14:52:12 dan Exp $
+# @(#) $Id: vuxml_parsing.pm,v 1.1.2.11 2004-12-13 21:36:25 dan Exp $
 #
 # Parse the Vulnerabilities and Exposures (vuxml) database extracting
 # the entries for loading into a RDBMS.
@@ -325,9 +325,9 @@ sub update_database
 
 	if ($self->{update_in_place}) {
 	    my $vuxml = FreshPorts::vuxml->new( $self->{db_handle} );
-		$vuxml->{vid} = $self->vid();
+#		$vuxml->{vid} = $self->vid();
 
-		my $vuxml_id = $vuxml->FetchByVID();
+		my $vuxml_id = $vuxml->FetchByVID($self->vid());
 		if (defined($vuxml_id)) {
 			$FullInsert = 0;
 			print "Found vid='$vuxml->{vid}' and will be updating it as required.\n";
