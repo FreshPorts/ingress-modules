@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.38.2.42 2005-01-26 18:39:09 dan Exp $
+# $Id: port.pm,v 1.38.2.43 2005-02-01 17:37:27 dan Exp $
 #
 #
 # Copyright (c) 2001-2003 DVL Software
@@ -414,33 +414,32 @@ sub _ExtractValuesFromMakefile {
 	# and the errors will be captured in the tmp file we created.
 	#
 	if ($result != 0) {
+		#
+		# Some errors aren't caught by the Makefile script, but are grabbed in the tmp file
+		# Such as:
+		# -s: not found
+		# "/usr/home/dan/ports/french/homard/Makefile", line 39: warning: " -s"
+		# returned non-zero status
+		# caused by doing:     unames!= ${UNAME} -s
+		# without first doing: .include  <bsd.port.pre.mk>
+		#
+
+		print 'size is ' . -s $TmpFile;
+		print "\n";
+
+		if (-s $TmpFile > 0) {
+			print "getting error message from temp file\n";
+			$ErrorMessage = "Error message is: " . `cat $TmpFile`;
+		}
+
 		if ($MakeResults ne '') {
 			# save the results for error reporting
-			$ErrorMessage = $MakeResults;
-		} else {
-
-			#
-			# Some errors aren't caught by the Makefile script, but are grabbed in the tmp file
-			# Such as:
-			# -s: not found
-			# "/usr/home/dan/ports/french/homard/Makefile", line 39: warning: " -s"
-			# returned non-zero status
-			# caused by doing:     unames!= ${UNAME} -s
-			# without first doing: .include  <bsd.port.pre.mk>
-			#
-
-			print 'size is '  . -s $TmpFile;
-			print "\n";
-
-			if (-s $TmpFile > 0) {
-				print "getting error message from temp file\n";
-				$ErrorMessage = `cat $TmpFile`;
-
-				$ErrorMessage = "This command (FreshPorts code 1):\n\n$makecommand\n\nproduced this error:\n\n$ErrorMessage";
-				FreshPorts::CommitterOptIn::RecordErrorDetails("$this->{category}/$this->{name}", $ErrorMessage);
-				$result = -1;
-			}
+			$ErrorMessage .= "Make results are : " . $MakeResults;
 		}
+
+		$ErrorMessage = "This command (FreshPorts code 1):\n\n$makecommand\n\nproduced this error:\n\n$ErrorMessage";
+		FreshPorts::CommitterOptIn::RecordErrorDetails("$this->{category}/$this->{name}", $ErrorMessage);
+		$result = -1;
 	}
 
 	# remove that error collection file
