@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: report-security-notice.pl,v 1.1.2.3 2003-03-11 13:30:28 dan Exp $
+# $Id: report-security-notice.pl,v 1.1.2.4 2003-03-11 14:11:58 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -33,7 +33,7 @@ my $FormatTime	= "%H:%i";
 my $WatchURL	= $FreshPorts::Config::FreshPortsURL . "watch.php";
 my $AdjustURL	= $FreshPorts::Config::FreshPortsURL . "report-subscriptions.php";
 
-my $ReportID	= $FreshPorts::ReportConstants::Notification;
+my $ReportID	= $FreshPorts::ReportConstants::Security;
 
 $Text::Wrap::columns = 82;
 
@@ -119,7 +119,8 @@ sub CompileWatchNotifyList($;$;$;$;$) {
          element, 
          commit_log_ports, 
          report_frequency, 
-         report_subscriptions
+         report_subscriptions,
+         security_notice
    where commit_log.date_added            >= '$LastSent'
      and commit_log.id                     = commit_log_ports.commit_log_id 
      and watch_list_element.element_id     = ports.element_id
@@ -178,7 +179,7 @@ order by watch_list_id, watch_list_name, user_id, category, port, commit_date";
 
 	$Body  = $BodyHeader;
 	while ($row = $sth->fetchrow_hashref()) {
-		print "now processing @row\n";
+		print "now processing $row->{commit_log_id} $row->{email}\n";
 		$NumPorts++;
 		if ($CommitLogID ne $row->{commit_log_id}) {
 			$NumCommits++;
