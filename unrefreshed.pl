@@ -59,7 +59,7 @@ while (@row=$sth->fetchrow_array) {
 }
 
 if ($rowcount > 0) {
-	print "\n\n There are $rowcount ports requiring refresh\n"
+	print "\n$rowcount port[s] need[s] refresh\n"
 }
 
 $sth->finish();
