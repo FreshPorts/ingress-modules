@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.23 2001-12-30 23:20:06 dan Exp $
+# $Id: port.pm,v 1.24 2001-12-31 15:27:05 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -175,7 +175,7 @@ sub FetchByID {
 	my $sth;
 	my $row;
 
-	$dbh		= $this->{dbh};
+	$dbh = $this->{dbh};
 
 	$sql = "select ports.*, categories.name as category, element.name as name \
               from ports, categories, element \
