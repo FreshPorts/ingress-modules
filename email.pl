@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: email.pl,v 1.8.2.7 2002-05-29 01:19:15 dan Exp $
+# $Id: email.pl,v 1.8.2.8 2002-05-30 12:18:19 dan Exp $
 #
 # Copyright (c) 2001-2002 DVL Software
 #
@@ -158,7 +158,7 @@ sub CompileWatchNotifyList($;$;$;$) {
 
 			$Body   = '';
 			$Body .= "Port count: $PortCount http://www.freshports.org/categories.php\n";
-			$Body .= " New ports: $NewPorts  http://migration.freshports.org/ports-new.php?interval=$Interval\n\n";
+			$Body .= " New ports: $NewPorts  http://www.freshports.org/ports-new.php?interval=$Interval\n\n";
 			$To     = $row[1];
 			$LastID = $row[0];
 		}
