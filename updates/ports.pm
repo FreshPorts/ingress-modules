@@ -738,7 +738,7 @@ sub RefreshOnePort($;$;$;$) {
 
 sub CreateDailySummary($;$) {
 
-   my $PathToUse       = "/www/freshports.org/archives";  # must NOT include a trailing /
+   my $PathToUse       = "/home/freshports.org/www/archives";  # must NOT include a trailing /
    my @myrow;
    my $CommitDateStart = shift;
    my $dbh             = shift;

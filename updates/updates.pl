@@ -568,6 +568,6 @@ $dbh->disconnect();
 # and let the www world know that the database has updated 
 # and therefore their cache files are out of date
 #
-`touch /www/freshports.org/lastupdate`;
+`touch /home/freshports.org/scripts/lastupdate`;
 
 print "finish " . `date "+%Y-%m-%d %H:%M:%S"`;
