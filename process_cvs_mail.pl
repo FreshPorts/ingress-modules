@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: process_cvs_mail.pl,v 1.8.2.6 2002-06-17 16:29:08 dan Exp $
+# $Id: process_cvs_mail.pl,v 1.8.2.7 2002-07-16 12:56:04 dan Exp $
 #
 # Copyright (c) 2001-2002  DVL Software
 #
@@ -78,6 +78,8 @@ sub GetData {
 
 	$Message_Subject	= &GetMessage_Subject($message);
 	$Log				= &GetLog($message);
+
+print "And the \$Log is '$Log'\n";
 
 	if ($Log eq '') {
 		$Log = $Message_Subject;
@@ -381,8 +383,8 @@ sub GetOS_Branch {
 }
 
 sub GetLog {
-	my ($message) = @_;
-	my ($log);
+	my ($message)  = @_;
+	my ($log)      = '';
 	my ($log_done) = 0;
 
 	#
@@ -398,6 +400,10 @@ sub GetLog {
 	for (@lines) {
 		my ($line) = $_;
 
+		# remove trailing spaces.
+#		$line =~ s/ +$//;
+#		$line .= "\n";
+
 		if ($line =~ /  Log:/) { $log_found = 1; next; }
 		next unless ($log_found == 1);
 
@@ -406,16 +412,16 @@ sub GetLog {
 			if ($line =~ /^$_/) { $log_done = 1; };
 		}
 		last if ($log_done == 1);
+
+		# here we remove the two spaces at the start of the log which are added
+		# by the email composing script
 		if (length($line) >= 2) {
 			$log .= substr($line,2) . "\n";
 		}
 	}
 
-	if (defined($log)) {
-		$log =~ s/(^\s+)|(\s+$)//g;;
-	} else {
-		$log = '';
-	}
+	# and we remove any trailing space in the log message
+	$log =~ s/\s+$//;
 
 	return $log;
 }
