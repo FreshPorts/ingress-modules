@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: verifyport.pm,v 1.42.2.13 2003-07-17 14:54:13 dan Exp $
+# $Id: verifyport.pm,v 1.42.2.14 2003-07-31 18:01:44 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -128,6 +128,12 @@ sub _CompileListOfPorts($;$;$) {
 							$port->{category_id}	= $category->{id};
 							$port->{name}			= $port_name;
 							$port->{category}		= $category_name;
+
+							#
+							# we are creating a new port (probably), so we make it active.
+							# we need this set for later use.
+							#
+							$port->SetActive();
 						}
 
 						print "SETTING CATEGORY = $port->{category_id}\n";
