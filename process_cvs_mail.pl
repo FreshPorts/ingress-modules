@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: process_cvs_mail.pl,v 1.8.2.11 2003-01-21 13:33:17 dan Exp $
+# $Id: process_cvs_mail.pl,v 1.8.2.12 2003-02-21 20:49:37 dan Exp $
 #
 # Copyright (c) 2001-2002  DVL Software
 #
@@ -149,7 +149,7 @@ sub WriteXML {
 	$writer->xmlDecl("UTF-8");
 
 	# Add the XML Document Type
-	$writer->doctype('UPDATES','-//Freshports//DTD Freshports 2.0//EN', 'http://www.freshports.org/docs/fp-updates.dtd');
+	$writer->doctype('UPDATES','-//FreshPorts//DTD FreshPorts 2.0//EN', 'http://www.freshports.org/docs/fp-updates.dtd');
 
 	# Convert the data into XML
 	&DataToXML($writer, $data_ref); 
