@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: load_xml_into_db.pl,v 1.39 2002-02-08 00:33:40 dan Exp $
+# $Id: load_xml_into_db.pl,v 1.40 2002-02-09 02:57:12 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -43,8 +43,9 @@ use DBI;
 my $commit_log_id			= 0;
 my $debug					= 0;
 my $overwrite				= 0;
-my $fetch_before_refresh	= 1;	 # by default, we fetch files from cvs 
-									 # before refreshing from them
+my $refresh_ports			= 1;	# refresh any ports touched by a commit
+my $fetch_before_refresh	= 1;	# by default, we fetch files from cvs 
+									# before refreshing from them
 
 my $SystemID;			# the system id for this update.  Usually 'FreeBSD' => 1
 my $SystemBranchID;		# the system version id for this update.  Usually 'HEAD' => 1
@@ -107,11 +108,16 @@ sub main {
 				print "not fetching before refresh....\n";
 				$fetch_before_refresh = 0;
 			}
-			
+
+			if ($ARGV[$i] eq '-R') {
+				# do not refresh the ports.  just process the commit
+				print "not refreshing at all....\n";
+				$refresh_ports = 0;
+			}
 		}
 
 	} else {
-		print "USAGE : $0 INPUTFILE [-D] [-O] [-r] <-D means debug, don't actually update the database> <-O means overwrite any existing message id>\n";
+		print "USAGE : $0 INPUTFILE [-D] [-O] [-r] [-R] <-D means debug, don't actually update the database> <-O means overwrite any existing message id>\n";
 		exit 1;
 	}
 
@@ -276,7 +282,9 @@ sub handle_update_end
 
 	# now we should refresh all the ports associated with this commit
 
-	FreshPorts::VerifyPort::RefreshAllPortsTouchedByCommit(\%CommitLogPorts, $fetch_before_refresh);
+	if ($refresh_ports) {
+		FreshPorts::VerifyPort::RefreshAllPortsTouchedByCommit(\%CommitLogPorts, $fetch_before_refresh);
+	}
 
 	#
 	# commit everything we've done.  we don't want it falling over during
