@@ -1,18 +1,20 @@
 #!/bin/sh
 #
-# $Id: fetch-cvs-file.sh,v 1.6.2.6 2003-05-16 01:14:03 dan Exp $
+# $Id: fetch-cvs-file.sh,v 1.6.2.7 2004-09-27 00:29:25 dan Exp $
 #
-# Copyright (c) 2000-2003 DVL Software
+# Copyright (c) 2000-2004 DVL Software
 #
 
-if  [ $# -ne 4 ];
-	then echo $0 : usage $0 DESTDIR SRCDIR FILE REVISION 1>&2
+if  [ $# -ne 6 ];
+	then echo $0 : usage $0 URL DESTDIR SRCDIR FILE REVISION SUFFIX 1>&2
 	exit 1
 else
-	DESTDIR=$1
-	SRCDIR=$2
-	FILE=$3
-	REVISION=$4
+	URL=$1
+	DESTDIR=$2
+	SRCDIR=$3
+	FILE=$4
+	REVISION=$5
+	SUFFIX=$6
 
 	mkdir -p ${DESTDIR}
 	if [ $? -ne 0 ]
@@ -22,13 +24,13 @@ else
 
 	FETCHFILE=$DESTDIR/$FILE
 
-#	echo about to fetch http://www.freebsd.org/cgi/cvsweb.cgi/~checkout~/$SRCDIR/$FILE?rev=REVISION
-#	echo fetching into $FETCHFILE
-
 	# try to get around any possible caching by using a timestamp as a parameter
 	#
 	time=`/bin/date +"%s"`
 
-	/usr/bin/fetch -A -o $FETCHFILE http://www.freebsd.org/cgi/cvsweb.cgi/$SRCDIR/$FILE?rev=$REVISION\&cache_busting_value=$time
+#	echo "* * * about to fetch '$URL/$SRCDIR/$FILE?rev=$REVISION$SUFFIX&cache_busting_value=$time'"
+#	echo "* * * fetching into $FETCHFILE"
+
+	/usr/bin/fetch -A -o $FETCHFILE "$URL/$SRCDIR/$FILE?rev=$REVISION$SUFFIX&cache_busting_value=$time"
 	exit $?
 fi
