@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.35 2002-02-22 01:39:43 dan Exp $
+# $Id: port.pm,v 1.36 2002-02-22 07:39:41 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -312,7 +312,8 @@ sub _ExtractValuesFromMakefile {
 	#
 	$makecommand = "make -V PORTNAME -V PKGNAME -V DESCR -V CATEGORIES -V PORTVERSION -V PORTREVISION " .
 		" -V COMMENT -V MAINTAINER -V EXTRACT_SUFX " .
-		" -V BUILD_DEPENDS -V RUN_DEPENDS -V FORBIDDEN -V BROKEN -f $MakefileDirectory/$FreshPorts::Constants::FILE_MAKEFILE";
+		" -V BUILD_DEPENDS -V RUN_DEPENDS -V FORBIDDEN -V BROKEN -f $MakefileDirectory/$FreshPorts::Constants::FILE_MAKEFILE " . 
+		" PORTSDIR=$FreshPorts::Config::path_to_ports ";
 
 	print "makecommand = $makecommand\n";
 
@@ -325,12 +326,12 @@ sub _ExtractValuesFromMakefile {
 
 	my $mastersites;
 	if ($result == 0) {
-		$mastersites = `make master-sites-all`;
+		$mastersites = `make master-sites-all -f $MakefileDirectory/$FreshPorts::Constants::FILE_MAKEFILE PORTSDIR=$FreshPorts::Config::path_to_ports`;
 		# save this for later reference
 		$result = $?;
 	}
 
-print "\$result='$result'\n";
+	print "\$result='$result'\n";
 
 	# remove previously created directory
 	if ($FreshPorts::Config::mkdir_pkg) {
@@ -470,7 +471,7 @@ sub _FetchFilesNeedingRefresh {
 			mkdir "pkg",0;
 		}
 
-		my $makecommand = "make -V DESCR -V COMMENT -f $DESTDIR/$FILE";
+		my $makecommand = "make -V DESCR -V COMMENT -f $DESTDIR/$FILE PORTSDIR=$FreshPorts::Config::path_to_ports";
 
 		# remove previously created directory
 		rmdir "pkg";
@@ -746,7 +747,7 @@ sub GetNeedsRefreshForNewPort {
 			mkdir "pkg",0;
 		}
 
-		my $makecommand = "make -V DESCR -V COMMENT -f $DESTDIR/$FILE";
+		my $makecommand = "make -V DESCR -V COMMENT -f $DESTDIR/$FILE PORTSDIR=$FreshPorts::Config::path_to_ports";
 
 		# remove previously created directory
 		if ($FreshPorts::Config::mkdir_pkg) {
