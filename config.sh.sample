@@ -1,7 +1,10 @@
 #!/bin/sh
 #
-# $Id: config.sh.sample,v 1.1.2.2 2003-04-10 11:51:21 dan Exp $
+# $Id: config.sh.sample,v 1.1.2.3 2003-11-14 17:56:06 dan Exp $
 #
+
+# what is the URL for this website?
+WEBSITEURL="http://working-copy.freshports.org"
 
 #
 # where do I find files such as load_xml_into_db.pl
@@ -16,3 +19,5 @@ SCRIPTDIR="/path/to/scripts/directory"
 #
 MSGDIR="/path/to/msg/directory"
 
+CACHEDIR="/usr/websites/freshports.org/caching/cache"
+STAGINGDIR="/usr/websites/freshports.org/caching/tmp"
