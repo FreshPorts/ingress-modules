@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: cache.pm,v 1.1.2.1 2002-04-01 21:21:34 dan Exp $
+# $Id: cache.pm,v 1.1.2.2 2002-04-01 23:12:47 dan Exp $
 #
 # Copyright (c) 2001-2002 DVL Software
 #
@@ -134,8 +134,8 @@ sub CreateDailySummary($;$) {
 	my $sql = "	select commit_log.commit_date, categories.name as category, element.name as port, 
 				       commit_log_ports.port_version as version, commit_log_ports.port_revision as revision
 				  from commit_log, commit_log_ports, ports, categories, element
-				 where commit_date between ('" . $CommitDateStart . "'::timestamp + INTERVAL '10800 seconds')::timestamp
-				                       and ('" . $CommitDateStart . "'::timestamp + INTERVAL '10800 seconds' + INTERVAL '1 DAY')::timestamp
+				 where commit_date between ('" . $CommitDateStart . "'::timestamp + SystemTimeAdjust())::timestamp
+				                       and ('" . $CommitDateStart . "'::timestamp + SystemTimeAdjust()+ INTERVAL '1 DAY')::timestamp
 				   and commit_log_ports.commit_log_id = commit_log.id
 				   and ports.id                       = commit_log_ports.port_id
 				   and ports.category_id              = categories.id
