@@ -27,7 +27,7 @@
 # SUCH DAMAGE.
 
 #
-# @(#) $Id: vuxml_parsing.pm,v 1.1.2.7 2004-09-17 02:08:12 dan Exp $
+# @(#) $Id: vuxml_parsing.pm,v 1.1.2.8 2004-09-20 19:55:31 dan Exp $
 #
 # Parse the Vulnerabilities and Exposures (vuxml) database extracting
 # the entries for loading into a RDBMS.
@@ -390,16 +390,16 @@ sub update_database_vuxml_affected
 
         if ( $package->range() ) {
             for my $range ( $package->range() ) {
-                if ( $range->[0] ) {
-                    print $range->[0], ": ", $range->[1],
-                      " " x ( 10 - length $range->[1] );
-                }
-                print $range->[2], ": ", $range->[3], "\n";
-                $vuxml_affected_ranges->{vuxml_name_id}        = $vuxml_affected_names_id;
-                $vuxml_affected_ranges->{range_operator_start} = $range->[0];
-                $vuxml_affected_ranges->{range_version_start}  = $range->[1];
-                $vuxml_affected_ranges->{range_operator_end}   = $range->[2];
-                $vuxml_affected_ranges->{range_version_end}    = $range->[3];
+                print $range->[0], ": ", $range->[1],
+                  " " x ( 10 - length $range->[1] );
+                if ( $range->[2] ) {
+	                print $range->[2], ": ", $range->[3], "\n";
+				}
+                $vuxml_affected_ranges->{vuxml_affected_id} = $vuxml_affected_id;
+                $vuxml_affected_ranges->{operator1}         = $range->[0];
+                $vuxml_affected_ranges->{version1}          = $range->[1];
+                $vuxml_affected_ranges->{operator2}         = $range->[2];
+                $vuxml_affected_ranges->{version2}          = $range->[3];
 
                 $vuxml_affected_ranges->save();
             }
@@ -604,11 +604,11 @@ sub references_shift
         if ( $self->range() ) {
             for my $range ( $self->range() ) {
                 print " " x 15;
-                if ( $range->[0] ) {
-                    print $range->[0], ": ", $range->[1],
-                      " " x ( 10 - length $range->[1] );
-                }
-                print $range->[2], ": ", $range->[3], "\n";
+                print $range->[0], ": ", $range->[1],
+                  " " x ( 10 - length $range->[1] );
+                if ( $range->[2] ) {
+	                print $range->[2], ": ", $range->[3], "\n";
+				}
             }
         }
 
@@ -742,17 +742,17 @@ sub references_shift
         Carp::croak "range_push(): method takes four arguments"
           unless ( @_ >= 4 );
 
-        $lop  = shift;    # Can be undef
-        $lver = shift;    # Can be undef
-        $rop  = shift;
-        $rver = shift;
+        $lop  = shift;
+        $lver = shift;
+        $rop  = shift;    # can be undef
+        $rver = shift;    # can be undef
 
         Carp::croak "range_push(): Unknown LHS operator type \"$lop\""
-          unless !defined($lop) || $lop =~ $self->{_known_op_types};
+          unless !defined($rop) || $rop =~ $self->{_known_op_types};
         Carp::croak "range_push(): Unknown RHS operator type \"$rop\""
-          unless $rop =~ $self->{_known_op_types};
+          unless $lop =~ $self->{_known_op_types};
         Carp::croak "range_push(): Missing version number"
-          unless defined($rver);
+          unless defined($lver);
 
         push @{ $self->{range} }, [ $lop, $lver, $rop, $rver ];
 
@@ -864,14 +864,12 @@ sub range_buffer
         my $op  = shift;
         my $ver = shift;
 
-        if ( defined( $self->{_range_buffer}[2] ) ) {
-            $self->{_range_buffer}[0] = $self->{_range_buffer}[2];
-            $self->{_range_buffer}[1] = $self->{_range_buffer}[3];
+        if ( defined( $self->{_range_buffer}[0] ) ) {
             $self->{_range_buffer}[2] = $op;
             $self->{_range_buffer}[3] = $ver;
         } else {
-            $self->{_range_buffer}[2] = $op;
-            $self->{_range_buffer}[3] = $ver;
+            $self->{_range_buffer}[0] = $op;
+            $self->{_range_buffer}[1] = $ver;
         }
     }
     return @{ $self->{_range_buffer} };

@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: vuxml_ranges.pm,v 1.1.2.3 2004-09-17 02:07:23 dan Exp $
+# $Id: vuxml_ranges.pm,v 1.1.2.4 2004-09-20 19:55:32 dan Exp $
 #
 # Copyright (c) 2004 DVL Software
 #
@@ -28,12 +28,12 @@ sub _GetValuesFromRow {
 	my $this = shift;
 	my $row  = shift;
 
-	$this->{id}                   = $row->{id};
-	$this->{vuxml_name_id}        = $row->{vuxml_name_id};
-	$this->{range_operator_start} = $row->{range_operator_start};
-	$this->{range_operator_end}   = $row->{range_operator_end};
-	$this->{range_version_start}  = $row->{range_version_start};
-	$this->{range_version_end}    = $row->{range_version_end};
+	$this->{id}                = $row->{id};
+	$this->{vuxml_affected_id} = $row->{vuxml_affected_id};
+	$this->{operator1}         = $row->{operator1};
+	$this->{operator2}         = $row->{operator2};
+	$this->{version1}          = $row->{version1};
+	$this->{version2}          = $row->{version2};
 }
 
 sub save {
@@ -46,14 +46,13 @@ sub save {
 
 	$this->{id} = FreshPorts::Database::GetNextValue($FreshPorts::Constants::vuxml_ranges_seq, $dbh);
 
-	$sql = "insert into vuxml_ranges(id, vuxml_name_id, range_version_start, range_operator_start,
-					range_operator_end, range_version_end) values (
-				$this->{id},
-				" . $dbh->quote($this->{vuxml_name_id})        . ",
-				" . $dbh->quote($this->{range_version_start}) . ",
-				" . $dbh->quote($this->{range_operator_start})   . ",
-				" . $dbh->quote($this->{range_operator_end})  . ",
-				" . $dbh->quote($this->{range_version_end})    . ")";
+	$sql = "insert into vuxml_ranges(vuxml_affected_id, version1, operator1,
+					operator2, version2) values (
+				" . $this->{vuxml_affected_id}      . ",
+				" . $dbh->quote($this->{version1})  . ",
+				" . $dbh->quote($this->{operator1}) . ",
+				" . $dbh->quote($this->{operator2}) . ",
+				" . $dbh->quote($this->{version2})  . ")";
 
 	print "sql is $sql\n";
 
