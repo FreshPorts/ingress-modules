@@ -1,4 +1,4 @@
-# $Id: xml_munge.pm,v 1.1.2.5 2005-01-06 04:25:58 dan Exp $
+# $Id: xml_munge.pm,v 1.1.2.6 2005-01-22 14:38:54 dan Exp $
 #
 # Copyright (c) 2001-2004 DVL Software
 #
@@ -338,6 +338,10 @@ sub handle_update_end {
 
 		if (!$ErrorFound) {
 			$ErrorFound = FreshPorts::VerifyPort::RefreshAllSlavePortsOfPortsTouchedByCommit(\%CommitLogPorts, 0, $dbh);
+		}
+
+		if (!$ErrorFound) {
+			$ErrorFound = FreshPorts::VerifyPort::MarkVulnerableCommits(\%CommitLogPorts, 0, $dbh);
 		}
 	}
 
