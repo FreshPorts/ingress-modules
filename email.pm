@@ -1,5 +1,5 @@
 #
-# $Id: email.pm,v 1.1.2.4 2002-11-29 17:58:01 dan Exp $
+# $Id: email.pm,v 1.1.2.5 2002-12-12 04:57:11 dan Exp $
 #
 # Copyright (c) 2002 DVL Software
 #
@@ -10,15 +10,20 @@ use strict;
 use Mail::Sender;
 use utilities;
 
-sub SendMail($;$;$;$) {
+
+sub SendMail($;$;$;$;$) {
 	my $From 	= shift;
 	my $To		= shift;
 	my $Subject	= shift;
 	my $Body		= shift;
+	my $Headers = shift;
+	
+	my $result;
 
 	my $sender = new Mail::Sender{smtp => 'localhost', from => $From};
 
-	my $result = $sender->Open({to => $To, subject => $Subject});
+	$result = $sender->Open({to => $To, subject => $Subject, headers=> $Headers});
+
 	if (ref $result) {
 		$sender->SendEnc($Body);
 		$sender->Close;
@@ -28,6 +33,8 @@ sub SendMail($;$;$;$) {
 		exit;
 	}
 }
+
+
 
 $Mail::Sender::NO_X_MAILER = 0;
 
