@@ -1,9 +1,11 @@
 #!/usr/bin/perl -w
 
 use strict;
-#use ports;
- 
 use DBI;
+
+use lib '/home/freshports.org/scripts';
+use freshports_database;
+
 
 my $dirname='';
 my @USERS;
@@ -93,7 +95,7 @@ sub CompileAnnouncementList($) {
 }
 
 
-      my $dbh = DBI->connect('dbi:mysql:freshports','root','xyzzy');
+      my $dbh = freshports_connect();
 
       $Bcc = CompileAnnouncementList($dbh);
 

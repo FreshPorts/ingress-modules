@@ -1,7 +1,11 @@
 #!/usr/bin/perl
 
+
 use strict;
 use DBI;
+
+use lib '/home/freshports.org/scripts';
+use freshports_database;
 
 sub SendNotice($;$) {
    my $StartDate = shift;
@@ -31,7 +35,7 @@ if (($#ARGV+1) == 2) {
    my $StartDate = $ARGV[0];
    my $EndDate   = $ARGV[1];
 
-   my $dbh = DBI->connect('dbi:mysql:freshports','freshports','marlboro');
+   my $dbh = freshports_connect();
    if (!$dbh) {
       print " connect failed\n";
    }

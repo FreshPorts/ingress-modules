@@ -1,13 +1,15 @@
 #!/usr/bin/perl -w
 
 use strict;
+use DBI
 
 use Text::Wrap;
 
 use lib '/home/freshports.org/scripts/updates';
 use ports;
- 
-use DBI;
+
+use lib '/home/freshports.org/scripts';
+use freshports_database;
 
 my $dirname='';
 my @USERS;
@@ -143,8 +145,7 @@ if (($#ARGV+1) == 1) {
 
    if ($Frequency eq 'D' || $Frequency eq 'W' || $Frequency eq 'F' || $Frequency eq 'M') {
 
-      #my $dbh = DBI->connect('dbi:mysql:freshportstest','root','xyzzy');
-      my $dbh = DBI->connect('dbi:mysql:freshports','root','xyzzy');
+      my $dbh = freshports_connect();
 
       CompileWatchNotifyList($Frequency, $dbh);
 

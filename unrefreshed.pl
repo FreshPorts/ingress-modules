@@ -6,6 +6,9 @@ use ports;
  
 use DBI;
 
+use lib '/home/freshports.org/scripts';
+use freshports_database;
+
 sub SendNotice($;$) {
    my $Address = shift;
    my $count   = shift;
@@ -25,8 +28,7 @@ EOF
 }
 
 
-
-my $dbh = DBI->connect('dbi:mysql:freshports','root','xyzzy');
+my $dbh = freshports_connect();
 
 my $maxlength=0;
 my $dirname='';

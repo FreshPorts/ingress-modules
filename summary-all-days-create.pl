@@ -9,11 +9,15 @@
 use DBI;
 use strict;
 
+use lib '/home/freshports.org/scripts';
+use freshports_database;
+
+
 my $NotifyByMail = "root";
 my $PathToUse    = "/usr/local/etc/freshports.changes/archives";  # must NOT include a trailing /
 my @myrow;
 
-my $dbh = DBI->connect('dbi:mysql:freshportschange','updater','xyzzy');
+my $dbh = freshports_connect();
 if (!$dbh) {
    # email the main man
    open  MAIL, "|mail -s 'freshports error' $NotifyByMail";

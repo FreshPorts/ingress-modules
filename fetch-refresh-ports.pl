@@ -6,7 +6,10 @@ use ports;
  
 use DBI;
 
-my $dbh = DBI->connect('dbi:mysql:freshports','root','xyzzy');
+use lib '/home/freshports.org/scripts';
+use freshports_database;
+
+my $dbh = freshports_connect();
 
 my $maxlength=0;
 my $dirname='';
