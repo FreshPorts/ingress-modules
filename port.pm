@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.38.2.45 2005-02-21 01:19:18 dan Exp $
+# $Id: port.pm,v 1.38.2.46 2005-03-13 10:06:45 dan Exp $
 #
 #
 # Copyright (c) 2001-2003 DVL Software
@@ -13,7 +13,7 @@ require element;
 require utilities;
 require committer_opt_in;
 
-use File::PathConvert;
+use Cwd;
 use strict;
 use config;
 use constants;
@@ -519,7 +519,7 @@ sub _ExtractValuesFromMakefile {
 		# to compensate for bug in File::PathConvert::realpath
 		$descrpath   =~ s|//|/|g;
 
-		my $RealDescrPath	= File::PathConvert::realpath($descrpath);
+		my $RealDescrPath	= Cwd::abs_path($descrpath);
 
 		if (!defined($shortdescription)) {
 			die("OK, good, we have no short description");
@@ -727,7 +727,7 @@ sub _FetchFilesNeedingRefresh {
 			# returns the realpath.  If empty, then COMMENTFILE is 
 			# not used and COMMENT returns the actual comment.
 			#
-			$DESCR = File::PathConvert::realpath($DESCR);
+			$DESCR = Cwd::abs_path($DESCR);
 
 			if (defined($DESCR)) {
 				print "converted data DESCR       = '$DESCR'\n";
@@ -912,12 +912,12 @@ sub RemovePortsPrefix($) {
 	# to compensate for bug in File::PathConvert::realpath
 	$SuffixPath =~ s|//|/|g;
 
-	$SuffixPath = File::PathConvert::realpath($SuffixPath);
+	$SuffixPath = Cwd::abs_path($SuffixPath);
 
 	# add a trailing slash to the real path!
 	my $Prefix = $FreshPorts::Config::path_to_ports;
 	$Prefix =~ s|//|/|g;
-	$Prefix = File::PathConvert::realpath($Prefix) . "/";
+	$Prefix = Cwd::abs_path($Prefix) . "/";
 
 	print "\$Prefix => $Prefix\n";
 
