@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $Id: freebsd-cvs.sh,v 1.7.2.2 2003-04-10 11:44:24 dan Exp $
+# $Id: freebsd-cvs.sh,v 1.7.2.3 2003-04-12 19:23:48 dan Exp $
 #
 # Copyright (c) 1999-2002 DVL Software
 #
@@ -14,6 +14,12 @@ if [ $# -ne 1 ]
 then
    echo $0 : usage $0 FILE
    exit 1
+fi
+
+if [ ! -f config.sh ]
+then
+	echo "config.sh not found..."
+	exit 1
 fi
 
 . config.sh
