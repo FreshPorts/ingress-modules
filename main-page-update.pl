@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: main-page-update.pl,v 1.3 2002-02-14 23:37:23 dan Exp $
+# $Id: main-page-update.pl,v 1.4 2002-02-17 20:04:19 dan Exp $
 #
 # Copyright (c) 1999-2002 DVL Software
 #
@@ -10,6 +10,7 @@ use lib "$ENV{HOME}/scripts";
 use DBI;
 use database;
 use utilities;
+use housekeeping;
 
 sub RefreshMainPage($) {
 	my $dbh = shift;
@@ -60,55 +61,35 @@ sub GetMaxCommitLogPortId($) {
 	return $MaxCommitLogPortId;
 }
 
-sub GetLastCommitLogIdProcessed($) {
-	my $dbh = shift;
-
-	my $sql;
-	my $sth;
-	my @row;
-	my $LastCommitLogIdProcessed;
-
-	$sql = "select last_port_commit from housekeeping";
-	$sth = $dbh->prepare($sql);
-	$sth->execute ||
-		FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql ... maybe invalid?", 1);
-
-	@row=$sth->fetchrow_array;
-
-	$sth->finish();
-
-	$LastCommitLogIdProcessed = $row[0];
-
-	return $LastCommitLogIdProcessed;
-}
-
-
 my $dbh;
 
 my $sql;
 my $sth;
 my $MaxCommitLogPortId;
 my $LastCommitLogIdProcessed;
+my $housekeeping;
 
 FreshPorts::Utilities::InitSyslog();
 
 $dbh = FreshPorts::Database::GetDBHandle();
 
-$MaxCommitLogPortId			= GetMaxCommitLogPortId      ($dbh);
-$LastCommitLogIdProcessed	= GetLastCommitLogIdProcessed($dbh);
+$housekeeping = FreshPorts::Housekeeping->new($dbh);
+$housekeeping->read();
 
-if (!defined($MaxCommitLogPortId)) {
-	$MaxCommitLogPortId = 0;
+
+$MaxCommitLogPortId	= GetMaxCommitLogPortId      ($dbh);
+
+if (!defined($housekeeping->{last_port_commit})) {
+	print "last_port_commit was not defined\n";
+	$housekeeping->{last_port_commit}	= 0;
+	$housekeeping->{refresh_now}		= 1;
 }
 
-if (!defined($LastCommitLogIdProcessed)) {
-	$LastCommitLogIdProcessed = 0;
-}
+print "\$MaxCommitLogPortId               = '$MaxCommitLogPortId'\n";
+print "\$housekeeping->{last_port_commit} = '$housekeeping->{last_port_commit}'\n";
+print "\$housekeeping->{refresh_now}      = '$housekeeping->{refresh_now}'\n";
 
-print "\$MaxCommitLogPortId       = '$MaxCommitLogPortId'\n";
-print "\$LastCommitLogIdProcessed = '$LastCommitLogIdProcessed'\n";
-
-if ($MaxCommitLogPortId > $LastCommitLogIdProcessed) {
+if ($housekeeping->{refresh_now} || $MaxCommitLogPortId > $housekeeping->{last_port_commit}) {
 	RefreshMainPage($dbh);
 }
 
