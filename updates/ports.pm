@@ -24,11 +24,6 @@ Something on your watch list has changed.  But I'm too
 confused to tell you exactly what.  Please refer to
 http://freshports.org/watch.php3 for details.
 
-This is the first such mailing.  Hopefully it will be
-a regular event from now on.  Please note that because
-this is the first message, you may already seen the
-port changes which prompted this message to you.
-
 Cheers and thanks for your support.
 
 --
@@ -76,7 +71,8 @@ sub PackageExists($) {
 
 LINE:
    while(<F>){
-      if(/$package/) {
+#      if(/$package/) {
+       if(index($_, $package) != -1 ) {
          $exists = "Y";
          last LINE;
       }
@@ -369,7 +365,7 @@ sub RefreshPort($;$;$) {
             ($longdescription, $homepage) = GetDescrAndHomePage($descrpath);
             $shortdescription = ReadFile($commentfile);
 
-            $packageexists = PackageExists($packagename . "tgz");
+            $packageexists = PackageExists($packagename . ".tgz");
 
             # because we are adding in \ before the quotes,
             # we need to quote the \'s first.
