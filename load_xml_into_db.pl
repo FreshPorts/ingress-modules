@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: load_xml_into_db.pl,v 1.46.2.6 2002-08-12 04:30:59 dan Exp $
+# $Id: load_xml_into_db.pl,v 1.46.2.7 2002-11-15 20:15:31 dan Exp $
 #
 # Copyright (c) 2001-2002 DVL Software
 #
@@ -266,7 +266,7 @@ sub handle_update_end
 	# as each port is refreshed, it will be committed
 
 	if ($refresh_ports) {
-		$ErrorFound = FreshPorts::VerifyPort::RefreshAllPortsTouchedByCommit(\%CommitLogPorts, $fetch_before_refresh, $dbh);
+		$ErrorFound = FreshPorts::VerifyPort::RefreshAllPortsTouchedByCommit(\%CommitLogPorts, FALSE, $dbh);
 	}
 
 	if (scalar(keys %CommitLogPorts)) {
