@@ -1,5 +1,5 @@
 #
-# $Id: Makefile,v 1.1.2.2 2004-08-12 16:08:34 dan Exp $
+# $Id: Makefile,v 1.1.2.3 2004-08-12 16:32:08 dan Exp $
 #
 # Install the ports needed by FreshPorts
 #
@@ -14,12 +14,13 @@ DISTFILES=      # none
 
 MAINTAINER=		ports@freebsddiary.org
 
-RUN_DEPENDS=	daemontools:${PORTSDIR}/sysutils/daemontools \
-				XML-Writer:${PORTSDIR}/textproc/p5-XML-Writer \
-				XML-Node:${PORTSDIR}/textproc/p5-XML-Node \
-				DBD-Pg:${PORTSDIR}/databases/p5-DBD-Pg \
-				DBI:${PORTSDIR}/databases/p5-DBI \
-				procmail:${PORTSDIR}/mail/procmail
+RUN_DEPENDS=	svscan:${PORTSDIR}/sysutils/daemontools \
+				${SITE_PERL}/XML/Writer.pm::${PORTSDIR}/textproc/p5-XML-Writer \
+				${SITE_PERL}/XML/Node.pm:${PORTSDIR}/textproc/p5-XML-Node \
+				${SITE_PERL}/${PERL_ARCH}/DBD/Pg.pm:${PORTSDIR}/databases/p5-DBD-Pg \
+				${SITE_PERL}/${PERL_ARCH}/DBI.pm:${PORTSDIR}/databases/p5-DBI \
+				procmail:${PORTSDIR}/mail/procmail \
+				${SITE_PERL}/Mail/Sender.pm:${PORTSDIR}/mail/p5-Mail-Sender
 
 NO_WRKSUBDIR=	YES
 NO_BUILD=		YES
