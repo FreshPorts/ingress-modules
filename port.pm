@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.38.2.8 2002-09-09 18:36:17 dan Exp $
+# $Id: port.pm,v 1.38.2.9 2002-09-18 14:04:54 dan Exp $
 #
 #
 # Copyright (c) 2001-2002 DVL Software
@@ -597,6 +597,7 @@ sub _FetchFilesNeedingRefresh {
 
 				FreshPorts::Utilities::ReportError('warning', "That make failed to return values for '-V DESCR -V COMMENT'.  I suspect an embedded make has failed. $this->{category}/$this->{name}", 0);
 				FreshPorts::CommitterOptIn::RecordErrorDetails("\n\nThat make failed to return values for '-V DESCR -V COMMENT'.  I suspect an embedded make has failed.\n\n");
+				$result = -1;
 			}
 			
 
@@ -605,6 +606,7 @@ sub _FetchFilesNeedingRefresh {
 			my $error = $?;
 			FreshPorts::Utilities::ReportError('warning', "error executing make command for $this->{category}/$this->{name}: Error Code = " . ($error >> 8), 0);
 			FreshPorts::CommitterOptIn::RecordErrorDetails("\n\n" . $MakeResults. "\n\n");
+			$result = -1;
 		}
 	} else {
 		FreshPorts::Utilities::ReportError('warning', "error fetching Makefile", 0);
