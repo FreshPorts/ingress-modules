@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: hourly_stats.pl,v 1.1.2.6 2003-05-16 01:14:04 dan Exp $
+# $Id: hourly_stats.pl,v 1.1.2.7 2004-02-07 06:31:23 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -11,6 +11,8 @@ use lib "$ENV{HOME}/scripts";
 use port;
 use database; 
 use DBI;
+use commit_log_ports_ignore;
+use system_status;
 
 my %Queries = (
 	new       => 'select Stats_PortCount()',
@@ -107,6 +109,15 @@ sub CreateHourlySummary() {
 	return 0;
 }
 
+
+#
+# see if the system is online.
+# If not, exit.
+#
+my $SystemStatus = FreshPorts::SystemStatus->new();
+if (!$SystemStatus->Online()) {
+	exit 0;
+}
 
 
 my $dbh = FreshPorts::Database::GetDBHandle();

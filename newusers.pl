@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: newusers.pl,v 1.3.2.5 2003-07-31 17:53:39 dan Exp $
+# $Id: newusers.pl,v 1.3.2.6 2004-02-07 06:31:23 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -10,6 +10,8 @@ use DBI;
 
 use lib "$ENV{HOME}/scripts";
 use database;
+use commit_log_ports_ignore;
+use system_status;
 
 sub SendNotice($;$) {
    my $StartDate = shift;
@@ -29,6 +31,14 @@ $msgbody --
 	FreshPorts::email::SendMail($From, $To, $CC, $Subject, $Body, $ExtraHeaders);
 }
 
+#
+# see if the system is online.
+# If not, exit.
+#
+my $SystemStatus = FreshPorts::SystemStatus->new();
+if (!$SystemStatus->Online()) {
+	exit 0;
+}
 
 if (($#ARGV+1) == 2) {
    print "there are 2 arguments\n";

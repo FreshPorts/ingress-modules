@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: unrefreshed.pl,v 1.11.2.12 2003-07-31 17:53:40 dan Exp $
+# $Id: unrefreshed.pl,v 1.11.2.13 2004-02-07 06:31:24 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -13,6 +13,7 @@ use database;
 use DBI;
 use email;
 use commit_log_ports_ignore;
+use system_status;
 
 require config;
 
@@ -44,6 +45,15 @@ sub usage {
 	print "USAGE : $0 INPUTFILE [-d] [-i]\n";
 	print "   -i : include any ignored commits\n";
 	print "   -d : include debugging information\n";
+}
+
+#
+# see if the system is online.
+# If not, exit.
+#
+my $SystemStatus = FreshPorts::SystemStatus->new();
+if (!$SystemStatus->Online()) {
+	exit 0;
 }
 
 my $ExcludeIgnoredCommits = 1;

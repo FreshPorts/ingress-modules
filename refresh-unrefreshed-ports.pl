@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: refresh-unrefreshed-ports.pl,v 1.20.2.8 2004-01-29 15:25:05 dan Exp $
+# $Id: refresh-unrefreshed-ports.pl,v 1.20.2.9 2004-02-07 06:31:23 dan Exp $
 #
 # Copyright (c) 1999-2004 DVL Software
 #
@@ -12,6 +12,8 @@ use DBI;
 use database;
 use utilities;
 use commit_log_ports;
+use system_status;
+use commit_log_ports_ignore;
 
 my $dbh;
 
@@ -24,8 +26,16 @@ my @row;
 
 my $fetch_before_refresh = 1;
 
-
 FreshPorts::Utilities::InitSyslog();
+
+#
+# see if the system is online.
+# If not, exit.
+#
+my $SystemStatus = FreshPorts::SystemStatus->new();
+if (!$SystemStatus->Online()) {
+	exit 0;
+}
 
 	if (($#ARGV+1) >= 1) {
 		my $i;
