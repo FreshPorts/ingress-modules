@@ -213,7 +213,11 @@ print " 9 $builddepends\n";
 print "10 $rundepends\n";
 print "11 $shortdescription\n";
 print "12 $longdescription\n";
-print "13 $homepage\n";                 # this may be an unitialized value
+print "13 ";
+if (defined($homepage)) {
+   print "$homepage";                 # this may be an unitialized value
+}
+print "\n";
 print "14 $packageexists\n";
 
 # this asks for user input
@@ -260,9 +264,16 @@ print "14 $packageexists\n";
 
       $sql .= "'$name', $categoryid ,                                                     \
               'FreeBSD', '$portversion', current_timestamp, '$shortdescription',          \ 
-              '$longdescription', '$maintainer', '$categories', current_timestamp, 'N',   \
-              '$homepage', '$mastersites', '$extractsuffix', '$packageexists', 'A',       \
-              '$rundepends', '$builddepends')";
+              '$longdescription', '$maintainer', '$categories', current_timestamp, 'N', ";
+
+      if (defined($homepage)) {
+         $sql .= "'$homepage', ";
+      } else {
+         $sql .= "NULL, ";
+      }
+
+      $sql .= "'$mastersites', '$extractsuffix', '$packageexists', 'A',       \
+               '$rundepends', '$builddepends')";
 
       print "$sql\n";
 
@@ -276,10 +287,18 @@ print "14 $packageexists\n";
               version = '$portversion', short_description = \
               '$shortdescription', long_description = '$longdescription', maintainer = \
               '$maintainer', categories = '$categories', date_last_refreshed = \
-              current_timestamp, homepage = '$homepage', master_sites = '$mastersites', \
-              extract_suffix = '$extractsuffix', package_exists = '$packageexists', \
-              needs_refresh = 'N', depends_run = '$rundepends', depends_build = '$builddepends' \
-              where id = $row[0]";
+              current_timestamp, ";
+
+      if (defined($homepage)) {
+         $sql .= "homepage = '$homepage',";
+      } else {
+         $sql .= "homepage = NULL,";
+      }
+
+      $sql .= " master_sites = '$mastersites', \
+                extract_suffix = '$extractsuffix', package_exists = '$packageexists', \
+                needs_refresh = 'N', depends_run = '$rundepends', depends_build = '$builddepends' \
+                where id = $row[0]";
 
       print "$sql\n";
 
@@ -365,7 +384,11 @@ sub RefreshPort($;$;$) {
 
             print "12 $shortdescription\n";
             print "13 $longdescription\n";
-            print "14 $homepage\n";
+            print "14 ";
+            if (defined($homepage)) {
+               print "$homepage";
+            }
+            print "\n";
             print "15 $packageexists\n";
 
             print "\n ---------------------------------------- \n";
