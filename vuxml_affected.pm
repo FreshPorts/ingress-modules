@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: vuxml_affected.pm,v 1.1.2.3 2004-12-11 00:12:43 dan Exp $
+# $Id: vuxml_affected.pm,v 1.1.2.4 2004-12-11 00:32:50 dan Exp $
 #
 # Copyright (c) 2004 DVL Software
 #
@@ -15,15 +15,13 @@ sub new {
 	my $class		= shift;
 	$this->{dbh}	= shift;
 	bless $this;
+
 	$this->_initialize();
 	return $this
 }
 
 sub _initialize {
 	my $this = shift;
-	my $row  = shift;
-
-	$this->{encoding_losses} = 0;
 }
 
 sub _GetValuesFromRow {
