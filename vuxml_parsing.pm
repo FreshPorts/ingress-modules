@@ -27,7 +27,7 @@
 # SUCH DAMAGE.
 
 #
-# @(#) $Id: vuxml_parsing.pm,v 1.1.2.16 2005-01-22 14:39:49 dan Exp $
+# @(#) $Id: vuxml_parsing.pm,v 1.1.2.17 2005-01-24 20:50:22 dan Exp $
 #
 # Parse the Vulnerabilities and Exposures (vuxml) database extracting
 # the entries for loading into a RDBMS.
@@ -294,8 +294,7 @@ sub update_database
 
     # Not interested in cancelled records
 
-    return $self
-      if defined $self->cancelled();
+    $self->print_self();    # For debugging purposes
 
     # Only commit stuff related to FreeBSD.  Assume it's FreeBSD
     # related if no explicit <system> tag is given.
@@ -308,7 +307,7 @@ sub update_database
     # don't have package names listed.
 
     return $self
-      unless $self->packages() > 0;
+      unless $self->packages() > 0 || defined $self->cancelled();
 
     # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     # Here is where the code goes to dump the data stored in this
@@ -319,14 +318,18 @@ sub update_database
     #
     # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-    $self->print_self();    # For debugging purposes
-
 	my $FullInsert  = 1;
 	my $MarkCommits = 0;
 
-	if ($self->{update_in_place}) {
+	if (defined $self->cancelled()) {
+		# we do not insert cancelled vuln
+		$FullInsert = 0;
 	    my $vuxml = FreshPorts::vuxml->new( $self->{db_handle} );
-#		$vuxml->{vid} = $self->vid();
+		$vuxml->DeleteByVID($self->vid());
+	}
+
+	if ($self->{update_in_place} && !defined $self->cancelled()) {
+	    my $vuxml = FreshPorts::vuxml->new( $self->{db_handle} );
 
 		my $vuxml_id = $vuxml->FetchByVID($self->vid());
 		if (defined($vuxml_id)) {
