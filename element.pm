@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: element.pm,v 1.7 2002-02-02 03:06:28 dan Exp $
+# $Id: element.pm,v 1.8 2002-02-02 03:11:10 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -60,7 +60,7 @@ sub save {
 		# i.e. our path name - our name.
 		#
 		if (!$this->{pathname}) {
-			die "neither parent_id nor pathname supplied";
+			FreshPorts::Utilities::ReportError('warning', "neither parent_id nor pathname supplied", 1);
 		}
 
 		#
@@ -87,7 +87,7 @@ sub save {
 				 where id = $this->{id}";
 		$sth = $this->{dbh}->prepare($sql);
 		$sth->execute ||
-			die "Could not execute SQL $sql ... maybe invalid?";
+			FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql ... maybe invalid?", 1);
 	} else {
 		# we are inserting
 		$sql = "select Element_Add(	'$this->{pathname}', \
@@ -97,7 +97,7 @@ sub save {
 
 		$sth = $this->{dbh}->prepare($sql);
 		$sth->execute ||
-			die "Could not execute SQL $sql ... maybe invalid?";
+			FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql ... maybe invalid?", 1);
 
 		@row = $sth->fetchrow_array();
 
@@ -120,8 +120,7 @@ sub FetchByID {
 
 	my $sth = $dbh->prepare($sql);
 	if (!$sth->execute) {
-		Sys::Syslog::syslog('warning', "Could not execute SQL $sql");
-		die "Could not execute SQL $sql ... maybe invalid?";
+		FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql ... maybe invalid?", 1);
 	}
 
 	my $row = $sth->fetchrow_hashref();
@@ -144,7 +143,7 @@ sub FetchByName {
 
 	my $dbh		= $this->{dbh};
 	if (!$dbh) {
-		die " no database handle!";
+		FreshPorts::Utilities::ReportError('warning', " no database handle!", 1);
 	}
 
 	my ($sql, $sth, @row);
@@ -155,8 +154,7 @@ sub FetchByName {
 
 	$sth = $dbh->prepare($sql);
 	if (!$sth->execute) {
-		Sys::Syslog::syslog('warning', "Could not execute SQL $sql");
-		die "Could not execute SQL $sql ... maybe invalid?";
+		FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql ... maybe invalid?", 1);
 	}
 
 	@row = $sth->fetchrow_array();
