@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: hourly_stats.pl,v 1.1.2.12 2004-12-03 01:36:12 dan Exp $
+# $Id: hourly_stats.pl,v 1.1.2.13 2004-12-03 01:41:23 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -82,21 +82,21 @@ sub CreateHourlySummary() {
 		print FILE '<BR>Calculated hourly:<BR>';
 
 		print FILE '<TABLE WIDTH="100%">' . "\n";
-		print FILE '<TR><TD><A HREF="/categories.php">Port count</A></TD> <TD ALIGN="right">'      . $Stats{new}       . '</TD></TR>' . "\n";
+		print FILE '<TR><TD><A HREF="/categories.php" TITLE="Number of ports in the database">Port count</A></TD> <TD ALIGN="right">'      . $Stats{new}       . '</TD></TR>' . "\n";
 
-		print FILE '<TR><TD><A HREF="/ports-broken.php">Broken</A></TD>     <TD ALIGN="right">'    . $Stats{broken}    . '</TD></TR>' . "\n";
-		print FILE '<TR><TD><A HREF="/ports-deprecated.php">Deprecated</A></TD>     <TD ALIGN="right">'    . $Stats{deprecated}    . '</TD></TR>' . "\n";
-		print FILE '<TR><TD><A HREF="/ports-ignore.php">Ignore</A></TD>     <TD ALIGN="right">'    . $Stats{ignore}    . '</TD></TR>' . "\n";
+		print FILE '<TR><TD><A HREF="/ports-broken.php" TITLE"Broken ports">Broken</A></TD>     <TD ALIGN="right">'    . $Stats{broken}    . '</TD></TR>' . "\n";
+		print FILE '<TR><TD><A HREF="/ports-deprecated.php" TITLE="Ports that have been deprecated">Deprecated</A></TD>     <TD ALIGN="right">'    . $Stats{deprecated}    . '</TD></TR>' . "\n";
+		print FILE '<TR><TD><A HREF="/ports-ignore.php" TITLE="Ports that you should ignore">Ignore</A></TD>     <TD ALIGN="right">'    . $Stats{ignore}    . '</TD></TR>' . "\n";
 
-		print FILE '<TR><TD><A HREF="/ports-forbidden.php">Forbidden</A></TD>  <TD ALIGN="right">' . $Stats{forbidden} . '</TD></TR>' . "\n";
+		print FILE '<TR><TD><A HREF="/ports-forbidden.php" TITLE="Ports that are forbidden">Forbidden</A></TD>  <TD ALIGN="right">' . $Stats{forbidden} . '</TD></TR>' . "\n";
 
-		print FILE '<TR><TD><A HREF="/ports-new.php?interval=today">new 24 hours</A></TD>    <TD ALIGN="right">'     . $Stats{today}     . '</TD></TR>' . "\n";
+		print FILE '<TR><TD><A HREF="/ports-new.php?interval=today" TITLE="Ports added in the last 24 hours">new 24 hours</A></TD>    <TD ALIGN="right">'     . $Stats{today}     . '</TD></TR>' . "\n";
 
-		print FILE '<TR><TD><A HREF="/ports-new.php?interval=yesterday">new 48 hours</A></TD><TD ALIGN="right">'     . $Stats{yesterday} . '</TD></TR>' . "\n";
+		print FILE '<TR><TD><A HREF="/ports-new.php?interval=yesterday" TITLE="Ports added in the last 48 hours">new 48 hours</A></TD><TD ALIGN="right">'     . $Stats{yesterday} . '</TD></TR>' . "\n";
 
-		print FILE '<TR><TD><A HREF="/ports-new.php?interval=week">new 7 days</A></TD><TD ALIGN="right">'            . $Stats{week}      . '</TD></TR>' . "\n";
-		print FILE '<TR><TD><A HREF="/ports-new.php?interval=fortnight">new fortnight</A></TD><TD ALIGN="right">'         . $Stats{fortnight} . '</TD></TR>' . "\n";
-		print FILE '<TR><TD><A HREF="/ports-new.php?interval=month">new month</A></TD><TD ALIGN="right">'             . $Stats{month}     . '</TD></TR>' . "\n";
+		print FILE '<TR><TD><A HREF="/ports-new.php?interval=week" TITLE="Ports added in the last 7 days">new 7 days</A></TD><TD ALIGN="right">'            . $Stats{week}      . '</TD></TR>' . "\n";
+		print FILE '<TR><TD><A HREF="/ports-new.php?interval=fortnight" TITLE="Ports added in the last 14 days">new fortnight</A></TD><TD ALIGN="right">'         . $Stats{fortnight} . '</TD></TR>' . "\n";
+		print FILE '<TR><TD><A HREF="/ports-new.php?interval=month" TITLE="Ports added in the last month">new month</A></TD><TD ALIGN="right">'             . $Stats{month}     . '</TD></TR>' . "\n";
 		print FILE '</TABLE>' . "\n";
 
 		print "closing file\n";
