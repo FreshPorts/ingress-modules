@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: report-new-ports.pl,v 1.1.2.15 2004-01-29 16:30:39 dan Exp $
+# $Id: report-new-ports.pl,v 1.1.2.16 2004-02-07 06:29:24 dan Exp $
 #
 # Copyright (c) 2001-2004 DVL Software
 #
@@ -13,6 +13,9 @@ use database;
 use DBI;
 use config;
 use report_constants;
+use announcements;
+use commit_log_ports_ignore;
+use system_status;
 
 use Text::Wrap;
 use email;
@@ -25,7 +28,7 @@ my @row;
 my $Bcc;
 my $NumMsgs		= 0;
 my $NumCommits	= 0;
-my $NumPorts   = 0;
+my $NumPorts    = 0;
 
 my $FormatDate	= "%W, %b %e";
 my $FormatTime	= "%H:%i";
@@ -56,12 +59,13 @@ $FreshPorts::ReportConstants::Footer
 }
 
 
-sub CompileWatchNotifyList($;$;$;$;$) {
+sub CompileWatchNotifyList($;$;$;$;$;$) {
 
 	my $Frequency = shift;
 	my $NewPorts  = shift;
 	my $PortCount = shift;
 	my $LastSent  = shift;
+	my $Announce  = shift;
 	my $dbh = shift;
 	my $sth;
 	my $sql;
@@ -125,6 +129,12 @@ order by users.id, categories.name, element.name, date_added";
 		$Interval      = 'month';
 	}
 
+	my $BodyHeader = '';
+	$BodyHeader .= $Announce . "\n"; 
+	$BodyHeader .= "Port count: " . sprintf("%5u", $PortCount) . " http://www.FreshPorts.org/categories.php\n";
+	$BodyHeader .= " New ports: " . sprintf("%5u", $NewPorts)  . " http://www.FreshPorts.org/ports-new.php?interval=$Interval\n\n";
+
+	$Body = $BodyHeader;
 	while (@row=$sth->fetchrow_array) {
 		print "now processing @row\n";
 		$NumPorts++;
@@ -150,9 +160,7 @@ order by users.id, categories.name, element.name, date_added";
 			print "To   = $To\n";
 			print "Body = $Body\n";
 
-			$Body   = '';
-			$Body .= "Port count: $PortCount http://www.freshports.org/categories.php\n";
-			$Body .= " New ports: $NewPorts  http://www.freshports.org/ports-new.php?interval=$Interval\n\n";
+			$Body   = $BodyHeader;
 			$To     = $row[1];
 			$LastID = $row[0];
 		}
@@ -200,6 +208,15 @@ sub AddToLogs($;$;$;$;$;$) {
 	$sth = $dbh->prepare($sql);
 	$sth->execute ||
            die "Could not execute SQL $sql ... maybe invalid?";
+}
+
+#
+# see if the system is online.
+# If not, exit.
+#
+my $SystemStatus = FreshPorts::SystemStatus->new();
+if (!$SystemStatus->Online()) {
+	exit 0;
 }
 
 #
@@ -276,7 +293,10 @@ if (($#ARGV+1) == 1) {
 
 			print "NewPorts = $NewPorts, PortCount = $PortCount\n";
 
-			CompileWatchNotifyList($Frequency, $NewPorts, $PortCount, $last_sent, $dbh);
+			my $Announcements = new FreshPorts::Announcements->new($dbh);
+			my $TextAnnounce = $Announcements->Get();
+
+			CompileWatchNotifyList($Frequency, $NewPorts, $PortCount, $last_sent, $TextAnnounce, $dbh);
 
 			if (!$Debug) {
 				AddToLogs($ReportID, $Frequency, $NumMsgs, $NumCommits, $NumPorts, $dbh);
