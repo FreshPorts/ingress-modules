@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: email.pl,v 1.8 2002-03-14 20:28:31 dan Exp $
+# $Id: email.pl,v 1.8.2.1 2002-04-16 12:58:13 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -83,7 +83,8 @@ sub CompileWatchNotifyList($;$) {
 	               categories.name as category, 
 	               element.name as port, 
 	               to_char(commit_log.commit_date + INTERVAL '$FreshPorts::Config::TimeAdjust', 'DD Mon YYYY') as commit_date,
-	               commit_log.description  
+	               commit_log.description,
+				   commit_log.committer
 	          from commit_log, watch_notice, watch_list_element, 
 	               watch_list, users, ports, categories, element, commit_log_ports
 	         where commit_log.date_added           >= watch_notice.last_sent 
@@ -134,7 +135,9 @@ sub CompileWatchNotifyList($;$) {
 #		print "LastID = '$LastID' and id = '$row[0]'\n";
 		if ($LastID != $row[0]) {
 			$NumMsgs++;
-			SendWatchNoticePersonal($To, $FrequencyLong, $Body);
+#			SendWatchNoticePersonal($To, $FrequencyLong, $Body);
+			print "To   = $To\n";
+			print "Body = $Body\n";
 
 			$Body   = '';
 			$To     = $row[1];
@@ -146,7 +149,7 @@ sub CompileWatchNotifyList($;$) {
 
 		# and wrap the description of the change.
 		$Body .= wrap("     ", "     ", $row[5]) . "\n";
-		$Body .=      "     $row[4]\n\n";
+		$Body .=      "     $row[4] - $row[6]\n\n";
 	}
 
 	# if we got at least one, send out email
