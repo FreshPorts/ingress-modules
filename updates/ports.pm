@@ -375,9 +375,9 @@ sub RefreshPortNoChecking($;$;$;$;$) {
 
    print "\n ---------------------------------------- \n";
 
-#   PortUpdate ($Port, $portname, $Category, $descrpath, $categories, $portversion,
-#      $commentfile, $maintainer, $extractsuffix, $mastersites, $builddepends,
-#      $rundepends, $shortdescription, $longdescription, $homepage, $packageexists, $dbh);
+   PortUpdate ($Port, $portname, $Category, $descrpath, $categories, $portversion,
+      $commentfile, $maintainer, $extractsuffix, $mastersites, $builddepends,
+      $rundepends, $shortdescription, $longdescription, $homepage, $packageexists, $dbh);
 }
 
 sub RefreshPort($;$;$) {
