@@ -32,7 +32,7 @@ TempFreshportsSurveyFile="freshports.survey.backup.txt"
 #
 # compress it
 #
-tar cfz $BackupFile $WorkingDirectory$TempFreshportsFile $WorkingDirectory$TempFreshportsForumFile $WorkingDirectory$TempFreshportsSurveyFile
+zip -9 $BackupFile $WorkingDirectory$TempFreshportsFile $WorkingDirectory$TempFreshportsForumFile $WorkingDirectory$TempFreshportsSurveyFile
 
 #
 # copy it offsite
@@ -45,7 +45,7 @@ tar cfz $BackupFile $WorkingDirectory$TempFreshportsFile $WorkingDirectory$TempF
 #EoF
 
 #/usr/bin/scp $BackupFile dan@ns1.unixathome.org:$BackupFile
-/usr/bin/scp $BackupFile dan@cvsup.nz.freebsd.org:$BackupFile
+#/usr/bin/scp $BackupFile dan@cvsup.nz.freebsd.org:$BackupFile
 /usr/bin/scp -P 2222 $BackupFile dan@diary.unixathome.org:$BackupFile
 
 #
