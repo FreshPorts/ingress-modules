@@ -1,5 +1,5 @@
 #
-# $Id: verifyport.pm,v 1.42.2.27 2004-12-19 23:18:21 dan Exp $
+# $Id: verifyport.pm,v 1.42.2.28 2005-01-22 14:38:22 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -16,6 +16,7 @@ use commit_log_ports_elements;
 use utilities;
 use committer_opt_in;
 use master_slave;
+use vuxml_mark_commits;
 
 require File::Basename;
 require Sys::Syslog;
@@ -631,6 +632,55 @@ sub RefreshAllSlavePortsOfPortsTouchedByCommit($;$;$) {
 	}
 
 	print "# # # # Finish refreshing slave ports # # # #\n\n";
+
+	return $ErrorFound;
+}
+
+sub MarkVulnerableCommits($;$;$) {
+	#
+	# given the ports touched by this commit
+	# mark any commits that are vulnerable
+	#
+
+
+	my $CommitLogPortsRef		= shift;
+	my %CommitLogPorts			= %{$CommitLogPortsRef};
+	my $fetch_before_refresh	= shift;
+	my $dbh						= shift;
+
+	my $port;
+	my $error;
+	my $ErrorFound = 0;
+
+	my $MarkCommits = FreshPorts::vuxml_mark_commits->new($dbh);
+
+	#
+	# refresh each and every port we are told about
+	#
+	print "# # # # Marking vulnerable # # # #\n\n";
+	while (my ($portname, $commit_log_ports) = each %CommitLogPorts) {
+		$port = $commit_log_ports->{port};
+		print "port = $portname, port_id = '$port->{id}', category_id='$port->{category_id}', needs_refresh='$commit_log_ports->{needs_refresh}'\n";
+
+		print "Updating commit_log_ports\n";
+
+		# and then update the commit_log_ports
+		$MarkCommits->RecordVulnerabilitiesForThisPortVersion(
+			$commit_log_ports->{commit_log_id},
+			$port->{id},
+			$port->{package_name},
+			$port->{version},
+			$port->{revision},
+			$port->{portepoch});
+
+		#
+		# commit everything we've done.  we don't want it falling over during
+		# the daily summary creation and then doing a rollback.
+		#
+		$dbh->commit();
+	}
+
+	print "# # # # done marking vulnerable commits # # # #\n\n";
 
 	return $ErrorFound;
 }
