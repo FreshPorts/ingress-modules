@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.38.2.5 2002-08-12 03:11:10 dan Exp $
+# $Id: port.pm,v 1.38.2.6 2002-09-02 03:34:49 dan Exp $
 #
 #
 # Copyright (c) 2001-2002 DVL Software
@@ -518,6 +518,23 @@ sub _FetchFilesNeedingRefresh {
 
 		if ($? == 0) {
 			(my $DESCR, my $COMMENT) = split(/\n/s, $MakeResults);
+
+			#
+			# If the port contains something like this:
+			# PORTVERSION=    ${MAKE} -V PORTVERSION -f ${MAINDIR}/${MAKEFILE}
+			# it will fail when using the -f option.  The error will be of this form:
+			#   make: cannot open /usr/home/dan/ports/misc/cheatah/../sword//usr/home/dan/ports/misc/cheatah/Makefile.
+			# which is what $DESCR will contain.
+			# which means the call to File::PathConvert::realpath below will fail
+			#
+			# The solution is at http://www.freebsd.org/cgi/cvsweb.cgi/ports/www/mozilla-embedded/Makefile.diff?r1=1.15&r2=1.16&f=h
+			# In summary, like this:
+			#	PORTVERSION=   ${MAKE} -V PORTVERSION -f ${MAINDIR}/${MKFILE}
+			#	MKFILE!=     /usr/bin/basename ${MAKEFILE}
+			#
+
+
+
 			print "raw       data DESCR   = $DESCR\n";
 			print "raw       data COMMENT = $COMMENT\n";
 
@@ -535,36 +552,41 @@ sub _FetchFilesNeedingRefresh {
 			$DESCR   = File::PathConvert::realpath($DESCR);
 			$COMMENT = File::PathConvert::realpath($COMMENT);
 
-			
+			if (defined($DESCR) && defined($COMMENT)) {
+				print "converted data DESCR   = $DESCR\n";
+				print "converted data COMMENT = $COMMENT\n";
 
-			print "converted data DESCR   = $DESCR\n";
-			print "converted data COMMENT = $COMMENT\n";
+				#
+				# now fetch these two files.  Since we obtained
+				# these values from the Makefile, we don't have to
+				# specify any directory prefix.  The Makefile did that.
+				#
 
-			#
-			# now fetch these two files.  Since we obtained
-			# these values from the Makefile, we don't have to
-			# specify any directory prefix.  The Makefile did that.
-			#
-
-			my $directory	= File::Basename::dirname ($DESCR);
-			my $FILE		= File::Basename::basename($DESCR);
-			my $DESTDIR		= $directory;
-			$SRCDIR			= File::Basename::dirname(RemovePortsPrefix($DESCR));
-
-			print "fetching \$DESTDIR = [$DESTDIR], \$SRCDIR = [$SRCDIR], \$FILE = [$FILE]\n";
-
-			if (FreshPorts::Utilities::FetchFile($DESTDIR, $SRCDIR, $FILE, $FreshPorts::Constants::HEAD)) {
-
-				my $directory	= File::Basename::dirname ($COMMENT);
-				my $FILE		= File::Basename::basename($COMMENT);
+				my $directory	= File::Basename::dirname ($DESCR);
+				my $FILE		= File::Basename::basename($DESCR);
 				my $DESTDIR		= $directory;
-				$SRCDIR			= File::Basename::dirname(RemovePortsPrefix($COMMENT));
+				$SRCDIR			= File::Basename::dirname(RemovePortsPrefix($DESCR));
 
 				print "fetching \$DESTDIR = [$DESTDIR], \$SRCDIR = [$SRCDIR], \$FILE = [$FILE]\n";
 
 				if (FreshPorts::Utilities::FetchFile($DESTDIR, $SRCDIR, $FILE, $FreshPorts::Constants::HEAD)) {
-					$result = 0;
+
+					my $directory	= File::Basename::dirname ($COMMENT);
+					my $FILE		= File::Basename::basename($COMMENT);
+					my $DESTDIR		= $directory;
+					$SRCDIR			= File::Basename::dirname(RemovePortsPrefix($COMMENT));
+
+					print "fetching \$DESTDIR = [$DESTDIR], \$SRCDIR = [$SRCDIR], \$FILE = [$FILE]\n";
+
+					if (FreshPorts::Utilities::FetchFile($DESTDIR, $SRCDIR, $FILE, $FreshPorts::Constants::HEAD)) {
+						$result = 0;
+					}
 				}
+			} else {
+				print "That make failed to return values for '-V DESCR -V COMMENT'.  I suspect an embedded make has failed.\n\n";
+
+				FreshPorts::Utilities::ReportError('warning', "That make failed to return values for '-V DESCR -V COMMENT'.  I suspect an embedded make has failed. $this->{category}/$this->{name}", 0);
+				FreshPorts::CommitterOptIn::RecordErrorDetails("\n\nThat make failed to return values for '-V DESCR -V COMMENT'.  I suspect an embedded make has failed.\n\n");
 			}
 			
 
