@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $Id: database_dump.sh,v 1.7 2002-01-06 07:21:05 dan Exp $
+# $Id: database_dump.sh,v 1.8 2002-02-18 05:36:33 dan Exp $
 #
 # Copyright (c) 1999-2000 DVL Software
 #
@@ -26,11 +26,11 @@ TempFreshportsSurveyFile="freshports.survey.backup.txt"
 #     database   - the name of database to dump
 #     /pathto/   - the path to the backup file
 #
-/usr/local/bin/pg_dump FreshPorts2 > $WorkingDirectory$TempFreshportsFile
+/usr/local/bin/pg_dump FreshPorts2TestLists > $WorkingDirectory/$TempFreshportsFile
 #
 # compress it
 #
-zip -9 $BackupFile $WorkingDirectory$TempFreshportsFile
+zip -9 $BackupFile $WorkingDirectory/$TempFreshportsFile
 
 #
 # copy it offsite
@@ -41,4 +41,4 @@ zip -9 $BackupFile $WorkingDirectory$TempFreshportsFile
 #
 # remove the files we created
 #
-rm $BackupFile $WorkingDirectory$TempFreshportsFile $WorkingDirectory$TempFreshportsForumFile $WorkingDirectory$TempFreshportsSurveyFile
+rm $BackupFile $WorkingDirectory/$TempFreshportsFile $WorkingDirectory/$TempFreshportsForumFile $WorkingDirectory/$TempFreshportsSurveyFile
