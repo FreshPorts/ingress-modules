@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: process_cvs_mail.pl,v 1.8.2.4 2002-04-12 05:37:13 dan Exp $
+# $Id: process_cvs_mail.pl,v 1.8.2.5 2002-04-16 12:57:55 dan Exp $
 #
 # Copyright (c) 2001-2002  DVL Software
 #
@@ -73,7 +73,7 @@ sub GetData {
 		$Log = $Message_Subject;
 	}
 
-	@Data =	[	'UPDATES', [ { Version => '0.13' },
+	@Data =	[	'UPDATES', [ { Version => '1.3.2.1' },
 				'UPDATE', [ {},
 					'DATE', [ &GetDate($message)
 					],
