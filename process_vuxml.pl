@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 # -w
 #
-# $Id: process_vuxml.pl,v 1.1.2.1 2004-09-11 00:46:43 dan Exp $
+# $Id: process_vuxml.pl,v 1.1.2.2 2004-09-11 01:08:07 dan Exp $
 #
 # Copyright (c) 2001-2004 DVL Software
 #
@@ -49,7 +49,7 @@ sub main {
 
 		EmptyVuXML($dbh);
 
-		my $v = FreshPorts::vuxml_parsing->new(Stream => *STDIN);
+		my $v = FreshPorts::vuxml_parsing->new(Stream => *STDIN, DBHandle => $dbh);
 		$v->parse_xml();
 
 # hmmm, this might be a good way to debug...
