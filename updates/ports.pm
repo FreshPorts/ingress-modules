@@ -6,8 +6,6 @@ require	Exporter;
 @ISA	= qw(Exporter);
 @EXPORT	= qw(PortUpdate ExtractCategoryFromDirectory GetDescrAndHomePage ReadFile PackageExists RefreshPort);
 
-my $IGNOREDPORTS = "\\.\\.|\\.|pkg|CVS|apache13-php3-fp-modssl|Makefile";
-
 #
 # this script should walk the ports tree and update the 
 # ports table accordingly.
@@ -244,8 +242,8 @@ print "14 $packageexists\n";
               '$shortdescription', long_description = '$longdescription', maintainer = \
               '$maintainer', categories = '$categories', date_last_refreshed = \
               current_timestamp, homepage = '$homepage', master_sites = '$mastersites', \
-              extract_suffix = '$extractsuffix', package_exists = '$packageexists', status \
-              = 'N', needs_refresh = 'N', depends_run = '$rundepends', depends_build = '$builddepends' \
+              extract_suffix = '$extractsuffix', package_exists = '$packageexists', \
+              needs_refresh = 'N', depends_run = '$rundepends', depends_build = '$builddepends' \
               where id = $row[0]";
 
       print "$sql\n";
@@ -264,77 +262,86 @@ sub RefreshPort($;$;$) {
    my $port    = shift;
    my $dbh     = shift;
 
-   print "\n... now checking $dirname/$port .... ";
-   if (-d "$dirname/$port" && $port !~ /$IGNOREDPORTS/) {
-      if (!-e "$dirname/$port/Makefile") {
-         print " @@@@@@ makefile does not exist (port must be in Attic)\n";
+   print "... now checking $dirname/$port .... ";
+   if (-d "$dirname/$port") {
+      #
+      # at one time, $IGNOREDPORTS contained . and .. but that caused
+      # problems with port names which contained a '.'
+      # hence, this solution.  Also, pkg causes similar problems
+      # as the port pkg_remove would match that
+      # my $IGNOREDPORTS = "pkg|CVS|apache13-php3-fp-modssl|Makefile";
+      if ($port eq "." || $port eq ".." || $port eq "pkg" || $port eq "CVS" || $port eq "Makefile") {
+         print "port is in the IGNORE list... skipping\n";
       } else {
+         if (!-e "$dirname/$port/Makefile") {
+            print " ...makefile does not exist (port must be in Attic)\n";
+         } else {
+            print "...now looking at $dirname/$port/Makefile\n";
 
-         print "...now looking at $dirname/$port/Makefile\n";
-
-         #
-         # if we don't change the working dir, stuff like descrpath will not
-         # contain /usr/ports/...etc.  It will look more like this: 
-         #     /usr/home/dan/walkports/pkg/DESCR
-         # That's because DESCR is define as .{CURDIR}/pkg/DESCR etc more or less
-         #
+            #
+            # if we don't change the working dir, stuff like descrpath will not
+            # contain /usr/ports/...etc.  It will look more like this: 
+            #     /usr/home/dan/walkports/pkg/DESCR
+            # That's because DESCR is define as .{CURDIR}/pkg/DESCR etc more or less
+            #
          
-         $makecommand = "make -V PORTNAME -V PKGNAME -V DESCR -V CATEGORIES -V PORTVERSION " .
-                        "-V COMMENT -V MAINTAINER -V EXTRACT_SUFX -V MASTER_SITES " .
-                        "-V BUILD_DEPENDS -V RUN_DEPENDS -f $dirname/$port/Makefile";
+            $makecommand = "make -V PORTNAME -V PKGNAME -V DESCR -V CATEGORIES -V PORTVERSION " .
+                           "-V COMMENT -V MAINTAINER -V EXTRACT_SUFX -V MASTER_SITES " .
+                           "-V BUILD_DEPENDS -V RUN_DEPENDS -f $dirname/$port/Makefile";
            
-         print "makecommand = $makecommand\n";
-         chdir "$dirname/$port";
+            print "makecommand = $makecommand\n";
+            chdir "$dirname/$port";
  
-         ($portname, $packagename, $descrpath, $categories, $portversion, $commentfile,
-          $maintainer, $extractsuffix, $mastersites, $builddepends,
-          $rundepends) = split(/\n/s, `$makecommand`);
+            ($portname, $packagename, $descrpath, $categories, $portversion, $commentfile,
+             $maintainer, $extractsuffix, $mastersites, $builddepends,
+             $rundepends) = split(/\n/s, `$makecommand`);
 
-         $category = ExtractCategoryFromDirectory($dirname);
+            $category = ExtractCategoryFromDirectory($dirname);
 
-         print " 0 $port\n";
-         print " 1 $portname\n";
-         print " a $category\n";
-         print " 2 $packagename\n";     
-         print " 3 $descrpath\n";     
-         print " 4 $categories\n";
-         print " 5 $portversion\n";
-         print " 6 $commentfile\n";
-         print " 7 $maintainer\n";
-         print " 8 $extractsuffix\n";
-         print " 9 $mastersites\n";
-         print "10 $builddepends\n";
-         print "11 $rundepends\n";
+            print " 0 $port\n";
+            print " 1 $portname\n";
+            print " a $category\n";
+            print " 2 $packagename\n";     
+            print " 3 $descrpath\n";     
+            print " 4 $categories\n";
+            print " 5 $portversion\n";
+            print " 6 $commentfile\n";
+            print " 7 $maintainer\n";
+            print " 8 $extractsuffix\n";
+            print " 9 $mastersites\n";
+            print "10 $builddepends\n";
+            print "11 $rundepends\n";
 
-         ($longdescription, $homepage) = GetDescrAndHomePage($descrpath);
-         $shortdescription = ReadFile($commentfile);
+            ($longdescription, $homepage) = GetDescrAndHomePage($descrpath);
+            $shortdescription = ReadFile($commentfile);
 
-         $packageexists = PackageExists($packagename . "tgz");
+            $packageexists = PackageExists($packagename . "tgz");
 
-         # because we are adding in \ before the quotes,
-         # we need to quote the \'s first.
+            # because we are adding in \ before the quotes,
+            # we need to quote the \'s first.
 
-         #  these bits might have \'s.
-         $longdescription  =~ s/\\/\\\\/g;
-         $shortdescription =~ s/\\/\\\\/g;
+            #  these bits might have \'s.
+            $longdescription  =~ s/\\/\\\\/g;
+            $shortdescription =~ s/\\/\\\\/g;
 
-         #  these bits might have quotes.
-         $longdescription  =~ s/\'/\\'/g;
-         $shortdescription =~ s/\'/\\'/g;
+            #  these bits might have quotes.
+            $longdescription  =~ s/\'/\\'/g;
+            $shortdescription =~ s/\'/\\'/g;
 
-         print "12 $shortdescription\n";
-         print "13 $longdescription\n";
-         print "14 $homepage\n";
-         print "15 $packageexists\n";
+            print "12 $shortdescription\n";
+            print "13 $longdescription\n";
+            print "14 $homepage\n";
+            print "15 $packageexists\n";
 
-         print "\n ---------------------------------------- \n";
+            print "\n ---------------------------------------- \n";
 
-         PortUpdate ($port, $portname, $category, $descrpath, $categories, $portversion,
-                     $commentfile, $maintainer, $extractsuffix, $mastersites, $builddepends,
-                     $rundepends, $shortdescription, $longdescription, $homepage, $packageexists, $dbh);
+            PortUpdate ($port, $portname, $category, $descrpath, $categories, $portversion,
+                        $commentfile, $maintainer, $extractsuffix, $mastersites, $builddepends,
+                        $rundepends, $shortdescription, $longdescription, $homepage, $packageexists, $dbh);
 
-      }  # else yes, the Makefile does exist.
+         }  # else yes, the Makefile does exist.
+      }
    } else {
-      print "skipping\n";
-   } # else ignored directory
+      print "directory does not exist... skipping\n";
+   }
 }
