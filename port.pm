@@ -1,4 +1,4 @@
-# $Id: port.pm,v 1.39 2002-03-30 02:57:18 dan Exp $
+# $Id: port.pm,v 1.40 2002-03-30 02:59:50 dan Exp $
 #
 #
 # Copyright (c) 2001 DVL Software
@@ -148,7 +148,7 @@ EOF
 1;
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.39 2002-03-30 02:57:18 dan Exp $
+# $Id: port.pm,v 1.40 2002-03-30 02:59:50 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -496,8 +496,8 @@ sub _ExtractValuesFromMakefile {
 
 	if ($result == 0) {
 
-		$builddepends	= FreshPorts::Utilities::freshports_ConvertPortPathToStandardLocation($builddepends);
-		$rundepends		= FreshPorts::Utilities::freshports_ConvertPortPathToStandardLocation($rundepends);
+		$builddepends	= freshports_ConvertPortPathToStandardLocation($builddepends);
+		$rundepends		= freshports_ConvertPortPathToStandardLocation($rundepends);
 
 		print " portname     ='$this->{name}'\n";
 		print " packagename  ='$portname'\n";

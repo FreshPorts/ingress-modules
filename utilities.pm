@@ -1,4 +1,4 @@
-# $Id: utilities.pm,v 1.11 2002-03-12 15:40:59 dan Exp $
+# $Id: utilities.pm,v 1.12 2002-03-30 02:59:50 dan Exp $
 #
 #
 # Copyright (c) 2001 DVL Software
@@ -7,18 +7,6 @@ package FreshPorts::Utilities;
 
 require config;
 require Sys::Syslog;
-
-sub freshports_ConverPortPathToStandardLocation($) {
-	my $pathname = shift;
-
-	# look for $FreshPorts::Config::path_to_tree and 
-	# replace it with /usr.  Why? so we refer to the 
-	# real ports tree and not the one we are using
-
-	$pathname =~ s/$FreshPorts::Config::path_to_tree/$FreshPorts::Constants::UsualPortsTreeLocation/g;
-
-	return $pathname;
-}
 
 # =================================
 
@@ -61,8 +49,9 @@ sub FetchFile($;$;$) {
 
 	while ($FetchAttempts) {
 		`sh $FreshPorts::Config::scriptpath/fetch-cvs-file.sh $DESTDIR $SRCDIR $FILE`;
-
-		if (($? >> 8)) {
+		$result = $?;
+		print "fetch result = $result\n";
+		if (($result >> 8)) {
 			#
 			# This might be a nice place to retry a fetch, or send an email
 			#
