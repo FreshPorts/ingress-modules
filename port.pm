@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.38.2.3 2002-05-19 18:41:36 dan Exp $
+# $Id: port.pm,v 1.38.2.4 2002-07-16 12:54:47 dan Exp $
 #
 #
 # Copyright (c) 2001-2002 DVL Software
@@ -345,12 +345,14 @@ sub _ExtractValuesFromMakefile {
 
 	my $mastersites;
 	if ($result == 0) {
+		print "trying to get master sites\n";
 		$mastersites = `make master-sites-all -f $MakefileDirectory/$FreshPorts::Constants::FILE_MAKEFILE PORTSDIR=$FreshPorts::Config::path_to_ports`;
 		# save this for later reference
 		$result = $?;
 	}
 
 	print "\$result='$result'\n";
+	print "\$mastersites='$mastersites\n";
 
 	# remove previously created directory
 	if ($FreshPorts::Config::mkdir_pkg) {
@@ -382,6 +384,10 @@ sub _ExtractValuesFromMakefile {
 		print " builddepends ='$builddepends'\n";
 		print " rundepends   ='$rundepends'\n";
 
+		# eliminate multiple // : PR 174
+		# to compensate for bug in File::PathConvert::realpath
+		$descrpath   =~ s|//|/|g;
+		$commentfile =~ s|//|/|g;
 
 		my $RealDescrPath	= File::PathConvert::realpath($descrpath);
 		my $RealCommentFile	= File::PathConvert::realpath($commentfile); 
@@ -516,6 +522,11 @@ sub _FetchFilesNeedingRefresh {
 			# ../ in their path names.  We must remove that in order
 			# to find out if have to retrieve a file in our path
 			#
+
+			# eliminate multiple // : PR 174
+			# to compensate for bug in File::PathConvert::realpath
+			$DESCR   =~ s|//|/|g;
+			$COMMENT =~ s|//|/|g;
 
 			$DESCR   = File::PathConvert::realpath($DESCR);
 			$COMMENT = File::PathConvert::realpath($COMMENT);
@@ -796,11 +807,14 @@ sub GetNeedsRefreshForNewPort {
 			# ../ in their path names.  We must remove that in order
 			# to find out if have to retrieve a file in our path
 			#
+			# eliminate multiple // : PR 174
+			# to compensate for bug in File::PathConvert::realpath
+			$DESCR   =~ s|//|/|g;
+			$COMMENT =~ s|//|/|g;
 
 			$DESCR   = File::PathConvert::realpath($DESCR);
 
 			print "converted data DESCR   = $DESCR\n";
-			print "converted data COMMENT = $COMMENT\n";
 
 			my $entry = $FreshPorts::Constants::FILE_DESCRIPTION;
 			if ($DESCR eq "$FreshPorts::Config::path_to_ports/$category/$port/$entry") {
@@ -817,6 +831,7 @@ sub GetNeedsRefreshForNewPort {
 			$entry = $FreshPorts::Constants::FILE_COMMENT;
 
 			$COMMENT = File::PathConvert::realpath($COMMENT);
+			print "converted data COMMENT = $COMMENT\n";
 			if ($COMMENT eq "$FreshPorts::Config::path_to_ports/$category/$port/$entry") {
 				print "this port has it's own $entry\n";
 				my $index = $FreshPorts::Constants::FilesWhichPromptRefresh{$entry};
@@ -863,10 +878,16 @@ sub RemovePortsPrefix($) {
 	my $SuffixPath = shift;
 	print "into RemovePortsPrefix => $SuffixPath\n";
 
+	# eliminate multiple // : PR 174
+	# to compensate for bug in File::PathConvert::realpath
+	$SuffixPath   =~ s|//|/|g;
+
 	$SuffixPath = File::PathConvert::realpath($SuffixPath);
 
 	# add a trailing slash to the real path!
-	my $Prefix = File::PathConvert::realpath($FreshPorts::Config::path_to_ports) . "/";
+	my $Prefix = $FreshPorts::Config::path_to_ports;
+	$Prefix =~ s|//|/|g;
+	$Prefix = File::PathConvert::realpath($Prefix) . "/";
 
 	print "\$Prefix => $Prefix\n";
 
