@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: verifyport.pm,v 1.42.2.12 2003-05-16 01:14:08 dan Exp $
+# $Id: verifyport.pm,v 1.42.2.13 2003-07-17 14:54:13 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -402,7 +402,7 @@ sub RefreshAllPortsTouchedByCommit($;$;$) {
 	my $dbh							= shift;
 
 	my $port;
-	my $error 		= 0;
+	my $error;
 	my $ErrorFound = 0;
 
 	#
@@ -413,12 +413,27 @@ sub RefreshAllPortsTouchedByCommit($;$;$) {
 		$port = $commit_log_ports->{port};
 		print "port = $portname, port_id = '$port->{id}', category_id='$port->{category_id}', needs_refresh='$commit_log_ports->{needs_refresh}'\n";
 
-		$error = $port->RefreshFromFiles($commit_log_ports->{needs_refresh}, $fetch_before_refresh);
+		#
+		# Sometimes a port can be deleted in one commit, and a later
+		# commit will remove a missed file.  If this port is deleted, don't refresh it.
+		# If we don't need to refresh it, we don't need to save it.
+		#
+		if ($port->IsActive()) {
+			$error = $port->RefreshFromFiles($commit_log_ports->{needs_refresh}, $fetch_before_refresh);
+		} else {
+			print "This port is deleted: not refreshing.\n";
+			$error = 0;
+		}
+
 		if (!$error) {
-			
-			# after refreshing from the files, save the results
-			$port->save();
-			
+			if ($port->IsActive()) {
+				# after [perhaps] refreshing from the files, save the results
+				$port->save();
+			} else {
+				print "This port is deleted: not saving.\n";
+			}
+
+			print "Updating commit_log_ports\n";
 
 			# and then update the commit_log_ports
 
