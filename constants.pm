@@ -1,7 +1,9 @@
-# $Id: constants.pm,v 1.7.2.6 2003-09-23 15:34:33 dan Exp $
+#
+# $Id: constants.pm,v 1.7.2.7 2003-09-24 13:48:16 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
+
 package FreshPorts::Constants;
 
 use strict;
@@ -24,18 +26,6 @@ $FreshPorts::Constants::FreeBSD						= 'FreeBSD';
 
 
 $FreshPorts::Constants::FILE_MAKEFILE				= "Makefile";
-$FreshPorts::Constants::FILE_DESCRIPTION			= "pkg-descr";
-$FreshPorts::Constants::FILE_COMMENT				= "pkg-comment";
-$FreshPorts::Constants::FILE_MAKEFILECOMMON			= "Makefile.common";
-$FreshPorts::Constants::FILE_MAKEFILEMAN			= "files/Makefile.man";
-
-%FreshPorts::Constants::FilesWhichPromptRefresh = (
-	$FreshPorts::Constants::FILE_MAKEFILE			=> 1,
-	$FreshPorts::Constants::FILE_DESCRIPTION		=> 2,
-	$FreshPorts::Constants::FILE_COMMENT			=> 4,
-	$FreshPorts::Constants::FILE_MAKEFILECOMMON		=> 8,
-	$FreshPorts::Constants::FILE_MAKEFILEMAN		=> 16,
-);
 
 #
 # These are the entries within /usr/ports/ which we ignore
