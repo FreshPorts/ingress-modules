@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: ExportXMLFromDB.pl,v 1.7 2002-03-11 00:13:17 dan Exp $
+# $Id: ExportXMLFromDB.pl,v 1.8 2002-03-11 00:15:24 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -36,7 +36,7 @@ sub main {
 
 	my $change_log;
 
-	my $sql = "select change_log.* 
+	my $sql = "select distinct change_log.* 
 				from change_log, change_log_port, ports
 			   where ports.status  = 'A'
 			 	 and ports.id      = change_log_port.port_id
