@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: report-new-ports.pl,v 1.1.2.2 2002-06-16 19:48:41 dan Exp $
+# $Id: report-new-ports.pl,v 1.1.2.3 2002-06-18 02:22:04 dan Exp $
 #
 # Copyright (c) 2001-2002 DVL Software
 #
@@ -46,7 +46,7 @@ sub SendWatchNoticePersonal($;$;$) {
 print SENDMAIL <<"EOF";
 From: FreshPorts watch daemon <freshports-watch\@freshports.org>
 To: $To
-Subject: FreshPorts $FrequencyLong notification
+Subject: FreshPorts $FrequencyLong new ports
 
 This is the new test report for notifications as found at
 $AdjustURL.
