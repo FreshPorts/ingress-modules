@@ -1,8 +1,8 @@
 #!/usr/bin/perl -w
 #
-# $Id: verifyport.pm,v 1.42 2002-02-17 20:02:57 dan Exp $
+# $Id: verifyport.pm,v 1.43 2002-04-01 21:15:34 dan Exp $
 #
-# Copyright (c) 2001 DVL Software
+# Copyright (c) 2001-2001 DVL Software
 #
 
 package FreshPorts::VerifyPort;
@@ -536,107 +536,6 @@ sub _DeleteDeletedPorts($;$) {
 	}
 	print "# # # # Finished deleting deleted ports # # # #\n\n";
 }
-
-sub CreateDailySummary($;$) {
-#
-# create the daily summary for the supplied date.
-# CommitDateStart should be the commit date of the message
-# which prompted the database update in the first place.
-#
-
-	my $CommitDateStart = shift;
-	my $dbh             = shift;
-
-	my $myrow;
-
-	my $sql =	"select ports.id, element.name as port, commit_log_ports.port_version as version, commit_log_ports.port_revision as revision, categories.name as category, commit_log.commit_date as commit_date " .
-				"from ports, commit_log, commit_log_ports, element, categories " .
-				"where ports.id                       = commit_log_ports.port_id " .
-				"  and commit_log_ports.commit_log_id = commit_log.id " .
-				"  and element.id                     = ports.element_id " .
-				"  and ports.category_id              = categories.id " .
-				"  and commit_log.commit_date + 'INTERVAL -10800 seconds' between '$CommitDateStart'::timestamp and '$CommitDateStart'::timestamp + INTERVAL '1 DAY' " .
-				"order by commit_log.commit_date desc";
-
-	print "\$sql='$sql'<BR>\n";
-
-	my $sth = $dbh->prepare($sql);
-
-	$sth->execute ||
-		FreshPorts::Utilities::ReportError('warning', "Could not execute SQL statement\n--$sql--\n... maybe invalid?", 1);
-
-	print "$sql\n";
-
-	umask(02);
-	# create the output file name gradually, ensuring the directories exist
-
-	my $OutputFile = $FreshPorts::Config::DailySummaryDir . "/" . substr($CommitDateStart, 0, 4);
-
-	if (-d $OutputFile) {
-		print "'$OutputFile' exists\n";
-	} else {
-		print "'$OutputFile' does not exist\n";
-		print "   trying to mkdir '$OutputFile'\n";
-		if (mkdir $OutputFile, 0775) {
-		} else {
-			print "Could not create directory $OutputFile\n";
-			return 1;
-		}
-	}
-
-	$OutputFile .= "/" . substr($CommitDateStart, 5, 2);
-	if (-d $OutputFile) {
-		print "'$OutputFile' exists\n";
-	} else {
-		print "   trying to mkdir '$OutputFile'\n";
-		if (mkdir $OutputFile, 0775) {
-		} else {
-		print "Could not create directory $OutputFile\n";
-			return 2;
-		}
-	}
-
-	$OutputFile .= "/" .  substr($CommitDateStart, 8, 2) . ".inc";
-	print "trying to open '$OutputFile'\n";
-   
-	if (open(FILE, ">$OutputFile")) {
-		print "that file was opened.  now writing output\n";
-		my $count =0;
-		while ($myrow = $sth->fetchrow_hashref()) {
-			print $myrow->{commit_date} .': '. $myrow->{category}. '/' . $myrow->{port} . "\n";
-			print FILE "<A HREF=\"$myrow->{category}/$myrow->{port}/\">";
-			print FILE '<font size="-1">' . $myrow->{port} . ' ';
-
-			#
-			# when a port is first saved, it does not contain a version.
-			# that is set when the port is refreshed.
-			# the daily summary is not created until this refresh.
-			# but in case we have parallel processes, this check
-			# should avoid a nasty little warning message.
-			#
-			if (defined($myrow->{version})) {
-				print FILE $myrow->{version};
-			}
-			if (defined($myrow->{revision})) {
-				print FILE '-' . $myrow->{revision};
-			}
-			print FILE "</font></a><br>\n";     
-			$count++;
-		}
-
-		print "i wrote out $count records\n";
-
-		close FILE;
-	} else {
-		print "could not open '$OutputFile'\n";
-		return 3;
-	}
-   
-	return 0;
-}
-
-
-
 
 FreshPorts::Utilities::InitSyslog();
 
