@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 use strict;
-use lib '/home/freshports.org/scrpts/updates';
+use lib '/home/freshports.org/scripts/updates';
 use ports;
  
 use DBI;
