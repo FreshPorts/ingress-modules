@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: unrefreshed.pl,v 1.11.2.6 2002-12-12 04:59:12 dan Exp $
+# $Id: unrefreshed.pl,v 1.11.2.7 2002-12-17 16:39:45 dan Exp $
 #
 # Copyright (c) 2001-2002 DVL Software
 #
@@ -24,7 +24,7 @@ sub SendNotice($;$;$) {
 
 	chomp $hostname;
 
-	my $Body = "At $hostname, there are $count ports needing refresh.
+	my $Body = 'At ' . $hostname . '::' . $FreshPorts::Config::dbname . ", there are $count ports needing refresh.
 
 $list
 ";
