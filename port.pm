@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: port.pm,v 1.17 2001-12-22 04:30:00 dan Exp $
+# $Id: port.pm,v 1.18 2001-12-22 22:02:05 dan Exp $
 #
 #
 # Copyright (c) 2001 DVL Software
@@ -699,10 +699,15 @@ sub _PackageExists($) {
 
 	my $package_list = "$FreshPorts::Config::scriptpath/packages.exists";
 
-	`grep $package $package_list`;
+	#
+	# test for the file to grep
+	#
+	if (-f $package_list) {
+		`grep $package $package_list`;
 
-	if (!$?) {
-		$exists = "Y";
+		if (!$?) {
+			$exists = "Y";
+		}
 	}
 
 	return $exists;
