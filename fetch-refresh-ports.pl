@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: fetch-refresh-ports.pl,v 1.6 2001-12-22 21:48:24 dan Exp $
+# $Id: fetch-refresh-ports.pl,v 1.7 2002-02-02 03:06:29 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -45,7 +45,7 @@ print "sql = $sql\n";
 
 $sth = $dbh->prepare($sql);
 $sth->execute ||
-        die "Could not execute SQL $sql ... maybe invalid?";
+		FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql ... maybe invalid?", 1);
 
 while (@row=$sth->fetchrow_array) {
    print "now processing @row\n";
@@ -88,12 +88,10 @@ foreach $porttorefresh (@PORTS) {
 
 		if (!$FetchAttempts) {
 			# could not fetch those files....
-			Sys::Syslog::syslog('warning', "Failed to fetch any files for port ($port_id, $category_name, $port_name, $needs_refresh)");
-			die "Failed to fetch any files for port ($port_id, $category_name, $port_name, $needs_refresh)";
+			FreshPorts::Utilities::ReportError('warning', "Failed to fetch any files for port ($port_id, $category_name, $port_name, $needs_refresh)", 1);
 		}
 	} else {
-		Sys::Syslog::syslog('warning', "Could not retrieve port ($port_id, $category_name, $port_name, $needs_refresh)");
-		die "Could not retrieve port ($port_id, $category_name, $port_name, $needs_refresh)";
+		FreshPorts::Utilities::ReportError('warning', "Could not retrieve port ($port_id, $category_name, $port_name, $needs_refresh)", 1);
 	}
 }
 $dbh->commit();

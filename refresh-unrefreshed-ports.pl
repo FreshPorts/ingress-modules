@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: refresh-unrefreshed-ports.pl,v 1.12 2001-12-31 15:27:27 dan Exp $
+# $Id: refresh-unrefreshed-ports.pl,v 1.13 2002-02-02 03:06:30 dan Exp $
 #
 # Copyright (c) 1999-2001 DVL Software
 #
@@ -44,7 +44,7 @@ print "sql = $sql\n";
 
 $sth = $dbh->prepare($sql);
 $sth->execute ||
-        die "Could not execute SQL $sql ... maybe invalid?";
+		FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql ... maybe invalid?", 1);
 
 while (@row=$sth->fetchrow_array) {
    print "now processing @row\n";
@@ -78,8 +78,7 @@ foreach $porttorefresh (@PORTS) {
 				print "has been refreshed ($result)\n";
 			}
 		} else {
-			Sys::Syslog::syslog('warning', "Could not retrieve element ($port_id, $category_name, $port_name, $needs_refresh, $commit_log_id)");
-			die "Could not retrieve element ($port_id, $category_name, $port_name, $needs_refresh, $commit_log_id)";
+			FreshPorts::Utilities::ReportError('warning', "Could not retrieve element ($port_id, $category_name, $port_name, $needs_refresh, $commit_log_id)", 1);
 		}
 
 		#
@@ -102,8 +101,7 @@ foreach $porttorefresh (@PORTS) {
 			print "update result is $result ******************************************\n";
 		}
 	} else {
-		Sys::Syslog::syslog('warning', "Could not retrieve port ($port_id, $category_name, $port_name, $needs_refresh, $commit_log_id)");
-		die "Could not retrieve port ($port_id, $category_name, $port_name, $needs_refresh, $commit_log_id)";
+		FreshPorts::Utilities::ReportError('warning', "Could not retrieve port ($port_id, $category_name, $port_name, $needs_refresh, $commit_log_id)", 1);
 	}
 }
 

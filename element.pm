@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: element.pm,v 1.6 2001-12-22 04:30:39 dan Exp $
+# $Id: element.pm,v 1.7 2002-02-02 03:06:28 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -44,7 +44,7 @@ sub save {
 	# get the name if not supplied
 	if (!$this->{name}) {
 		if (!$this->{pathname}) {
-			die "neither name nor pathname supplied";
+			FreshPorts::Utilities::ReportError('warning', "neither name nor pathname supplied", 1);
 		}
 		$this->{name} = File::Basename::basename($this->{pathname});
 	}

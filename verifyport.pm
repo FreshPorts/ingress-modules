@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: verifyport.pm,v 1.39 2002-01-23 02:46:56 dan Exp $
+# $Id: verifyport.pm,v 1.40 2002-02-02 03:06:31 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -88,13 +88,12 @@ sub _CompileListOfPorts($;$;$) {
 							# we need to create this catgory.
 							# remember to grab ports/<category>/pkg/COMMENT
 							print "creating new category $category_name\n";
-							Sys::Syslog::syslog('warning', "creating new category $category_name");
+							FreshPorts::Utilities::ReportError('warning', "creating new category $category_name", 0);
 
 							$category->{is_primary} = 1;
 							$category_id = $category->save();
 							if (!defined($category_id)) {
-								Sys::Syslog::syslog('warning', "failed to create new category $category_name");
-								die "failed to create new category $category_name";
+								FreshPorts::Utilities::ReportError('warning', "failed to create new category $category_name", 1);
 							}
 
 						$CategoriesChecked{$category_name} = $category;
@@ -258,8 +257,7 @@ sub SaveChangesToPortsTree($;$;$) {
 			$commit_log_ports->{needs_refresh}	= $needs_refresh;
 
 			if ($commit_log_ports->{needs_refresh} == -1) {
-				Sys::Syslog::syslog('warning', "Cannot GetNeedsRefreshForNewPort.  Fetch failed");
-				die "Cannot GetNeedsRefreshForNewPort.  Fetch failed";
+				FreshPorts::Utilities::ReportError('warning', "Cannot GetNeedsRefreshForNewPort.  Fetch failed", 1);
 			}
 
 			$commit_log_ports->save();
@@ -359,8 +357,7 @@ sub _LoadMasterPortsForAnySlavePorts($;$) {
 				print "fetching \$DESTDIR = [$DESTDIR], \$SRCDIR = [$SRCDIR], \$FILE = [$FILE]\n";
 
 				if (!FreshPorts::Utilities::FetchFile($DESTDIR, $SRCDIR, $FILE)) {
-					Sys::Syslog::syslog('warning', "Sorry, but we couldn't fetch all the files as required when we encounter a SLAVE/MASTER port");
-					die "Sorry, but we couldn't fetch all the files as required when we encounter a SLAVE/MASTER port";
+					FreshPorts::Utilities::ReportError('warning', "Sorry, but we couldn't fetch all the files as required when we encounter a SLAVE/MASTER port", 1);
 				}
 			}
 		}
@@ -431,8 +428,7 @@ sub _RecordPortFilesTouchedByThatCommit($;$;$;$) {
 				# find the port for this filename....
 				$port = $Ports{"$category_name/$port_name"};
 				if (!$port) {
-					Sys::Syslog::syslog('warning', "could not find port '$category_name/$port_name' in hash.");
-					die "could not find port '$category_name/$port_name' in hash.";
+					FreshPorts::Utilities::ReportError('warning', "could not find port '$category_name/$port_name' in hash.", 1);
 				}
 
 				#
@@ -543,7 +539,7 @@ sub CreateDailySummary($;$) {
 	my $sth = $dbh->prepare($sql);
 
 	$sth->execute ||
-		die "Could not execute SQL statement\n--$sql--\n... maybe invalid?";
+		FreshPorts::Utilities::ReportError('warning', "Could not execute SQL statement\n--$sql--\n... maybe invalid?", 1);
 
 	print "$sql\n";
 

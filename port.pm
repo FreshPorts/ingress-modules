@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.27 2002-01-23 03:11:07 dan Exp $
+# $Id: port.pm,v 1.28 2002-02-02 03:06:30 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -125,7 +125,7 @@ print "sql = $sql\n";
 
 		$sth = $this->{dbh}->prepare($sql);
 		$sth->execute ||
-			die "Could not execute SQL $sql ... maybe invalid? " . $dbh->errstr;
+			FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql ... maybe invalid? " . $dbh->errstr, 1);
 	} else {
 		# we are inserting
 		# do we really need to quote these things?
@@ -139,8 +139,7 @@ print "sql = $sql\n";
 		}
 
 		if (!$this->{element_id} || !$this->{category_id}) {
-			Sys::Syslog::syslog('warning', "Cannot create new port.  Insufficient data");
-			die "Cannot create new port.  Insufficient data";
+			FreshPorts::Utilities::ReportError('warning', "Cannot create new port.  Insufficient data", 1);
 		}
 
 		#
@@ -157,8 +156,7 @@ print "sql = $sql\n";
 
 		$sth = $this->{dbh}->prepare($sql);
 		if (!$sth->execute) {
-			Sys::Syslog::syslog('warning', "Could not execute SQL $sql ... maybe invalid? " . $dbh->errstr);
-			die "Could not execute SQL $sql ... maybe invalid? " . $dbh->errstr;
+			FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql ... maybe invalid? " . $dbh->errstr, 1);
 		}
 
 	}
@@ -186,8 +184,7 @@ sub FetchByID {
 
 	$sth = $dbh->prepare($sql);
 	if (!$sth->execute) {
-		Sys::Syslog::syslog('warning', "Could not execute SQL $sql");
-		die "Could not execute SQL $sql ... maybe invalid? " . $dbh->errstr;
+		FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql", 1);
 	}
 
 	$row = $sth->fetchrow_hashref();
@@ -214,7 +211,7 @@ sub FetchByPartialPathName {
 
 	$dbh = $this->{dbh};
 	if (!$dbh) {
-		die " no database handle!";
+		FreshPorts::Utilities::ReportError('warning', " no database handle!", 1);
 	}
 
  	my $element;
@@ -237,8 +234,7 @@ sub FetchByPartialPathName {
 
 	$sth = $dbh->prepare($sql);
 	if (!$sth->execute) {
-		Sys::Syslog::syslog('warning', "Could not execute SQL $sql");
-		die "Could not execute SQL $sql ... maybe invalid? " . $dbh->errstr;
+		FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql", 1);
 	}
 
 	$row = $sth->fetchrow_hashref();
@@ -261,7 +257,7 @@ sub _FetchElementIDByPartialPathName {
 
 	$dbh = $this->{dbh};
 	if (!$dbh) {
-		die " no database handle!";
+		FreshPorts::Utilities::ReportError('warning', "no database handle!", 1);
 	}
 
  	my $element;
@@ -435,9 +431,7 @@ sub _FetchFilesNeedingRefresh {
 		print "now doing a chdir to $DESTDIR\n";
 		if (!chdir("$DESTDIR")) {
 			my $error = $!;
-			print "error doing a chdir $DESTDIR $error\n";
-			Sys::Syslog::syslog('warning', "error doing a chdir $DESTDIR $error");
-			die "error doing a chdir $DESTDIR $error\n";
+			FreshPorts::Utilities::ReportError('warning', "error doing a chdir $DESTDIR $error\n", 1);
 		}
 
 
@@ -509,14 +503,10 @@ sub _FetchFilesNeedingRefresh {
 
 		} else {
 			my $error = $?;
-			print "error executing make command for $this->{category}/$this->{name}: Error Code = " . ($error >> 8) . "\n";
-			Sys::Syslog::syslog('warning', "error executing make command for $this->{category}/$this->{name}: Error Code = " . ($error >> 8));
-			die "error executing make command for $this->{category}/$this->{name}: Error Code = " . ($error >> 8) . "\n";
+			FreshPorts::Utilities::ReportError('warning', "error executing make command for $this->{category}/$this->{name}: Error Code = " . ($error >> 8), 1);
 		}
 	} else {
-			print "error fetching Makefile\n";
-			Sys::Syslog::syslog('warning', "error fetching Makefile");
-			die "error executing merror fetching Makefile\n";
+		FreshPorts::Utilities::ReportError('warning', "error fetching Makefile", 1);
 	}
 
 	print "exit _FetchFilesNeedingRefresh ------------\n";
@@ -532,7 +522,7 @@ sub _GetDescrAndHomePage($) {
 	my $url;
 	my $DESCR;
 
-	open (F,$file) || die "couldn't open $file: $!";;
+	open (F,$file) || FreshPorts::Utilities::ReportError('warning', "couldn't open $file: $!", 1);
 	$DESCR = "";
 	
 	while(<F>){
@@ -586,8 +576,7 @@ sub RefreshFromFiles($) {
 	my $needs_refresh	= shift;
 
 	if (!defined($needs_refresh)) {
-		Sys::Syslog::syslog('warning',"needs_refresh has no value");
-		die "needs_refresh has no value";
+		FreshPorts::Utilities::ReportError('warning', "needs_refresh has no value", 1);
 	}
 
 	my $result = 0;
@@ -656,8 +645,7 @@ sub GetNeedsRefreshForNewPort {
 	#
 	if (!defined($this->{deleted})) {
 		if (!defined($this->{name}) || !defined($this->{category})) {
-			Sys::Syslog::syslog('warning', "Cannot GetNeedsRefreshForNewPort.  Insufficient data");
-			die "Cannot GetNeedsRefreshForNewPort.  Insufficient data";
+			FreshPorts::Utilities::ReportError('warning', "Cannot GetNeedsRefreshForNewPort.  Insufficient data", 1);
 		}
 	}
 
@@ -665,8 +653,7 @@ sub GetNeedsRefreshForNewPort {
 	my $port		= $this->{name};
 
 	if (!defined($category) || !defined($port)) {
-		Sys::Syslog::syslog('warning', "Cannot _GetNeedsRefreshForNewPort.  Insufficient data");
-		die "Cannot _GetNeedsRefreshForNewPort.  Insufficient data";
+		FreshPorts::Utilities::ReportError('warning', "Cannot _GetNeedsRefreshForNewPort.  Insufficient data", 1);
 	}
 
 	print "category = $category\n";
@@ -776,9 +763,7 @@ sub GetNeedsRefreshForNewPort {
 			$result = 0;
 		} else {
 			my $error = $?;
-			print "error executing make command for $category/$port: Error Code = " . ($error >> 8) . "\n";
-			Sys::Syslog::syslog('warning', "error executing make command for $category/$port: Error Code = " . ($error >> 8));
-			die "error executing make command for $category/$port: Error Code = " . ($error >> 8) . "\n";
+			FreshPorts::Utilities::ReportError('warning', "error executing make command for $category/$port: Error Code = " . ($error >> 8), 1);
 		}
 	}
 

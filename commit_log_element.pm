@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: commit_log_element.pm,v 1.2 2001-12-22 04:30:38 dan Exp $
+# $Id: commit_log_element.pm,v 1.3 2002-02-02 03:06:27 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -53,12 +53,10 @@ print "$FreshPorts::Constants::commit_log_elements_seq\n";
 
 		$sth = $this->{dbh}->prepare($sql);
 		if (!$sth->execute) {
-			Sys::Syslog::syslog('warning', "Could not execute SQL $sql ... maybe invalid? ". $dbh->errstr);
-			die "Could not execute SQL $sql ... maybe invalid? ". $dbh->errstr;
+			FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql ... maybe invalid? ". $dbh->errstr, 1);
 		}
 	} else {
-		Sys::Syslog::syslog('warning', "FreshPorts::CommitLogElements::save works for updates only");
-		die "FreshPorts::CommitLogElements::save works for updates only";
+		FreshPorts::Utilities::ReportError('warning', "FreshPorts::CommitLogElements::save works for updates only", 1);
 	}
 }
 

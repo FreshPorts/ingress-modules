@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: commit_log_port_elements.pm,v 1.1 2001-12-22 04:52:42 dan Exp $
+# $Id: commit_log_port_elements.pm,v 1.2 2002-02-02 03:06:27 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -38,8 +38,7 @@ sub save {
 
 	$sth = $this->{dbh}->prepare($sql);
 	if (!$sth->execute) {
-		Sys::Syslog::syslog('warning', "Could not execute SQL $sql ... maybe invalid? ". $dbh->errstr);
-		die "Could not execute SQL $sql ... maybe invalid? ". $dbh->errstr;
+		FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql ... maybe invalid? ". $dbh->errstr, 1);
 	}
 }
 

@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: summary-all-days-create.pl,v 1.3 2002-01-06 07:21:06 dan Exp $
+# $Id: summary-all-days-create.pl,v 1.4 2002-02-02 03:06:30 dan Exp $
 #
 # Copyright (c) 1999-2000 DVL Software
 #
@@ -40,7 +40,7 @@ my $sql = "select ports.id, ports.name, ports.version, " .
 my $sth = $dbh->prepare($sql);
 
 $sth->execute ||
-     die "Could not execute SQL statement ... maybe invalid?";
+     FreshPorts::Utilities::ReportError('warning', "Could not execute SQL statement ... maybe invalid?", 1);
 
 my $PrevDate;
 my $OutputFile;
@@ -68,7 +68,7 @@ while (@myrow = $sth->fetchrow_array) {
          print "   trying to mkdir '$OutputFile'\n";
          if (mkdir $OutputFile, 0775) {
          } else {
-            die "Could not create directory $OutputFile";
+            FreshPorts::Utilities::ReportError('warning', "Could not create directory $OutputFile", 1);
          }
       }
 
@@ -79,13 +79,13 @@ while (@myrow = $sth->fetchrow_array) {
          print "   trying to mkdir '$OutputFile'\n";
          if (mkdir $OutputFile, 0775) { 
          } else {
-            die "Could not create directory $OutputFile";
+            FreshPorts::Utilities::ReportError('warning', "Could not create directory $OutputFile", 1);
          }
       }
 
       $OutputFile .= "/" .  substr($myrow[3], 8, 2) . ".inc";
       print "   trying to open '$OutputFile'\n";
-      open FILE, ">$OutputFile"  || die "Could not open $OutputFile";
+      open FILE, ">$OutputFile"  || FreshPorts::Utilities::ReportError('warning', "Could not open $OutputFile", 1);
    }
 
    print FILE '<a href="port-description.php3?port=' . $myrow[0] . '"><font size="-1">' . $myrow[1] . ' ' . $myrow[2] . "</font></a><br>\n";

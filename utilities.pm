@@ -1,4 +1,4 @@
-# $Id: utilities.pm,v 1.7 2001-12-22 04:30:44 dan Exp $
+# $Id: utilities.pm,v 1.8 2002-02-02 03:06:31 dan Exp $
 #
 #
 # Copyright (c) 2001 DVL Software
@@ -21,8 +21,7 @@ sub ReadFile($) {
 			$content .= $_;
 		}
 	} else {
-		Sys::Syslog::syslog('warning', "cannot open file $file");
-		die "cannot open file $file";
+		FreshPorts::Utilities::ReportError('warning', "cannot open file $file", 1);
 	}
 
 	close F;
@@ -88,6 +87,22 @@ sub InitSyslog() {
 		Sys::Syslog::setlogsock('unix');
 		Sys::Syslog::openlog('FreshPorts', 'cons, pid', 'user');
 		$FreshPorts::Utilities::syslog_init = 1;
+	}
+}
+
+
+sub ReportError($;$;$) {
+	my $level	= shift;
+	my $message	= shift;
+	my $die		= shift;
+
+	my $suffix = $FreshPorts::Config::scriptpath;
+
+	Sys::Syslog::syslog($level, $message . " $suffix)");
+	print $message . "\n";
+
+	if ($die) {
+		die $message . "\n";
 	}
 }
 

@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: load_xml_into_db.pl,v 1.34 2002-01-30 16:06:20 dan Exp $
+# $Id: load_xml_into_db.pl,v 1.35 2002-02-02 03:06:30 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -31,6 +31,7 @@ use element;
 use verifyport;
 use config;
 use constants;
+use commit_log;
 use commit_log_element;
 use db_utils;
 use database;
@@ -205,17 +206,13 @@ sub handle_os_end {
    $SystemID = SystemIDGet($Updates{os}, $dbh);
    if (!defined($SystemID)) {
       $! = 3;
-      Sys::Syslog::syslog('warning', "No SystemID found for OS = '$Updates{os}'\n");
-      print "No SystemID found for OS = '$Updates{os}'\n";
-      die   "No SystemID found for OS = '$Updates{os}'\n";
+      FreshPorts::Utilities::ReportError('warning', "No SystemID found for OS = '$Updates{os}'", 1);
    }
    
    $SystemBranchID = SystemBranchIDGetOrCreate($SystemID, $Updates{branch}, $dbh);
    if (!defined($SystemBranchID)) {
       $! = 4;
-      Sys::Syslog::syslog('warning', "No SystemBranchID found for OS = '$Updates{branch}'\n");
-      print "No SystemBranchID found for OS = '$Updates{branch}'\n";
-      die   "No SystemBranchID found for OS = '$Updates{branch}'\n";
+      FreshPorts::Utilities::ReportError('warning', "No SystemBranchID found for OS = '$Updates{branch}'", 1);
    }
    
    print "OS is '$Updates{os}' ($SystemID) : branch = $Updates{branch} ($SystemBranchID)\n";
@@ -332,9 +329,7 @@ sub handle_file_end
 
 	if (!$fileaction) {
 		$! = 5;
-		Sys::Syslog::syslog('warning', "invalid file action found");
-		print "invalid file action found\n";
-		die   "invalid file action found\n";
+		FreshPorts::Utilities::ReportError('warning', "invalid file action found", 1);
 	}
 
 	if (!defined($commit_log_id)) {
@@ -380,9 +375,7 @@ sub handle_file_end
     	            $element->save();
 				}
 			} else {
-				Sys::Syslog::syslog('warning', "Unknown element->status found.");
-				print "Unknown element->status found";
-				die   "Unknown element->status found";
+				FreshPorts::Utilities::ReportError('warning', "Unknown element->status found.", 1);
 			}
 		}
 	}
@@ -392,9 +385,7 @@ sub handle_file_end
 	#
 	if (!defined($element_id)) {
 		$! = 6;
-		Sys::Syslog::syslog('warning', "sorry, but I should have had an element_id for '$filename', but I didn't.\n");
-		print "sorry, but I should have had an element_id for '$filename', but I didn't.\n";
-		die   "sorry, but I should have had an element_id for '$filename', but I didn't.\n";
+		FreshPorts::Utilities::ReportError('warning', "sorry, but I should have had an element_id for '$filename', but I didn't.", 1);
 	}
 
 	#
@@ -441,26 +432,25 @@ print "$FreshPorts::Constants::commit_log_elements_seq\n";
 }
 
 sub ElementRevisionExists($;$;$) {
-   my $ElementID    = shift;
-   my $RevisionName = shift;
-   my $dbh          = shift;
+	my $ElementID    = shift;
+	my $RevisionName = shift;
+	my $dbh          = shift;
 
-   my $sth;
-   my $sql;
-   my @row;
+	my $sth;
+	my $sql;
+	my @row;
 
-   # quote everything going to the database
-   my $QuotedRevisionName = $dbh->quote($RevisionName);
-   $sql = "select count(*) from element_revision where element_id = $ElementID and revision_name = $QuotedRevisionName";
-   $sth = $dbh->prepare($sql);
-   if (!$sth->execute())  {
-         Sys::Syslog::syslog('warning', "Could not execute sql");
-         die "Could not execute sql = $sql in ElementRevsionExists";
-         }
-   @row = $sth->fetchrow_array();   
-   $sth->finish();
+	# quote everything going to the database
+	my $QuotedRevisionName = $dbh->quote($RevisionName);
+	$sql = "select count(*) from element_revision where element_id = $ElementID and revision_name = $QuotedRevisionName";
+	$sth = $dbh->prepare($sql);
+	if (!$sth->execute())  {
+		FreshPorts::Utilities::ReportError('warning', "Could not execute sql", 1);
+	}
+	@row = $sth->fetchrow_array();   
+	$sth->finish();
 
-   return $row[0];
+	return $row[0];
 }
 
 
@@ -482,8 +472,7 @@ sub ElementRevisionInsert($;$;$) {
 	if (!$debug) {
 		$sth = $dbh->prepare($sql);
 		if (!$sth->execute) {
-			Sys::Syslog::syslog('warning', "Could not execute sql " . $dbh->err . " " . $dbh->errstr);
-			die "Could not execute SQL $sql ... maybe invalid?";
+			FreshPorts::Utilities::ReportError('warning', "Could not execute sql " . $dbh->err . " " . $dbh->errstr, 1);
 		}
 
 		$sth->finish();
@@ -560,6 +549,8 @@ sub SaveUpdateToDB {
 
 	my $temp;
 
+	my $commit_log = FreshPorts::Commit_Log->new($dbh);
+
 	print "load_xml_into_db.pl::SaveUpdateToDB --- start\n";
 
 	my $message_id      = $dbh->quote($Updates{MessageId});
@@ -567,19 +558,16 @@ sub SaveUpdateToDB {
 	my $existing_commit_id = GetExistingMessageID($message_id, $dbh);
 
 	if (defined($existing_commit_id)) {
-		Sys::Syslog::syslog('warning',"message $message_id has already been added to the database");
-		print "message $message_id has already been added to the database\n";
+		FreshPorts::Utilities::ReportError('warning', "message $message_id has already been added to the database", 0);
 
 		if ($overwrite) {
-			Sys::Syslog::syslog('warning',"message $message_id being removed");
-			print "message $message_id being removed\n";
+			FreshPorts::Utilities::ReportError('warning', "message $message_id being removed", 0);
 
 			# delete that message
 			$sql = "delete from commit_log where message_id = $message_id";
 			$sth = $dbh->prepare($sql);
 			if (!$sth->execute) {
-				Sys::Syslog::syslog('warning', "Could not execute SQL $sql $dbh->err");
-				die "Could not execute SQL $sql ... maybe invalid? $dbh->err";
+				FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql $dbh->err", 1);
 			}
 		} else {
 			my $nullvalue;
@@ -589,6 +577,7 @@ sub SaveUpdateToDB {
 
 
 	my $id = FreshPorts::Database::GetNextValue($FreshPorts::Constants::commit_log_seq, $dbh);
+	$commit_log->{id} = $id;
 
 	$message_date       = $dbh->quote(
 							sprintf "%04u/%02u/%02u %02u:%02u:%02u %s", 
@@ -597,7 +586,12 @@ sub SaveUpdateToDB {
 							$Updates{messagezone});
 
 	my $message_subject = $dbh->quote($Updates{MessageSubject});
+
 	my $date_added      = "now()";
+	if (defined($Updates{DateAdded})) {
+		$date_added = $Updates{DateAdded};
+	}
+
 	my $commit_date     = $dbh->quote(
 							sprintf "%04u/%02u/%02u %02u:%02u:%02u %s", 
 							$Updates{dateyear}, $Updates{datemonth}, $Updates{dateday}, 
@@ -607,22 +601,16 @@ sub SaveUpdateToDB {
 	my $committer       = $dbh->quote($Updates{committer});
 	my $description     = $dbh->quote($Updates{log});
    
-	$sql = "insert into commit_log (id, message_id, message_date, message_subject, date_added, commit_date, 
-										committer, description, system_id) 
-							values ($id, $message_id, $message_date, $message_subject, $date_added, $commit_date, 
-										$committer, $description, $SystemID)";
+	$commit_log->{message_id}		= $message_id;
+	$commit_log->{message_date}		= $message_date;
+	$commit_log->{message_subject}	= $message_subject;
+	$commit_log->{date_added}		= $date_added;
+	$commit_log->{commit_date}		= $commit_date;
+	$commit_log->{committer}		= $committer;
+	$commit_log->{description}		= $description;
+	$commit_log->{system_id}		= $SystemID;
 
-	print "SaveUpdateToDB sql = $sql\n";
-
-	if (!$debug) {
-		$sth = $dbh->prepare($sql);
-		if (!$sth->execute) {
-			Sys::Syslog::syslog('warning', "Could not execute SQL $sql");
-			die "Could not execute SQL $sql ... maybe invalid?";
-		}
-
-		$sth->finish();
-	}
+	$id = $commit_log->save();
 
 	print "load_xml_into_db.pl::SaveUpdateToDB --- finish\n";
 
@@ -630,27 +618,26 @@ sub SaveUpdateToDB {
 }
 
 sub GetExistingMessageID($;$) {
-   my $message_id = shift;
-   my $dbh        = shift;
-   my $sth;
-   my $sql;
-   my @row;
+	my $message_id = shift;
+	my $dbh        = shift;
+	my $sth;
+	my $sql;
+	my @row;
    
-   $sql = "select id from commit_log where message_id = $message_id";
+	$sql = "select id from commit_log where message_id = $message_id";
 
-   print "GetExistingMessageID => sql='$sql'\n";
+	print "GetExistingMessageID => sql='$sql'\n";
    
-   $sth = $dbh->prepare($sql);
-   if (!$sth->execute) {
-           Sys::Syslog::syslog('warning', "Could not execute SQL $sql");
-           die "Could not execute SQL $sql ... maybe invalid?";
-   }
+	$sth = $dbh->prepare($sql);
+	if (!$sth->execute) {
+		FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql", 1);
+	}
 
-   @row = $sth->fetchrow_array();
+	@row = $sth->fetchrow_array();
    
-   $sth->finish();
+	$sth->finish();
    
-   return $row[0];
+	return $row[0];
 }
 
 sub Pathname_ID($;$) {
@@ -669,8 +656,7 @@ sub Pathname_ID($;$) {
 
 	$sth = $dbh->prepare($sql);
 	if (!$sth->execute) {
-		Sys::Syslog::syslog('warning', "Could not execute SQL $sql");
-		die "Could not execute SQL $sql ... maybe invalid?";
+		FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql", 1);
 	}
 
 	@row = $sth->fetchrow_array();
@@ -698,15 +684,14 @@ sub SystemBranchIDGetOrCreate($;$;$) {
 
 	$sth = $dbh->prepare($sql);
 	if (!$sth->execute) {
-		Sys::Syslog::syslog('warning', "Could not execute SQL $sql");
-		die "Could not execute SQL $sql ... maybe invalid?";
+		FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql", 1);
 	}
 
 	@row = $sth->fetchrow_array();
 
 	$SystemBranchID = $row[0];
 	if (!defined($SystemBranchID)) {
-		Sys::Syslog::syslog('warning', "creating new Branch $branch_name");
+		FreshPorts::Utilities::ReportError('warning', "creating new Branch $branch_name", 0);
 
 		$SystemBranchID = FreshPorts::Database::GetNextValue($FreshPorts::Constants::system_branch_seq, $dbh);
 		$sql = "insert into system_branch (id, system_id, branch_name) values " .
@@ -714,8 +699,7 @@ sub SystemBranchIDGetOrCreate($;$;$) {
 
 		$sth = $dbh->prepare($sql);
 		if (!$sth->execute) {
-			Sys::Syslog::syslog('warning', "Could not execute SQL $sql");
-			die "Could not execute SQL $sql ... maybe invalid?";
+			FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql", 1);
 		}
 	}
 
@@ -740,7 +724,7 @@ sub SystemIDGet($;$) {
 
 	$sth = $dbh->prepare($sql);
 	$sth->execute ||
-		die "Could not execute SQL $sql ... maybe invalid?";
+		FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql ... maybe invalid?", 1);
 
 	@row = $sth->fetchrow_array();
 
@@ -767,7 +751,7 @@ sub SystemBranchElementInsert($;$;$;$) {
 	if (!$debug) {
 		$sth = $dbh->prepare($sql);
 		$sth->execute ||
-				die "Could not execute SQL $sql ... maybe invalid?";
+				FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql ... maybe invalid?", 1);
 
 		$sth->finish();
 	}
@@ -790,7 +774,7 @@ sub Element_Add($;$;$) {
    if (!$debug) {
       $sth = $dbh->prepare($sql);
       $sth->execute ||
-              die "Could not execute SQL $sql ... maybe invalid?";
+              FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql ... maybe invalid?", 1);
 
       @row = $sth->fetchrow_array();
    

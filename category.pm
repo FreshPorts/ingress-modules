@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: category.pm,v 1.7 2001-12-22 04:30:38 dan Exp $
+# $Id: category.pm,v 1.8 2002-02-02 03:06:27 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -54,12 +54,11 @@ sub save {
 
 	# get the name if not supplied
 	if (!$this->{name}) {
-		Sys::Syslog::syslog('warning', "name not supplied");
-		die "name not supplied";
+		FreshPorts::Utilities::ReportError('warning', "name not supplied", 1);
 	}
 
 	if (!$this->{is_primary}) {
-		die "is_primary not supplied";
+		FreshPorts::Utilities::ReportError('warning', "is_primary not supplied", 1);
 	}
 
 	if (!$this->{description}) {
@@ -77,7 +76,7 @@ sub save {
 				 where id = $this->{id}";
 		$sth = $this->{dbh}->prepare($sql);
 		$sth->execute ||
-			die "Could not execute SQL $sql ... maybe invalid?";
+			FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql ... maybe invalid?", 1);
 	} else {
 		# we are inserting
 		$sql = "select CreateCategory(" . $dbh->quote($this->{name}) . ", \
@@ -88,7 +87,7 @@ sub save {
 
 		$sth = $this->{dbh}->prepare($sql);
 		$sth->execute ||
-			die "Could not execute SQL $sql ... maybe invalid?";
+			FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql ... maybe invalid?", 1);
 
 		@row = $sth->fetchrow_array();
 
@@ -117,8 +116,7 @@ sub FetchByID {
 
 	$sth = $dbh->prepare($sql);
 	if (!$sth->execute) {
-		Sys::Syslog::syslog('warning', "Could not execute SQL $sql");
-		die "Could not execute SQL $sql ... maybe invalid?";
+		FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql", 1);
 	}
 
 	$row = $sth->fetchrow_hashref();
@@ -146,7 +144,7 @@ sub FetchByName {
 
 	$dbh		= $this->{dbh};
 	if (!$dbh) {
-		die " no database handle!";
+		FreshPorts::Utilities::ReportError('warning', "no database handle!", 1);
 	}
 
 	$tmp = $dbh->quote($this->{name});
@@ -155,8 +153,7 @@ sub FetchByName {
 
 	$sth = $dbh->prepare($sql);
 	if (!$sth->execute) {
-		Sys::Syslog::syslog('warning', "Could not execute SQL $sql");
-		die "Could not execute SQL $sql ... maybe invalid?";
+		FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql", 1);
 	}
 
 	$row = $sth->fetchrow_hashref();
@@ -193,8 +190,7 @@ sub _description_fetch {
 
 	`sh $FreshPorts::Config::scriptpath/fetch-cvs-file.sh $DESTDIR $SRCDIR $FILE`;
 	if ($?) {
-		Sys::Syslog::syslog('warning', "Could not fetch file for '$DESTDIR' '$SRCDIR' '$FILE'.  Error code = " . ($? >> 8));
-		die "Could not fetch file for '$DESTDIR' '$SRCDIR' '$FILE'.  Error code = " . ($? >> 8) . "\n";
+		FreshPorts::Utilities::ReportError('warning', "Could not fetch file for '$DESTDIR' '$SRCDIR' '$FILE'.  Error code = " . ($? >> 8), 1);
 	}
 
 	my $description = FreshPorts::Utilities::ReadFile("$DESTDIR/$FILE");

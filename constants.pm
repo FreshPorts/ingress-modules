@@ -1,4 +1,4 @@
-# $Id: constants.pm,v 1.5 2001-12-22 04:30:39 dan Exp $
+# $Id: constants.pm,v 1.6 2002-02-02 03:06:28 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -11,6 +11,7 @@ use strict;
 #
 
 $FreshPorts::Constants::ports_seq				= "ports_id_seq";
+$FreshPorts::Constants::commit_log_seq			= "commit_log_id_seq";
 $FreshPorts::Constants::commit_log_elements_seq	= "commit_log_elements_id_seq";
 $FreshPorts::Constants::commit_log_seq			= "commit_log_id_seq";
 $FreshPorts::Constants::system_branch_seq		= "system_branch_id_seq";
