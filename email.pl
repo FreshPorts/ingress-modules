@@ -1,8 +1,8 @@
 #!/usr/bin/perl -w
 #
-# $Id: email.pl,v 1.8.2.5 2002-05-11 03:56:13 dan Exp $
+# $Id: email.pl,v 1.8.2.6 2002-05-28 15:15:11 dan Exp $
 #
-# Copyright (c) 2001 DVL Software
+# Copyright (c) 2001-2002 DVL Software
 #
 
 use strict;
@@ -15,6 +15,7 @@ use config;
 
 use Text::Wrap;
 
+my $Debug = 0;
 my $dirname='';
 my @USERS;
 my $sql;
@@ -65,9 +66,11 @@ EOF
 }
 
 
-sub CompileWatchNotifyList($;$) {
+sub CompileWatchNotifyList($;$;$;$) {
 
 	my $Frequency = shift;
+	my $NewPorts  = shift;
+	my $PortCount = shift;
 	my $dbh = shift;
 	my $sth;
 	my $sql;
@@ -120,7 +123,8 @@ sub CompileWatchNotifyList($;$) {
 	if ($Frequency eq 'M') { $FrequencyLong = 'monthly'};
 
 
-	
+	$Body .= "Port count: $PortCount\n";
+	$Body .= " New ports: $NewPorts\n\n";
 
 	while (@row=$sth->fetchrow_array) {
 		print "now processing @row\n";
@@ -135,7 +139,11 @@ sub CompileWatchNotifyList($;$) {
 #		print "LastID = '$LastID' and id = '$row[0]'\n";
 		if ($LastID != $row[0]) {
 			$NumMsgs++;
-			SendWatchNoticePersonal($To, $FrequencyLong, $Body);
+			if ($Debug) {
+				print "NOT SENDING EMAIL.. in DEBUG mode\n";
+			} else {
+				SendWatchNoticePersonal($To, $FrequencyLong, $Body);
+			}
 			print "To   = $To\n";
 			print "Body = $Body\n";
 
@@ -155,7 +163,11 @@ sub CompileWatchNotifyList($;$) {
 	# if we got at least one, send out email
 	if (defined($LastID)) {
 		$NumMsgs++;
-		SendWatchNoticePersonal($To, $FrequencyLong, $Body);
+		if ($Debug) {
+			print "NOT SENDING EMAIL.. in DEBUG mode\n";
+		} else {
+			SendWatchNoticePersonal($To, $FrequencyLong, $Body);
+		}
 	}
 }
 
@@ -212,6 +224,13 @@ my $time = `date "+%Y-%m-%d %H:%M:%S"`;
 #
 chomp $time;
 
+if ($Debug) {
+	print "**********************************\n";
+	print "running in debug mode.............\n";
+	print "**********************************\n";
+}
+
+
 
 print "start  $time\n";
 
@@ -225,11 +244,50 @@ if (($#ARGV+1) == 1) {
 		my $dbh = FreshPorts::Database::GetDBHandle();
 		if ($dbh->{Active}) {
 
-			CompileWatchNotifyList($Frequency, $dbh);
+			$sql = "select last_sent from watch_notice where frequency = '$Frequency'";
+			$sth = $dbh->prepare($sql);
+			$sth->execute ||
+					die "Could not execute SQL $sql ... maybe invalid";
 
-			SetWatchLastNoticeDate($Frequency, $dbh, $time);
+			@row=$sth->fetchrow_array;
+			my $last_sent = $row[0];
+			$sth->finish();
 
-			AddToLogs($Frequency, $NumMsgs, $NumCommits, $dbh);
+			if (!defined($last_sent)) {
+				if ($Frequency eq 'D') { $last_sent = `eval date -v-1d "+%Y_%m_%d"`};
+				if ($Frequency eq 'W') { $last_sent = `eval date -v-7d "+%Y_%m_%d"`};
+				if ($Frequency eq 'F') { $last_sent = `eval date -v-2w "+%Y_%m_%d"`};
+				if ($Frequency eq 'M') { $last_sent = `eval date -v-1m "+%Y_%m_%d"`};
+			}
+
+			print "last_sent = $last_sent\n";
+
+			$sql = "select Stats_PortCountNewInterval(now() - '$last_sent')";
+			$sth = $dbh->prepare($sql);
+			$sth->execute ||
+					die "Could not execute SQL $sql ... maybe invalid";
+
+			@row=$sth->fetchrow_array;
+			my $NewPorts = $row[0];
+			$sth->finish();
+
+			$sql = "select Stats_PortCount()";
+			$sth = $dbh->prepare($sql);
+			$sth->execute ||
+					die "Could not execute SQL $sql ... maybe invalid";
+
+			@row=$sth->fetchrow_array;
+			my $PortCount = $row[0];
+			$sth->finish();
+
+			print "NewPorts = $NewPorts, PortCount = $PortCount\n";
+
+			CompileWatchNotifyList($Frequency, $NewPorts, $PortCount, $dbh);
+
+			if (!$Debug) {
+				SetWatchLastNoticeDate($Frequency, $dbh, $time);
+				AddToLogs($Frequency, $NumMsgs, $NumCommits, $dbh);
+			}
 
 			$dbh->commit();
 			$dbh->disconnect();
