@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: report-notification.pl,v 1.1.2.10 2002-10-30 07:09:01 dan Exp $
+# $Id: report-notification.pl,v 1.1.2.11 2002-10-30 15:04:20 dan Exp $
 #
 # Copyright (c) 2001-2002 DVL Software
 #
@@ -195,8 +195,8 @@ sub CompileWatchNotifyList($;$;$;$;$) {
 		$Body .=      "  $row[4] - $row[6]\n";
 		$Body .=      "  $FreshPorts::Config::FreshPortsURL" . $row[2] . '/' . $row[3] . "/\n\n";
 
-print "* * * * Body = $Body\n";
 	}
+#print "* * * * Body = $Body\n";
 
 	# if we got at least one, send out email
 	if (defined($LastID)) {
