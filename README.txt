@@ -18,4 +18,3 @@ http://www.cpan.org/authors/id/DMEGG/XML-Writer-0.4.tar.gz
 adjust this line in load_xml_into_db.pl:
 use lib '/home/lists/scripts';
 
-also need lynx! for the fetch script.
