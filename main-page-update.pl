@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: main-page-update.pl,v 1.2 2002-02-14 20:17:16 dan Exp $
+# $Id: main-page-update.pl,v 1.3 2002-02-14 23:37:23 dan Exp $
 #
 # Copyright (c) 1999-2002 DVL Software
 #
@@ -22,7 +22,8 @@ sub RefreshMainPage($) {
 	$sql = "select RecordLastestPortCommits('2002-01-01');";
 	print "sql = $sql\n";
 
-	$sth = $dbh->prepare($sql);
+	$sth = $dbh->prepare($sql) ||
+		FreshPorts::Utilities::ReportError('warning', "Could not prepare SQL $sql ... maybe invalid?", 1);
 	$sth->execute ||
 		FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql ... maybe invalid?", 1);
 
@@ -36,7 +37,7 @@ sub RefreshMainPage($) {
 	return $last_commit_date;
 }
 
-sub GetMaxCommitPortLogId($) {
+sub GetMaxCommitLogPortId($) {
 	my $dbh = shift;
 
 	my $sql;
@@ -45,7 +46,8 @@ sub GetMaxCommitPortLogId($) {
 	my $MaxCommitLogPortId;
 
 	$sql = "select max(commit_log_id) from commit_log_ports";
-	$sth = $dbh->prepare($sql);
+	$sth = $dbh->prepare($sql) ||
+		FreshPorts::Utilities::ReportError('warning', "Could not prepare SQL $sql ... maybe invalid?", 1);
 	$sth->execute ||
 		FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql ... maybe invalid?", 1);
 
@@ -53,7 +55,7 @@ sub GetMaxCommitPortLogId($) {
 
 	$sth->finish();
 
-	$MaxCommitLogId = $row[0];
+	$MaxCommitLogPortId = $row[0];
 
 	return $MaxCommitLogPortId;
 }
@@ -64,7 +66,7 @@ sub GetLastCommitLogIdProcessed($) {
 	my $sql;
 	my $sth;
 	my @row;
-	my $MaxCommitLogPortId;
+	my $LastCommitLogIdProcessed;
 
 	$sql = "select last_port_commit from housekeeping";
 	$sth = $dbh->prepare($sql);
@@ -94,6 +96,17 @@ $dbh = FreshPorts::Database::GetDBHandle();
 
 $MaxCommitLogPortId			= GetMaxCommitLogPortId      ($dbh);
 $LastCommitLogIdProcessed	= GetLastCommitLogIdProcessed($dbh);
+
+if (!defined($MaxCommitLogPortId)) {
+	$MaxCommitLogPortId = 0;
+}
+
+if (!defined($LastCommitLogIdProcessed)) {
+	$LastCommitLogIdProcessed = 0;
+}
+
+print "\$MaxCommitLogPortId       = '$MaxCommitLogPortId'\n";
+print "\$LastCommitLogIdProcessed = '$LastCommitLogIdProcessed'\n";
 
 if ($MaxCommitLogPortId > $LastCommitLogIdProcessed) {
 	RefreshMainPage($dbh);
