@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.38.2.2 2002-04-01 21:18:14 dan Exp $
+# $Id: port.pm,v 1.38.2.3 2002-05-19 18:41:36 dan Exp $
 #
 #
 # Copyright (c) 2001-2002 DVL Software
@@ -50,6 +50,7 @@ sub _initialize {
 	$this->{forbidden}			= '';
 	$this->{broken}				= '';
 	$this->{categories}			= '';
+	$this->{status}				= '';
 
 print "$FreshPorts::Constants::commit_log_seq\n";
 print "$FreshPorts::Constants::ports_seq\n";
@@ -81,6 +82,7 @@ sub _GetValuesFromRow {
 	$this->{broken}				= $row->{broken};
 	$this->{categories}			= $row->{categories};
 	$this->{last_commit_id}     = $row->{last_commit_id};
+	$this->{status}				= $row->{status};
 }
 
 # =================================
@@ -192,7 +194,7 @@ sub FetchByID {
 
 	$dbh = $this->{dbh};
 
-	$sql = "select ports.*, categories.name as category, element.name as name \
+	$sql = "select ports.*, categories.name as category, element.name as name, element.status \
               from ports, categories, element \
              where ports.id          = $this->{id} \
                and ports.category_id = categories.id \
@@ -242,7 +244,7 @@ sub FetchByPartialPathName {
 	}
 
 	$tmp = $dbh->quote($this->{name});
-	$sql = "select ports.*, categories.name as category, element.name as name \
+	$sql = "select ports.*, categories.name as category, element.name as name, element.status \
               from ports, categories, element \
              where ports.element_id  = $this->{element_id} \
                and ports.category_id = categories.id \
@@ -463,7 +465,7 @@ sub _FetchFilesNeedingRefresh {
 	print "\$SRCDIR  = $SRCDIR\n";
 	print "\$FILE    = $FILE\n";
 
-	if (FreshPorts::Utilities::FetchFile($DESTDIR, $SRCDIR, $FILE)) {
+	if (FreshPorts::Utilities::FetchFile($DESTDIR, $SRCDIR, $FILE, $FreshPorts::Constants::HEAD)) {
 		#
 		# now that we have the Makefile for this port, let's figure out the full name
 		# of the pkg-descr and pkg-comment files.  They may belong to another port.
@@ -536,7 +538,7 @@ sub _FetchFilesNeedingRefresh {
 
 			print "fetching \$DESTDIR = [$DESTDIR], \$SRCDIR = [$SRCDIR], \$FILE = [$FILE]\n";
 
-			if (FreshPorts::Utilities::FetchFile($DESTDIR, $SRCDIR, $FILE)) {
+			if (FreshPorts::Utilities::FetchFile($DESTDIR, $SRCDIR, $FILE, $FreshPorts::Constants::HEAD)) {
 
 				my $directory	= File::Basename::dirname ($COMMENT);
 				my $FILE		= File::Basename::basename($COMMENT);
@@ -545,7 +547,7 @@ sub _FetchFilesNeedingRefresh {
 
 				print "fetching \$DESTDIR = [$DESTDIR], \$SRCDIR = [$SRCDIR], \$FILE = [$FILE]\n";
 
-				if (FreshPorts::Utilities::FetchFile($DESTDIR, $SRCDIR, $FILE)) {
+				if (FreshPorts::Utilities::FetchFile($DESTDIR, $SRCDIR, $FILE, $FreshPorts::Constants::HEAD)) {
 					$result = 0;
 				}
 			}
@@ -728,14 +730,14 @@ sub GetNeedsRefreshForNewPort {
 	#
 	# fetch the makefile for this port
 	#
-	my $DESTDIR	= "$FreshPorts::Config::path_to_ports/$category/$port";
-	my $SRCDIR	= "$FreshPorts::Config::ports_prefix/$category/$port";
-	my $FILE	= $FreshPorts::Constants::FILE_MAKEFILE;
-
+	my $DESTDIR		= "$FreshPorts::Config::path_to_ports/$category/$port";
+	my $SRCDIR		= "$FreshPorts::Config::ports_prefix/$category/$port";
+	my $FILE		= $FreshPorts::Constants::FILE_MAKEFILE;
+	my $REVISION	= $FreshPorts::Constants::HEAD;
 	my $FetchAttempts = 5;
 
 	while ($FetchAttempts) {
-		`sh $FreshPorts::Config::scriptpath/fetch-cvs-file.sh $DESTDIR $SRCDIR $FILE`;
+		`sh $FreshPorts::Config::scriptpath/fetch-cvs-file.sh $DESTDIR $SRCDIR $FILE $REVISION`;
 		$fetch_code = $?;
 		if (($fetch_code >> 8)) {
 			#
