@@ -1,5 +1,5 @@
 #
-# $Id: config.pm.sample,v 1.13.2.9 2003-05-16 01:14:01 dan Exp $
+# $Id: config.pm.sample,v 1.13.2.10 2003-09-09 10:35:27 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -17,10 +17,10 @@ $FreshPorts::Config::FreshPortsURL		= 'http://WEBSITE_URL/';
 $FreshPorts::Config::TimeAdjust			= '-10800 seconds';
 
 $FreshPorts::Config::dbname				= 'databasename';
-$FreshPorts::Config::user					= 'user';
-$FreshPorts::Config::password				= 'password';
+$FreshPorts::Config::user				= 'user';
+$FreshPorts::Config::password			= 'password';
 
-$FreshPorts::Config::BaseDir				= "/usr/websites/WEBSITE_URL";
+$FreshPorts::Config::BaseDir			= "/usr/websites/WEBSITE_URL";
 
 $FreshPorts::Config::scriptpath			= $BaseDir . '/scripts';
 
@@ -61,6 +61,8 @@ $FreshPorts::Config::path_to_ports		= File::PathConvert::realpath($FreshPorts::C
 $FreshPorts::Config::email_server		= 'localhost';
 $FreshPorts::Config::email_port			= 25;
 $FreshPorts::Config::email_client		= 'localhost';
+
+$FreshPorts::Config::SystemOwnerEmail	= 'dan@langille.org';
 
 #
 # for debugging....
