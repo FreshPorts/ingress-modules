@@ -1,5 +1,5 @@
 #
-# $Id: README.txt,v 1.3.2.2 2003-05-16 01:13:58 dan Exp $
+# $Id: README.txt,v 1.3.2.3 2003-10-17 21:41:12 dan Exp $
 #
 #
 # Copyright (c) 2001-2003 DVL Software
@@ -29,3 +29,21 @@ use lib '/home/lists/scripts';
 
 
 And you also need to run dir-create.sh
+
+
+If you need to add an archive contents to FreshPorts, you can start
+with this:
+
+Creat this file
+
+$ less file.sh
+#!/bin/sh
+
+cat > tmp/2003.10.17.DNS.problems.${FILENO}.txt.raw
+
+
+
+Then do this:
+cat cvs-ports+archive | formail -s ./file.sh
+
+Then copy the files over to the incoming queue.
