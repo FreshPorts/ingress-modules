@@ -1,5 +1,5 @@
 #
-# $Id: Makefile,v 1.1.2.1 2002-03-22 21:54:43 dan Exp $
+# $Id: Makefile,v 1.1.2.2 2004-08-12 16:08:34 dan Exp $
 #
 # Install the ports needed by FreshPorts
 #
@@ -23,6 +23,7 @@ RUN_DEPENDS=	daemontools:${PORTSDIR}/sysutils/daemontools \
 
 NO_WRKSUBDIR=	YES
 NO_BUILD=		YES
+COMMENT=	NO COMMENT
 
 do-install: 	# empty
 
