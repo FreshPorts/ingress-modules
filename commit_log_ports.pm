@@ -1,9 +1,11 @@
 #!/usr/bin/perl
 #
-# $Id: commit_log_ports.pm,v 1.3 2001-12-22 19:13:17 dan Exp $
+# $Id: commit_log_ports.pm,v 1.4 2001-12-22 21:48:55 dan Exp $
+#
+# Copyright (c) 2001 DVL Software
 #
 
-package FreshPorts::CommitLogPort;
+package FreshPorts::CommitLogPorts;
 
 use strict;
 
@@ -29,8 +31,8 @@ sub save {
 	my @row;
 
 	# we are inserting
-	$sql = "insert into commit_log_port (commit_log_id, port_id, commit_log_element_id) values \
-				($this->{commit_log_id}, $this->{port_id}, $this->{commit_log_element_id})";
+	$sql = "insert into commit_log_ports (commit_log_id, port_id) values \
+				($this->{commit_log_id}, $this->{port_id})";
 
 	print "sql is $sql\n";
 
