@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $Id: freebsd-cvs.sh,v 1.3 2002-01-06 07:21:05 dan Exp $
+# $Id: freebsd-cvs.sh,v 1.4 2002-02-17 21:46:52 dan Exp $
 #
 # Copyright (c) 1999-2000 DVL Software
 #
@@ -15,6 +15,8 @@ then
    echo $0 : usage $0 FILE
    exit 1
 fi
+
+echo 'processing $FILE'
 
 XML="msgs/FreeBSD/xml"
 OUTPUT="msgs/FreeBSD/xml-output"
@@ -60,3 +62,4 @@ then
 fi
 
 echo $FILE
+mv $FILE $HOME/msgs/FreeBSD/raw/$FILES
