@@ -1,5 +1,5 @@
 #
-# $Id: messages.pm,v 1.1.2.3 2004-12-19 23:14:59 dan Exp $
+# $Id: messages.pm,v 1.1.2.4 2004-12-19 23:21:01 dan Exp $
 #
 # Copyright (c) 2004 DVL Software
 #
