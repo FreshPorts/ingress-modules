@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: email.pl,v 1.8.2.1 2002-04-16 12:58:13 dan Exp $
+# $Id: email.pl,v 1.8.2.2 2002-04-22 22:15:17 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -145,7 +145,7 @@ sub CompileWatchNotifyList($;$) {
 		}
 
 		# get the category and port
-		$Body .= "$FreshPorts::Config::FreshPortsURL" . $row[2] . '/' . $row[3] . "\n";
+		$Body .= "$FreshPorts::Config::FreshPortsURL" . $row[2] . '/' . $row[3] . "/\n";
 
 		# and wrap the description of the change.
 		$Body .= wrap("     ", "     ", $row[5]) . "\n";
