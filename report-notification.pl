@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: report-notification.pl,v 1.1.2.7 2002-06-20 12:17:28 dan Exp $
+# $Id: report-notification.pl,v 1.1.2.8 2002-09-16 01:18:31 dan Exp $
 #
 # Copyright (c) 2001-2002 DVL Software
 #
@@ -47,9 +47,6 @@ print SENDMAIL <<"EOF";
 From: FreshPorts watch daemon <freshports-watch\@freshports.org>
 To: $To
 Subject: FreshPorts $FrequencyLong notification
-
-This is the new test report for notifications as found at
-$AdjustURL.
 
 FreshPorts runs on hardware and bandwidth supplied by BChosting. See
 http://bchosting.com/track.php?refID=5665 for details.
