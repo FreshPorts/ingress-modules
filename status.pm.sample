@@ -1,5 +1,5 @@
 #
-# $Id: status.pm.sample,v 1.1.2.2 2004-11-27 13:54:08 dan Exp $
+# $Id: status.pm.sample,v 1.1.2.3 2004-12-23 13:16:49 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -7,6 +7,5 @@
 package FreshPorts::Status;
 
 use strict;
-#use lib "$ENV{HOME}/scripts";
 
 @FreshPorts::Status::sites  = ('beta.freshports.org', 'working-copy.freshports.org', 'production.freshports.org');
