@@ -1,8 +1,8 @@
 #!/usr/bin/perl -w
 #
-# $Id: refresh-each-port.pl,v 1.2.2.2 2003-05-24 15:24:33 dan Exp $
+# $Id: refresh-each-port.pl,v 1.2.2.3 2004-01-29 15:25:05 dan Exp $
 #
-# Copyright (c) 1999-2003 DVL Software
+# Copyright (c) 1999-2004 DVL Software
 #
 
 use strict;
@@ -14,8 +14,6 @@ use utilities;
 
 my $dbh;
 
-my $maxlength=0;
-my $dirname='';
 my $porttorefresh;
 my @PORTS;
 my $sql;

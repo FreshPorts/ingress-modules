@@ -1,8 +1,8 @@
 #!/usr/bin/perl -w
 #
-# $Id: refresh-unrefreshed-ports.pl,v 1.20.2.7 2003-10-24 16:24:29 dan Exp $
+# $Id: refresh-unrefreshed-ports.pl,v 1.20.2.8 2004-01-29 15:25:05 dan Exp $
 #
-# Copyright (c) 1999-2003 DVL Software
+# Copyright (c) 1999-2004 DVL Software
 #
 
 use strict;
@@ -15,8 +15,6 @@ use commit_log_ports;
 
 my $dbh;
 
-my $maxlength=0;
-my $dirname='';
 my $porttorefresh;
 my @PORTS;
 my %Port;
