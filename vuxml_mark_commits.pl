@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: vuxml_mark_commits.pl,v 1.1.2.1 2004-09-20 19:55:53 dan Exp $
+# $Id: vuxml_mark_commits.pl,v 1.1.2.2 2004-09-20 20:53:22 dan Exp $
 #
 # Copyright (c) 1999-2004 DVL Software
 #
@@ -40,6 +40,23 @@ SELECT distinct CLP.port_id, CLP.port_version, CLP.port_revision, CLP.port_epoch
 	return @Commits;
 }
 
+sub PackageVersion($;$;$) {
+	my $PortVersion  = shift;
+	my $PortRevision = shift;
+	my $PortEpoch    = shift;
+
+	my $PackageVersion = $PortVersion;
+    if ($PortRevision != '' && $PortRevision != '0') {
+		$PackageVersion .= '_' . $PortRevision
+	}
+
+	if ($PortEpoch != '' && $PortEpoch != '0') {
+		$PackageVersion .= ',' . $PortEpoch;
+	}
+
+	return $PackageVersion;
+}
+
 sub ProcessEachRangeRecord($) {
 
     my $dbh = shift;
@@ -61,7 +78,6 @@ sub ProcessEachRangeRecord($) {
            die "Could not execute SQL $sql ... maybe invalid?";
 
     while ($row = $sth->fetchrow_hashref()) {
-        $i++;
         if ($LastPackage ne $row->{'package_name'}) {
             $LastPackage = $row->{'package_name'};
             print "We have a new package name: '$LastPackage'\n";
@@ -69,8 +85,21 @@ sub ProcessEachRangeRecord($) {
         } else {
             print "processing another record for that package\n";
 		}
+		print "*** Working on $row->{'op1'} $row->{'v1'}";
+		if (defined($row->{'op2'})) {
+			print "*** $row->{'op2'} $row->{'v2'}";
+		}
+		print "\n";
         foreach my $Commit (@Commits) {
 			print "'$Commit->{'port_id'}', '$Commit->{'port_version'}', '$Commit->{'port_revision'}', '$Commit->{'port_epoch'}'\n";
+			my $CommitVersion = PackageVersion($Commit->{'port_version'},  $Commit->{'port_revision'}, $Commit->{'port_epoch'});
+
+			my $command = "/usr/local/sbin/pkg_version -t $CommitVersion $row->{'v1'}";
+			my $result  = `$command`;
+
+			chomp $result;
+
+			print "'$command' gives '$result'\n";
         }
     }
 
