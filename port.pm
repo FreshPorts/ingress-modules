@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.38.2.20 2003-02-13 13:25:18 dan Exp $
+# $Id: port.pm,v 1.38.2.21 2003-04-05 00:45:33 dan Exp $
 #
 #
 # Copyright (c) 2001-2002 DVL Software
@@ -343,7 +343,7 @@ sub _ExtractValuesFromMakefile {
 	#
 	#
 	$makecommand = "make -V PORTNAME -V PKGNAME -V DESCR -V CATEGORIES -V PORTVERSION -V PORTREVISION " .
-		" -V COMMENT -V MAINTAINER -V EXTRACT_SUFX " .
+		" -V COMMENT -V COMMENTFILE -V MAINTAINER -V EXTRACT_SUFX " .
 		" -V BUILD_DEPENDS -V RUN_DEPENDS -V FORBIDDEN -V BROKEN -f $MakefileDirectory/$FreshPorts::Constants::FILE_MAKEFILE " . 
 		" PORTSDIR=$FreshPorts::Config::path_to_ports 2>&1";
 
@@ -352,6 +352,7 @@ sub _ExtractValuesFromMakefile {
 	my $MakeResults = `$makecommand`;
 	# save this for later reference
 	$result = $?;
+
 
 	my $mastersites = '';
 	if ($result == 0) {
@@ -378,7 +379,7 @@ sub _ExtractValuesFromMakefile {
 	if ($result == 0) {
 
 		(my $portname, my $packagename, my $descrpath, my $categories, my $portversion, my $portrevision, my $shortdescription,
-		 my $maintainer, my $extractsuffix, my $builddepends,
+		 my $CommentFile, my $maintainer, my $extractsuffix, my $builddepends,
 		 my $rundepends, my $forbidden, my $broken) = split(/\n/s, $MakeResults);
 
 		$builddepends	= freshports_ConvertPortPathToStandardLocation(FreshPorts::Utilities::trim_multiple_to_single(FreshPorts::Utilities::trim($builddepends)));
@@ -393,6 +394,7 @@ sub _ExtractValuesFromMakefile {
 		print " portversion  ='$portversion'\n";
 		print " portrevision ='$portrevision'\n";
 		print " comment      ='$shortdescription'\n";
+		print " CommentFile  = '$CommentFile'\n";
 		print " maintainer   ='$maintainer'\n";
 		print " extractsuffix='$extractsuffix'\n";
 		print " mastersites  ='$mastersites'\n";
@@ -405,62 +407,62 @@ sub _ExtractValuesFromMakefile {
 
 		my $RealDescrPath	= File::PathConvert::realpath($descrpath);
 
-		if (defined($RealDescrPath)) {
-			(my $longdescription, my $homepage) = _GetDescrAndHomePage($RealDescrPath);
-
-			my $packageexists = _PackageExists($packagename . ".tgz");
-
-			chomp($longdescription); # get rid of the trailing whitespace.
-
-			print "12 \$shortdescription= '$shortdescription'\n";
-			print "13 \$longdescription ='$longdescription'\n";
-			print "14 \$homepage='";
-			if (defined($homepage)) {
-				print "$homepage";
-			}
-			print "'\n";
-
-			print "15 \$packageexists='$packageexists'\n";
-			print "16 \$forbidden    ='$forbidden'\n";
-			print "17 \$broken       ='$broken'\n";
-			print "18 \$categories   ='$categories'\n";
-
-			print "\n ---------------------------------------- \n";
-
-			# convert a few values to zero if not defined.
-			if (!defined($forbidden)) {
-				$forbidden = '';
-			}
-
-			if (!defined($broken)) {
-				$broken = '';
-			}
-
-			# put everything into the hash...
-
-			$this->{portname}				= $portname;
-			$this->{short_description}	= $shortdescription;
-			$this->{long_description}	= $longdescription;
-			$this->{version}				= $portversion;
-			$this->{revision}				= $portrevision;
-			$this->{maintainer}			= $maintainer;
-			$this->{homepage}				= $homepage;
-			$this->{master_sites}		= $mastersites;
-			$this->{extract_suffix}		= $extractsuffix;
-			$this->{package_exists}		= $packageexists;
-			$this->{depends_build}		= $builddepends;
-			$this->{depends_run}			= $rundepends;
-			$this->{forbidden}			= $forbidden;
-			$this->{broken}				= $broken;
-			$this->{categories}			= $categories;
-
-		} else {
-			print "That make failed to return values for '-V DESCR'.  I suspect an embedded make has failed.\n\n";
-
-			FreshPorts::Utilities::ReportError('warning', "That make failed to return values for '-V DESCR'.  I suspect an embedded make has failed. $this->{category}/$this->{name}", 0);
-			FreshPorts::CommitterOptIn::RecordErrorDetails("\n\nThat make failed to return values for '-V DESCR'.  I suspect an embedded make has failed.\n\n");
-			$result = -1;
+		if (!defined($shortdescription)) {
+			die("OK, good, we have no short description");
 		}
+
+		# if it's defined, and it exists....
+		my $longdescription = '';
+		my $homepage        = '';
+		if (defined($RealDescrPath) && -f $RealDescrPath) {
+			($longdescription, $homepage) = _GetDescrAndHomePage($RealDescrPath);
+		}
+
+		my $packageexists = _PackageExists($packagename . ".tgz");
+
+		chomp($longdescription); # get rid of the trailing whitespace.
+
+		print "12 \$shortdescription= '$shortdescription'\n";
+		print "13 \$longdescription ='$longdescription'\n";
+		print "14 \$homepage='";
+		if (defined($homepage)) {
+			print "$homepage";
+		}
+		print "'\n";
+
+		print "15 \$packageexists='$packageexists'\n";
+		print "16 \$forbidden    ='$forbidden'\n";
+		print "17 \$broken       ='$broken'\n";
+		print "18 \$categories   ='$categories'\n";
+
+		print "\n ---------------------------------------- \n";
+
+		# convert a few values to zero if not defined.
+		if (!defined($forbidden)) {
+			$forbidden = '';
+		}
+
+		if (!defined($broken)) {
+			$broken = '';
+		}
+
+		# put everything into the hash...
+
+		$this->{portname}				= $portname;
+		$this->{short_description}	= $shortdescription;
+		$this->{long_description}	= $longdescription;
+		$this->{version}				= $portversion;
+		$this->{revision}				= $portrevision;
+		$this->{maintainer}			= $maintainer;
+		$this->{homepage}				= $homepage;
+		$this->{master_sites}		= $mastersites;
+		$this->{extract_suffix}		= $extractsuffix;
+		$this->{package_exists}		= $packageexists;
+		$this->{depends_build}		= $builddepends;
+		$this->{depends_run}			= $rundepends;
+		$this->{forbidden}			= $forbidden;
+		$this->{broken}				= $broken;
+		$this->{categories}			= $categories;
 
 	} else {
 		print "That make failed:\n\n$MakeResults\n\n";
