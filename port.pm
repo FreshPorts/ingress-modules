@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.38.2.6 2002-09-02 03:34:49 dan Exp $
+# $Id: port.pm,v 1.38.2.7 2002-09-02 03:47:53 dan Exp $
 #
 #
 # Copyright (c) 2001-2002 DVL Software
@@ -12,6 +12,7 @@ require Exporter;
 require	config;
 require	element;
 require utilities;
+require committer_opt_in;
 
 use File::PathConvert;
 use strict;
