@@ -1,7 +1,7 @@
-# $Id: utilities.pm,v 1.11.2.17 2004-08-18 16:43:18 dan Exp $
+# $Id: utilities.pm,v 1.11.2.18 2004-09-23 17:48:53 dan Exp $
 #
 #
-# Copyright (c) 2001-2003 DVL Software
+# Copyright (c) 2001-2004 DVL Software
 #
 
 package FreshPorts::Utilities;
@@ -43,7 +43,7 @@ sub FetchFile($;$;$;$) {
 	#
 	my $DESTDIR		= shift;
 	my $SRCDIR		= shift;
-	my $FILE			= shift;
+	my $FILE		= shift;
 	my $REVISION	= shift;
 
 	print "FetchFile $DESTDIR $SRCDIR $FILE $REVISION\n";
