@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.21 2001-12-28 22:37:18 dan Exp $
+# $Id: port.pm,v 1.22 2001-12-29 21:25:19 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -119,7 +119,7 @@ sub save {
 					$sql .= ", last_commit_id		= $this->{last_commit_id}";
 				}
 
-				$sql .= "where id = $this->{id}";
+				$sql .= " where id = $this->{id}";
 
 print "sql = $sql\n";
 
