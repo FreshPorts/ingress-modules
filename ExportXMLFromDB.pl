@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: ExportXMLFromDB.pl,v 1.4 2002-02-07 19:57:54 dan Exp $
+# $Id: ExportXMLFromDB.pl,v 1.5 2002-02-08 00:29:56 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -12,6 +12,8 @@ use strict;
 use DBI;
 use IO;
 use XML::Writer;
+
+my $outputdir  = "./output";
 
 &main;
 exit;
@@ -34,7 +36,13 @@ sub main {
 
 	my $change_log;
 
-	my $sql = "select * from change_log order by id";
+	my $sql = "select change_log.* 
+				from change_log, change_log_port, ports
+			   where ports.status  = 'A'
+			 	 and ports.id      = change_log_port.port_id
+                 and change_log.id = change_log_port.change_log_id
+            order by change_log.id";
+
 	if ($limit > 0) {
 		$sql .= " limit $limit";
 	}
@@ -54,7 +62,9 @@ sub main {
 		# Get the data
 		my ($Data_ref) = &GetData($change_log);
 
-		my $output = new IO::File(">output/output.$change_log->{id}.xml") || 
+		my $outputfile = sprintf("$outputdir/output.%05d.xml", $change_log->{id});
+
+		my $output = new IO::File(">$outputfile") || 
 			die "failed to create output file";
 
 		# Create the XML
