@@ -1,0 +1,103 @@
+#!/usr/bin/perl
+#
+# $Id: vuxml.pm,v 1.1.2.1 2004-09-10 03:26:41 dan Exp $
+#
+# Copyright (c) 2004 DVL Software
+#
+
+package FreshPorts::vuxml;
+
+use strict;
+use utilities;
+
+sub new {
+	my $this		= {};
+	my $class		= shift;
+	$this->{dbh}	= shift;
+	bless $this;
+	$this->_initialize();
+	return $this
+}
+
+sub _initialize {
+	my $this = shift;
+	my $row  = shift;
+}
+
+sub _GetValuesFromRow {
+	my $this = shift;
+	my $row  = shift;
+
+	$this->{id} 			= $row->{id};
+	$this->{vid}			= $row->{vid};
+	$this->{topic}			= $row->{topic};
+	$this->{description}	= $row->{description};
+	$this->{date_discovery}	= $row->{date_discovery};
+	$this->{date_entry}		= $row->{date_entry};
+	$this->{date_modified}	= $row->{date_modified};
+}
+
+sub save {
+	my $this = shift;
+
+	my $dbh = $this->{dbh}; # just a short cut...
+	my $sth;
+	my $sql;
+	my @row;
+
+	$this->{id} = FreshPorts::Database::GetNextValue($FreshPorts::Constants::vuxml_seq, $dbh);
+
+	$sql = "insert into vuxml(id, vid, topic, description, date_discovery, 
+                               date_entry, date_modified) values (
+				$this->{id},
+				" . $dbh->quote($this->{vid})            . ",
+				" . $dbh->quote($this->{topic})          . ",
+				" . $dbh->quote($this->{description})    . ",
+				" . $dbh->quote($this->{date_discovery}) . ",
+				" . $dbh->quote($this->{date_entry})     . ",
+				" . $dbh->quote($this->{date_modified})  . ")";
+
+	print "sql is $sql\n";
+
+	$sth = $this->{dbh}->prepare($sql);
+	if (!$sth->execute) {
+		FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql ... maybe invalid? " . $dbh->errstr, 1);
+	}
+
+	# after saving, return the ID
+	return $this->{id};
+}
+
+sub FetchByID {
+	my $this	= shift;
+
+	my $dbh;
+	my $sql;
+	my $sth;
+	my $row;
+
+	$dbh = $this->{dbh};
+
+	$sql = "select vuxml.* \
+              from vuxml \
+             where vuxml.id = $this->{id}";
+
+	print "sql = '$sql'\n";
+
+	$sth = $dbh->prepare($sql);
+	if (!$sth->execute) {
+		FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql", 1);
+	}
+
+	$row = $sth->fetchrow_hashref();
+	$sth->finish();
+
+	# no sense setting values if we didn't get anything...
+	if ($row) {
+		$this->_GetValuesFromRow($row);
+	}
+
+	return $this->{id};
+}
+
+1;
