@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.38.2.18 2003-02-10 16:01:31 dan Exp $
+# $Id: port.pm,v 1.38.2.19 2003-02-10 18:00:56 dan Exp $
 #
 #
 # Copyright (c) 2001-2002 DVL Software
@@ -558,8 +558,8 @@ sub _FetchFilesNeedingRefresh {
 
 
 
-			print "raw       data DESCR       = $DESCR\n";
-			print "raw       data COMMENTFILE = $COMMENTFILE\n";
+			print "raw       data DESCR       = '$DESCR'\n";
+			print "raw       data COMMENTFILE = '$COMMENTFILE'\n";
 
 			#
 			# some ports (e.g. korean/netscape47-communicator) use
@@ -574,14 +574,18 @@ sub _FetchFilesNeedingRefresh {
 
 			#
 			# Recent observation (2003.02.10) shows that COMMENTFILE
-			# returns the realpath.
+			# returns the realpath.  If empty, then COMMENTFILE is 
+			# not used and COMMENT returns the actual comment.
 			#
 			$DESCR       = File::PathConvert::realpath($DESCR);
-			$COMMENTFILE = File::PathConvert::realpath($COMMENTFILE);
+
+			if ($COMMENTFILE ne '') {
+				$COMMENTFILE = File::PathConvert::realpath($COMMENTFILE);
+			}
 
 			if (defined($DESCR) && defined($COMMENTFILE)) {
-				print "converted data DESCR   = $DESCR\n";
-				print "converted data COMMENT = $COMMENTFILE\n";
+				print "converted data DESCR       = '$DESCR'\n";
+				print "converted data COMMENTFILE = '$COMMENTFILE'\n";
 
 				#
 				# now fetch these two files.  Since we obtained
@@ -598,15 +602,20 @@ sub _FetchFilesNeedingRefresh {
 
 				if (FreshPorts::Utilities::FetchFile($DESTDIR, $SRCDIR, $FILE, $FreshPorts::Constants::HEAD)) {
 
-					my $directory	= File::Basename::dirname ($COMMENTFILE);
-					my $FILE		   = File::Basename::basename($COMMENTFILE);
-					my $DESTDIR		= $directory;
-					$SRCDIR			= File::Basename::dirname(RemovePortsPrefix($COMMENTFILE));
-
-					print "fetching \$DESTDIR = [$DESTDIR], \$SRCDIR = [$SRCDIR], \$FILE = [$FILE]\n";
-
-					if (FreshPorts::Utilities::FetchFile($DESTDIR, $SRCDIR, $FILE, $FreshPorts::Constants::HEAD)) {
+					if ($COMMENTFILE eq '') {
+						print "COMMENTFILE is empty, therefore COMMENT is what we want to use.  not fetching.\n";
 						$result = 0;
+					} else {
+						my $directory	= File::Basename::dirname ($COMMENTFILE);
+						my $FILE		   = File::Basename::basename($COMMENTFILE);
+						my $DESTDIR		= $directory;
+						$SRCDIR			= File::Basename::dirname(RemovePortsPrefix($COMMENTFILE));
+
+						print "fetching \$DESTDIR = [$DESTDIR], \$SRCDIR = [$SRCDIR], \$FILE = [$FILE]\n";
+
+						if (FreshPorts::Utilities::FetchFile($DESTDIR, $SRCDIR, $FILE, $FreshPorts::Constants::HEAD)) {
+							$result = 0;
+						}
 					}
 				}
 			} else {
