@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: report-notification.pl,v 1.1.2.1 2002-06-15 20:24:37 dan Exp $
+# $Id: report-notification.pl,v 1.1.2.2 2002-06-16 14:37:05 dan Exp $
 #
 # Copyright (c) 2001-2002 DVL Software
 #
@@ -91,10 +91,10 @@ sub CompileWatchNotifyList($;$;$;$) {
 	               commit_log.description,
 				   commit_log.committer,
                    commit_log.id
-	          from commit_log, watch_notice, watch_list_element, 
+	          from commit_log, watch_list_element, 
 	               watch_list, users, ports, categories, element, commit_log_ports, 
-                   report_frequency, report_subscriptions, reports
-	         where commit_log.date_added            >= watch_notice.last_sent 
+                   report_frequency, report_subscriptions, report_log_latest
+	         where commit_log.date_added            >= report_log_latest.last_sent 
 	           and commit_log.id                     = commit_log_ports.commit_log_id 
 	           and watch_list_element.element_id     = ports.element_id
 	           and watch_list_element.watch_list_id  = watch_list.id 
@@ -108,7 +108,6 @@ sub CompileWatchNotifyList($;$;$;$) {
                and users.id                          = report_subscriptions.user_id
                and report_subscriptions.report_id    = $FreshPorts::ReportConstants::Notification
                and report_frequency.id               = report_subscriptions.report_frequency_id
-               and watch_notice.id                   = report_frequency.id
 	      order by users.id, categories.name, element.name, commit_log.commit_date";
 
 	if ($Debug)	{
@@ -222,24 +221,6 @@ sub AddToLogs($;$;$;$;$;$) {
            die "Could not execute SQL $sql ... maybe invalid?";
 }
 
-sub SetWatchLastNoticeDate($;$;$) {
-
-   my $Frequency = shift;
-   my $dbh       = shift;
-   my $time      = shift;
-
-   $sql = "update watch_notice \
-              set last_sent              = '$time' \
-            where watch_notice.frequency = '$Frequency'";
-
-print 'SQL = ' . $sql . "\n";
-
-   $sth = $dbh->prepare($sql);
-
-   $sth->execute ||
-           die "Could not execute SQL $sql ... maybe invalid?";
-}
-
 #
 # use current time as cutoff for next time we do this
 #
@@ -271,7 +252,7 @@ if (($#ARGV+1) == 1) {
 		my $dbh = FreshPorts::Database::GetDBHandle();
 		if ($dbh->{Active}) {
 
-			$sql = "select last_sent from watch_notice where frequency = '$Frequency'";
+			$sql = "select last_sent from report_log_latest where frequency = '$Frequency'";
 			$sth = $dbh->prepare($sql);
 			$sth->execute ||
 					die "Could not execute SQL $sql ... maybe invalid";
@@ -312,11 +293,10 @@ if (($#ARGV+1) == 1) {
 			CompileWatchNotifyList($Frequency, $NewPorts, $PortCount, $dbh);
 
 			if (!$Debug) {
-				SetWatchLastNoticeDate($Frequency, $dbh, $time);
 				AddToLogs($FreshPorts::ReportConstants::Notification, $Frequency, $NumMsgs, $NumCommits, , $NumPorts, $dbh);
 			}
 
-			$dbh->commit();
+#			$dbh->commit();
 			$dbh->disconnect();
 
 			print "message sent to users\n";
