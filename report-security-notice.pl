@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: report-security-notice.pl,v 1.1.2.2 2003-03-11 13:27:38 dan Exp $
+# $Id: report-security-notice.pl,v 1.1.2.3 2003-03-11 13:30:28 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -135,19 +135,6 @@ sub CompileWatchNotifyList($;$;$;$;$) {
      and users.id                          = report_subscriptions.user_id
      and report_subscriptions.report_id    = $ReportID
      and report_frequency.id               = report_subscriptions.report_frequency_id
-     and users.id                          in (    1,
-    9,
-  742,
-  749,
- 1519,
- 1825,
- 1842,
- 2057,
- 2676,
- 2888,
- 3549,
- 3752,
- 3753)
 order by watch_list_id, watch_list_name, user_id, category, port, commit_date";
 
 	if ($Debug)	{
