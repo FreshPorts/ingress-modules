@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: vuxml_affected.pm,v 1.1.2.5 2004-12-11 15:27:02 dan Exp $
+# $Id: vuxml_affected.pm,v 1.1.2.6 2004-12-12 15:47:46 dan Exp $
 #
 # Copyright (c) 2004 DVL Software
 #
@@ -31,6 +31,15 @@ sub _GetValuesFromRow {
 	$this->{id} 		= $row->{id};
 	$this->{vuxml_id}	= $row->{vuxml_id};
 	$this->{type}		= $row->{type};
+}
+
+sub empty {
+	my $this = shift;
+	my $row  = shift;
+
+	$this->{id} 		= undef;
+	$this->{vuxml_id}	= undef;
+	$this->{type}		= undef;
 }
 
 sub save {
@@ -79,6 +88,7 @@ sub FetchByVID {
 	my $row;
 
 	my @Affected;
+	my $vuxml_affected = undef;
 
 	$dbh = $this->{dbh};
 
@@ -95,11 +105,45 @@ sub FetchByVID {
 	}
 
 	while ($row = $sth->fetchrow_hashref()) {
-		push @Affected, $row;
+		$vuxml_affected = FreshPorts::vuxml_affected->new( $this->{dbh} );
+
+		$vuxml_affected->set_id      ($row->{id});
+		$vuxml_affected->set_vuxml_id($row->{vuxml_id});
+		$vuxml_affected->set_type    ($row->{type});
+
+		push @Affected, $vuxml_affected;
 	}
 	$sth->finish();
 
 	return @Affected;
+}
+
+sub set_id {
+	my $this = shift;
+	my $id   = shift;
+
+	$this->{id} = $id;
+
+	return $this->{id};
+}
+
+sub set_vuxml_id {
+	my $this     = shift;
+	my $vuxml_id = shift;
+
+	$this->{vuxml_id} = $vuxml_id;
+
+	return $this->{vuxml_id};
+}
+
+
+sub set_type {
+	my $this = shift;
+	my $type = shift;
+
+	$this->{type} = $type;
+
+	return $this->{type};
 }
 
 1;
