@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.38.2.17 2003-02-10 15:32:40 dan Exp $
+# $Id: port.pm,v 1.38.2.18 2003-02-10 16:01:31 dan Exp $
 #
 #
 # Copyright (c) 2001-2002 DVL Software
@@ -361,6 +361,8 @@ sub _ExtractValuesFromMakefile {
 		$result = $?;
 	}
 
+	chomp($mastersites);	# remove that trailing whitespace.
+
 	print "\$result='$result'\n";
 	print "\$mastersites='$mastersites\n";
 
@@ -408,18 +410,20 @@ sub _ExtractValuesFromMakefile {
 
 			my $packageexists = _PackageExists($packagename . ".tgz");
 
-			print "12 $shortdescription\n";
-			print "13 $longdescription\n";
-			print "14 ";
+			chomp($longdescription); # get rid of the trailing whitespace.
+
+			print "12 \$shortdescription= '$shortdescription'\n";
+			print "13 \$longdescription ='$longdescription'\n";
+			print "14 \$homepage='";
 			if (defined($homepage)) {
 				print "$homepage";
 			}
-			print "\n";
+			print "'\n";
 
-			print "15 $packageexists\n";
-			print "16 $forbidden\n";
-			print "17 $broken\n";
-			print "18 $categories\n";
+			print "15 \$packageexists='$packageexists'\n";
+			print "16 \$forbidden    ='$forbidden'\n";
+			print "17 \$broken       ='$broken'\n";
+			print "18 \$categories   ='$categories'\n";
 
 			print "\n ---------------------------------------- \n";
 
