@@ -1,4 +1,4 @@
-# $Id: utilities.pm,v 1.11.2.1 2002-03-30 03:02:12 dan Exp $
+# $Id: utilities.pm,v 1.11.2.2 2002-05-19 18:42:12 dan Exp $
 #
 #
 # Copyright (c) 2001 DVL Software
@@ -30,25 +30,26 @@ sub ReadFile($) {
 	return $content;
 }
 
-sub FetchFile($;$;$) {
+sub FetchFile($;$;$;$) {
 	#
 	# fetch a file
 	# into the given path
 	# returns 1 if fetched.
 	# zero otherwise.
 	#
-	my $DESTDIR	= shift;
-	my $SRCDIR	= shift;
-	my $FILE	= shift;
+	my $DESTDIR		= shift;
+	my $SRCDIR		= shift;
+	my $FILE		= shift;
+	my $REVISION	= shift;
+
+	print "FetchFile $DESTDIR $SRCDIR $FILE $REVISION\n";
 
 	my $result  = 0;
-
-	`sh $FreshPorts::Config::scriptpath/fetch-cvs-file.sh $DESTDIR $SRCDIR $FILE`;
 
 	my $FetchAttempts = 5;
 
 	while ($FetchAttempts) {
-		`sh $FreshPorts::Config::scriptpath/fetch-cvs-file.sh $DESTDIR $SRCDIR $FILE`;
+		`sh $FreshPorts::Config::scriptpath/fetch-cvs-file.sh $DESTDIR $SRCDIR $FILE $REVISION`;
 		$result = $?;
 		print "fetch result = $result\n";
 		if (($result >> 8)) {
@@ -77,6 +78,8 @@ sub FetchFile($;$;$) {
 	if ($FetchAttempts) {
 		$result = 1;
 	}
+
+	return $result;
 }
 
 #
