@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: refresh-unrefreshed-ports.pl,v 1.17 2002-02-13 14:52:13 dan Exp $
+# $Id: refresh-unrefreshed-ports.pl,v 1.18 2002-02-14 23:35:47 dan Exp $
 #
 # Copyright (c) 1999-2001 DVL Software
 #
@@ -109,5 +109,3 @@ $sth->finish();
 
 $dbh->commit();
 $dbh->disconnect();
-
-`touch  /home/freshports.org/lastupdate`
