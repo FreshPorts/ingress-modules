@@ -27,7 +27,7 @@
 # SUCH DAMAGE.
 
 #
-# @(#) $Id: vuxml_parsing.pm,v 1.1.2.5 2004-09-11 01:08:20 dan Exp $
+# @(#) $Id: vuxml_parsing.pm,v 1.1.2.6 2004-09-11 14:04:35 dan Exp $
 #
 # Parse the Vulnerabilities and Exposures (vuxml) database extracting
 # the entries for loading into a RDBMS.
@@ -308,9 +308,15 @@ sub update_database
     #
     # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+    $self->print_self();    # For debugging purposes
+
+#	return $self;
+
     my $vuxml_id =  $self->update_database_vuxml();
 
-    $self->print_self();    # For debugging purposes
+	$self->update_database_vuxml_affected($vuxml_id);
+
+    $self->update_database_vuxml_references($vuxml_id);
 
     return $self;
 }
@@ -320,11 +326,6 @@ sub update_database_vuxml
     my __PACKAGE__ $self = shift;
 
     use vuxml;
-#    use db_utils;
-#    use vuxml_affected;
-#    use vuxml_names;
-#    use vuxml_ranges;
-#    use vuxml_references;
 
     my $vuxml = FreshPorts::vuxml->new( $self->{db_handle} );
 
@@ -338,6 +339,102 @@ sub update_database_vuxml
     my $vuxml_id = $vuxml->save();
 
     return $vuxml_id;
+}
+
+sub update_database_vuxml_affected
+{
+    my __PACKAGE__ $self = shift;
+    my $vuxml_id         = shift;
+
+    my $package_count = 0;
+
+    use vuxml_affected;
+    use vuxml_names;
+    use vuxml_ranges;
+
+    my $vuxml_affected          = FreshPorts::vuxml_affected->new( $self->{db_handle} );
+    my $vuxml_affected_names    = FreshPorts::vuxml_names->new( $self->{db_handle} );
+    my $vuxml_affected_ranges   = FreshPorts::vuxml_ranges->new( $self->{db_handle} );
+
+	my $vuxml_affected_names_id;
+
+    for my $package ( $self->packages() ) {
+        $vuxml_affected->{vuxml_id} = $vuxml_id;
+        # when/if we start storing system vuxml information, this changes
+        $vuxml_affected->{type}     = 'package';
+
+        my $vuxml_affected_id = $vuxml_affected->save();
+
+        if ( $package->name() ) {
+            for my $name ( $package->name() ) {
+                $vuxml_affected_names->{vuxml_affected_id} = $vuxml_affected_id;
+                $vuxml_affected_names->{name}              = $name;
+
+                $vuxml_affected_names_id = $vuxml_affected_names->save();
+            }
+        }
+
+        if ( $package->category() ) {
+            print "    category:\n";
+            for my $category ( $package->category() ) {
+                print "        category: $category\n";
+            }
+        }
+
+        if ( $package->architecture() ) {
+            print "    architecture:\n";
+            for my $architecture ( $package->architecture() ) {
+                print "        architecture: $architecture\n";
+            }
+        }
+
+        if ( $package->range() ) {
+            for my $range ( $package->range() ) {
+                if ( $range->[0] ) {
+                    print $range->[0], ": ", $range->[1],
+                      " " x ( 10 - length $range->[1] );
+                }
+                print $range->[2], ": ", $range->[3], "\n";
+                $vuxml_affected_ranges->{vuxml_name_id}         = $vuxml_affected_names_id;
+                $vuxml_affected_ranges->{range_operator_start} = $range->[0];
+                $vuxml_affected_ranges->{range_operator_end}   = $range->[1];
+                $vuxml_affected_ranges->{range_version_start}  = $range->[2];
+                $vuxml_affected_ranges->{range_version_end}    = $range->[3];
+
+                $vuxml_affected_ranges->save();
+            }
+        }
+
+        $package_count++;
+    }
+
+    return $package_count;
+}
+
+sub update_database_vuxml_references
+{
+    my __PACKAGE__ $self = shift;
+    my $vuxml_id         = shift;
+
+    my $reference_count = 0;
+
+    use vuxml_references;
+
+    my $vuxml_references = FreshPorts::vuxml_references->new( $self->{db_handle} );
+
+    foreach my $i ( $self->references() ) {
+        print "    ", $i->[0], ":", " " x ( 10 - length( $i->[0] ) ),
+          $i->[1], "\n";
+        $vuxml_references->{vuxml_id}  = $vuxml_id;
+        $vuxml_references->{type}      = $i->[0];
+        $vuxml_references->{reference} = $i->[1];
+
+        my $vuxml_references_id = $vuxml_references->save();
+
+        $reference_count++;
+    }
+
+    return $reference_count;
 }
 
 # Accessor methods
