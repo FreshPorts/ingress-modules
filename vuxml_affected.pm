@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: vuxml_affected.pm,v 1.1.2.6 2004-12-12 15:47:46 dan Exp $
+# $Id: vuxml_affected.pm,v 1.1.2.7 2004-12-13 14:49:53 dan Exp $
 #
 # Copyright (c) 2004 DVL Software
 #
@@ -35,7 +35,6 @@ sub _GetValuesFromRow {
 
 sub empty {
 	my $this = shift;
-	my $row  = shift;
 
 	$this->{id} 		= undef;
 	$this->{vuxml_id}	= undef;
@@ -61,9 +60,9 @@ sub save {
 	} else {
 		$sql = "
 UPDATE vuxml_affected
-   SET vuxml_id = "  .  $this->{vuxml_id} . ",
-       type     = '" . $dbh->quote($this->{type}) . "
- WHERE id       = "  . $this->{id};
+   SET vuxml_id = " . $this->{vuxml_id} . ",
+       type     = " . $dbh->quote($this->{type}) . "
+ WHERE id       = " . $this->{id};
 	}
 
 
@@ -87,7 +86,7 @@ sub FetchByVID {
 	my $sth;
 	my $row;
 
-	my @Affected;
+	my @Affected       = undef;
 	my $vuxml_affected = undef;
 
 	$dbh = $this->{dbh};
@@ -113,6 +112,7 @@ sub FetchByVID {
 
 		push @Affected, $vuxml_affected;
 	}
+
 	$sth->finish();
 
 	return @Affected;
