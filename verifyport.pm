@@ -1,5 +1,5 @@
 #
-# $Id: verifyport.pm,v 1.42.2.22 2004-04-01 18:32:38 dan Exp $
+# $Id: verifyport.pm,v 1.42.2.23 2004-06-18 15:22:12 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -569,6 +569,23 @@ sub RefreshAllPortsTouchedByCommit($;$;$) {
 	}
 
 	print "# # # # done refreshing ports # # # #\n\n";
+	return $ErrorFound;
+}
+
+sub RefreshAllSlavePortsOfPortsTouchedByCommit($;$;$) {
+	#
+	# given the ports touched by this commit,
+	# refresh any slaves
+	#
+
+	my $ErrorFound = 0;
+
+	print "# # # # Start refreshing slave ports # # # #\n\n";
+
+	print "Code to process slave ports is not written\n\n";
+
+	print "# # # # Finish refreshing slave ports # # # #\n\n";
+
 	return $ErrorFound;
 }
 

@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: load_xml_into_db.pl,v 1.46.2.20 2004-01-02 18:01:51 dan Exp $
+# $Id: load_xml_into_db.pl,v 1.46.2.21 2004-06-18 15:22:12 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -299,6 +299,10 @@ sub handle_update_end
 
 	if ($refresh_ports) {
 		$ErrorFound = FreshPorts::VerifyPort::RefreshAllPortsTouchedByCommit(\%CommitLogPorts, 0, $dbh);
+
+		if (!$ErrorFound) {
+			$ErrorFound = FreshPorts::VerifyPort::RefreshAllSlavePortsOfPortsTouchedByCommit(\%CommitLogPorts, 0, $dbh);
+		}
 	}
 
 	if (scalar(keys %CommitLogPorts)) {
