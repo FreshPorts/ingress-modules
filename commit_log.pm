@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: commit_log.pm,v 1.2.2.1 2002-04-12 05:20:27 dan Exp $
+# $Id: commit_log.pm,v 1.2.2.2 2002-04-12 06:13:42 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -64,7 +64,7 @@ sub save {
 				$this->{committer}, \ 
 				$this->{description}, \ 
 				$this->{system_id}, \
-				$this->{encoding_losses})";
+				$this->{encoding_losses}::boolean)";
 
 	print "sql is $sql\n";
 
