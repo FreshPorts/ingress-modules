@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: cache.pm,v 1.1.2.6 2002-07-27 19:53:40 dan Exp $
+# $Id: cache.pm,v 1.1.2.7 2002-12-17 16:26:46 dan Exp $
 #
 # Copyright (c) 2001-2002 DVL Software
 #
@@ -14,7 +14,7 @@ use housekeeping;
 
 sub RefreshMainPage($;$) {
 	my $refresh_now	= shift;
-	my $dbh			= shift;
+	my $dbh				= shift;
 
 	my $sql;
 	my $sth;
