@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: process_cvs_mail.pl,v 1.8.2.10 2003-01-20 20:05:37 dan Exp $
+# $Id: process_cvs_mail.pl,v 1.8.2.11 2003-01-21 13:33:17 dan Exp $
 #
 # Copyright (c) 2001-2002  DVL Software
 #
@@ -83,9 +83,7 @@ sub GetData {
 
 
 	$Message_Subject	= &GetMessage_Subject($message);
-	$Log				= &GetLog($message);
-
-print "And the \$Log is '$Log'\n";
+	$Log					= &GetLog($message);
 
 	if ($Log eq '') {
 		$Log = $Message_Subject;
