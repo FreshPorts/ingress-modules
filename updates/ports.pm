@@ -112,7 +112,16 @@ sub GetNeedsRefreshForNewPort($;$) {
       print "now doing a chdir to $MakeDir\n";
       chdir "$MakeDir";
 
+      #
+      # create this directory to catch errors
+      # such as the pre-everything having only one ':'
+      #
+      mkdir pkg,0
+
       my $makecommand = "make -V DESCR -V COMMENT -f $PORTSBASEDIR/$category/$port/$FILE_MAKEFILE";
+
+      # remove previously created directory
+      rmdir pkg
 
       print "makecommand = $makecommand\n";
       (my $DESCR, my $COMMENT) = split(/\n/s, `$makecommand`);
@@ -545,6 +554,13 @@ sub RefreshPortNoChecking($;$;$;$;$) {
    # That's because DESCR is defined as .{CURDIR}/etc more or less
    #
 
+
+   #
+   # create this directory to catch errors
+   # such as the pre-everything having only one ':'
+   #
+   mkdir pkg,0
+
    my $makecommand = "make -V PORTNAME -V PKGNAME -V DESCR -V CATEGORIES -V PORTVERSION " .
          "-V COMMENT -V MAINTAINER -V EXTRACT_SUFX -V MASTER_SITES " .
          "-V BUILD_DEPENDS -V RUN_DEPENDS -V FORBIDDEN -V BROKEN -f $DirectoryOfMakeFile/$NameOfMakefile";
@@ -555,6 +571,9 @@ sub RefreshPortNoChecking($;$;$;$;$) {
    (my $portname, my $packagename, my $descrpath, my $categories, my $portversion, my $commentfile,
     my $maintainer, my $extractsuffix, my $mastersites, my $builddepends,
     my $rundepends, my $forbidden, my $broken) = split(/\n/s, `$makecommand`);
+
+   # remove previously created directory
+   rmdir pkg
 
    #
    # we need to check this return value.  if it fails, we need to know
