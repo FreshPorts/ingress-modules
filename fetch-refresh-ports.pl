@@ -57,4 +57,4 @@ foreach $porttorefresh (@PORTS) {
 
 $dbh->disconnect();
 
-`touch  /www/freshports.org/lastupdate`
+`touch  /home/freshports.org/lastupdate`
