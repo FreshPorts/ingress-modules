@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: unrefreshed.pl,v 1.11.2.1 2002-06-16 14:26:41 dan Exp $
+# $Id: unrefreshed.pl,v 1.11.2.2 2002-08-30 16:51:21 dan Exp $
 #
 # Copyright (c) 2001-2002 DVL Software
 #
@@ -15,9 +15,10 @@ use DBI;
 require config;
 
 
-sub SendNotice($;$) {
+sub SendNotice($;$;$) {
    my $Address = shift;
    my $count   = shift;
+   my $list    = shift;
 
    open(SENDMAIL, "|/usr/sbin/sendmail -oi -t")
                     or die "Can't fork for sendmail: $!\n";
@@ -28,6 +29,8 @@ To: $Address
 Subject: FreshPorts -- ports needing refresh
 
 There are $count ports needing refresh.
+
+$list
 EOF
 
    close(SENDMAIL)     or warn "sendmail didn't close nicely";
@@ -55,23 +58,25 @@ $sql = "select ports.id, element.name as port, categories.name as category \
 		  and commit_log_ports.port_id        = ports.id \
           and commit_log_ports.needs_refresh <> 0 \
           and element.status                  = 'A'
-        order by category, port";
+	        order by category, port";
 
 $sth = $dbh->prepare($sql);
 $sth->execute ||
         die "Could not execute SQL $sql ... maybe invalid?";
 
 my $rowcount = 0;
+my $list     = '';
 while (@row=$sth->fetchrow_array) {
 	$rowcount++;
-	print "id=$row[0] $row[2]/$row[1]\n";
+	$list .= "id=$row[0] $row[2]/$row[1]\n";
 }
 
 if ($rowcount > 0) {
 	print "\n$rowcount port[s] need[s] refresh\n";
+	print $list;
 
 	print "$ENV{HOME} is where we were\n";
-	SendNotice("dan\@langille.org", $rowcount);
+	SendNotice("dan\@langille.org", $rowcount, $list);
 }
 
 $sth->finish();
