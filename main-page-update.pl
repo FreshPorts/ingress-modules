@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: main-page-update.pl,v 1.10 2002-03-14 19:46:14 dan Exp $
+# $Id: main-page-update.pl,v 1.10.2.1 2002-04-01 22:42:00 dan Exp $
 #
 # Copyright (c) 1999-2002 DVL Software
 #
@@ -11,61 +11,8 @@ use DBI;
 use database;
 use utilities;
 use housekeeping;
+use cache;
 
-sub RefreshMainPage($) {
-	my $dbh = shift;
-
-	my $sql;
-	my $sth;
-	my @row;
-	my $MaxCommitID;
-
-	$sql = "select RecordLastestPortCommits();";
-	print "sql = $sql\n";
-
-	if ($sth = $dbh->prepare($sql)) {
-		if ($sth->execute) {
-			@row=$sth->fetchrow_array;
-		} else {
-			FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql ... maybe invalid?", 0);
-		}
-	} else {
-		FreshPorts::Utilities::ReportError('warning', "Could not prepare SQL $sql ... maybe invalid?", 0);
-	}
-
-	$sth->finish();
-	$dbh->commit();
-
-	$MaxCommitID = $row[0];
-
-	return $MaxCommitID
-}
-
-sub GetMaxCommitLogPortId($) {
-	my $dbh = shift;
-
-	my $sql;
-	my $sth;
-	my @row;
-	my $MaxCommitLogPortId;
-
-	$sql = "select max(commit_log_id) from commit_log_ports";
-	if ($sth = $dbh->prepare($sql)) {
-		if ( $sth->execute) {
-			@row=$sth->fetchrow_array;
-
-			$sth->finish();
-		} else {
-			FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql ... maybe invalid?", 0)
-		}
-	} else {
-		FreshPorts::Utilities::ReportError('warning', "Could not prepare SQL $sql ... maybe invalid?", 0);
-	}
-
-	$MaxCommitLogPortId = $row[0];
-
-	return $MaxCommitLogPortId;
-}
 
 my $dbh;
 
@@ -75,20 +22,24 @@ my $MaxCommitLogPortId;
 my $LastCommitLogIdProcessed;
 my $housekeeping;
 my $MaxCommitID;
+my $DaysRefreshed;
 
 FreshPorts::Utilities::InitSyslog();
 
 while (1) {
-	sleep 60;
+	print "sleeping\n";
+	sleep 5;
+	print "just woke up\n";
 
 	undef $MaxCommitID;
+	$DaysRefreshed = 0;
 
 	$dbh = FreshPorts::Database::GetDBHandle();
 
 	$housekeeping = FreshPorts::Housekeeping->new($dbh);
 	$housekeeping->read();
 
-	$MaxCommitLogPortId	= GetMaxCommitLogPortId      ($dbh);
+	$MaxCommitLogPortId	= FreshPorts::Cache::GetMaxCommitLogPortId($dbh);
 
 	if (!defined($housekeeping->{last_port_commit})) {
 		print "last_port_commit was not defined\n";
@@ -101,13 +52,13 @@ while (1) {
 	print "\$housekeeping->{refresh_now}      = '$housekeeping->{refresh_now}'\n";
 
 	if ($housekeeping->{refresh_now} || $MaxCommitLogPortId > $housekeeping->{last_port_commit}) {
-
+		print "housekeeping shows a refresh is needed\n";
 		$sql = "UPDATE housekeeping SET refresh_now = 0";
 		if ($sth = $dbh->prepare($sql)) {
 			if ($sth->execute) {
-				$dbh->commit;
 				print "refreshing main page now.\n";
-				$MaxCommitID = RefreshMainPage($dbh);
+				$MaxCommitID   = FreshPorts::Cache::RefreshMainPage($dbh);
+
 			} else {
 	            FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql ... maybe invalid?", 0);
 			}
@@ -117,13 +68,15 @@ while (1) {
 		
 	}
 
-	if (defined($MaxCommitID)) {
-		print "update done... committing:";
-		$dbh->commit();
-		print " done!\n";
+	if ($housekeeping->{daily_refreshes}) {
+		print "daily summary needed\n";
+		$DaysRefreshed = FreshPorts::Cache::RefreshDailySummaries($dbh);
 	} else {
-		$dbh->rollback();
+		print "daily summary not necessary\n";
 	}
+
+	$dbh->commit();
+	print " done!\n";
 
 	$dbh->disconnect();
 }
