@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: vuxml_names.pm,v 1.1.2.1 2004-09-10 03:26:41 dan Exp $
+# $Id: vuxml_names.pm,v 1.1.2.2 2004-09-11 14:03:25 dan Exp $
 #
 # Copyright (c) 2004 DVL Software
 #
@@ -30,9 +30,9 @@ sub _GetValuesFromRow {
 	my $this = shift;
 	my $row  = shift;
 
-	$this->{id} 		= $row->{id};
-	$this->{vuxml_id}	= $row->{vuxml_id};
-	$this->{name}		= $row->{name};
+	$this->{id}                = $row->{id};
+	$this->{vuxml_affected_id} = $row->{vuxml_affected_id};
+	$this->{name}              = $row->{name};
 }
 
 sub save {
@@ -45,9 +45,9 @@ sub save {
 
 	$this->{id} = FreshPorts::Database::GetNextValue($FreshPorts::Constants::vuxml_names_seq, $dbh);
 
-	$sql = "insert into vuxml_names(id, vuxml_id, name, date_modified) values (
+	$sql = "insert into vuxml_names(id, vuxml_affected_id, name) values (
 				$this->{id},
-				$this->{vuxml_id},
+				$this->{vuxml_affected_id},
 				" . $dbh->quote($this->{name}) . ')';
 
 	print "sql is $sql\n";
