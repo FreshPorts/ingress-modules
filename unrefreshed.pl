@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: unrefreshed.pl,v 1.11.2.8 2003-02-10 15:05:27 dan Exp $
+# $Id: unrefreshed.pl,v 1.11.2.9 2003-03-04 23:07:17 dan Exp $
 #
 # Copyright (c) 2001-2002 DVL Software
 #
@@ -12,6 +12,7 @@ use port;
 use database; 
 use DBI;
 use email;
+use commit_log_ports_ignore;
 
 require config;
 
@@ -35,40 +36,48 @@ $list
 
 my $dbh = FreshPorts::Database::GetDBHandle();
 
-my $maxlength=0;
-my $dirname='';
-my $porttorefresh;
-my @PORTS;
 my $sql;
 my $sth;
-my @row;
+my $row;
 
 #
-# get a list of ports to update
+# get a list of unrefreshed ports which have been in the db more than 10 minutes
 #
 
 $sql = "
-select ports.id, 
+select ports.id         as port_id, 
        element.name     as port, 
        categories.name  as category,
        commit_log_ports.commit_log_id
-  from ports, categories, element, commit_log_ports
+  from ports, categories, element, commit_log, commit_log_ports 
  where ports.category_id               = categories.id
    and ports.element_id                = element.id
    and commit_log_ports.port_id        = ports.id
    and commit_log_ports.needs_refresh <> 0
    and element.status                  = 'A'
+   and commit_log_ports.commit_log_id  = commit_log.id
+   and commit_log.date_added           < now() - interval '10 minutes'
+   and not exists (select *
+                     FROM commit_log_ports_ignore
+                    WHERE commit_log_ports_ignore.commit_log_id = commit_log_ports.commit_log_id)
 order by category, port";
 
 $sth = $dbh->prepare($sql);
 $sth->execute ||
         die "Could not execute SQL $sql ... maybe invalid?";
 
+my @commits;
 my $rowcount = 0;
 my $list     = '';
-while (@row=$sth->fetchrow_array) {
+my %commit;
+while ($row=$sth->fetchrow_hashref()) {
 	$rowcount++;
-	$list .= "id=$row[0] $row[2]/$row[1] $row[3]\n";
+	$list .= "id=$row->{port_id} $row->{category}/$row->{port} $row->{commit_log_id}\n";
+	
+	$commit{port_id}       = $row->{port_id};
+	$commit{commit_log_id} = $row->{commit_log_id};
+	push @commits, {%commit};
+	
 }
 
 if ($rowcount > 0) {
@@ -82,5 +91,23 @@ if ($rowcount > 0) {
 }
 
 $sth->finish();
-$dbh->disconnect();
+my $MyCommit;
+my $PortsIgnoreRefresh = FreshPorts::PortsIgnoreRefresh->new($dbh);
 
+foreach $MyCommit (@commits) {
+	print "commit_log_id='$MyCommit->{commit_log_id}' port_id='$MyCommit->{port_id}'\n";
+	
+	# for each port notified, add an entry to the ignore table.
+	# these are cleared out at the end of each day if the port has been refreshed, otherwise
+	# the admin is notified
+
+	$PortsIgnoreRefresh->{commit_log_id} = $MyCommit->{commit_log_id};
+	$PortsIgnoreRefresh->{port_id}       = $MyCommit->{port_id};
+	$PortsIgnoreRefresh->{reason}        = 'auto-ignored';
+	
+	$PortsIgnoreRefresh->save();
+}
+
+$dbh->commit();
+
+$dbh->disconnect();
