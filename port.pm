@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.29 2002-02-03 01:51:24 dan Exp $
+# $Id: port.pm,v 1.30 2002-02-09 22:52:44 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -301,7 +301,7 @@ sub _ExtractValuesFromMakefile {
 	}
 
 	$makecommand = "make -V PORTNAME -V PKGNAME -V DESCR -V CATEGORIES -V PORTVERSION -V PORTREVISION " .
-		" -V COMMENT -V MAINTAINER -V EXTRACT_SUFX -V MASTER_SITES " .
+		" -V COMMENT -V MAINTAINER -V EXTRACT_SUFX " .
 		" -V BUILD_DEPENDS -V RUN_DEPENDS -V FORBIDDEN -V BROKEN -f $MakefileDirectory/$FreshPorts::Constants::FILE_MAKEFILE";
 
 	print "makecommand = $makecommand\n";
@@ -313,12 +313,19 @@ sub _ExtractValuesFromMakefile {
 	# save this for later reference
 	$result = $?;
 
+	if ($result == 0) {
+		$mastersites = `make master-sites-all`;
+		# save this for later reference
+		$result = $?;
+	}
+
 print "\$result='$result'\n";
 
 	# remove previously created directory
 	if ($FreshPorts::Config::mkdir_pkg) {
 		rmdir "pkg";
 	}
+
 
 	#
 	# we need to check this return value.  if it fails, we need to know
