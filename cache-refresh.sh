@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $Id: cache-refresh.sh,v 1.1.2.4 2004-10-12 00:44:16 dan Exp $
+# $Id: cache-refresh.sh,v 1.1.2.5 2004-12-07 00:36:42 dan Exp $
 #
 # Copyright (c) 2004 DVL Software Limited
 #
@@ -24,8 +24,9 @@ then
 	exit 1
 fi
 
-/usr/bin/fetch -qo ${STAGINGDIR}/index.html ${WEBSITEURL}/caching-files/index.php
-/usr/bin/fetch -qo ${STAGINGDIR}/news.rss   ${WEBSITEURL}/caching-files/news.php
+/usr/bin/fetch -qo ${STAGINGDIR}/index.html   ${WEBSITEURL}/caching-files/index.php?numcommits=10
+/usr/bin/fetch -qo ${STAGINGDIR}/commits.html ${WEBSITEURL}/caching-files/index.php?numcommits=100
+/usr/bin/fetch -qo ${STAGINGDIR}/news.rss     ${WEBSITEURL}/caching-files/news.php
 
 /bin/chmod g+r ${STAGINGDIR}/*
 
