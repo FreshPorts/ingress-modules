@@ -1,4 +1,7 @@
 #!/usr/bin/perl
+#
+# $Id: ports.pm,v 1.23 2001-10-31 01:51:10 dan Exp $
+#
 
 package	ports;
 require	Exporter;
