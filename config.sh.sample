@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $Id: config.sh.sample,v 1.1.2.6 2004-04-01 18:31:13 dan Exp $
+# $Id: config.sh.sample,v 1.1.2.7 2004-10-03 02:19:59 dan Exp $
 #
 
 BASEDIR="/usr/websites/DIRNAME"
@@ -27,6 +27,14 @@ STAGINGDIR="${BASEIDR}/caching/tmp"
 # What file do we set for /usr/ports/MOVED?
 
 MOVEDFLAGFILE="${BASEDIR}/dynamic/refresh_moved"
+
+# What file do we set for /usr/ports/UPDATING?
+
+UPDATINGFLAGFILE="${BASEDIR}/dynamic/refresh_moved"
+
+PORTSFREEZEFILE="${BASEDIR}/dynamic/PortsFreezeIsOn"
+
+VUXMLFLAGFILE="${BASEDIR}/dynamic/vuxml"
 
 PORTSDIR="PORTS_DIR"
 ADMINEMAIL="ADMIN_EMAIL"
