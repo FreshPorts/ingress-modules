@@ -1,5 +1,5 @@
 #
-# $Id: verifyport.pm,v 1.42.2.16 2003-09-24 13:49:27 dan Exp $
+# $Id: verifyport.pm,v 1.42.2.17 2003-10-04 21:05:28 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -11,6 +11,7 @@ use element;
 use category;
 use port;
 use commit_log_ports;
+use commit_log_ports_extra;
 use commit_log_port_elements;
 use utilities;
 use committer_opt_in;
@@ -43,7 +44,7 @@ sub _CompileListOfPorts($;$;$) {
 	print "STARTING _CompileListOfPorts ................................\n";
 
 	foreach $value (@{$Files}) {
-		my ($action, $filename, $revision, $commit_log_element_id) = @$value;
+		my ($action, $filename, $revision, $commit_log_element_id, $element_id) = @$value;
 
 		my ($subtree, $category_name, $port_name, $extra) = split/\//,$filename, 4;
 		print "FILE ==: $action, $filename, $revision, $subtree, $category_name, ";
@@ -60,7 +61,7 @@ sub _CompileListOfPorts($;$;$) {
 		# is this file is in the ports tree?
 		# e.g. ports/LEGAL won't get through here because $port_name will not be defined.
 		if ($subtree eq $FreshPorts::Config::ports_prefix && defined($category_name) && defined($port_name)) {
-			print "yes, this file is in the ports tree\n";
+			print "YES, this file is in the ports tree\n";
 
 			if (!defined($FreshPorts::Constants::IgnoredItems{$category_name}) && !defined($FreshPorts::Constants::IgnoredItems{$port_name})) {
 				# find the port for this filename....
@@ -263,6 +264,12 @@ sub SaveChangesToPortsTree($;$;$) {
 		_UndeleteResurrectedPorts(\%ListOfPorts, $Files, $dbh);
 	}
 
+	#
+	# files within the ports tree, but not under any particular port,
+	# are recorded with commit_log_ports_extra
+	#
+	_RecordPortsFilesOutsidePorts($commit_log_id, $Files, \%CommitLogPorts, $dbh);
+
 	return %CommitLogPorts;
 }
 
@@ -279,6 +286,7 @@ sub FetchAllFiles($;$) {
 	my $filename;
 	my $revision;
 	my $commit_log_element_id;
+	my $element_id;
 	my $value;
 
 	my $basename;
@@ -287,7 +295,7 @@ sub FetchAllFiles($;$) {
 	print "fetching all files from this commit.\n";
 
 	foreach $value (@{$Files}) {
-		($action, $filename, $revision, $commit_log_element_id) = @$value;
+		($action, $filename, $revision, $commit_log_element_id, $element_id) = @$value;
 
 		#
 		# there is no sense in fetching removed files
@@ -321,7 +329,7 @@ sub FetchAllFiles($;$) {
 
 sub _RecordPortFilesTouchedByThatCommit($;$;$;$) {
 	#
-	# This function will populate the commit_log_ports table.
+	# This function will populate the commit_log_port_element table.
 	#
 	my $commit_log_id	= shift;
 	my $Files			= shift;
@@ -338,6 +346,7 @@ sub _RecordPortFilesTouchedByThatCommit($;$;$;$) {
 	my $filename;
 	my $revision;
 	my $commit_log_element_id;
+	my $element_id;
 	my $value;
 
 	my $subtree;
@@ -355,7 +364,7 @@ sub _RecordPortFilesTouchedByThatCommit($;$;$;$) {
 	# in this loop assign a value to needs_refresh for each port
 	#
 	foreach $value (@{$Files}) {
-		($action, $filename, $revision, $commit_log_element_id) = @$value;
+		($action, $filename, $revision, $commit_log_element_id, $element_id) = @$value;
 
 		($subtree, $category_name, $port_name, $extra) = split/\//,$filename, 4;
 		print "FILE ==: $action, $filename, $revision, $subtree, $category_name, ";
@@ -391,6 +400,76 @@ sub _RecordPortFilesTouchedByThatCommit($;$;$;$) {
 			} else {
 				print "... but is on the list of IgnoredItems!\n\n";
 			}
+		}
+	}
+}
+
+sub _RecordPortsFilesOutsidePorts($;$;$;$) {
+	#
+	# This function will populate the commit_log_ports_extra table.
+	#
+	my $commit_log_id		= shift;
+	my $Files				= shift;
+	my $CommitLogPortsRef	= shift;
+	my $dbh					= shift;
+
+	my %CommitLogPorts		= %{$CommitLogPortsRef};
+
+	my $portname;					# of the form "$category/$port"
+	my $port;						# of type FreshPorts::Element
+	my $commit_log_ports_extra;		# of type FreshPorts::CommitLogPortsExtra
+	my $commit_log_ports;
+
+	my $action;
+	my $filename;
+	my $revision;
+	my $commit_log_element_id;
+	my $element_id;
+	my $value;
+
+	$commit_log_ports_extra = FreshPorts::CommitLogPortsExtra->new($dbh);
+
+	print "into _RecordPortsFilesOutsidePorts\n";
+	print "\n\nThat message is all done under Commit ID = '$commit_log_id'\n";
+
+	print "the size of \@Files is ", scalar(@{$Files}), "\n";
+
+	my $match = '';
+	my $ExtraElement;
+	#
+	# for each file, see if it's under an existing port
+	#
+	foreach $value (@{$Files}) {
+		$ExtraElement = 1;
+		($action, $filename, $revision, $commit_log_element_id, $element_id) = @$value;
+		print "checking file '$filename' : element_id = '$element_id'\n";
+
+		# We do this assignment here because a reset didn't work
+		%CommitLogPorts = %{$CommitLogPortsRef};
+		while (my ($portname, $commit_log_ports) = each %CommitLogPorts) {
+			$port = $commit_log_ports->{port};
+
+			print " checking port " . $port->{'element_pathname'} . "\n";
+			$match = '^/?' . $port->{element_pathname} . '/';
+
+			if ($filename =~ m|$match|) {
+				print " YES!  that was a match!\n";
+				$ExtraElement = 0;
+				last;
+			} else {
+				print " OK, we'll try the next port\n";
+			}
+		}
+		
+		if ($ExtraElement) { 
+			print "That file is outside any port\n";
+
+			#
+			# record which files go with what port...
+			#
+			$commit_log_ports_extra->{commit_log_id}	= $commit_log_id;
+			$commit_log_ports_extra->{element_id}		= $element_id;
+			$commit_log_ports_extra->save();
 		}
 	}
 }
@@ -521,7 +600,7 @@ sub _UndeleteResurrectedPorts($;$;$) {
 			print "now looking for files which were modified...\n";
 
 			foreach $value (@{$Files}) {
-				my ($action, $filename, $revision, $commit_log_element_id) = @$value;
+				my ($action, $filename, $revision, $commit_log_element_id, $element_id) = @$value;
 		
 				my ($subtree, $category_name, $port_name, $extra) = split/\//,$filename, 4;
 				if (!defined($extra)) {
