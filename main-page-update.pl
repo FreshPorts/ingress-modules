@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: main-page-update.pl,v 1.9 2002-03-02 17:02:29 dan Exp $
+# $Id: main-page-update.pl,v 1.10 2002-03-14 19:46:14 dan Exp $
 #
 # Copyright (c) 1999-2002 DVL Software
 #
@@ -20,7 +20,7 @@ sub RefreshMainPage($) {
 	my @row;
 	my $MaxCommitID;
 
-	$sql = "select RecordLastestPortCommits('2002-01-01');";
+	$sql = "select RecordLastestPortCommits();";
 	print "sql = $sql\n";
 
 	if ($sth = $dbh->prepare($sql)) {
