@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: verifyport.pm,v 1.42.2.9 2003-02-21 21:38:31 dan Exp $
+# $Id: verifyport.pm,v 1.42.2.10 2003-04-05 00:42:52 dan Exp $
 #
 # Copyright (c) 2001-2001 DVL Software
 #
@@ -514,7 +514,10 @@ sub _UndeleteResurrectedPorts($;$;$) {
 				my ($action, $filename, $revision, $commit_log_element_id) = @$value;
 		
 				my ($subtree, $category_name, $port_name, $extra) = split/\//,$filename, 4;
-				print "  inspecting: $action, $filename, $revision, $subtree, $category_name, $extra";
+				if (!defined($extra)) {
+					$extra = '';
+				}
+				print "  inspecting: '$action', '$filename', '$revision', '$subtree', '$category_name', '$extra'\n";
 
 				if ($category_name eq $port->{category} && $port->{name} eq $port_name) {
 					print "  ...found a file from that port\n";
