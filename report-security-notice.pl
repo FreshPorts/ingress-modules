@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: report-security-notice.pl,v 1.1.2.8 2004-02-07 06:30:09 dan Exp $
+# $Id: report-security-notice.pl,v 1.1.2.9 2004-02-10 15:54:14 dan Exp $
 #
 # Copyright (c) 2001-2004 DVL Software
 #
@@ -102,15 +102,13 @@ sub CompileWatchNotifyList($;$;$;$;$;$) {
          categories, 
          element, 
          commit_log_ports, 
-         report_frequency, 
          report_subscriptions,
          security_notice
-   where commit_log.date_added            >= '$LastSent'
+   where security_notice.date_added        >= '$LastSent'
      and commit_log.id                     = commit_log_ports.commit_log_id 
      and watch_list_element.element_id     = ports.element_id
      and watch_list_element.watch_list_id  = watch_list.id 
      and users.id                          = watch_list.user_id 
-     and report_frequency.frequency        = '$Frequency' 
      and length(users.email)               > 0 
      and users.emailbouncecount            = 0 
      and ports.id                          = commit_log_ports.port_id
@@ -118,9 +116,7 @@ sub CompileWatchNotifyList($;$;$;$;$;$) {
      and ports.element_id                  = element.id 
      and users.id                          = report_subscriptions.user_id
      and report_subscriptions.report_id    = $ReportID
-     and report_frequency.id               = report_subscriptions.report_frequency_id
      and commit_log.id                     = security_notice.commit_log_id
-and users.id = 1
 order by watch_list_id, watch_list_name, user_id, category, port, commit_date";
 
 	if ($Debug)	{
@@ -284,7 +280,7 @@ if (($#ARGV+1) == 1) {
 
 	my $Frequency = $ARGV[0];
 
-	if ($Frequency eq 'D' || $Frequency eq 'W' || $Frequency eq 'F' || $Frequency eq 'M') {
+	if ($Frequency eq 'D') {
 
 		my $dbh = FreshPorts::Database::GetDBHandle();
 		if ($dbh->{Active}) {
@@ -306,6 +302,8 @@ if (($#ARGV+1) == 1) {
 				if ($Frequency eq 'W') { $last_sent = `eval date -v-7d "+%Y/%m/%d"`};
 				if ($Frequency eq 'F') { $last_sent = `eval date -v-2w "+%Y/%m/%d"`};
 				if ($Frequency eq 'M') { $last_sent = `eval date -v-1m "+%Y/%m/%d"`};
+
+				chomp $last_sent;
 			}
 
 			print "last_sent = $last_sent\n";
@@ -348,7 +346,7 @@ if (($#ARGV+1) == 1) {
 		print "$Frequency as mail out frequency is not known to me.\n";
 	}
 } else {
-	print "please specify a frequency such as D, W, F, M\n";
+	print "please specify a frequency of D\n";
 }
 
 
