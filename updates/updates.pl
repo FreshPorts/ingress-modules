@@ -158,7 +158,9 @@ for($i=0; $i<=$#file; $i++) {
 
    print "committer=", $committer, "\ntimestamp=", $timestamp, "\naction='",  $action, "'\nfilename=", $filename, "\ndescription=", $description, "\n";
 
-   ($category, $port, $entry, $extra2) = split/\//,$filename;
+   # split the file name into three parts.
+   # $entry might have something like pkg/DESCR
+   ($category, $port, $entry) = split/\//,$filename, 3;
 
   print "category=$category\nport=$port\nentry=$entry\n";
 #  exit;
