@@ -126,7 +126,7 @@ sub ChangeLogDetailInsert($;$;$;$;$) {
       }
    }
 
-   my $sql = "INSERT INTO change_log_details (change_port_id, port_id, change_type, details) \
+   my $sql = "INSERT INTO change_log_details (change_log_port_id, port_id, change_type, details) \
                 values ($ChangePortID, $PortID, '$change_type', '$details')";
 
    print "ChangeLogDetailInsert sql is $sql\n";
