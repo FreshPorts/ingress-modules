@@ -1,17 +1,18 @@
 #!/bin/sh
 #
-# $Id: fetch-cvs-file.sh,v 1.6.2.3 2002-03-30 02:55:01 dan Exp $
+# $Id: fetch-cvs-file.sh,v 1.6.2.4 2002-05-19 18:40:12 dan Exp $
 #
 # Copyright (c) 2000-2002 DVL Software
 #
 
-if  [ $# -ne 3 ];
-	then echo $0 : usage $0 DESTDIR SRCDIR FILE 1>&2
+if  [ $# -ne 4 ];
+	then echo $0 : usage $0 DESTDIR SRCDIR FILE REVISION 1>&2
 	exit 1
 else
 	DESTDIR=$1
 	SRCDIR=$2
 	FILE=$3
+	REVISION=$4
 
 	mkdir -p ${DESTDIR}
 	if [ $? -ne 0 ]
@@ -28,6 +29,6 @@ else
 	#
 	time=`/bin/date +"%s"`
 
-	/usr/bin/fetch -A -o $FETCHFILE http://www.freebsd.org/cgi/cvsweb.cgi/$SRCDIR/$FILE?rev=HEAD\&cache_busting_value=$time
+	/usr/bin/fetch -A -o $FETCHFILE http://www.freebsd.org/cgi/cvsweb.cgi/$SRCDIR/$FILE?rev=$REVISION\&cache_busting_value=$time
 	exit $?
 fi
