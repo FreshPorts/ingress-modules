@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: vuxml_references.pm,v 1.1.2.4 2004-12-12 15:43:11 dan Exp $
+# $Id: vuxml_references.pm,v 1.1.2.5 2005-01-13 15:59:26 dan Exp $
 #
 # Copyright (c) 2004 DVL Software
 #

@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: vuxml_packages.pm,v 1.1.2.2 2004-12-14 00:44:39 dan Exp $
+# $Id: vuxml_packages.pm,v 1.1.2.3 2005-01-13 15:59:26 dan Exp $
 #
 # Copyright (c) 2004 DVL Software
 #
@@ -92,7 +92,5 @@ sub FetchPackageRanges {
 	}
 
 } 
-
-
 
 1;

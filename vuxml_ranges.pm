@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: vuxml_ranges.pm,v 1.1.2.10 2004-12-14 00:47:42 dan Exp $
+# $Id: vuxml_ranges.pm,v 1.1.2.11 2005-01-13 15:59:26 dan Exp $
 #
 # Copyright (c) 2004 DVL Software
 #
@@ -199,6 +199,5 @@ sub print {
 	print "   operator2         = '" . $this->{operator2}         . "'\n";
 	print "   version2          = '" . $this->{version2}          . "'\n";
 }
-
 
 1;
