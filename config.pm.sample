@@ -1,5 +1,5 @@
 #
-# $Id: config.pm.sample,v 1.13.2.2 2002-06-02 14:00:16 dan Exp $
+# $Id: config.pm.sample,v 1.13.2.3 2002-12-17 13:28:30 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -17,8 +17,8 @@ $FreshPorts::Config::FreshPortsURL		= 'http://lists-test.freshports.org/';
 $FreshPorts::Config::TimeAdjust			= '-10800 seconds';
 
 $FreshPorts::Config::dbname				= 'databasename';
-$FreshPorts::Config::user				= 'user';
-$FreshPorts::Config::password			= 'password';
+$FreshPorts::Config::user					= 'user';
+$FreshPorts::Config::password				= 'password';
 
 $FreshPorts::Config::scriptpath			= $ENV{HOME} . "/scripts";
 
