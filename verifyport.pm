@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: verifyport.pm,v 1.42.2.4 2002-08-12 03:06:06 dan Exp $
+# $Id: verifyport.pm,v 1.42.2.5 2002-11-09 15:06:02 dan Exp $
 #
 # Copyright (c) 2001-2001 DVL Software
 #
@@ -360,7 +360,7 @@ sub _LoadMasterPortsForAnySlavePorts($;$) {
 
 				my $DESTDIR   = "$FreshPorts::Config::path_to_tree/$directory";
 				my $SRCDIR    = $directory;
-				my $REVISION  = $FreshPorts::Constants::HEAD;
+				my $REVISION  = $revision;
 	
 				print "fetching \$DESTDIR = [$DESTDIR], \$SRCDIR = [$SRCDIR], \$FILE = [$FILE] \$REVISION = [$REVISION]\n";
 
