@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $Id: create_dirs.sh,v 1.1.2.4 2003-04-12 12:48:24 dan Exp $
+# $Id: create_dirs.sh,v 1.1.2.5 2004-04-01 18:30:19 dan Exp $
 #
 # Copyright (c) 1999-2002 DVL Software
 #
@@ -16,14 +16,10 @@ fi
 
 BASEDIRECTORY=$1
 
-mkdir -p $BASEDIRECTORY/mail
-mkdir -p $BASEDIRECTORY/msgs
 mkdir -p $BASEDIRECTORY/msgs
 mkdir -p $BASEDIRECTORY/msgs/FreeBSD
 mkdir -p $BASEDIRECTORY/msgs/FreeBSD/archive
 mkdir -p $BASEDIRECTORY/msgs/FreeBSD/incoming
-mkdir -p $BASEDIRECTORY/msgs/FreeBSD/raw
+mkdir -p $BASEDIRECTORY/msgs/FreeBSD/recent
 mkdir -p $BASEDIRECTORY/msgs/FreeBSD/retry
 mkdir -p $BASEDIRECTORY/msgs/FreeBSD/spooling
-mkdir -p $BASEDIRECTORY/msgs/FreeBSD/xml
-mkdir -p $BASEDIRECTORY/msgs/FreeBSD/xml-output
