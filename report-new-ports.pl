@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: report-new-ports.pl,v 1.1.2.7 2002-12-10 18:40:49 dan Exp $
+# $Id: report-new-ports.pl,v 1.1.2.8 2002-12-12 04:38:15 dan Exp $
 #
 # Copyright (c) 2001-2002 DVL Software
 #
@@ -91,23 +91,24 @@ sub CompileWatchNotifyList($;$;$;$;$) {
 	# the following line restricts mailouts to just me.
 	#               and users.id                      = 2
 
-	$sql = "select users.id, 
-	               users.email, 
-	               categories.name as category, 
-	               element.name as port, 
-	               to_char(ports.date_added + SystemTimeAdjust(), 'DD Mon YYYY') as date_added,
-	               ports.short_description
-	          from users, ports, categories, element, report_frequency, report_subscriptions
-	         where report_frequency.frequency        = '$Frequency' 
-	           and length(users.email)               > 0 
-	           and users.emailbouncecount            = 0 
-	           and ports.category_id                 = categories.id
-	           and ports.element_id                  = element.id 
-               and users.id                          = report_subscriptions.user_id
-               and report_subscriptions.report_id    = $ReportID
-               and report_frequency.id               = report_subscriptions.report_frequency_id
-               and ports.date_added                  > '$LastSent'
-	      order by users.id, categories.name, element.name, date_added";
+	$sql = "
+  select users.id, 
+         users.email, 
+         categories.name as category, 
+         element.name    as port, 
+         to_char(ports.date_added + SystemTimeAdjust(), 'DD Mon YYYY') as date_added,
+         ports.short_description
+    from users, ports, categories, element, report_frequency, report_subscriptions
+   where report_frequency.frequency        = '$Frequency' 
+     and length(users.email)               > 0 
+     and users.emailbouncecount            = 0 
+     and ports.category_id                 = categories.id
+     and ports.element_id                  = element.id 
+     and users.id                          = report_subscriptions.user_id
+     and report_subscriptions.report_id    = $ReportID
+     and report_frequency.id               = report_subscriptions.report_frequency_id
+     and ports.date_added                  > '$LastSent'
+order by users.id, categories.name, element.name, date_added";
 
 	if ($Debug)	{
 		print "sql is $sql\n";

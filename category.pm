@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: category.pm,v 1.8.2.2 2002-05-19 18:39:38 dan Exp $
+# $Id: category.pm,v 1.8.2.3 2002-12-12 04:38:35 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -109,7 +109,7 @@ sub FetchByID {
 	my $sth;
 	my $row;
 
-	$dbh		= $this->{dbh};
+	$dbh = $this->{dbh};
 
 	$sql = "select * from categories where id = $this->{id}";
 	print "sql = '$sql'\n";
@@ -124,8 +124,8 @@ sub FetchByID {
 	$sth->finish();
 
 	$this->{id} 			= $row->{id};
-	$this->{is_primary}		= $row->{is_primary};
-	$this->{element_id}		= $row->{element_id};
+	$this->{is_primary}	= $row->{is_primary};
+	$this->{element_id}	= $row->{element_id};
 	$this->{name}			= $row->{name};
 	$this->{description}	= $row->{description};
 
