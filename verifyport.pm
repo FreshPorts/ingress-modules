@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: verifyport.pm,v 1.42.2.3 2002-07-27 19:53:41 dan Exp $
+# $Id: verifyport.pm,v 1.42.2.4 2002-08-12 03:06:06 dan Exp $
 #
 # Copyright (c) 2001-2001 DVL Software
 #
@@ -14,6 +14,8 @@ use port;
 use commit_log_ports;
 use commit_log_port_elements;
 use utilities;
+use committer_opt_in;
+use housekeeping;
 
 require File::Basename;
 require Sys::Syslog;
@@ -181,12 +183,11 @@ print "SETTING CATEGORY =  $port->{category_id}\n";
 }
 
 
-sub SaveChangesToPortsTree($;$;$) {
+sub SaveChangesToPortsTree($;$;$;$) {
 	my $commit_log_id	= shift;
 	my $Files			= shift;
+	my $fetch_files		= shift;
 	my $dbh				= shift;
-
-	my $fetch_files		= 1;
 
 	my %ListOfPorts;
 	my %CommitLogPorts;	# hash of commit_log_ports objects
@@ -368,7 +369,6 @@ sub _LoadMasterPortsForAnySlavePorts($;$) {
 				}
 			}
 		}
-	} else {
 		print " no other port Makefiles found.\n";
 	}
 
@@ -467,6 +467,7 @@ sub RefreshAllPortsTouchedByCommit($;$;$) {
 
 	my $port;
 	my $error = 0;
+	my $ErrorFound = 0;
 
 	#
 	# refresh each and every port we are told about
@@ -505,10 +506,12 @@ sub RefreshAllPortsTouchedByCommit($;$;$) {
 			$dbh->commit();
 		} else {
 			$dbh->rollback();
+			$ErrorFound = 1;
 		}
 	}
 
 	print "# # # # done refreshing ports # # # #\n\n";
+	return $ErrorFound;
 }
 
 sub _DeleteDeletedPorts($;$) {
