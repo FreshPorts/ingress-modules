@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: report-new-ports.pl,v 1.1.2.16 2004-02-07 06:29:24 dan Exp $
+# $Id: report-new-ports.pl,v 1.1.2.17 2004-03-22 19:12:09 dan Exp $
 #
 # Copyright (c) 2001-2004 DVL Software
 #
@@ -21,11 +21,7 @@ use Text::Wrap;
 use email;
 
 my $Debug = 0;
-my @USERS;
-my $sql;
-my $sth;
-my @row;
-my $Bcc;
+
 my $NumMsgs		= 0;
 my $NumCommits	= 0;
 my $NumPorts    = 0;
@@ -67,6 +63,7 @@ sub CompileWatchNotifyList($;$;$;$;$;$) {
 	my $LastSent  = shift;
 	my $Announce  = shift;
 	my $dbh = shift;
+	my $row;
 	my $sth;
 	my $sql;
 
@@ -77,12 +74,12 @@ sub CompileWatchNotifyList($;$;$;$;$;$) {
 	#               and users.id                      = 2
 
 	$sql = "
-  select users.id, 
-         users.email, 
+  select users.id as user_id, 
+         users.email as user_email, 
          categories.name as category, 
          element.name    as port, 
          to_char(ports.date_added + SystemTimeAdjust(), 'DD Mon YYYY') as date_added,
-         ports.short_description
+         ports.short_description as description
     from users, ports, categories, element, report_frequency, report_subscriptions
    where report_frequency.frequency        = '$Frequency' 
      and length(users.email)               > 0 
@@ -93,7 +90,8 @@ sub CompileWatchNotifyList($;$;$;$;$;$) {
      and report_subscriptions.report_id    = $ReportID
      and report_frequency.id               = report_subscriptions.report_frequency_id
      and ports.date_added                  > '$LastSent'
-order by users.id, categories.name, element.name, date_added";
+and users.id = 1
+order by users.id, ports.date_added, categories.name, element.name";
 
 	if ($Debug)	{
 		print "sql is $sql\n";
@@ -109,6 +107,7 @@ order by users.id, categories.name, element.name, date_added";
 	my $FrequencyLong;
 	my $Interval;
 	my $CommitLogID = 0;
+	my $LastDateAdded;
 
 	undef($LastID);
 
@@ -135,22 +134,18 @@ order by users.id, categories.name, element.name, date_added";
 	$BodyHeader .= " New ports: " . sprintf("%5u", $NewPorts)  . " http://www.FreshPorts.org/ports-new.php?interval=$Interval\n\n";
 
 	$Body = $BodyHeader;
-	while (@row=$sth->fetchrow_array) {
-		print "now processing @row\n";
+	while ($row = $sth->fetchrow_hashref()) {
 		$NumPorts++;
-#		if ($CommitLogID ne $row[7]) {
-#			$NumCommits++;
-#			$CommitLogID = $row[7];
-#		}
 
 		# make sure that the first time through, we have a value
 		if (!defined($LastID)) {
-			$LastID = $row[0];
-			$To     = $row[1];
+			$LastID        = $row->{user_id};
+			$To            = $row->{user_email};
+			$LastDateAdded = $row->{date_added};
+            $Body .= "$row->{date_added}\n\n";
 		}
 
-#		print "LastID = '$LastID' and id = '$row[0]'\n";
-		if ($LastID != $row[0]) {
+		if ($LastID != $row->{user_id}) {
 			$NumMsgs++;
 			if ($Debug) {
 				print "NOT SENDING EMAIL.. in DEBUG mode\n";
@@ -160,17 +155,26 @@ order by users.id, categories.name, element.name, date_added";
 			print "To   = $To\n";
 			print "Body = $Body\n";
 
-			$Body   = $BodyHeader;
-			$To     = $row[1];
-			$LastID = $row[0];
+			$Body          = $BodyHeader;
+			$To            = $row->{user_email};
+			$LastID        = $row->{user_id};
+			$LastDateAdded = $row->{date_added};
+
+            $Body .= "$LastDateAdded\n\n";
+		}
+
+		if ($LastDateAdded ne $row->{date_added}) {
+            $Body .= "\n$row->{date_added}\n\n";
+			$LastDateAdded = $row->{date_added};
 		}
 
 		# get the category and port
-		$Body .= "$FreshPorts::Config::FreshPortsURL" . $row[2] . '/' . $row[3] . "/\n";
+		$Body .= "$FreshPorts::Config::FreshPortsURL" . $row->{category} . '/' . $row->{port} . "/\n";
 
 		# and wrap the description of the change.
-		$Body .= wrap("     ", "     ", $row[5]);
-		$Body .=      "     $row[4]\n\n";
+		$Body .= wrap("     ", "     ", $row->{description});
+		$Body .= "\n\n";
+
 	}
 
 	# if we got at least one, send out email
@@ -193,6 +197,7 @@ sub AddToLogs($;$;$;$;$;$) {
 	my $dbh			= shift;
 
 	my $sql;
+	my $sth;
 	my @row;
 
 	$sql = "select id from report_frequency where frequency = '$Frequency'";
@@ -250,15 +255,15 @@ if (($#ARGV+1) == 1) {
 		my $dbh = FreshPorts::Database::GetDBHandle();
 		if ($dbh->{Active}) {
 
-			$sql = "select last_sent 
+			my $sql = "select last_sent 
 			          from report_log_latest
 			         where frequency = '$Frequency'
 			           and report_id = $ReportID";
-			$sth = $dbh->prepare($sql);
+			my $sth = $dbh->prepare($sql);
 			$sth->execute ||
 					die "Could not execute SQL $sql ... maybe invalid";
 
-			@row=$sth->fetchrow_array;
+			my @row=$sth->fetchrow_array;
 			my $last_sent = $row[0];
 			$sth->finish();
 
