@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: process_cvs_mail.pl,v 1.8.2.3 2002-04-12 05:20:27 dan Exp $
+# $Id: process_cvs_mail.pl,v 1.8.2.4 2002-04-12 05:37:13 dan Exp $
 #
 # Copyright (c) 2001-2002  DVL Software
 #
@@ -130,7 +130,7 @@ sub WriteXML {
 	# the default is: UTF-8.  We want ISO-8859-1.
 
 	# Add the main XML tag
-	$writer->xmlDecl("ISO-8859-1");
+	$writer->xmlDecl("UTF-8");
 
 	# Add the XML Document Type
 	$writer->doctype('UPDATES','-//Freshports//DTD Freshports 2.0//EN', 'http://www.freshports.org/docs/fp-updates.dtd');
