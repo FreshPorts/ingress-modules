@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: load_xml_into_db.pl,v 1.46.2.25 2005-02-01 17:53:14 dan Exp $
+# $Id: load_xml_into_db.pl,v 1.46.2.26 2005-02-01 18:49:47 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -30,8 +30,6 @@ use observer_commits;
 my $dbh = FreshPorts::Database::GetDBHandle();
 if ($dbh->{Active}) {
 
-	$dbh->begin_work();
-
 	my $ObserverCommits = FreshPorts::ObserverCommits->new($dbh);
 
 	my $Munger = FreshPorts::XML_Munge->new($dbh);
@@ -39,7 +37,7 @@ if ($dbh->{Active}) {
 	$Munger->add_observer($ObserverCommits);
 
 	print " about to process\n";
-	$ErrorFound = $Munger->process();
+	my $ErrorFound = $Munger->process();
 
 	print " now is the commit\n";
 
