@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: process_cvs_mail.pl,v 1.8.2.23 2004-06-29 18:47:38 dan Exp $
+# $Id: process_cvs_mail.pl,v 1.8.2.24 2004-08-27 13:54:34 dan Exp $
 #
 # Copyright (c) 2001-2003  DVL Software
 #
@@ -61,27 +61,6 @@ sub GetData {
 	my $Message_Subject;
 	my $Log;
 	my $EncodingLosses = 'false';
-
-	#
-	# look for non-printable characters.
-	# this shows you them: perl -le 'print map chr,0x20..0x7e'
-	#
-	if ($message =~ tr/\x0a\x09\x20-\x7E/?/c) {
-		# we have messy characters in there
-		$EncodingLosses = 'true';
-	}
-
-#I'd also consider going one step further and doing:
-#
-#        $EncodingLosses = $message =~ tr/\x0a\x09\x20-\x7E/?/c;
-#
-#which stores the number of replaced characters into $EncodingLosses.
-#This might or might not be useful though, depending on the rest of the
-#environment.
-#
-# Piet Delport <pjd@303.za.net> - Sat, 1 Jun 2002 01:44:13 +0200
-#
-
 
 	$Message_Subject	= &GetMessage_Subject($message);
 
@@ -149,12 +128,8 @@ sub WriteXML {
 	my ($writer) = new XML::Writer( DATA_INDENT => 4,
 					DATA_MODE => 1 );
 
-	# use the right encoding so strings like Lyngbøl will work for XML::Parser when
-	# it comes time to read this stuff back in...
-	# the default is: UTF-8.  We want ISO-8859-1.
-
 	# Add the main XML tag
-	$writer->xmlDecl("UTF-8");
+	$writer->xmlDecl("ISO-8859-1");
 
 	# Add the XML Document Type
 	$writer->doctype('UPDATES','-//FreshPorts//DTD FreshPorts 2.0//EN', 'http://www.freshports.org/docs/fp-updates.dtd');
