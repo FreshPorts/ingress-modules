@@ -24,6 +24,13 @@ Something on your watch list has changed.  But I'm too
 confused to tell you exactly what.  Please refer to
 http://freshports.org/watch.php3 for details.
 
+This is the first such mailing.  Hopefully it will be
+a regular event from now on.  Please note that because
+this is the first message, you may already seen the
+port changes which prompted this message to you.
+
+Cheers and thanks for your support.
+
 --
 
 You are receiving this message as part of the service
