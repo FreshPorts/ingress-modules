@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: vuxml.pm,v 1.1.2.5 2004-12-11 00:59:28 dan Exp $
+# $Id: vuxml.pm,v 1.1.2.6 2004-12-12 15:46:50 dan Exp $
 #
 # Copyright (c) 2004 DVL Software
 #
@@ -31,16 +31,28 @@ sub _GetValuesFromRow {
 	my $this = shift;
 	my $row  = shift;
 
-	$this->{id} 			= $row->{id};
-	$this->{vid}			= $row->{vid};
-	$this->{topic}			= $row->{topic};
-	$this->{description}	= $row->{description};
-	$this->{date_discovery}	= $row->{date_discovery};
-	$this->{date_entry}		= $row->{date_entry};
-	$this->{date_modified}	= $row->{date_modified};
-	$this->{status}			= $row->{status};
+	$this->{id}             = $row->{id};
+	$this->{vid}            = $row->{vid};
+	$this->{topic}          = $row->{topic};
+	$this->{description}    = $row->{description};
+	$this->{date_discovery} = $row->{date_discovery};
+	$this->{date_entry}     = $row->{date_entry};
+	$this->{date_modified}  = $row->{date_modified};
+	$this->{status}         = $row->{status};
 }
 
+sub empty {
+	my $this = shift;
+
+	$this->{id}             = undef;
+	$this->{vid}            = undef;
+	$this->{topic}          = undef;
+	$this->{description}    = undef;
+	$this->{date_discovery} = undef;
+	$this->{date_entry}     = undef;
+	$this->{date_modified}  = undef;
+	$this->{status}         = undef;
+}
 sub save {
 	my $this = shift;
 
