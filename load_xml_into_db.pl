@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: load_xml_into_db.pl,v 1.46.2.8 2002-11-25 23:02:35 dan Exp $
+# $Id: load_xml_into_db.pl,v 1.46.2.9 2002-12-10 15:26:49 dan Exp $
 #
 # Copyright (c) 2001-2002 DVL Software
 #
@@ -43,27 +43,27 @@ use committer_opt_in;
 use XML::Node;
 use DBI;
 
-my $commit_log_id			= 0;
-my $debug					= 0;
-my $overwrite				= 0;
-my $refresh_ports			= 1;	# refresh any ports touched by a commit
+my $commit_log_id				= 0;
+my $debug						= 0;
+my $overwrite					= 0;
+my $refresh_ports				= 1;	# refresh any ports touched by a commit
 my $fetch_before_refresh	= 1;	# by default, we fetch files from cvs 
-									# before refreshing from them
+											# before refreshing from them
 
-my $SystemID;			# the system id for this update.  Usually 'FreeBSD' => 1
-my $SystemBranchID;		# the system version id for this update.  Usually 'HEAD' => 1
+my $SystemID;							# the system id for this update.  Usually 'FreeBSD' => 1
+my $SystemBranchID;					# the system version id for this update.  Usually 'HEAD' => 1
 
 my $dbh;
 
-my @Files;				# files affected by this commit
+my @Files;								# files affected by this commit
 
 #
 # a file can be added to the repository, deleted (removed) from the repository,
 # or modified in the repository.
 #
 my %ValidFileActions = (	$FreshPorts::Constants::ADD		=> "A",
-							$FreshPorts::Constants::REMOVE	=> "R",
-							$FreshPorts::Constants::MODIFY	=> "M");
+									$FreshPorts::Constants::REMOVE	=> "R",
+									$FreshPorts::Constants::MODIFY	=> "M");
 
 
 FreshPorts::Utilities::InitSyslog();
@@ -146,56 +146,56 @@ sub main {
 sub SetupParser($) {
 	my $p = shift;
 
-	$p->register(">UPDATES",								"start" => \&handle_updates_start);
-	$p->register(">UPDATES>UPDATE",							"start" => \&handle_update_start);
+	$p->register(">UPDATES",											"start" => \&handle_updates_start);
+	$p->register(">UPDATES>UPDATE",									"start" => \&handle_update_start);
 
-	$p->register(">UPDATES>UPDATE>DATE:Year",				"attr" => \$Updates{dateyear});
-	$p->register(">UPDATES>UPDATE>DATE:Month",				"attr" => \$Updates{datemonth});
-	$p->register(">UPDATES>UPDATE>DATE:Day",				"attr" => \$Updates{dateday});
+	$p->register(">UPDATES>UPDATE>DATE:Year",						"attr" => \$Updates{dateyear});
+	$p->register(">UPDATES>UPDATE>DATE:Month",					"attr" => \$Updates{datemonth});
+	$p->register(">UPDATES>UPDATE>DATE:Day",						"attr" => \$Updates{dateday});
 
-	$p->register(">UPDATES>UPDATE>TIME:Hour",				"attr" => \$Updates{timehour});
-	$p->register(">UPDATES>UPDATE>TIME:Minute",				"attr" => \$Updates{timeminute});
-	$p->register(">UPDATES>UPDATE>TIME:Second",				"attr" => \$Updates{timesecond});
-	$p->register(">UPDATES>UPDATE>TIME:Timezone",			"attr" => \$Updates{timezone});
+	$p->register(">UPDATES>UPDATE>TIME:Hour",						"attr" => \$Updates{timehour});
+	$p->register(">UPDATES>UPDATE>TIME:Minute",					"attr" => \$Updates{timeminute});
+	$p->register(">UPDATES>UPDATE>TIME:Second",					"attr" => \$Updates{timesecond});
+	$p->register(">UPDATES>UPDATE>TIME:Timezone",				"attr" => \$Updates{timezone});
 
-	$p->register(">UPDATES>UPDATE>OS:Id",					"attr" => \$Updates{os});
-	$p->register(">UPDATES>UPDATE>OS:Branch",				"attr" => \$Updates{branch});
-	$p->register(">UPDATES>UPDATE>OS",						"end"  => \&handle_os_end);
+	$p->register(">UPDATES>UPDATE>OS:Id",							"attr" => \$Updates{os});
+	$p->register(">UPDATES>UPDATE>OS:Branch",						"attr" => \$Updates{branch});
+	$p->register(">UPDATES>UPDATE>OS",								"end"  => \&handle_os_end);
         
-	$p->register(">UPDATES>UPDATE>LOG",						"char" => \$Updates{log});
+	$p->register(">UPDATES>UPDATE>LOG",								"char" => \$Updates{log});
 
-	$p->register(">UPDATES>UPDATE>PEOPLE>UPDATER:Handle",	"attr" => \$Updates{committer});
-	$p->register(">UPDATES>UPDATE>PEOPLE>UPDATER",			"end"  => \&handle_updater_end);
+	$p->register(">UPDATES>UPDATE>PEOPLE>UPDATER:Handle",		"attr" => \$Updates{committer});
+	$p->register(">UPDATES>UPDATE>PEOPLE>UPDATER",				"end"  => \&handle_updater_end);
 
-	$p->register(">UPDATES>UPDATE>MESSAGE:Id",				"attr" => \$Updates{MessageId});
-	$p->register(">UPDATES>UPDATE>MESSAGE:Subject",			"attr" => \$Updates{MessageSubject});
+	$p->register(">UPDATES>UPDATE>MESSAGE:Id",					"attr" => \$Updates{MessageId});
+	$p->register(">UPDATES>UPDATE>MESSAGE:Subject",				"attr" => \$Updates{MessageSubject});
 	$p->register(">UPDATES>UPDATE>MESSAGE:EncodingLosses",	"attr" => \$Updates{MessageEncodingLosses});
 
 
-	$p->register(">UPDATES>UPDATE>MESSAGE>DATE:Year",		"attr" => \$Updates{messageyear});
-	$p->register(">UPDATES>UPDATE>MESSAGE>DATE:Month",		"attr" => \$Updates{messagemonth});
+	$p->register(">UPDATES>UPDATE>MESSAGE>DATE:Year",			"attr" => \$Updates{messageyear});
+	$p->register(">UPDATES>UPDATE>MESSAGE>DATE:Month",			"attr" => \$Updates{messagemonth});
 
-	$p->register(">UPDATES>UPDATE>MESSAGE>DATE:Day",		"attr" => \$Updates{messageday});
+	$p->register(">UPDATES>UPDATE>MESSAGE>DATE:Day",			"attr" => \$Updates{messageday});
 
-	$p->register(">UPDATES>UPDATE>MESSAGE>TIME:Hour",		"attr" => \$Updates{messagehour});
+	$p->register(">UPDATES>UPDATE>MESSAGE>TIME:Hour",			"attr" => \$Updates{messagehour});
 	$p->register(">UPDATES>UPDATE>MESSAGE>TIME:Minute",		"attr" => \$Updates{messageminute});
 	$p->register(">UPDATES>UPDATE>MESSAGE>TIME:Second",		"attr" => \$Updates{messagesecond});
-	$p->register(">UPDATES>UPDATE>MESSAGE>TIME:Timezone",	"attr" => \$Updates{messagezone});
+	$p->register(">UPDATES>UPDATE>MESSAGE>TIME:Timezone",		"attr" => \$Updates{messagezone});
 
-	$p->register(">UPDATES>UPDATE>MESSAGE>TO:Email",		"attr" => \$Updates{MessageTo});
-	$p->register(">UPDATES>UPDATE>MESSAGE>TO",				"end"  => \&handle_messageto_end);
+	$p->register(">UPDATES>UPDATE>MESSAGE>TO:Email",			"attr" => \$Updates{MessageTo});
+	$p->register(">UPDATES>UPDATE>MESSAGE>TO",					"end"  => \&handle_messageto_end);
 
-	$p->register(">UPDATES>UPDATE>MESSAGE",					"end"  => \&handle_message_end);
+	$p->register(">UPDATES>UPDATE>MESSAGE",						"end"  => \&handle_message_end);
 
-	$p->register(">UPDATES>UPDATE>FILES>FILE:Path",			"attr" => \$Updates{FilePath});
-	$p->register(">UPDATES>UPDATE>FILES>FILE:Action",		"attr" => \$Updates{FileAction});
+	$p->register(">UPDATES>UPDATE>FILES>FILE:Path",				"attr" => \$Updates{FilePath});
+	$p->register(">UPDATES>UPDATE>FILES>FILE:Action",			"attr" => \$Updates{FileAction});
 	$p->register(">UPDATES>UPDATE>FILES>FILE:Revision",		"attr" => \$Updates{FileRevision});
 
-	$p->register(">UPDATES>UPDATE>FILES>FILE",				"end"  => \&handle_file_end);
+	$p->register(">UPDATES>UPDATE>FILES>FILE",					"end"  => \&handle_file_end);
 
 
-	$p->register(">UPDATES>UPDATE",							"end" => \&handle_update_end);
-	$p->register(">UPDATES",								"end" => \&handle_updates_end);
+	$p->register(">UPDATES>UPDATE",									"end" => \&handle_update_end);
+	$p->register(">UPDATES",											"end" => \&handle_updates_end);
 }
 
 sub handle_updates_start
@@ -338,10 +338,10 @@ sub handle_file_end
 	my $FilePath		= $Updates{FilePath};
 	my $FileRevision	= $Updates{FileRevision};
 	my $fileaction;		# the value obtained from the hash array
-						# and which will be stored into the database.
+								# and which will be stored into the database.
 
 	my $ElementAdded	= 0;
-	my $NewRevision		= 0;
+	my $NewRevision	= 0;
 	my $element;
 	my $element_id;
 	my $filename		= $FilePath;
@@ -538,13 +538,6 @@ sub handle_message_end {
    print "MessageTo      = [$Updates{MessageToAll}]\n";
    print "MessageSubject = [$Updates{MessageSubject}]\n";
 
-#	we will now process all commits, not just ports commits
-#
-#   if (!($Updates{MessageSubject} =~ m/ports/)) {
-#      print "not a ports tree commit.  we'll just exit now shall we?\n";
-#      exit 7;
-#   }
-
    # use this information to update the database
    print "into handle_message_end, let's save that message now!\n\n";
 
@@ -655,7 +648,7 @@ sub SaveUpdateToDB {
 	# commit_log will contain an appropriate default value.
 	#
 	if (defined($Updates{MessageEncodingLosses})) {
-		$commit_log->{encoding_losses}	= $Updates{MessageEncodingLosses};
+		$commit_log->{encoding_losses} = $Updates{MessageEncodingLosses};
 	}
 
 	$id = $commit_log->save();
@@ -716,9 +709,9 @@ sub Pathname_ID($;$) {
 
 sub SystemBranchIDGetOrCreate($;$;$) {   
 	# obtain the system_branch_id for the given version of this system
-	my $system_id	= shift;
+	my $system_id		= shift;
 	my $branch_name	= shift;
-	my $dbh			= shift;
+	my $dbh				= shift;
 
 	my $sql;
 	my $sth;
@@ -783,9 +776,9 @@ sub SystemIDGet($;$) {
 
 sub SystemBranchElementInsert($;$;$;$) {
 	my $SystemBranchID	= shift;
-	my $ElementID		= shift;
-	my $RevisionName	= shift;
-	my $dbh				= shift;
+	my $ElementID			= shift;
+	my $RevisionName		= shift;
+	my $dbh					= shift;
 
 	my $sth;
 	my $sql;

@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: verifyport.pm,v 1.42.2.6 2002-11-15 20:16:11 dan Exp $
+# $Id: verifyport.pm,v 1.42.2.7 2002-12-10 15:26:50 dan Exp $
 #
 # Copyright (c) 2001-2001 DVL Software
 #
@@ -35,7 +35,7 @@ sub _CompileListOfPorts($;$;$) {
 	my $Files			= shift;
 	my $dbh				= shift;
 
-	my %ListOfPorts;		# returned from this function
+	my %ListOfPorts;			# returned from this function
 	my %CategoriesChecked;	# contains category class objects.
 
 	my $value;
@@ -131,7 +131,7 @@ sub _CompileListOfPorts($;$;$) {
 							$port->{category}		= $category_name;
 						}
 
-print "SETTING CATEGORY =  $port->{category_id}\n";
+						print "SETTING CATEGORY =  $port->{category_id}\n";
 						$ListOfPorts{"$category_name/$port_name"} = $port;
 					} else {
 						print "found that port $category_name/$port_name in the cache\n";
@@ -152,22 +152,6 @@ print "SETTING CATEGORY =  $port->{category_id}\n";
 						$port->{deleted} = 1;
 						print "THIS PORT HAS BEEN DELETED\n";
 					}
-
-					#
-					# make sure this commit isn't deleting us...
-					# NOTE: {deleted} may have been set while processing a previous file name
-					#
-#
-# we don't use needs_refresh any more
-#
-#					if (!defined($port->{deleted})) {
-#						my $index = $FreshPorts::Constants::FilesWhichPromptRefresh{$extra};
-#						if ($index) {
-#							print "yes, it's a File Which Prompts Refresh (index = $index)\n";
-#							$port->{needs_refresh} |= $index;
-#							print "needs_refresh is now $port->{needs_refresh}\n";
-#						}
-#					}
 				}
 			} else {
 				print "... but is on the list of IgnoredItems!\n\n";
@@ -186,7 +170,7 @@ print "SETTING CATEGORY =  $port->{category_id}\n";
 sub SaveChangesToPortsTree($;$;$;$) {
 	my $commit_log_id	= shift;
 	my $Files			= shift;
-	my $fetch_files		= shift;
+	my $fetch_files	= shift;
 	my $dbh				= shift;
 
 	my %ListOfPorts;
@@ -345,8 +329,8 @@ sub _RecordPortFilesTouchedByThatCommit($;$;$;$) {
 
 	my %Ports 			= %{$PortsRef};
 
-	my $portname;					# of the form "$category/$port"
-	my $port;						# of type FreshPorts::Element
+	my $portname;						# of the form "$category/$port"
+	my $port;							# of type FreshPorts::Element
 	my $commit_log_port_elements;	# of type FreshPorts::CommitLogPortElements
 
 	my $action;
@@ -400,7 +384,7 @@ sub _RecordPortFilesTouchedByThatCommit($;$;$;$) {
 				# record which files go with what port...
 				#
 				$commit_log_port_elements->{commit_log_id}			= $commit_log_id;
-				$commit_log_port_elements->{port_id}				= $port->{id};
+				$commit_log_port_elements->{port_id}					= $port->{id};
 				$commit_log_port_elements->{commit_log_element_id}	= $commit_log_element_id;
 				$commit_log_port_elements->save();
 			} else {
@@ -419,12 +403,12 @@ sub RefreshAllPortsTouchedByCommit($;$;$) {
 	my $CommitLogPortsRef		= shift;
 	my %CommitLogPorts			= %{$CommitLogPortsRef};
 	my $fetch_before_refresh	= shift;
-	my $dbh						= shift;
+	my $dbh							= shift;
 
 	my $housekeeping = FreshPorts::Housekeeping->new($dbh);
 
 	my $port;
-	my $error = 0;
+	my $error 		= 0;
 	my $ErrorFound = 0;
 
 	#
