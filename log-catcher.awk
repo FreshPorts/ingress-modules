@@ -11,14 +11,14 @@
 
 
 BEGIN {
- OUTDIR="/usr/local/etc/freshports/msgs-awk/" ;
- MUNGER="/usr/bin/awk -f /usr/local/etc/freshports/log-munger.awk";
+ OUTDIR="/usr/local/etc/freshports.test/msgs/" ;
+ MUNGER="/usr/bin/awk -f /usr/local/etc/freshports.test/log-munger.awk";
 
- UPDATER = "/usr/bin/perl /usr/local/etc/freshports/updates/updates.pl";
+ UPDATER = "/usr/bin/perl /usr/local/etc/freshports.test/updates/updates.pl";
 
  getline pid<"/dev/pid"
 
- file=OUTDIR strftime("%Y%m%d-%T-%Z.")  pid ".txt";
+ file=OUTDIR strftime("%Y%m%d.%H.%M.%S.%Z.")  pid ".txt";
  filenext = file ".munged";
 
  inheader=1;wasport=0;

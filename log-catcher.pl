@@ -1,8 +1,8 @@
 #!/usr/bin/perl -w
 
-$Outfile  = "/usr/local/etc/freshports/msgs/" . time . ".$$.txt";
+$Outfile  = "/usr/local/etc/freshports.test/msgs/" . time . ".$$.txt";
 
-$Nextfile = "/usr/local/etc/freshports/msgs/" . time . ".$$.txt.munged";
+$Nextfile = "/usr/local/etc/freshports.test/msgs/" . time . ".$$.txt.munged";
 
 while ( defined(my $l = <STDIN> ) ) {
      last if $l =~ /^$/;
