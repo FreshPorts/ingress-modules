@@ -1,5 +1,5 @@
 #
-# $Id: config.pm.sample,v 1.13.2.6 2003-04-10 13:19:47 dan Exp $
+# $Id: config.pm.sample,v 1.13.2.7 2003-04-29 11:39:29 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -12,7 +12,7 @@ use File::PathConvert;
 # This section contains local settings.  Change them to suit your environment.
 #
 
-$FreshPorts::Config::FreshPortsURL		= 'http://lists-test.freshports.org/';
+$FreshPorts::Config::FreshPortsURL		= 'http://WEBSITE_URL/';
 
 $FreshPorts::Config::TimeAdjust			= '-10800 seconds';
 
@@ -20,7 +20,9 @@ $FreshPorts::Config::dbname				= 'databasename';
 $FreshPorts::Config::user					= 'user';
 $FreshPorts::Config::password				= 'password';
 
-$FreshPorts::Config::scriptpath			= "/path/to/scripts";
+$FreshPorts::Config::BaseDir				= "/usr/websites/WEBSITE_URL";
+
+$FreshPorts::Config::scriptpath			= $BaseDir . '/scripts';
 
 $FreshPorts::Config::mkdir_pkg			= 0;
 
@@ -39,8 +41,8 @@ $FreshPorts::Config::path_to_ports		= $FreshPorts::Config::path_to_tree . '/port
 #
 $FreshPorts::Config::ports_prefix		= 'ports';
 
-$FreshPorts::Config::DailySummaryDir	= $ENV{HOME} . "/src/www/archives"; # no trailing /
-$FreshPorts::Config::HourlySummaryDir	= "/usr/websites/freshports.org/dynamic";
+$FreshPorts::Config::DailySummaryDir	= $BaseDir . "/www/archives"; # no trailing /
+$FreshPorts::Config::HourlySummaryDir	= $BaseDir . "/dynamic";
 
 $FreshPorts::Config::CommitterNotify	= 0;	# Should we notify committers of problems?
 
