@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.38.2.14 2002-12-10 15:56:38 dan Exp $
+# $Id: port.pm,v 1.38.2.15 2002-12-10 18:12:55 dan Exp $
 #
 #
 # Copyright (c) 2001-2002 DVL Software
@@ -37,6 +37,7 @@ sub _initialize {
 	my $this = shift;
 
 	$this->{portname}				= '';
+	$this->{name}					= '';
 	$this->{short_description}	= '';
 	$this->{long_description}	= '';
 	$this->{version}				= '';
@@ -118,30 +119,30 @@ sub save {
 
 # correct this sql to update all fields...
 
-		$sql = "update ports  \
-				set \
-				short_description	= " . $dbh->quote($this->{short_description})	. ", \
-				long_description	= " . $dbh->quote($this->{long_description})		. ", \
-				version				= " . $dbh->quote($this->{version})					. ", \
-				revision				= " . $dbh->quote($this->{revision})				. ", \
-				maintainer			= " . $dbh->quote($this->{maintainer})				. ", \
-				homepage				= " . $dbh->quote($this->{homepage})				. ", \
-				master_sites		= " . $dbh->quote($this->{master_sites})			. ", \
-				extract_suffix		= " . $dbh->quote($this->{package_exists})		. ", \
-				depends_build		= " . $dbh->quote($this->{depends_build})			. ", \
-				depends_run			= " . $dbh->quote($this->{depends_run})			. ", \
-				forbidden			= " . $dbh->quote($this->{forbidden})				. ", \
-				broken				= " . $dbh->quote($this->{broken})					. ", \
-				categories			= " . $dbh->quote($this->{categories});
+		$sql = "
+update ports  
+   set short_description = " . $dbh->quote($this->{short_description})	. ", 
+       long_description  = " . $dbh->quote($this->{long_description})	. ", 
+       version           = " . $dbh->quote($this->{version})				. ", 
+       revision          = " . $dbh->quote($this->{revision})				. ", 
+       maintainer        = " . $dbh->quote($this->{maintainer})			. ", 
+       homepage          = " . $dbh->quote($this->{homepage})				. ", 
+       master_sites      = " . $dbh->quote($this->{master_sites})			. ", 
+       extract_suffix    = " . $dbh->quote($this->{package_exists})		. ", 
+       depends_build     = " . $dbh->quote($this->{depends_build})		. ", 
+       depends_run       = " . $dbh->quote($this->{depends_run})			. ", 
+       forbidden         = " . $dbh->quote($this->{forbidden})				. ", 
+       broken            = " . $dbh->quote($this->{broken})					. ", 
+       categories        = " . $dbh->quote($this->{categories});
 
-				# we don't always have this value, so we don't change it....
-				if (defined($this->{last_commit_id})) {
-					$sql .= ", last_commit_id		= $this->{last_commit_id}";
-				}
+		# we don't always have this value, so we don't change it....
+		if (defined($this->{last_commit_id})) {
+			$sql .= ", last_commit_id		= $this->{last_commit_id}";
+		}
+		
+		$sql .= " where id = $this->{id}";
 
-				$sql .= " where id = $this->{id}";
-
-print "sql = $sql\n";
+		print "sql = $sql\n";
 
 		$sth = $this->{dbh}->prepare($sql);
 		$sth->execute ||
