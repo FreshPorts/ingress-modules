@@ -1,8 +1,8 @@
 #!/bin/sh
 #
-# $Id: process_moved.sh,v 1.1.2.1 2003-12-31 22:48:40 dan Exp $
+# $Id: process_moved.sh,v 1.1.2.2 2004-03-24 13:01:41 dan Exp $
 #
-# Copyright (c) 2003 DVL Software Limited
+# Copyright (c) 2003-2004 DVL Software Limited
 #
 # Check to see if the switch is set, and if so, load the
 # /usr/ports/MOVED file into the database
@@ -32,5 +32,4 @@ if [ -r ${MOVEDFLAGFILE} ]
 then
 	rm ${MOVEDFLAGFILE}
 	/usr/bin/perl ./process_moved.pl < ${PORTSDIR}/MOVED
-	echo "processed MOVED for ${WEBSITEURL}" | mail -s "processed MOVED" dan@langille.org
 fi
