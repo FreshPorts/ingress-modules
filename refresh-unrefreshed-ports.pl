@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: refresh-unrefreshed-ports.pl,v 1.19 2002-02-16 07:18:48 dan Exp $
+# $Id: refresh-unrefreshed-ports.pl,v 1.20 2002-02-17 20:02:57 dan Exp $
 #
 # Copyright (c) 1999-2001 DVL Software
 #
@@ -12,6 +12,7 @@ use DBI;
 use database;
 use utilities;
 use commit_log_ports;
+use housekeeping;
 
 my $dbh;
 
@@ -27,6 +28,8 @@ my @row;
 FreshPorts::Utilities::InitSyslog();
 
 $dbh = FreshPorts::Database::GetDBHandle();
+
+my $housekeeping = FreshPorts::Housekeeping->new($dbh);
 
 #
 # get a list of ports to update
@@ -97,6 +100,17 @@ foreach $porttorefresh (@PORTS) {
 
 			$commit_log_ports->save();
 
+			#
+			# let others know that a refresh has been completed
+			# so that caching of pages can be properly done.
+			#
+			print " &&&&&&&&&&&&&&&&& setting housekeeping->refreshdone\n";
+			$housekeeping->refreshdone();
+
+			#
+			# commit everything we've done.  we don't want it falling over during
+			# the daily summary creation and then doing a rollback.
+			#
 			$dbh->commit();
 		} else {
 			print "update result is $result ******************************************\n";

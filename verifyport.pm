@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: verifyport.pm,v 1.41 2002-02-03 01:51:24 dan Exp $
+# $Id: verifyport.pm,v 1.42 2002-02-17 20:02:57 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -449,7 +449,7 @@ sub _RecordPortFilesTouchedByThatCommit($;$;$;$) {
 	}
 }
 
-sub RefreshAllPortsTouchedByCommit($;$) {
+sub RefreshAllPortsTouchedByCommit($;$;$) {
 	#
 	# given the ports touched by this commit
 	# refresh each of them
@@ -458,6 +458,9 @@ sub RefreshAllPortsTouchedByCommit($;$) {
 	my $CommitLogPortsRef		= shift;
 	my %CommitLogPorts			= %{$CommitLogPortsRef};
 	my $fetch_before_refresh	= shift;
+	my $dbh						= shift;
+
+	my $housekeeping = FreshPorts::Housekeeping->new($dbh);
 
 	my $port;
 	my $error = 0;
@@ -475,6 +478,7 @@ sub RefreshAllPortsTouchedByCommit($;$) {
 			
 			# after refreshing from the files, save the results
 			$port->save();
+			
 
 			# and then update the commit_log_ports
 
@@ -483,6 +487,21 @@ sub RefreshAllPortsTouchedByCommit($;$) {
 			$commit_log_ports->{port_revision}	= $port->{revision};
 
 			$commit_log_ports->save();
+
+			#
+			# let others know that a refresh has been completed
+			# so that caching of pages can be properly done.
+			#
+			print " &&&&&&&&&&&&&&&&& setting housekeeping->refreshdone\n";
+			$housekeeping->refreshdone();
+
+			#
+			# commit everything we've done.  we don't want it falling over during
+			# the daily summary creation and then doing a rollback.
+			#
+			$dbh->commit();
+		} else {
+			$dbh->rollback();
 		}
 	}
 
