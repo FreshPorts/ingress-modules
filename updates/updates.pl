@@ -59,17 +59,24 @@ sub ChangeLogInsert($;$;$;$) {
    my $description = shift;
    my $dbh         = shift;
 
+   print "%%%%%     ChangeLogInsert - 1 " . `date "+%Y-%m-%d %H:%M:%S"` . "\n";
    my $sql = "INSERT INTO change_log (commit_date, committer, update_description) \
-           values ('$timestamp', '$committer', '$description')";
+           values ('$timestamp', " . $dbh->quote($committer) . ", " . $dbh->quote($description) . ")";
 
-   print "ChangeLogInsert sql => " . $sql;
+   print "%%%%%     ChangeLogInsert - 2 " . `date "+%Y-%m-%d %H:%M:%S"` . "\n";
+   print "ChangeLogInsert sql => " . $sql . "\n";
+
+   print "%%%%%     ChangeLogInsert - 3 " . `date "+%Y-%m-%d %H:%M:%S"` . "\n";
    my $sth = $dbh->prepare($sql);
 
+   print "%%%%%     ChangeLogInsert - 4 " . `date "+%Y-%m-%d %H:%M:%S"` . "\n";
    $sth->execute ||
         die "Could not execute change_log SQL statement $sql ... maybe invalid?";
 
+   print "%%%%%     ChangeLogInsert - 5 " . `date "+%Y-%m-%d %H:%M:%S"` . "\n";
    my $ChangeLogID = $sth->{'mysql_insertid'};
 
+   print "%%%%%     ChangeLogInsert - 6 " . `date "+%Y-%m-%d %H:%M:%S"` . "\n";
    return $ChangeLogID;
 }
 
@@ -165,7 +172,7 @@ sub PortCreate($;$;$;$;$;$) {
    # but that defaults to local time, which is not necessarily the same time zone
    # which can give things like created > last_update.
    $sql .= "'$port', $categoryid, " .
-           "'$timestamp', $needs_refresh, 'A', 'N', '$commitdescription')";
+           "'$timestamp', $needs_refresh, 'A', 'N', " . $dbh->quote($commitdescription) . ")";
 
    print "$sql\n";
 
@@ -311,11 +318,9 @@ chomp(@file);
 for(my $i=0; $i<=$#file; $i++) {
    my $line = $file[$i];
 
-   ($committer, $timestamp, $action, $filename, $description, $extra)=split/\|/,$line;
+   print "%%%%% - top of loop " . `date "+%Y-%m-%d %H:%M:%S"` . "\n";
 
-#  these bits might have quotes.
-   $committer   =~ s/\'/\\'/g;
-   $description =~ s/\'/\\'/g;
+   ($committer, $timestamp, $action, $filename, $description, $extra)=split/\|/,$line;
 
 #  strip off the timezone from the timestamp
    $timestamp = StripTimezone($timestamp);   
@@ -352,10 +357,12 @@ for(my $i=0; $i<=$#file; $i++) {
             #
             if (!defined($ChangeLogID)) {
                # insert main details into the change_log table.
+               print "%%%%% - inserting into change_log " . `date "+%Y-%m-%d %H:%M:%S"` . "\n";
                if (!$Debug) {
                   $ChangeLogID = ChangeLogInsert($committer, $timestamp, $description, $dbh);
                }
                print "change log ID is $ChangeLogID\n";
+               print "%%%%% - after insert into change_log " . `date "+%Y-%m-%d %H:%M:%S"` . "\n";
             }
             print "change log ID is still $ChangeLogID\n";
 
@@ -367,8 +374,12 @@ for(my $i=0; $i<=$#file; $i++) {
                $PortID       = $Ports{$category . "/" . $port}[0];
                $ChangePortID = $Ports{$category . "/" . $port}[1];
             } else {
+               print "%%%%% - getting category " . `date "+%Y-%m-%d %H:%M:%S"` . "\n";
+
                print "this port ('$category/$port') was not found in the hash table\n";
                $categoryid = GetPortCategory($category, $dbh);
+
+               print "%%%%% - after category " . `date "+%Y-%m-%d %H:%M:%S"` . "\n";
                if ($categoryid == '') {
                   # email the main man
                   open  MAIL, "|mail -s 'freshports notice' $NotifyByMail";
@@ -392,14 +403,26 @@ for(my $i=0; $i<=$#file; $i++) {
                   print MAIL "$committer\n$timestamp\n$action\n$description\n$category\n$port\n$entry\n";
                   close MAIL;
                } else {
+                  print "%%%%% - getting port id " . `date "+%Y-%m-%d %H:%M:%S"` . "\n";
+
                   $PortID = GetPortID($port, $categoryid, $dbh);
 
+                  print "%%%%% - got port id " . `date "+%Y-%m-%d %H:%M:%S"` . "\n";
+
                   if ($PortID == 0) {
+                     print "%%%%% - creating port " . `date "+%Y-%m-%d %H:%M:%S"` . "\n";
+
                      $PortID = PortCreate ($port, $category, $categoryid, $timestamp, $description, $dbh);
+
+                     print "%%%%% - port created " . `date "+%Y-%m-%d %H:%M:%S"` . "\n";
                   }
 
                   if (!$Debug) {
+                     print "%%%%% - change port insert " . `date "+%Y-%m-%d %H:%M:%S"` . "\n";
+
                      $ChangePortID = ChangePortInsert($ChangeLogID, $PortID, $dbh);
+
+                     print "%%%%% - change port inserted " . `date "+%Y-%m-%d %H:%M:%S"` . "\n";
                   }
                   print "ChangePortID = $ChangePortID\n";
                }
@@ -417,12 +440,18 @@ for(my $i=0; $i<=$#file; $i++) {
             }
 
             if (!$Debug) {
+               print "%%%%% - marking refresh " . `date "+%Y-%m-%d %H:%M:%S"` . "\n";
+
                MarkPortAsRefreshNeeded($PortID, $ChangeLogID, $action, $entry, $dbh);
+
+               print "%%%%% - refresh marked " . `date "+%Y-%m-%d %H:%M:%S"` . "\n";
             }
 
             # by this point, ChangePortID and PortID are both assigned.  Time to put something into change_log_details
             if (!$Debug) {
+               print "%%%%% - change_log_detail insert " . `date "+%Y-%m-%d %H:%M:%S"` . "\n";
                ChangeLogDetailInsert($ChangePortID, $PortID, $action, $entry, $dbh);
+               print "%%%%% - change_log_detail insert " . `date "+%Y-%m-%d %H:%M:%S"` . "\n";
             }
 
          } else {
@@ -439,18 +468,19 @@ for(my $i=0; $i<=$#file; $i++) {
 }
 
 #
-# now we have completed process this message.  It's now time to refresh the ports which need refreshing.
+# now we have processed this message.  It's now time to refresh the ports which need refreshing.
 #
 
 print "now updating all the ports for that message\n";
 
 my $NumPorts = 0;
 
+print "%%%%% - starting main loop " . `date "+%Y-%m-%d %H:%M:%S"` . "\n";
 while ((my $CategoryPort, my @PortIDChangePortID) = each %Ports) {
    $NumPorts++;
 
    print " looking at $CategoryPort ";
-#   $PortID = $PortIDChangePortID[0];
+
    $PortID = $Ports{$CategoryPort}[0];
 
    print " which has a port id of $PortID\n";
@@ -470,7 +500,11 @@ while ((my $CategoryPort, my @PortIDChangePortID) = each %Ports) {
 
          print "about refresh $category, $port, $NeedsRefresh\n";
 
+         print "%%%%% - refreshing $category/$port " . `date "+%Y-%m-%d %H:%M:%S"` . "\n";
+
          RefreshOnePort($category, $port, $NeedsRefresh, $dbh);
+
+         print "%%%%% - refreshed $category/$port " . `date "+%Y-%m-%d %H:%M:%S"` . "\n";
       } else {
          print " ---- that port didn't need refreshing\n";
       }
@@ -484,6 +518,8 @@ while ((my $CategoryPort, my @PortIDChangePortID) = each %Ports) {
    }
 }
 
+print "%%%%% - main loop done " . `date "+%Y-%m-%d %H:%M:%S"` . "\n";
+
 if ($NumPorts) {
    print "number of ports updated by that message '$NumPorts'\n";
    #
@@ -492,7 +528,12 @@ if ($NumPorts) {
    # remember to supply only the YYYY/MM/DD part of the time stamp
 
    (my $DateOnly) = split/ /,$timestamp, 3;
+   print "%%%%% - creating daily summary " . `date "+%Y-%m-%d %H:%M:%S"` . "\n";
+
    CreateDailySummary($DateOnly, $dbh);
+
+   print "%%%%% - daily summary done " . `date "+%Y-%m-%d %H:%M:%S"` . "\n";
+
 } else  {
    print "no ports where updated by that message.  very strange.\n";
 }
