@@ -1,5 +1,5 @@
 #
-# $Id: config.pm.sample,v 1.13.2.4 2002-12-17 15:50:48 dan Exp $
+# $Id: config.pm.sample,v 1.13.2.5 2003-04-10 12:35:44 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -20,7 +20,7 @@ $FreshPorts::Config::dbname				= 'databasename';
 $FreshPorts::Config::user					= 'user';
 $FreshPorts::Config::password				= 'password';
 
-$FreshPorts::Config::scriptpath			= $ENV{HOME} . "/scripts";
+$FreshPorts::Config::scriptpath			= "/path/to/scripts";
 
 $FreshPorts::Config::mkdir_pkg			= 0;
 
