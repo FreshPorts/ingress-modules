@@ -1,4 +1,4 @@
-# $Id: utilities.pm,v 1.11.2.4 2002-11-12 16:47:31 dan Exp $
+# $Id: utilities.pm,v 1.11.2.5 2002-11-21 20:48:29 dan Exp $
 #
 #
 # Copyright (c) 2001 DVL Software
@@ -137,6 +137,24 @@ FreshPorts Daemon
 EOF
 
 	close(SENDMAIL) or ReportError('warning', "sendmail didn't close nicely", 0); # if you set this to 1, you will go recursive
+}
+
+sub trim {
+	my $s = shift;
+
+	chomp($s);      # get rid of \n
+	$s =~ s/^\s+//; # remove leading spaces
+	$s =~ s/\s+$//; # remove trailing spaces
+
+	return $s;
+}
+
+sub trim_multiple_to_single {
+	my $s = shift;
+	
+	$s =~ s/\s+/ /g; # Convert multiple blank spaces to single spaces
+
+	return $s;
 }
 
 1;
