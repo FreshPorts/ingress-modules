@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.38.2.27 2003-07-17 13:39:39 dan Exp $
+# $Id: port.pm,v 1.38.2.28 2003-07-31 17:51:58 dan Exp $
 #
 #
 # Copyright (c) 2001-2003 DVL Software
@@ -312,8 +312,9 @@ sub _ExtractValuesFromMakefile {
 
 	my $result;
 	my $makecommand;
-	my $ErrorMessage;		# stores the result of the latest make command
-								# in case we need it for error reporting
+	my $ErrorMessage = '';	# stores the result of the latest make command
+									# in case we need it for error reporting
+	my $OtherErrors  = '';	# gets the results of the TmpFile used to collect errors.
 
 	my $TmpFile = FreshPorts::Utilities::TmpFileName("$this->{category}.$this->{name}.make-error");
 
@@ -356,17 +357,49 @@ sub _ExtractValuesFromMakefile {
 	my $MakeResults = `$makecommand`;
 	# save this for later reference
 	$result = $?;
-	if (-s $TmpFile > 0) {
-		my $Errors = `cat $TmpFile`;
-		FreshPorts::Utilities::ReportErrorEmail('warning', "error executing make command for $this->{category}/$this->{name} for database $FreshPorts::Config::dbname\n: $makecommand => " . $Errors, 1, 0);
-	}
-	# remove that error collection file
-	`rm $TmpFile`;
 
-	if ($result != 0) {
+	print 'Result = ' . $result . "\n";
+
+	#
+	# if we get an error such as this: "/usr/home/dan/ports/french/homard/Makefile", line 56: Need an operator
+	# (caused by spaces instead of tabs in a section such as do-install:), then $MakeResults will be empty
+	# and the errors will be captured in the tmp file we created.
+	#
+	if ($result != 0 && $MakeResults != '') {
 		# save the results for error reporting
 		$ErrorMessage = $MakeResults;
+		FreshPorts::CommitterOptIn::RecordErrorDetails("This command:\n\n$makecommand\n\nproduced this error:\n\n$ErrorMessage");
 	}
+
+	#
+	# Some errors aren't caught by the Makefile script, but are grabbed in the tmp file
+	# Such as:
+	# -s: not found
+	# "/usr/home/dan/ports/french/homard/Makefile", line 39: warning: " -s"
+	# returned non-zero status
+	# caused by doing:     unames!= ${UNAME} -s
+	# without first doing: .include  <bsd.port.pre.mk>
+	#
+
+	print 'size is '  . -s $TmpFile;
+	print "\n";
+	if (-s $TmpFile > 0) {
+		my $message = `cat $TmpFile`;
+
+		#
+		# if we didn't have an error before, and MakeResults is empty, then we didn't report anything above
+		#
+		if ($result == 0 || $MakeResults == '') {
+			$message = "This command:\n\n$makecommand\n\nproduced this error:\n\n$message";
+		} else {
+			$message = "Additional information:\n\n$message"
+		}
+		FreshPorts::CommitterOptIn::RecordErrorDetails($message);
+		$result = -1;
+	}
+
+	# remove that error collection file
+	`rm $TmpFile`;
 
 	my $mastersites = '';
 	if ($result == 0) {
@@ -382,6 +415,7 @@ sub _ExtractValuesFromMakefile {
 		# we'll need this for error reporting
 		if ($result != 0) {
 			# save the results for error reporting
+			FreshPorts::CommitterOptIn::RecordErrorDetails("\n\n" . "This command:\n\n$makecommand\n\nproduced this error:\n\n$mastersites");
 			$ErrorMessage = $mastersites;
 		}
 	}
@@ -489,8 +523,6 @@ sub _ExtractValuesFromMakefile {
 	} else {
 		print "That make failed:\n\n$MakeResults\n\n";
 		FreshPorts::Utilities::ReportError('warning', "error executing make command for $this->{category}/$this->{name}: " . $ErrorMessage, 0);
-		FreshPorts::CommitterOptIn::RecordErrorDetails("\n\n" . $ErrorMessage . "\n\n");
-		$result = -1;
 	}
 
 	return $result;
@@ -866,6 +898,26 @@ sub IsDeleted {
 
 	return ($this->{status} eq $FreshPorts::Element::Deleted);
 }
+
+sub SetActive {
+	my $this = shift;
+
+	my $OldStatus = $this->{status};
+	$this->{status} = $FreshPorts::Element::Active;
+
+	return $OldStatus;
+}
+
+
+sub SetDeleted {
+	my $this = shift;
+
+	my $OldStatus = $this->{status};
+	$this->{status} = $FreshPorts::Element::Deleted;
+
+	return $OldStatus;
+}
+
 
 FreshPorts::Utilities::InitSyslog();
 
