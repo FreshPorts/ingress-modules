@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: report-notification.pl,v 1.1.2.24 2004-02-07 06:30:09 dan Exp $
+# $Id: report-notification.pl,v 1.1.2.25 2004-03-22 19:09:20 dan Exp $
 #
 # Copyright (c) 2001-2004 DVL Software
 #
@@ -21,7 +21,6 @@ use Text::Wrap;
 use email;
 
 my $Debug = 0;
-my @USERS;
 my $sql;
 my $sth;
 my @row;
