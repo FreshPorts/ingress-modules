@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: load_xml_into_db.pl,v 1.43 2002-02-17 21:29:53 dan Exp $
+# $Id: load_xml_into_db.pl,v 1.44 2002-02-22 15:21:18 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -77,8 +77,6 @@ exit;
 ##### 
 
 sub main {
-
-	my $inputfile;
 
 	my $p = XML::Node->new();
 
@@ -217,22 +215,30 @@ sub handle_update_start
 } 
 
 sub handle_os_end {
-   print "\n --- end of OS --- \n";
+	print "\n --- end of OS --- \n";
 
-   # We know what branch this message is updating. Let's grab the IDs we will need.
-   $SystemID = SystemIDGet($Updates{os}, $dbh);
-   if (!defined($SystemID)) {
-      $! = 3;
-      FreshPorts::Utilities::ReportError('warning', "No SystemID found for OS = '$Updates{os}'", 1);
-   }
+	print "OS is '$Updates{os}' : branch = '$Updates{branch};\n";
+
+	# We know what branch this message is updating. Let's grab the IDs we will need.
+	$SystemID = SystemIDGet($Updates{os}, $dbh);
+	if (!defined($SystemID)) {
+		$! = 3;
+		FreshPorts::Utilities::ReportError('warning', "No SystemID found for OS = '$Updates{os}'", 1)
+	}
+
+	if ($Updates{branch} ne '') {  
+		$SystemBranchID = SystemBranchIDGetOrCreate($SystemID, $Updates{branch}, $dbh);
+		if (!defined($SystemBranchID)) {
+			$! = 4;
+			FreshPorts::Utilities::ReportError('warning', "No SystemBranchID found for OS = '$Updates{branch}'", 1);
+		}
+	} else {
+		Sys::Syslog::syslog('warning', "Branch was empty.  Probably imported sources.  Ignoring $inputfile");
+		print "Branch was empty.  Probably imported sources.  Ignoring message $inputfile\n";
+		die   "Branch was empty.  Probably imported sources.  Ignoring message $inputfile\n";
+	}
    
-   $SystemBranchID = SystemBranchIDGetOrCreate($SystemID, $Updates{branch}, $dbh);
-   if (!defined($SystemBranchID)) {
-      $! = 4;
-      FreshPorts::Utilities::ReportError('warning', "No SystemBranchID found for OS = '$Updates{branch}'", 1);
-   }
-   
-   print "OS is '$Updates{os}' ($SystemID) : branch = $Updates{branch} ($SystemBranchID)\n";
+	print "OS is '$Updates{os}' ($SystemID) : branch = $Updates{branch} ($SystemBranchID)\n";
 }
 
 
