@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: process_updating.pl,v 1.1.2.5 2004-08-11 16:01:49 dan Exp $
+# $Id: process_updating.pl,v 1.1.2.6 2004-08-27 13:55:24 dan Exp $
 #
 # Copyright (c) 2004 DVL Software
 #
@@ -106,6 +106,7 @@ sub parsefile ($) {
 			# like ports entries.
 			for my $part (@affects_match) {
 				if ($part =~ m^/^) {
+					$part =~ s/[()]//g;  # strip out unmentionables
 					if ($part =~ m%[\*\{\}\[\],]%) {
 						# suggested by mat@ for parsing
 						# affect ports that look like shell
