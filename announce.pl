@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: announce.pl,v 1.3.2.3 2002-09-09 18:46:17 dan Exp $
+# $Id: announce.pl,v 1.3.2.4 2002-11-24 17:14:57 dan Exp $
 #
 # Copyright (c) 1999-2000 DVL Software
 #
@@ -8,7 +8,7 @@ use strict;
 use DBI;
 use database;
 use constants;
-
+use email;
 
 my $dirname='';
 my @USERS;
@@ -22,17 +22,9 @@ my $ReportID = $FreshPorts::Constants::ReportIDAnnouncements;
 
 sub SendAnnouncement($) {
 
-  my $To = shift;
+	my $To = shift;
 
-   open(SENDMAIL, "|/usr/sbin/sendmail -oi -t")
-                    or die "Can't fork for sendmail: $!\n";
-
-print SENDMAIL <<"EOF";
-From: FreshPorts announcement <freshports-announce\@freshports.org>
-To: $To
-Subject: HEADS UP: FreshPorts announcement
-
-Folks,
+	my $Body = "Folks,
 
 A new reporting facility has been created.  This allows
 new reports to be easily added.  It also puts all of your
@@ -57,10 +49,9 @@ http://www.FreshPorts.org/report-subscriptions.php
 
 If a problem occurs, please send details, including the email
 address in question, to postmaster\@freshports.org
-EOF
+";
 
-   close(SENDMAIL)     or warn "sendmail didn't close nicely";
-
+	FreshPorts::email::SendMail('FreshPorts Announcement <FreshPorts-Announce@FreshPorts.org>', $To, 'HEADS UP: FreshPorts announcement', $Body);
 }
 
 sub SendToEachListMember($) {
@@ -94,6 +85,7 @@ sub SendToEachListMember($) {
 }
 
 
+exit;
       my $dbh = FreshPorts::Database::GetDBHandle();
 
       SendToEachListMember($dbh);

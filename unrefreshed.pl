@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: unrefreshed.pl,v 1.11.2.4 2002-10-23 03:48:56 dan Exp $
+# $Id: unrefreshed.pl,v 1.11.2.5 2002-11-24 17:14:58 dan Exp $
 #
 # Copyright (c) 2001-2002 DVL Software
 #
@@ -11,6 +11,7 @@ use lib "$ENV{HOME}/scripts";
 use port;
 use database; 
 use DBI;
+use email;
 
 require config;
 
@@ -21,22 +22,14 @@ sub SendNotice($;$;$) {
 	my $list		= shift;
 	my $hostname	= `hostname`;
 
-    chomp $hostname;
+	chomp $hostname;
 
-   open(SENDMAIL, "|/usr/sbin/sendmail -oi -t")
-                    or die "Can't fork for sendmail: $!\n";
-
-print SENDMAIL <<"EOF";
-From: Dan Langille <dan\@freshports.org>
-To: $Address
-Subject: FreshPorts -- ports needing refresh
-
-At $hostname, there are $count ports needing refresh.
+	my $Body = "At $hostname, there are $count ports needing refresh.
 
 $list
-EOF
+";
 
-   close(SENDMAIL)     or warn "sendmail didn't close nicely";
+	FreshPorts::email::SendMail('FreshPorts Daemon <FreshPorts@FreshPorts.org>', 'Dan Langille <dan@langille.org>', 'FreshPorts -- ports needing refresh', $Body);
 }
 
 

@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: newusers.pl,v 1.3.2.1 2002-06-12 12:54:51 dan Exp $
+# $Id: newusers.pl,v 1.3.2.2 2002-11-24 17:14:57 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -15,21 +15,12 @@ sub SendNotice($;$) {
    my $StartDate = shift;
    my $msgbody   = shift;
 
-   open(SENDMAIL, "|/usr/sbin/sendmail -oi -t")
-                    or die "Can't fork for sendmail: $!\n";
-
-print SENDMAIL <<"EOF";
-From: Dan Langille <dan\@freshports.org>
-To: Dan Langille <dan\@freebsddiary.org>
-Subject: FreshPorts -- new users  - $StartDate
-
-The following users were added yesterday:
+	my $Body = "The following users were added yesterday:
 
 $msgbody --
 
-EOF
-
-   close(SENDMAIL)     or warn "sendmail didn't close nicely";
+";
+	FreshPorts::email::SendMail('FreshPorts Daemon <FreshPorts@FreshPorts.org>', 'Dan Langille <dan@langille.org>', "FreshPorts -- new users  - $StartDate", $Body);
 }
 
 

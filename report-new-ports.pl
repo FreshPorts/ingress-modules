@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: report-new-ports.pl,v 1.1.2.4 2002-06-20 12:17:29 dan Exp $
+# $Id: report-new-ports.pl,v 1.1.2.5 2002-11-24 17:14:57 dan Exp $
 #
 # Copyright (c) 2001-2002 DVL Software
 #
@@ -40,14 +40,7 @@ sub SendWatchNoticePersonal($;$;$) {
 	my $FrequencyLong = shift;
 	my $Body          = shift;
 
-	open(SENDMAIL, "|/usr/sbin/sendmail -oi -t")
-					or die "Can't fork for sendmail: $!\n";
-
-print SENDMAIL <<"EOF";
-From: FreshPorts watch daemon <freshports-watch\@freshports.org>
-To: $To
-Subject: FreshPorts $FrequencyLong new ports
-
+	$Body = "
 This is the new test report for notifications as found at
 $AdjustURL.
 
@@ -70,9 +63,9 @@ please go to $AdjustURL.
 
 If a problem occurs, please send details, including the email address in
 question, to postmaster\@freshports.org.
-EOF
+";
 
-	close(SENDMAIL)     or warn "sendmail didn't close nicely";
+	FreshPorts::email::SendMail('FreshPorts Watch Daemon <FreshPorts-Watch\@FreshPorts.org>', $To, "FreshPorts $FrequencyLong new ports", $Body);
 }
 
 
