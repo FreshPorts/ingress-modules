@@ -1,5 +1,5 @@
 #
-# $Id: observer_commits.pm,v 1.1.2.4 2004-12-19 23:20:21 dan Exp $
+# $Id: observer_commits.pm,v 1.1.2.5 2005-01-26 20:54:04 dan Exp $
 #
 # Copyright (c) 2004 DVL Software
 #
@@ -18,7 +18,9 @@ sub new {
 	$this->{dbh}	= shift;
 
 	bless $this;
+
 	$this->_initialize();
+
 	return $this;
 }
 
@@ -45,7 +47,7 @@ sub update {
 
 	if ($action eq $FreshPorts::Messages::FileUpdate) {
 		print "Observer has noticed that commit '" . $object->id() . "' contains file $params{FilePath} as revision $params{FileRevision}\n";
-		FreshPorts::SpecialProcessingFiles::Eat($dbh, $params{FileAction}, $params{FilePath}, $params{FileRevision});
+		FreshPorts::SpecialProcessingFiles::Eat($class->{dbh}, $params{FileAction}, $params{FilePath}, $params{FileRevision});
 
 		if ($params{FilePath} eq 'ports/Mk/bsd.port.mk') {
 			Sys::Syslog::syslog('notice', "We'll need to patch because of $params{FilePath}");
@@ -55,6 +57,12 @@ sub update {
 
 	if ($action eq $FreshPorts::Messages::PortsRefreshed) {
 		print "Observer has noticed that ports for $params{message_id} have been refreshed.\n";
+
+		use ports_vulnerable;
+
+		$PV = FreshPorts::PortsVulnerable->new($class->{dbh});
+		$PV->PortsVulnerabilityCountAdjust($params{CommitLogPorts});
+
 	}
 
 	if ($action eq $FreshPorts::Messages::ProcessingDone) {
