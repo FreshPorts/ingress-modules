@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: unrefreshed.pl,v 1.11.2.3 2002-09-03 22:41:12 dan Exp $
+# $Id: unrefreshed.pl,v 1.11.2.4 2002-10-23 03:48:56 dan Exp $
 #
 # Copyright (c) 2001-2002 DVL Software
 #
@@ -54,7 +54,7 @@ my @row;
 # get a list of ports to update
 #
 
-$sql = "select ports.id, element.name as port, categories.name as category \
+$sql = "select ports.id, element.name as port, categories.name as category, commit_log_ports.commit_log_id \
         from ports, categories, element, commit_log_ports \
         where ports.category_id               = categories.id \
 		  and ports.element_id                = element.id \
@@ -71,7 +71,7 @@ my $rowcount = 0;
 my $list     = '';
 while (@row=$sth->fetchrow_array) {
 	$rowcount++;
-	$list .= "id=$row[0] $row[2]/$row[1]\n";
+	$list .= "id=$row[0] $row[2]/$row[1] $row[3]\n";
 }
 
 if ($rowcount > 0) {
