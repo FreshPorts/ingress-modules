@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $Id: process_vuxml.sh,v 1.1.2.2 2004-10-12 00:45:28 dan Exp $
+# $Id: process_vuxml.sh,v 1.1.2.3 2004-12-09 02:08:36 dan Exp $
 #
 # Copyright (c) 2003-2004 DVL Software Limited
 #
@@ -36,5 +36,5 @@ fi
 if [ -r ${VUXMLFLAGFILE} ]
 then
 	rm ${VUXMLFLAGFILE}
-	/usr/bin/perl ./process_vuxml.pl < ${PORTSDIR}/security/vuxml/vuln.xml
+	/usr/bin/perl ./process_vuxml.pl -w < ${PORTSDIR}/security/vuxml/vuln.xml
 fi

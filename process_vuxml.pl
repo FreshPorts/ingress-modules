@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: process_vuxml.pl,v 1.1.2.6 2004-12-06 16:51:01 dan Exp $
+# $Id: process_vuxml.pl,v 1.1.2.7 2004-12-09 02:08:36 dan Exp $
 #
 # Copyright (c) 2001-2004 DVL Software
 #
@@ -45,22 +45,34 @@ sub EmptyVuXML($) {
 ##### 
 
 sub main {
-
 	my $dbh;
+	my $WipeExistingVuXMLEntries = 0;
+
+	if (($#ARGV+1) >= 1) {
+		if ($ARGV[0] eq '-w') {
+			$WipeExistingVuXMLEntries = 1;
+			print "Existing VuXML entries will be deleted\n";
+		}
+	}
 
 	print "dbname = $FreshPorts::Config::dbname\n";
 
 	$dbh = FreshPorts::Database::GetDBHandle();
 	if ($dbh->{Active}) {
 
-		EmptyVuXML($dbh);
+		if ($WipeExistingVuXMLEntries) {
+			EmptyVuXML($dbh);
+		}
 
-		my $v = FreshPorts::vuxml_parsing->new(Stream => *STDIN, DBHandle => $dbh);
+		my $v = FreshPorts::vuxml_parsing->new(Stream        => *STDIN, 
+                                               DBHandle      => $dbh,
+                                               UpdateInPlace => !$WipeExistingVuXMLEntries);
 		$v->parse_xml();
 
-		my $CommitMarker = FreshPorts::vuxml_mark_commits->new($dbh);
-
-		my $i = $CommitMarker->ProcessEachRangeRecord();
+		if ($WipeExistingVuXMLEntries) {
+			my $CommitMarker = FreshPorts::vuxml_mark_commits->new($dbh);
+			my $i = $CommitMarker->ProcessEachRangeRecord();
+		}
 
 
 # hmmm, this might be a good way to debug...

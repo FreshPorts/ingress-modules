@@ -27,7 +27,7 @@
 # SUCH DAMAGE.
 
 #
-# @(#) $Id: vuxml_parsing.pm,v 1.1.2.8 2004-09-20 19:55:31 dan Exp $
+# @(#) $Id: vuxml_parsing.pm,v 1.1.2.9 2004-12-09 02:08:36 dan Exp $
 #
 # Parse the Vulnerabilities and Exposures (vuxml) database extracting
 # the entries for loading into a RDBMS.
@@ -58,14 +58,19 @@ our ($VuXML);
 
 # Call like this:
 #
-# $v = new FreshPorts::vuxml_parsing(DBHandle => $dbh,
-#                                    Stream   => *STDIN);
+# $v = new FreshPorts::vuxml_parsing(DBHandle      => $dbh,
+#                                    Stream        => *STDIN,
+#                                    UpdateInPlace => $UpdateInPlace);
 #
 # DBHandle is a database handle from the DBI module. Required (well,
 # if you want to write to a database it's necessary)
 #
 # Stream is optional, and defaults to reading STDIN.  Pass either an
 # IO::Handle or a glob: *GLOB or a glob ref: \*GLOB
+#
+# UpdateInPlace is optional, defaults to TRUE.  Indicates whether or not
+# the code should attempt to update existing VuXML entries.
+#
 
 sub new
 {
@@ -170,6 +175,12 @@ sub new
         croak "new(): Argument is not a DB handle: DBHandle => $args{DBHandle}"
           unless ( $args{DBHandle}->isa("DBI::db") );
         $self->{db_handle} = $args{DBHandle};
+    }
+
+    # UpdateInPlace argument should be 0 or 1
+
+    if ( defined $args{UpdateInPlace} ) {
+        $self->{update_in_place} = $args{UpdateInPlace};
     }
 
     # Initialise parsed data area
@@ -310,20 +321,100 @@ sub update_database
 
     $self->print_self();    # For debugging purposes
 
-#	return $self;
+	my $FullInsert = 1;
 
-    my $vuxml_id =  $self->update_database_vuxml();
+	if ($self->{update_in_place}) {
+	    my $vuxml = FreshPorts::vuxml->new( $self->{db_handle} );
+		$vuxml->{vid} = $self->vid();
 
-	$self->update_database_vuxml_affected($vuxml_id);
+		my $vuxml_id = $vuxml->FetchByVID();
+		if (defined($vuxml_id)) {
+			$FullInsert = 0;
+			print "Found vid='$vuxml->{vid}' and will be updating it as required.\n";
 
-    $self->update_database_vuxml_references($vuxml_id);
+			if ($self->vuxml_differs($vuxml)) {
+				print "The vuxml entry is being updated with fresh data.\n";
+				$self->update_database_vuxml();
+			}
+
+			#
+			# next we compare the vuxml_affected, vuxml_names, and vuxml_ranges
+			# before we decide to delete from commit_log_ports_vuxml and then
+			# remark the commits
+			#
+
+		} else {
+			print "Could not find vuln = '" . $self->vid() . "'.  A full insert will be done.\n";
+		}
+		exit;
+	}
+
+	if ($FullInsert) {
+	    my $vuxml_id = $self->update_database_vuxml();
+		$self->update_database_vuxml_affected  ($vuxml_id);
+	    $self->update_database_vuxml_references($vuxml_id);
+	}
+
 
     return $self;
+}
+
+sub values_differ
+{
+    my __PACKAGE__ $self = shift;
+    my $a                = shift;
+    my $b                = shift;
+
+	my $differs = 0;
+
+	if (defined($a) && defined($b)) {
+		if ($a ne $b) {
+print "different at 1\n";
+			$differs = 1;
+		}
+	} else {
+		if (!defined($a) && !defined($b)) {
+			# they are both not defined
+			# so they are equal
+		} else {
+print "different at 2\n";
+			$differs = 1;
+		}
+	}
+
+	return $differs;
+}
+
+sub vuxml_differs
+{
+    my __PACKAGE__ $self = shift;
+    my $vuxml            = shift;
+
+	my $differs = 0;
+
+print "1differs = $differs\n";
+	$differs = 1 if ($self->values_differ($vuxml->{vid}            , $self->vid()));
+print "$vuxml->{vid}            , " . $self->vid() . "\n";
+print "2differs = $differs\n";
+	$differs = 1 if ($self->values_differ($vuxml->{topic}          , $self->topic()));
+print "'$vuxml->{topic}'          , '" . $self->topic() . "'\n";
+print "3differs = $differs\n";
+	$differs = 1 if ($self->values_differ($vuxml->{description}    , $self->description()));
+print "4differs = $differs\n";
+	$differs = 1 if ($self->values_differ($vuxml->{date_discovery} , $self->date_discovery()));
+print "5differs = $differs\n";
+	$differs = 1 if ($self->values_differ($vuxml->{date_entry}     , $self->date_entry()));
+print "6differs = $differs\n";
+	$differs = 1 if ($self->values_differ($vuxml->{date_modified}  , $self->date_modified()));
+print "7differs = $differs\n";
+
+	return $differs;
 }
 
 sub update_database_vuxml
 {
     my __PACKAGE__ $self = shift;
+    my $id               = shift;
 
     use vuxml;
 
