@@ -5,7 +5,6 @@ j=0;
 do {
  getline;
  if(!j) gsub("^ +","",$0);j=1;
- gsub("\\|","-",$0);
  loga=loga $0 " ";
  } while(NF>0);
 for(i=0;i<nmodified;i++) 
@@ -24,7 +23,6 @@ j=0;
 do {
  getline;
  if(!j) gsub("^ +","",$0);j=1;
- gsub("\\|","-",$0);
  loga=loga $0 " ";
  } while(NF>0);
 printf("%s|%s|import|%s|%s\n",commiter,cdate,importedsrc,loga);
@@ -32,33 +30,24 @@ imported=0;
 }
 
 
-/*idx=index($0,":");*/
-if($2=="files:" || $2=="Files:") idx=1; else idx=0;
-if(action>0 && action<10) {
- idx2=index($1,"/");
- if(idx2) {
-  idx2=2;lastpath=$1;
-  } else idx2=1;
- 
- }
-
+idx=index($0,":");
 if(action==1) {
  if(!idx) {
-  for(i=idx2;i<=NF;i++) modfiles[nmodified++]=lastpath "/" $i;
+  for(i=2;i<=NF;i++) modfiles[nmodified++]=$1 "/" $i;
   next;
   } 
 } 
 
 if(action==2) {
  if(!idx) {
-  for(i=idx2;i<=NF;i++) rmfiles[nremoved++]=lastpath "/" $i;
+  for(i=2;i<=NF;i++) rmfiles[nremoved++]=$1 "/" $i;
   next;
   } 
 }
 
 if(action==3) {
  if(!idx) {
-  for(i=idx2;i<=NF;i++) addfiles[nadded++]=lastpath "/" $i;
+  for(i=2;i<=NF;i++) addfiles[nadded++]=$1 "/" $i;
   next;
   } 
 }

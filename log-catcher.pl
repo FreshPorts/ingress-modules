@@ -1,8 +1,8 @@
 #!/usr/bin/perl -w
 
-$Outfile  = "/usr/local/etc/freshports.test/msgs/" . time . ".$$.txt";
+$Outfile  = "/usr/local/etc/freshports/msgs/" . time . ".$$.txt";
 
-$Nextfile = "/usr/local/etc/freshports.test/msgs/" . time . ".$$.txt.munged";
+$Nextfile = "/usr/local/etc/freshports/msgs/" . time . ".$$.txt.munged";
 
 while ( defined(my $l = <STDIN> ) ) {
      last if $l =~ /^$/;
@@ -24,7 +24,7 @@ if ( (not $Is_reply ) and $Is_commit ) {
 #    print $Command;
     `$Command`;
 
-#    $Command = "/bin/cat $Nextfile | /usr/bin/perl /usr/local/etc/freshports/updates/updates.pl > $Nextfile.out";
+    $Command = "/bin/cat $Nextfile | /usr/bin/perl /usr/local/etc/freshports/updates/updates.pl > $Nextfile.out";
     `$Command`;
 } else {
      while ( defined(<STDIN>) ) {
