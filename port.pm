@@ -1,11 +1,10 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.38.2.29 2003-09-09 11:46:42 dan Exp $
+# $Id: port.pm,v 1.38.2.30 2003-09-23 15:41:17 dan Exp $
 #
 #
 # Copyright (c) 2001-2003 DVL Software
 #
-package FreshPorts::Utilities;
 
 package FreshPorts::Port;
 require Exporter;
