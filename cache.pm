@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: cache.pm,v 1.1.2.8 2003-05-16 01:13:59 dan Exp $
+# $Id: cache.pm,v 1.1.2.9 2003-09-09 16:08:01 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -10,40 +10,6 @@ package FreshPorts::Cache;
 use strict;
 use config;
 use utilities;
-use housekeeping;
-
-sub RefreshMainPage($;$) {
-	my $refresh_now	= shift;
-	my $dbh				= shift;
-
-	my $sql;
-	my $sth;
-	my @row;
-	my $MaxCommitID;
-
-	if ($refresh_now == $FreshPorts::Housekeeping::Refresh) {
-		$sql = "select RecordLastestCommits();"
-	} else {
-		$sql = "select RecordLastestPortCommits();";
-	}
-	print "sql = $sql\n";
-
-	if ($sth = $dbh->prepare($sql)) {
-		if ($sth->execute) {
-			@row=$sth->fetchrow_array;
-		} else {
-			FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql ... maybe invalid?", 0);
-		}
-	} else {
-		FreshPorts::Utilities::ReportError('warning', "Could not prepare SQL $sql ... maybe invalid?", 0);
-	}
-
-	$sth->finish();
-
-	$MaxCommitID = $row[0];
-
-	return $MaxCommitID
-}
 
 sub DailySummaryDateAdd($;$) {
 	my $Date	= shift;
