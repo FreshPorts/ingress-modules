@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: process_updating.pl,v 1.1.2.1 2004-08-01 23:40:02 dan Exp $
+# $Id: process_updating.pl,v 1.1.2.2 2004-08-01 23:45:01 dan Exp $
 #
 # Copyright (c) 2004 DVL Software
 #
@@ -12,10 +12,6 @@
 
 use strict;
 use warnings;
-
-my $file = "/usr/ports/UPDATING";
-
-push (@INC, '~/scripts');
 
 use lib "$ENV{HOME}/scripts";
 
