@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: load_xml_into_db.pl,v 1.46.2.16 2003-09-09 11:48:58 dan Exp $
+# $Id: load_xml_into_db.pl,v 1.46.2.17 2003-09-24 13:49:50 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -38,6 +38,7 @@ use database;
 use utilities;
 use cache;
 use committer_opt_in;
+use non_ports;
 
 use XML::Node;
 use DBI;
@@ -304,6 +305,7 @@ sub handle_update_end
 		FreshPorts::Cache::DailySummaryDateAdd($commit_date, $dbh)
 	} else {
 		print "that was not a port, so not adding to daily summary refresh list\n";
+		FreshPorts::NonPorts::RecordPortsTreeButNonPortCommits($commit_log_id, \@Files, $dbh)
 	}
 
 	if ($ErrorFound) {
