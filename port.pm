@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.38.2.19 2003-02-10 18:00:56 dan Exp $
+# $Id: port.pm,v 1.38.2.20 2003-02-13 13:25:18 dan Exp $
 #
 #
 # Copyright (c) 2001-2002 DVL Software
@@ -527,20 +527,20 @@ sub _FetchFilesNeedingRefresh {
 			mkdir "pkg",0;
 		}
 
-		my $makecommand = "make -V DESCR -V COMMENTFILE -f $DESTDIR/$FILE PORTSDIR=$FreshPorts::Config::path_to_ports 2>&1";
-
-		# remove previously created directory
-		rmdir "pkg";
+		my $makecommand = "make -V DESCR -V -f $DESTDIR/$FILE PORTSDIR=$FreshPorts::Config::path_to_ports 2>&1";
 
 		print "makecommand = $makecommand\n";
 		my $MakeResults = `$makecommand`;
+
+		# remove previously created directory
+		rmdir "pkg";
 
 		#
 		# we need to check this return value.  if it fails, we need to know
 		#
 
 		if ($? == 0) {
-			(my $DESCR, my $COMMENTFILE) = split(/\n/s, $MakeResults);
+			(my $DESCR) = split(/\n/s, $MakeResults);
 
 			#
 			# If the port contains something like this:
@@ -559,7 +559,6 @@ sub _FetchFilesNeedingRefresh {
 
 
 			print "raw       data DESCR       = '$DESCR'\n";
-			print "raw       data COMMENTFILE = '$COMMENTFILE'\n";
 
 			#
 			# some ports (e.g. korean/netscape47-communicator) use
@@ -570,25 +569,19 @@ sub _FetchFilesNeedingRefresh {
 			# eliminate multiple // : PR 174
 			# to compensate for bug in File::PathConvert::realpath
 			$DESCR       =~ s|//|/|g;
-			$COMMENTFILE =~ s|//|/|g;
 
 			#
 			# Recent observation (2003.02.10) shows that COMMENTFILE
 			# returns the realpath.  If empty, then COMMENTFILE is 
 			# not used and COMMENT returns the actual comment.
 			#
-			$DESCR       = File::PathConvert::realpath($DESCR);
+			$DESCR = File::PathConvert::realpath($DESCR);
 
-			if ($COMMENTFILE ne '') {
-				$COMMENTFILE = File::PathConvert::realpath($COMMENTFILE);
-			}
-
-			if (defined($DESCR) && defined($COMMENTFILE)) {
+			if (defined($DESCR)) {
 				print "converted data DESCR       = '$DESCR'\n";
-				print "converted data COMMENTFILE = '$COMMENTFILE'\n";
 
 				#
-				# now fetch these two files.  Since we obtained
+				# now fetch the file.  Since we obtained
 				# these values from the Makefile, we don't have to
 				# specify any directory prefix.  The Makefile did that.
 				#
@@ -601,28 +594,13 @@ sub _FetchFilesNeedingRefresh {
 				print "fetching \$DESTDIR = [$DESTDIR], \$SRCDIR = [$SRCDIR], \$FILE = [$FILE]\n";
 
 				if (FreshPorts::Utilities::FetchFile($DESTDIR, $SRCDIR, $FILE, $FreshPorts::Constants::HEAD)) {
-
-					if ($COMMENTFILE eq '') {
-						print "COMMENTFILE is empty, therefore COMMENT is what we want to use.  not fetching.\n";
-						$result = 0;
-					} else {
-						my $directory	= File::Basename::dirname ($COMMENTFILE);
-						my $FILE		   = File::Basename::basename($COMMENTFILE);
-						my $DESTDIR		= $directory;
-						$SRCDIR			= File::Basename::dirname(RemovePortsPrefix($COMMENTFILE));
-
-						print "fetching \$DESTDIR = [$DESTDIR], \$SRCDIR = [$SRCDIR], \$FILE = [$FILE]\n";
-
-						if (FreshPorts::Utilities::FetchFile($DESTDIR, $SRCDIR, $FILE, $FreshPorts::Constants::HEAD)) {
-							$result = 0;
-						}
-					}
+					$result = 0;
 				}
 			} else {
-				print "That make failed to return values for '-V DESCR -V COMMENTFILE'.  I suspect an embedded make has failed.\n\n";
+				print "That make failed to return values for '-V DESCR.  I suspect an embedded make has failed.\n\n";
 
-				FreshPorts::Utilities::ReportError('warning', "That make failed to return values for '-V DESCR -V COMMENTFILE'.  I suspect an embedded make has failed. $this->{category}/$this->{name}", 0);
-				FreshPorts::CommitterOptIn::RecordErrorDetails("\n\nThat make failed to return values for '-V DESCR -V COMMENTFILE'.  I suspect an embedded make has failed.\n\n");
+				FreshPorts::Utilities::ReportError('warning', "That make failed to return values for '-V DESCR'.  I suspect an embedded make has failed. $this->{category}/$this->{name}", 0);
+				FreshPorts::CommitterOptIn::RecordErrorDetails("\n\nThat make failed to return values for '-V DESCR'.  I suspect an embedded make has failed.\n\n");
 				$result = -1;
 			}
 			
@@ -771,8 +749,6 @@ sub GetNeedsRefreshForNewPort {
 	# to fetch those files in order to complete
 	# the importing of a new port
 	#
-	# this function tells you what files are needed byk first fetching the Makefile
-	# and using that to determine the other information.
 
 	#
 	# Let's just use this for now.  See how it goes.
@@ -782,147 +758,6 @@ sub GetNeedsRefreshForNewPort {
 	} else {
 		return 0
 	}
-
-	#
-	# we might be creating a new port for a port which has just been deleted.
-	# we don't want to do this if the port has been deleted.
-	# that sounds odd... but anything can happen...
-	#
-	if (!defined($this->{deleted})) {
-		if (!defined($this->{name}) || !defined($this->{category})) {
-			FreshPorts::Utilities::ReportError('warning', "Cannot GetNeedsRefreshForNewPort.  Insufficient data", 1);
-		}
-	}
-
-	my $category	= $this->{category};
-	my $port			= $this->{name};
-
-	if (!defined($category) || !defined($port)) {
-		FreshPorts::Utilities::ReportError('warning', "Cannot GetNeedsRefreshForNewPort.  Insufficient data", 1);
-	}
-
-	print "category = $category\n";
-	print "port     = $port\n";
-
-	#
-	# fetch the makefile for this port
-	#
-	my $DESTDIR			= "$FreshPorts::Config::path_to_ports/$category/$port";
-	my $SRCDIR			= "$FreshPorts::Config::ports_prefix/$category/$port";
-	my $FILE				= $FreshPorts::Constants::FILE_MAKEFILE;
-	my $REVISION		= $FreshPorts::Constants::HEAD;
-	my $FetchAttempts = 5;
-
-	while ($FetchAttempts) {
-		`sh $FreshPorts::Config::scriptpath/fetch-cvs-file.sh $DESTDIR $SRCDIR $FILE $REVISION`;
-		$fetch_code = $?;
-		if (($fetch_code >> 8)) {
-			#
-			# This might be a nice place to retry a fetch, or send an email
-			#
-			print "that fetch failed.  What do to?\n";
-
-			# and we're outta here
-			# fetch failed
-			# sleep, then try again
-			Sys::Syslog::syslog('warning', "sleeping after fetch failed for ($DESTDIR $SRCDIR $FILE)");
-			print "fetch failed, sleeping...\n";
-			sleep 10;
-			$FetchAttempts--;
-
-		} else {
-			# fetch worked
-			last;
-		}
-    }
-
-	#
-	# if we succeeded in our fetch..
-	if ($FetchAttempts) {
-		print "now doing a chdir to $DESTDIR\n";
-		chdir "$DESTDIR";
-
-		#
-		# create this directory to catch errors
-		# such as the pre-everything having only one ':'
-		#
-		if ($FreshPorts::Config::mkdir_pkg) {
-			mkdir "pkg",0;
-		}
-
-		my $makecommand = "make -V DESCR -V COMMENTFILE -f $DESTDIR/$FILE PORTSDIR=$FreshPorts::Config::path_to_ports";
-
-		# remove previously created directory
-		if ($FreshPorts::Config::mkdir_pkg) {
-			rmdir "pkg";
-		}
-
-		print "makecommand = $makecommand\n";
-		(my $DESCR, my $COMMENTFILE) = split(/\n/s, `$makecommand`);
-
-		#
-		# we need to check this return value.  if it fails, we need to know
-		#
-		$fetch_code = $?;
-		if ($fetch_code == 0) {
-			print "raw       data DESCR   = $DESCR\n";
-			print "raw       data COMMENT = $COMMENTFILE\n";
-
-			#
-			# some ports (e.g. korean/netscape47-communicator) use
-			# ../ in their path names.  We must remove that in order
-			# to find out if have to retrieve a file in our path
-			#
-			# eliminate multiple // : PR 174
-			# to compensate for bug in File::PathConvert::realpath
-			$DESCR       =~ s|//|/|g;
-			$COMMENTFILE =~ s|//|/|g;
-
-			$DESCR   = File::PathConvert::realpath($DESCR);
-
-			print "converted data DESCR   = $DESCR\n";
-
-			my $entry = $FreshPorts::Constants::FILE_DESCRIPTION;
-			if ($DESCR eq "$FreshPorts::Config::path_to_ports/$category/$port/$entry") {
-				print "this port has it's own $entry\n";
-				my $index = $FreshPorts::Constants::FilesWhichPromptRefresh{$entry};
-				if ($index) {
-					print "index = $index\n";
-					$needs_refresh |= $index;
-				}
-			} else {
-				print "this port uses $DESCR\n";
-			}
-
-			$entry = $FreshPorts::Constants::FILE_COMMENT;
-
-			$COMMENTFILE = File::PathConvert::realpath($COMMENTFILE);
-			print "converted data COMMENT = $COMMENTFILE\n";
-			if ($COMMENTFILE eq "$FreshPorts::Config::path_to_ports/$category/$port/$entry") {
-				print "this port has it's own $entry\n";
-				my $index = $FreshPorts::Constants::FilesWhichPromptRefresh{$entry};
-				if ($index) {
-					print "index = $index\n";
-					$needs_refresh |= $index;
-				}
-			} else {
-				print "this port uses $COMMENTFILE\n";
-			}
-
-			$result = 0;
-		} else {
-			my $error = $?;
-			FreshPorts::Utilities::ReportError('warning', "error executing make command for $category/$port: Error Code = " . ($error >> 8), 1);
-		}
-	}
-
-	print "\nand from GetNeedsRefreshForNewPort we get needs_refresh = $needs_refresh\n";
-
-	if ($result == -1) {
-		$needs_refresh = -1;
-	}
-		
-	return $needs_refresh;
 }
 
 
