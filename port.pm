@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.37 2002-03-12 15:42:06 dan Exp $
+# $Id: port.pm,v 1.38 2002-03-15 02:09:06 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -35,6 +35,7 @@ sub _initialize {
 	$this->{depends_run}		= '';
 	$this->{forbidden}			= '';
 	$this->{broken}				= '';
+	$this->{categories}			= '';
 
 print "$FreshPorts::Constants::commit_log_seq\n";
 print "$FreshPorts::Constants::ports_seq\n";
@@ -64,6 +65,7 @@ sub _GetValuesFromRow {
 	$this->{depends_run}		= $row->{depends_run};
 	$this->{forbidden}			= $row->{forbidden};
 	$this->{broken}				= $row->{broken};
+	$this->{categories}			= $row->{categories};
 	$this->{last_commit_id}     = $row->{last_commit_id};
 }
 
@@ -112,7 +114,8 @@ sub save {
 				depends_build		= " . $dbh->quote($this->{depends_build})		. ", \
 				depends_run			= " . $dbh->quote($this->{depends_run})			. ", \
 				forbidden			= " . $dbh->quote($this->{forbidden})			. ", \
-				broken				= " . $dbh->quote($this->{broken});
+				broken				= " . $dbh->quote($this->{broken})				. ", \
+				categories			= " . $dbh->quote($this->{categories});
 
 				# we don't always have this value, so we don't change it....
 				if (defined($this->{last_commit_id})) {
@@ -383,6 +386,7 @@ sub _ExtractValuesFromMakefile {
 		print "15 $packageexists\n";
 		print "16 $forbidden\n";
 		print "17 $broken\n";
+		print "18 $categories\n";
 
 		print "\n ---------------------------------------- \n";
 
@@ -411,6 +415,7 @@ sub _ExtractValuesFromMakefile {
 		$this->{depends_run}		= $rundepends;
 		$this->{forbidden}			= $forbidden;
 		$this->{broken}				= $broken;
+		$this->{categories}			= $categories;
 
 	} else {
 		$result = -1;
