@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: vuxml_ranges.pm,v 1.1.2.7 2004-12-12 15:43:39 dan Exp $
+# $Id: vuxml_ranges.pm,v 1.1.2.8 2004-12-13 21:35:26 dan Exp $
 #
 # Copyright (c) 2004 DVL Software
 #
@@ -75,7 +75,7 @@ sub save {
 				 WHERE id                = " . $this->{id};
 	}
 
-	print "sql is $sql\n";
+#	print "sql is $sql\n";
 
 	$sth = $this->{dbh}->prepare($sql);
 	if (!$sth->execute) {
@@ -104,7 +104,7 @@ sub FetchByVuXMLAffectedID {
               FROM vuxml_ranges
              WHERE vuxml_ranges.vuxml_affected_id = $vuxml_affected_id";
 
-	print "sql = '$sql'\n";
+#	print "sql = '$sql'\n";
 
 	$sth = $dbh->prepare($sql);
 	if (!$sth->execute) {

@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: vuxml_names.pm,v 1.1.2.6 2004-12-12 23:24:03 dan Exp $
+# $Id: vuxml_names.pm,v 1.1.2.7 2004-12-13 21:34:27 dan Exp $
 #
 # Copyright (c) 2004 DVL Software
 #
@@ -92,7 +92,7 @@ sub FetchByVuXMLAffectedID {
               FROM vuxml_names
              WHERE vuxml_names.vuxml_affected_id = $vuxml_affected_id";
 
-	print "sql = '$sql'\n";
+#	print "sql = '$sql'\n";
 
 	$sth = $dbh->prepare($sql);
 	if (!$sth->execute) {
