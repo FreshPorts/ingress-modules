@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: unrefreshed.pl,v 1.11.2.2 2002-08-30 16:51:21 dan Exp $
+# $Id: unrefreshed.pl,v 1.11.2.3 2002-09-03 22:41:12 dan Exp $
 #
 # Copyright (c) 2001-2002 DVL Software
 #
@@ -16,9 +16,12 @@ require config;
 
 
 sub SendNotice($;$;$) {
-   my $Address = shift;
-   my $count   = shift;
-   my $list    = shift;
+	my $Address 	= shift;
+	my $count		= shift;
+	my $list		= shift;
+	my $hostname	= `hostname`;
+
+    chomp $hostname;
 
    open(SENDMAIL, "|/usr/sbin/sendmail -oi -t")
                     or die "Can't fork for sendmail: $!\n";
@@ -28,7 +31,7 @@ From: Dan Langille <dan\@freshports.org>
 To: $Address
 Subject: FreshPorts -- ports needing refresh
 
-There are $count ports needing refresh.
+At $hostname, there are $count ports needing refresh.
 
 $list
 EOF
@@ -72,7 +75,9 @@ while (@row=$sth->fetchrow_array) {
 }
 
 if ($rowcount > 0) {
-	print "\n$rowcount port[s] need[s] refresh\n";
+	my $hostname = `hostname`;
+	chomp $hostname;
+	print "\nat $hostname, $rowcount port[s] need[s] refresh\n";
 	print $list;
 
 	print "$ENV{HOME} is where we were\n";
