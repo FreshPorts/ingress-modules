@@ -1,4 +1,4 @@
-# $Id: utilities.pm,v 1.11.2.9 2003-01-18 19:41:22 dan Exp $
+# $Id: utilities.pm,v 1.11.2.10 2003-02-10 18:00:22 dan Exp $
 #
 #
 # Copyright (c) 2001 DVL Software
@@ -51,7 +51,9 @@ sub FetchFile($;$;$;$) {
 	my $FetchAttempts = 5;
 
 	while ($FetchAttempts) {
-		my $FetchResults = `sh $FreshPorts::Config::scriptpath/fetch-cvs-file.sh $DESTDIR $SRCDIR $FILE $REVISION 2>&1`;
+		my $command = "sh $FreshPorts::Config::scriptpath/fetch-cvs-file.sh $DESTDIR $SRCDIR $FILE $REVISION 2>&1";
+		print "fetch command = '$command'";
+		my $FetchResults = `$command`;
 		$result = $?;
 		print "fetch result = $result\n";
 		if (($result >> 8)) {
