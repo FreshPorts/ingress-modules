@@ -573,7 +573,7 @@ sub CreateDailySummary($;$) {
 
 #   print "press enter to continue"; <STDIN>;
 
-   umask(2);
+   umask(02);
    # create the output file name gradually, ensuring the directories exist
 
    my $OutputFile = $PathToUse . "/" . substr($CommitDate, 0, 4);
