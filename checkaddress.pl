@@ -34,4 +34,4 @@ Sys::Syslog::syslog('warning', "checkaddress is checking $ARGV[0] and finding @r
 $sth->finish();
 $dbh->disconnect();
 
-exit ($row[0] > 0);
+exit ($row[0] = 0);
