@@ -54,7 +54,7 @@ else
 #
 time=`/bin/date +"%s"`
 
-/usr/local/bin/lynx -source -dump http://www.freebsd.org/cgi/cvsweb.cgi/ports/$CATEG/$PORT/$FILE?rev=HEAD\&abcd=$time > $FETCHFILE
+fetch -o $FETCHFILE http://www.freebsd.org/cgi/cvsweb.cgi/ports/$CATEG/$PORT/$FILE?rev=HEAD\&abcd=$time
  if [ $? -ne 0 ]
  then
     exit 6
