@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: load_xml_into_db.pl,v 1.46.2.10 2003-01-18 15:00:50 dan Exp $
+# $Id: load_xml_into_db.pl,v 1.46.2.11 2003-02-21 21:38:30 dan Exp $
 #
 # Copyright (c) 2001-2002 DVL Software
 #
@@ -255,10 +255,14 @@ sub handle_update_end
 	my %CommitLogPorts;	# array of port objects touched by this message.
 	my $ErrorFound = 0;
 
-	%CommitLogPorts = FreshPorts::VerifyPort::SaveChangesToPortsTree($commit_log_id, \@Files, $fetch_before_refresh, $dbh);
+	%CommitLogPorts = FreshPorts::VerifyPort::SaveChangesToPortsTree($commit_log_id, \@Files, $dbh);
 	$dbh->commit();
 
 	print "\n --- end of this update --- \n";
+
+	if ($fetch_before_refresh && scalar(keys %CommitLogPorts)) {
+		FreshPorts::VerifyPort::FetchAllFiles(\@Files, $dbh);
+	}
 
     my $commit_date = sprintf "%04u-%02u-%02u", $Updates{dateyear}, $Updates{datemonth}, $Updates{dateday};
 

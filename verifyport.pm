@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: verifyport.pm,v 1.42.2.8 2002-12-10 18:14:02 dan Exp $
+# $Id: verifyport.pm,v 1.42.2.9 2003-02-21 21:38:31 dan Exp $
 #
 # Copyright (c) 2001-2001 DVL Software
 #
@@ -167,10 +167,9 @@ sub _CompileListOfPorts($;$;$) {
 }
 
 
-sub SaveChangesToPortsTree($;$;$;$) {
+sub SaveChangesToPortsTree($;$;$) {
 	my $commit_log_id	= shift;
 	my $Files			= shift;
-	my $fetch_files	= shift;
 	my $dbh				= shift;
 
 	my %ListOfPorts;
@@ -191,9 +190,6 @@ sub SaveChangesToPortsTree($;$;$;$) {
 	#       by this commit
 	#	
 
-	if ($fetch_files) {
-		_FetchAllFiles($Files, $dbh);
-	}
 
 	#
 	# This list of ports may not all be in the database.
@@ -266,7 +262,7 @@ sub SaveChangesToPortsTree($;$;$;$) {
 	return %CommitLogPorts;
 }
 
-sub _FetchAllFiles($;$) {
+sub FetchAllFiles($;$) {
 	#
 	# fetch all the files associated with this commit
 	#
