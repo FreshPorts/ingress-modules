@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $Id: archive-messages.sh,v 1.1.2.3 2003-05-10 19:44:29 dan Exp $
+# $Id: archive-messages.sh,v 1.1.2.4 2003-05-19 14:03:50 dan Exp $
 #
 # Copyright (c) 2003 DVL Software Limited
 #
@@ -33,10 +33,8 @@ YYYY_MM_DD=`eval date -v-${DAYS}d "+%Y_%m_%d"`
 YYYY_MM=`eval date -v-${DAYS}d "+%Y_%m"`
 YYYYMMDD=`eval date -v-${DAYS}d "+%Y.%m.%d"`
 
-mkdir -p ${BASEDIR}/archive/${YYYY_MM}/${YYYY_MM_DD}
 
-SRC="${BASEDIR}/recent/${YYYYMMDD}*"
 DEST="${BASEDIR}/archive/${YYYY_MM}/${YYYY_MM_DD}/"
+mkdir -p ${DEST}
 
-echo ${SRC} ${DEST}
-mv   ${SRC} ${DEST}
+find ${BASEDIR}/recent -type f -name ${YYYYMMDD}\* | xargs -n 1 -J {} mv {} ${DEST}
