@@ -303,7 +303,7 @@ my $ChangePortID;
 #
 # this would be a good place for a short loop and a sleep if it fails
 #
-my $dbh = DBI->connect('dbi:mysql:freshports','updater','xyzzy');
+my $dbh = DBI->connect('dbi:mysql:freshports','updater','Simp23right');
 if (!$dbh) {
    # email the main man
    open  MAIL, "|mail -s 'freshports error' $NotifyByMail";
