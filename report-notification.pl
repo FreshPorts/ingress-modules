@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: report-notification.pl,v 1.1.2.12 2002-11-12 04:30:41 dan Exp $
+# $Id: report-notification.pl,v 1.1.2.13 2002-11-24 16:27:39 dan Exp $
 #
 # Copyright (c) 2001-2002 DVL Software
 #
@@ -15,6 +15,7 @@ use config;
 use report_constants;
 
 use Text::Wrap;
+use email;
 
 my $Debug = 0;
 my $dirname='';
@@ -42,15 +43,10 @@ sub SendWatchNoticePersonal($;$;$) {
 	my $FrequencyLong = shift;
 	my $Body          = shift;
 
-	open(SENDMAIL, "|/usr/sbin/sendmail -oi -t")
-					or die "Can't fork for sendmail: $!\n";
+	my $From		= 'FreshPorts Watch Daemon <FreshPorts-Watch@FreshPorts.org>';
+	my $Subject	= "FreshPorts $FrequencyLong notification";
 
-print SENDMAIL <<"EOF";
-From: FreshPorts watch daemon <freshports-watch\@freshports.org>
-To: $To
-Subject: FreshPorts $FrequencyLong notification
-
-FreshPorts runs on hardware and bandwidth supplied by BChosting. See
+	$Body = "FreshPorts runs on hardware and bandwidth supplied by BChosting. See
 http://bchosting.com/track.php?refID=5665 for details.
 
 
@@ -72,10 +68,9 @@ $FreshPorts::Config::FreshPortsURL but if you no longer wish to receive such mes
 please go to $AdjustURL.
 
 If a problem occurs, please send details, including the email address in
-question, to postmaster\@freshports.org.
-EOF
+question, to postmaster\@FreshPorts.org.";
 
-	close(SENDMAIL)     or warn "sendmail didn't close nicely";
+	FreshPorts::email::SendMail($From, $To, $Subject, $Body);
 }
 
 
@@ -252,7 +247,6 @@ if ($Debug) {
 	print "running in debug mode.............\n";
 	print "**********************************\n";
 }
-
 
 
 print "start  $time\n";
