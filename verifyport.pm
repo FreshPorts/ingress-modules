@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: verifyport.pm,v 1.37 2001-12-31 06:18:09 dan Exp $
+# $Id: verifyport.pm,v 1.38 2001-12-31 15:26:29 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -215,7 +215,6 @@ sub SaveChangesToPortsTree($;$;$) {
 	# only do this stuff if we actually have any ports to update...
 	#
 	if (scalar %ListOfPorts) {
-
 		#
 		# we must load the master ports before we save any
 		# port changes.  that's because we may have a new
@@ -272,8 +271,9 @@ sub SaveChangesToPortsTree($;$;$) {
 			# messy.  Perhaps there is a neater way.
 			#
 			$commit_log_ports->{port}	= $port;
-			$CommitLogPorts{portname}	= $commit_log_ports;
+			$CommitLogPorts{$portname}	= $commit_log_ports;
 
+			print "size of %CommitLogPorts = '" . scalar(keys %CommitLogPorts) . "' $portname\n";
 		}
 
 		_RecordPortFilesTouchedByThatCommit($commit_log_id, $Files, \%ListOfPorts, $dbh);
@@ -511,6 +511,7 @@ sub _DeleteDeletedPorts($;$) {
 			}
 		}
 	}
+	print "# # # # Finished deleting deleted ports # # # #\n\n";
 }
 
 sub CreateDailySummary($;$) {
