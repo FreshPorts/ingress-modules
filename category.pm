@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: category.pm,v 1.8.2.3 2002-12-12 04:38:35 dan Exp $
+# $Id: category.pm,v 1.8.2.4 2003-02-10 15:31:19 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -115,8 +115,11 @@ sub FetchByID {
 	print "sql = '$sql'\n";
 
 	$sth = $dbh->prepare($sql);
+	if ( !defined $sth ) {
+		FreshPorts::Utilities::ReportError('warning', "Could not prepare SQL $sql" . pg_lasterror(), 1);
+	}
 	if (!$sth->execute) {
-		FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql", 1);
+		FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql" . pg_lasterror(), 1);
 	}
 
 	$row = $sth->fetchrow_hashref();
@@ -179,8 +182,8 @@ sub FetchByName {
 sub _description_fetch {
 	my $category	= shift;
 
-	my $DESTDIR		= "$FreshPorts::Config::path_to_ports/$category/pkg";
-	my $SRCDIR		= "ports/$category/pkg";
+	my $DESTDIR	= "$FreshPorts::Config::path_to_ports/$category/pkg";
+	my $SRCDIR	= "ports/$category/pkg";
 	my $FILE		= "COMMENT";
 
 #	print "FreshPorts::Config::scriptpath=$FreshPorts::Config::scriptpath\n";
