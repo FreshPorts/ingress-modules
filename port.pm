@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.38.2.36 2004-02-23 03:06:07 dan Exp $
+# $Id: port.pm,v 1.38.2.37 2004-03-22 20:32:58 dan Exp $
 #
 #
 # Copyright (c) 2001-2003 DVL Software
@@ -51,6 +51,7 @@ sub _initialize {
 	$this->{forbidden}			= '';
 	$this->{broken}				= '';
 	$this->{deprecated}			= '';
+	$this->{ignore}				= '';
 	$this->{categories}			= '';
 	$this->{status}				= '';
 	$this->{element_pathname}   = '';
@@ -85,6 +86,7 @@ sub _GetValuesFromRow {
 	$this->{forbidden}			= $row->{forbidden};
 	$this->{broken}				= $row->{broken};
 	$this->{deprecated}			= $row->{deprecated};
+	$this->{ignore}				= $row->{ignore};
 	$this->{categories}			= $row->{categories};
 	$this->{last_commit_id}		= $row->{last_commit_id};
 	$this->{status}				= $row->{status};
@@ -138,6 +140,7 @@ update ports
        forbidden         = " . $dbh->quote($this->{forbidden})			. ", 
        broken            = " . $dbh->quote($this->{broken})				. ", 
        deprecated        = " . $dbh->quote($this->{deprecated})			. ", 
+       ignore            = " . $dbh->quote($this->{ignore})			. ", 
        categories        = " . $dbh->quote($this->{categories});
 
 		# we don't always have this value, so we don't change it....
@@ -369,8 +372,8 @@ sub _ExtractValuesFromMakefile {
 	#
 	$makecommand = "make -V PORTNAME -V PKGNAME -V DESCR -V CATEGORIES -V PORTVERSION -V PORTREVISION " .
 		" -V COMMENT -V COMMENTFILE -V MAINTAINER -V EXTRACT_SUFX " .
-		" -V BUILD_DEPENDS -V RUN_DEPENDS -V FORBIDDEN -V BROKEN -V DEPRECATED-f $Makefile " . 
-		" PORTSDIR=$FreshPorts::Config::path_to_ports 2>$TmpFile";
+		" -V BUILD_DEPENDS -V RUN_DEPENDS -V FORBIDDEN -V BROKEN -V DEPRECATED -V IGNORE -f $Makefile " . 
+		" PORTSDIR=$FreshPorts::Config::path_to_ports LOCALBASE=/nonexistentlocal X11BASE=/nonexistentx 2>$TmpFile";
 
 	print "makecommand = $makecommand\n";
 
@@ -421,7 +424,8 @@ sub _ExtractValuesFromMakefile {
 	my $mastersites = '';
 	if ($result == 0) {
 		print "trying to get master sites\n";
-		my $mastersitescommand = "make master-sites-all -f $Makefile PORTSDIR=$FreshPorts::Config::path_to_ports";
+		my $mastersitescommand = "make master-sites-all -f $Makefile PORTSDIR=$FreshPorts::Config::path_to_ports " . 
+		                         "LOCALBASE=/nonexistentlocal X11BASE=/nonexistentx";
 		print "'$mastersitescommand'\n";
 		$mastersites = `$mastersitescommand`;
 		# save this for later reference
@@ -453,7 +457,7 @@ sub _ExtractValuesFromMakefile {
 
 		(my $portname, my $packagename, my $descrpath, my $categories, my $portversion, my $portrevision, my $shortdescription,
 		 my $CommentFile, my $maintainer, my $extractsuffix, my $builddepends,
-		 my $rundepends, my $forbidden, my $broken, my $deprecated) = split(/\n/s, $MakeResults);
+		 my $rundepends, my $forbidden, my $broken, my $deprecated, my $ignore) = split(/\n/s, $MakeResults);
 
 		$builddepends	= freshports_ConvertPortPathToStandardLocation(FreshPorts::Utilities::trim_multiple_to_single(FreshPorts::Utilities::trim($builddepends)));
 		$rundepends		= freshports_ConvertPortPathToStandardLocation(FreshPorts::Utilities::trim_multiple_to_single(FreshPorts::Utilities::trim($rundepends)));
@@ -507,7 +511,8 @@ sub _ExtractValuesFromMakefile {
 		print "16 \$forbidden    ='$forbidden'\n";
 		print "17 \$broken       ='$broken'\n";
 		print "18 \$deprecated   ='$deprecated'\n";
-		print "19 \$categories   ='$categories'\n";
+		print "19 \$ignore       ='$ignore'\n";
+		print "20 \$categories   ='$categories'\n";
 
 		print "\n ---------------------------------------- \n";
 
@@ -522,6 +527,10 @@ sub _ExtractValuesFromMakefile {
 
 		if (!defined($deprecated)) {
 			$deprecated = '';
+		}
+
+		if (!defined($ignore)) {
+			$ignore = '';
 		}
 
 		# put everything into the hash...
@@ -541,6 +550,7 @@ sub _ExtractValuesFromMakefile {
 		$this->{forbidden}			= $forbidden;
 		$this->{broken}				= $broken;
 		$this->{deprecated}			= $deprecated;
+		$this->{ignore}				= $ignore;
 		$this->{categories}			= $categories;
 
 	} else {
@@ -608,7 +618,8 @@ sub _FetchFilesNeedingRefresh {
 			mkdir "pkg",0;
 		}
 
-		my $makecommand = "make -V DESCR -V -f $DESTDIR/$FILE PORTSDIR=$FreshPorts::Config::path_to_ports 2>$TmpFile";
+		my $makecommand = "make -V DESCR -V -f $DESTDIR/$FILE PORTSDIR=$FreshPorts::Config::path_to_ports " .
+		                  "LOCALBASE=/nonexistentlocal X11BASE=/nonexistentx 2>$TmpFile";
 
 		print "makecommand = $makecommand\n";
 		my $MakeResults = `$makecommand`;
