@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: email.pl,v 1.8.2.2 2002-04-22 22:15:17 dan Exp $
+# $Id: email.pl,v 1.8.2.3 2002-05-02 22:12:58 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -26,7 +26,7 @@ my $NumCommits	= 0;
 
 my $FormatDate	= "%W, %b %e";
 my $FormatTime	= "%H:%i";
-
+my $WatchURL	= $FreshPorts::Config::FreshPortsURL . "watch.php";
 sub SendWatchNoticePersonal($;$;$) {
 
 	my $To            = shift;
@@ -47,7 +47,7 @@ have chosen to receive these notices on a $FrequencyLong basis.
 
 $Body
 
-Please refer to http://freshports.org/watch.php3 for details.
+Please refer to $WatchURL for details.
 
 Cheers and thanks for your support.
 
