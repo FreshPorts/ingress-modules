@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: report-new-ports.pl,v 1.1.2.17 2004-03-22 19:12:09 dan Exp $
+# $Id: report-new-ports.pl,v 1.1.2.18 2004-04-22 11:37:48 dan Exp $
 #
 # Copyright (c) 2001-2004 DVL Software
 #
@@ -90,7 +90,6 @@ sub CompileWatchNotifyList($;$;$;$;$;$) {
      and report_subscriptions.report_id    = $ReportID
      and report_frequency.id               = report_subscriptions.report_frequency_id
      and ports.date_added                  > '$LastSent'
-and users.id = 1
 order by users.id, ports.date_added, categories.name, element.name";
 
 	if ($Debug)	{
