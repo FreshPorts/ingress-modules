@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $Id: process_CVSROOT_approvers.sh,v 1.1.2.1 2004-09-17 03:13:01 dan Exp $
+# $Id: process_CVSROOT_approvers.sh,v 1.1.2.2 2005-02-17 05:34:28 dan Exp $
 #
 # Copyright (c) 2003-2004 DVL Software Limited
 #
@@ -23,5 +23,8 @@ if [ $? = 0 ]
 then
 	touch ${PORTSFREEZEFILE}
 else
-	rm ${PORTSFREEZEFILE}
+	if [ -f ${PORTSFREEZEFILE} ]
+	then
+		rm ${PORTSFREEZEFILE}
+	fi
 fi
