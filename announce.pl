@@ -1,13 +1,13 @@
 #!/usr/bin/perl -w
 #
-# $Id: announce.pl,v 1.3.2.1 2002-04-25 03:02:03 dan Exp $
+# $Id: announce.pl,v 1.3.2.2 2002-09-09 18:08:11 dan Exp $
 #
 # Copyright (c) 1999-2000 DVL Software
 #
 use strict;
 use DBI;
-
 use database;
+use constants;
 
 
 my $dirname='';
@@ -16,6 +16,8 @@ my $sql;
 my $sth;
 my @row;
 my $Bcc;
+
+my $ReportID = $FreshPorts::Constants::ReportIDAnnouncements;
 
 
 sub SendAnnouncement($) {
@@ -32,26 +34,13 @@ Subject: FreshPorts announcement
 
 Folks,
 
-The testing at http://test.freshports.org/ has gone well.
-The site is done and is ready to go into production.  We
-have already gone through a trail migration of the user
-logins and watch lists.  I'm not sure when we will go live
-but it will probably be within the next couple of weeks.
-
-In the meantime, if you haven't already checked the above
-URL, I urge you to do so.  If you have any suggestions or
-comment *now* is the time to submit them.
-
-My thanks to the people who have been helping with the
-testing and those who provided suggestions over the past
-couple of months.  It has been very useful.
-
+This is me testing the new test facility.
 --
 
 You are recieving this message as part of the service
-you joined at http://freshports.org/ but if you no longer
+you joined at http://www.FreshPorts.org/ but if you no longer
 wish to recieve such messages, please go to
-http://freshports.org/customize.php3 and disable announcements.
+http://www.FreshPorts.org/report-subscriptions.php
 
 If a problem occurs, please send details, including the email
 address in question, to postmaster\@freshports.org
@@ -74,10 +63,11 @@ sub SendToEachListMember($) {
    #               and users.id                      = 2
 
    $sql = "select users.email
-             from users
-            where length(users.email) > 0
-              and emailsitenotices_yn = 'Y'
-              and emailbouncecount    = 0";
+             from users, report_subscriptions
+            where length(users.email)            > 0
+              and report_subscriptions.user_id   = users.id
+              and emailbouncecount               = 0
+              and report_subscriptions.report_id = $ReportID";
 
    print "sql is $sql\n";
 
@@ -97,5 +87,5 @@ sub SendToEachListMember($) {
 
       $dbh->disconnect();
 
-      print "message sent to users\n";
+      print "\nmessage sent to users\n";
 
