@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: unrefreshed.pl,v 1.11.2.10 2003-05-16 01:14:08 dan Exp $
+# $Id: unrefreshed.pl,v 1.11.2.11 2003-05-16 15:45:40 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -34,6 +34,40 @@ $list
 }
 
 
+sub usage {
+	print "USAGE : $0 INPUTFILE [-d] [-i]\n";
+	print "   -i : include any ignored commits\n";
+	print "   -d : include debugging information\n";
+}
+
+my $ExcludeIgnoredCommits = 1;
+my $Debug                 = 0;
+
+if (($#ARGV+1) >= 1) {
+	for (my $i = 0; $i < ($#ARGV+1); $i++) {
+		if ($Debug) {
+			print "checking arg $i\n";
+		}
+
+		if ($ARGV[$i] eq '-i') {
+			print "including Ignored commits....\n";
+			$ExcludeIgnoredCommits = 0;
+			next;
+		}
+
+		if ($ARGV[$i] eq '-d') {
+			print "including debugging....\n";
+			$Debug = 0;
+			next;
+		}
+
+		# we have found arguments we know nothing about
+		print 'unknown argument ' . $ARGV[$i] . "\n";
+		usage();
+		exit 1;
+	}
+}
+
 my $dbh = FreshPorts::Database::GetDBHandle();
 
 my $sql;
@@ -57,10 +91,20 @@ select ports.id         as port_id,
    and element.status                  = 'A'
    and commit_log_ports.commit_log_id  = commit_log.id
    and commit_log.date_added           < now() - interval '10 minutes'
-   and not exists (select *
+";
+
+if ($ExcludeIgnoredCommits) {
+	$sql .= "   and not exists (select *
                      FROM commit_log_ports_ignore
-                    WHERE commit_log_ports_ignore.commit_log_id = commit_log_ports.commit_log_id)
+                    WHERE commit_log_ports_ignore.commit_log_id = commit_log_ports.commit_log_id)";
+}
+
+$sql .= "
 order by category, port";
+
+if ($Debug) {
+	print $sql;
+}
 
 $sth = $dbh->prepare($sql);
 $sth->execute ||
@@ -83,7 +127,7 @@ while ($row=$sth->fetchrow_hashref()) {
 if ($rowcount > 0) {
 	my $hostname = `hostname`;
 	chomp $hostname;
-	print "\nat $hostname, $rowcount port[s] need[s] refresh\n";
+	print "at $hostname, $rowcount port[s] need[s] refresh\n";
 	print $list;
 
 	print "$ENV{HOME} is where we were\n";
@@ -91,21 +135,24 @@ if ($rowcount > 0) {
 }
 
 $sth->finish();
-my $MyCommit;
-my $PortsIgnoreRefresh = FreshPorts::PortsIgnoreRefresh->new($dbh);
 
-foreach $MyCommit (@commits) {
-	print "commit_log_id='$MyCommit->{commit_log_id}' port_id='$MyCommit->{port_id}'\n";
-	
-	# for each port notified, add an entry to the ignore table.
-	# these are cleared out at the end of each day if the port has been refreshed, otherwise
-	# the admin is notified
+if ($ExcludeIgnoredCommits) {
+	my $MyCommit;
+	my $PortsIgnoreRefresh = FreshPorts::PortsIgnoreRefresh->new($dbh);
 
-	$PortsIgnoreRefresh->{commit_log_id} = $MyCommit->{commit_log_id};
-	$PortsIgnoreRefresh->{port_id}       = $MyCommit->{port_id};
-	$PortsIgnoreRefresh->{reason}        = 'auto-ignored';
+	foreach $MyCommit (@commits) {
+		print "commit_log_id='$MyCommit->{commit_log_id}' port_id='$MyCommit->{port_id}'\n";
 	
-	$PortsIgnoreRefresh->save();
+		# for each port notified, add an entry to the ignore table.
+		# these are cleared out at the end of each day if the port has been refreshed, otherwise
+		# the admin is notified
+
+		$PortsIgnoreRefresh->{commit_log_id} = $MyCommit->{commit_log_id};
+		$PortsIgnoreRefresh->{port_id}       = $MyCommit->{port_id};
+		$PortsIgnoreRefresh->{reason}        = 'auto-ignored';
+	
+		$PortsIgnoreRefresh->save();
+	}
 }
 
 $dbh->commit();
