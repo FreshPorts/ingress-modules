@@ -1,4 +1,4 @@
-# $Id: xml_munge.pm,v 1.1.2.1 2004-08-18 16:48:23 dan Exp $
+# $Id: xml_munge.pm,v 1.1.2.2 2004-09-17 03:13:27 dan Exp $
 #
 # Copyright (c) 2001-2004 DVL Software
 #
@@ -41,7 +41,6 @@ use utilities;
 use cache;
 use committer_opt_in;
 use non_ports;
-use special_processing_files;
 use messages;
 
 use XML::Node;
@@ -533,7 +532,6 @@ sub handle_file_end {
 
 	$self->notify_observers($FreshPorts::Messages::FileUpdate, (FileAction => $FileAction, FilePath => $FilePath, FileRevision => $FileRevision) );
 	
-	FreshPorts::SpecialProcessingFiles::Eat($dbh, $Updates{FileAction}, $Updates{FilePath}, $Updates{FileRevision});
 
 	undef $Updates{FileAction};
 	undef $Updates{FilePath};
