@@ -1,4 +1,4 @@
-# $Id: constants.pm,v 1.7.2.1 2002-05-19 18:38:54 dan Exp $
+# $Id: constants.pm,v 1.7.2.2 2002-08-18 15:58:54 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -55,5 +55,7 @@ $FreshPorts::Constants::FILE_MAKEFILEMAN	= "files/Makefile.man";
 $FreshPorts::Constants::UsualPortsTreeLocation	= '/usr';
 
 $FreshPorts::Constants::HEAD					= 'HEAD';
+
+$FreshPorts::Constants::ReportIDMaintainerNotification	= 3;
 
 1;
