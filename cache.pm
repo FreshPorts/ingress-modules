@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: cache.pm,v 1.1.2.10 2003-09-16 11:01:51 dan Exp $
+# $Id: cache.pm,v 1.1.2.11 2004-08-09 22:34:33 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -172,7 +172,7 @@ sub CreateDailySummary($;$) {
 				print FILE $myrow->{version};
 			}
 			if (defined($myrow->{revision}) && ($myrow->{revision} ne '') && ($myrow->{revision} ne '0')) {
-				print FILE '-' . $myrow->{revision};
+				print FILE $FreshPorts::Constants::VERSION_REVISION_JOINER . $myrow->{revision};
 			}
 			print FILE "</FONT></A><BR>\n";     
 			$count++;

@@ -1,5 +1,5 @@
 #
-# $Id: constants.pm,v 1.7.2.7 2003-09-24 13:48:16 dan Exp $
+# $Id: constants.pm,v 1.7.2.8 2004-08-09 22:34:33 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -49,5 +49,7 @@ $FreshPorts::Constants::HEAD							= 'HEAD';
 $FreshPorts::Constants::ReportIDMaintainerNotification	= 3;
 $FreshPorts::Constants::ReportIDAnnouncements			= 4;
 $FreshPorts::Constants::ReportDeletedPorts				= 5;
+
+$FreshPorts::Constants::VERSION_REVISION_JOINER			= '_';
 
 1;
