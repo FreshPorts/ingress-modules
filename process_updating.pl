@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: process_updating.pl,v 1.1.2.7 2004-11-27 13:54:07 dan Exp $
+# $Id: process_updating.pl,v 1.1.2.8 2005-01-08 14:30:10 dan Exp $
 #
 # Copyright (c) 2004 DVL Software
 #
@@ -98,13 +98,14 @@ sub parsefile ($) {
 
 			# lets deal with port names
 			my @ports;
-			my @affects_match =  split(/\s/, $affects);
+			my @affects_match =  split(/,?\s+/, $affects);
 
 			# take the split up $affects tokens and see if they look
 			# like ports entries.
 			for my $part (@affects_match) {
 				if ($part =~ m^/^) {
 					$part =~ s/[()]//g;  # strip out unmentionables
+					print "port found: '$part'\n";
 					if ($part =~ m%[\*\{\}\[\],]%) {
 						# suggested by mat@ for parsing
 						# affect ports that look like shell
