@@ -1,5 +1,5 @@
 #
-# $Id: dot.procmailrc,v 1.1.2.1 2003-04-10 11:39:21 dan Exp $
+# $Id: dot.procmailrc,v 1.1.2.2 2003-04-12 12:38:21 dan Exp $
 #
 # Copyright (c) 1999-2002 DVL Software
 #
@@ -10,8 +10,8 @@ PATH=$HOME/bin:/usr/bin:/usr/ucb:/bin:/usr/local/bin:.
 MAILDIR=$HOME/mail	# You'd better make sure it exists
 DEFAULT=$MAILDIR/mbox
 LOGFILE=$MAILDIR/procmail.log
+#VERBOSE=yes
 LOCKFILE=$HOME/.lockmail
-TMPDIR=$HOME/msgs/spooling
 UMASK=022
 
 #
@@ -34,9 +34,11 @@ ARG = $1
 
       MSGDIR=$HOME/FreshPorts/$ARG/msgs/FreeBSD
 		TMPDIR=$MSGDIR/spooling
+		SPOOL=${TMPDIR}/${FILE}
+		DEST=${MSGDIR}/incoming/${FILE}
+	   TRAP='echo \$SPOOL is $SPOOL && echo \$DEST. is $DEST'
       :0
-         | cat > $TMPDIR/$FILE && \
-         mv $TMPDIR/$FILE $MSGDIR/incoming/$FILE
+         | cat > ${SPOOL} && mv ${SPOOL} ${DEST}
    }
 
    #
