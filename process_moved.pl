@@ -1,8 +1,8 @@
 #!/usr/bin/perl -w
 #
-# $Id: process_moved.pl,v 1.1.2.5 2004-08-01 23:05:23 dan Exp $
+# $Id: process_moved.pl,v 1.1.2.6 2004-08-01 23:45:32 dan Exp $
 #
-# Copyright (c) 2001-2003 DVL Software
+# Copyright (c) 2001-2004 DVL Software
 #
 # Parse /usr/ports/MOVED and load into ports_moved table
 #
