@@ -1,8 +1,8 @@
 #!/usr/bin/perl
 #
-# $Id: element.pm,v 1.10.2.1 2002-12-10 18:13:29 dan Exp $
+# $Id: element.pm,v 1.10.2.2 2003-05-16 01:14:03 dan Exp $
 #
-# Copyright (c) 2001 DVL Software
+# Copyright (c) 2001-2003 DVL Software
 #
 
 package FreshPorts::Element;

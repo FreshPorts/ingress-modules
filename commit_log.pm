@@ -1,8 +1,8 @@
 #!/usr/bin/perl
 #
-# $Id: commit_log.pm,v 1.2.2.2 2002-04-12 06:13:42 dan Exp $
+# $Id: commit_log.pm,v 1.2.2.3 2003-05-16 01:13:59 dan Exp $
 #
-# Copyright (c) 2001 DVL Software
+# Copyright (c) 2001-2003 DVL Software
 #
 
 package FreshPorts::Commit_Log;

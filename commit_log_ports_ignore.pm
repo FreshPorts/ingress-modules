@@ -1,8 +1,8 @@
 #!/usr/bin/perl
 #
-# $Id: commit_log_ports_ignore.pm,v 1.1.2.1 2003-03-26 19:04:52 dan Exp $
+# $Id: commit_log_ports_ignore.pm,v 1.1.2.2 2003-05-16 01:14:00 dan Exp $
 #
-# Copyright (c) 2001 DVL Software
+# Copyright (c) 2001-2003 DVL Software
 #
 
 package FreshPorts::PortsIgnoreRefresh;

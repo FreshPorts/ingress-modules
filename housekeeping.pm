@@ -1,8 +1,8 @@
 #!/usr/bin/perl
 #
-# $Id: housekeeping.pm,v 1.1.2.3 2002-12-17 16:27:18 dan Exp $
+# $Id: housekeeping.pm,v 1.1.2.4 2003-05-16 01:14:04 dan Exp $
 #
-# Copyright (c) 2002 DVL Software
+# Copyright (c) 2002-2003 DVL Software
 #
 
 package FreshPorts::Housekeeping;

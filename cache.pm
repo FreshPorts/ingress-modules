@@ -1,8 +1,8 @@
 #!/usr/bin/perl
 #
-# $Id: cache.pm,v 1.1.2.7 2002-12-17 16:26:46 dan Exp $
+# $Id: cache.pm,v 1.1.2.8 2003-05-16 01:13:59 dan Exp $
 #
-# Copyright (c) 2001-2002 DVL Software
+# Copyright (c) 2001-2003 DVL Software
 #
 
 package FreshPorts::Cache;

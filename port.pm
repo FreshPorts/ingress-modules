@@ -1,9 +1,9 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.38.2.23 2003-04-23 14:29:34 dan Exp $
+# $Id: port.pm,v 1.38.2.24 2003-05-16 01:14:05 dan Exp $
 #
 #
-# Copyright (c) 2001-2002 DVL Software
+# Copyright (c) 2001-2003 DVL Software
 #
 package FreshPorts::Utilities;
 

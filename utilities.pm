@@ -1,7 +1,7 @@
-# $Id: utilities.pm,v 1.11.2.12 2003-04-23 22:01:44 dan Exp $
+# $Id: utilities.pm,v 1.11.2.13 2003-05-16 01:14:08 dan Exp $
 #
 #
-# Copyright (c) 2001 DVL Software
+# Copyright (c) 2001-2003 DVL Software
 #
 package FreshPorts::Utilities;
 

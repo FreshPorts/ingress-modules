@@ -1,8 +1,8 @@
 #!/usr/bin/perl -w
 #
-# $Id: verifyport.pm,v 1.42.2.11 2003-04-28 20:07:19 dan Exp $
+# $Id: verifyport.pm,v 1.42.2.12 2003-05-16 01:14:08 dan Exp $
 #
-# Copyright (c) 2001-2001 DVL Software
+# Copyright (c) 2001-2003 DVL Software
 #
 
 package FreshPorts::VerifyPort;

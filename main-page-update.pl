@@ -1,8 +1,8 @@
 #!/usr/bin/perl -w
 #
-# $Id: main-page-update.pl,v 1.10.2.3 2002-12-17 16:27:18 dan Exp $
+# $Id: main-page-update.pl,v 1.10.2.4 2003-05-16 01:14:05 dan Exp $
 #
-# Copyright (c) 1999-2002 DVL Software
+# Copyright (c) 1999-2003 DVL Software
 #
 
 use strict;

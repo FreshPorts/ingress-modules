@@ -1,7 +1,7 @@
 #
-# $Id: db_utils.pm,v 1.3 2001-12-22 04:30:39 dan Exp $
+# $Id: db_utils.pm,v 1.3.2.1 2003-05-16 01:14:02 dan Exp $
 #
-# Copyright (c) 2001 DVL Software
+# Copyright (c) 2001-2003 DVL Software
 #
 package FreshPorts::Database;
 

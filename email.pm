@@ -1,7 +1,7 @@
 #
-# $Id: email.pm,v 1.1.2.7 2003-05-10 19:18:12 dan Exp $
+# $Id: email.pm,v 1.1.2.8 2003-05-16 01:14:03 dan Exp $
 #
-# Copyright (c) 2002 DVL Software
+# Copyright (c) 2001-2003 DVL Software
 #
 
 package FreshPorts::email;

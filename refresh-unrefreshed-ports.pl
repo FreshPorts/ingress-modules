@@ -1,8 +1,8 @@
 #!/usr/bin/perl -w
 #
-# $Id: refresh-unrefreshed-ports.pl,v 1.20.2.5 2003-04-28 20:07:18 dan Exp $
+# $Id: refresh-unrefreshed-ports.pl,v 1.20.2.6 2003-05-16 01:14:07 dan Exp $
 #
-# Copyright (c) 1999-2001 DVL Software
+# Copyright (c) 1999-2003 DVL Software
 #
 
 use strict;

@@ -1,8 +1,8 @@
 #!/usr/bin/perl -w
 #
-# $Id: refresh-each-port.pl,v 1.2 2002-03-02 17:02:29 dan Exp $
+# $Id: refresh-each-port.pl,v 1.2.2.1 2003-05-16 01:14:07 dan Exp $
 #
-# Copyright (c) 1999-2001 DVL Software
+# Copyright (c) 1999-2003 DVL Software
 #
 
 use strict;

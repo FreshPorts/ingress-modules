@@ -1,8 +1,8 @@
 #!/bin/sh
 #
-# $Id: database_dump.sh,v 1.8 2002-02-18 05:36:33 dan Exp $
+# $Id: database_dump.sh,v 1.8.2.1 2003-05-16 01:14:02 dan Exp $
 #
-# Copyright (c) 1999-2000 DVL Software
+# Copyright (c) 1999-2003 DVL Software
 #
 # postgresql database backup
 #

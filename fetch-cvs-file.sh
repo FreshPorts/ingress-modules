@@ -1,8 +1,8 @@
 #!/bin/sh
 #
-# $Id: fetch-cvs-file.sh,v 1.6.2.5 2002-11-15 20:14:12 dan Exp $
+# $Id: fetch-cvs-file.sh,v 1.6.2.6 2003-05-16 01:14:03 dan Exp $
 #
-# Copyright (c) 2000-2002 DVL Software
+# Copyright (c) 2000-2003 DVL Software
 #
 
 if  [ $# -ne 4 ];

@@ -1,8 +1,8 @@
 #!/usr/bin/perl
 #
-# $Id: newusers.pl,v 1.3.2.3 2002-12-12 04:59:12 dan Exp $
+# $Id: newusers.pl,v 1.3.2.4 2003-05-16 01:14:05 dan Exp $
 #
-# Copyright (c) 2001 DVL Software
+# Copyright (c) 2001-2003 DVL Software
 #
 
 use strict;

@@ -1,8 +1,8 @@
 #!/usr/bin/perl -w
 #
-# $Id: load_xml_into_db.pl,v 1.46.2.13 2003-04-28 20:07:18 dan Exp $
+# $Id: load_xml_into_db.pl,v 1.46.2.14 2003-05-16 01:14:04 dan Exp $
 #
-# Copyright (c) 2001-2002 DVL Software
+# Copyright (c) 2001-2003 DVL Software
 #
 # Parse cvs messages in XML format so they can be put into a database
 # Version 4 - uses DTD version 0.12

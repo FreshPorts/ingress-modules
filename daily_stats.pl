@@ -1,8 +1,8 @@
 #!/usr/bin/perl -w
 #
-# $Id: daily_stats.pl,v 1.1.2.3 2002-06-02 14:03:01 dan Exp $
+# $Id: daily_stats.pl,v 1.1.2.4 2003-05-16 01:14:02 dan Exp $
 #
-# Copyright (c) 2001-2002 DVL Software
+# Copyright (c) 2001-2003 DVL Software
 #
 
 use strict;

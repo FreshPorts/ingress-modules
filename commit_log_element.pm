@@ -1,8 +1,8 @@
 #!/usr/bin/perl
 #
-# $Id: commit_log_element.pm,v 1.4.2.1 2002-11-25 23:02:57 dan Exp $
+# $Id: commit_log_element.pm,v 1.4.2.2 2003-05-16 01:14:00 dan Exp $
 #
-# Copyright (c) 2001 DVL Software
+# Copyright (c) 2001-2003 DVL Software
 #
 
 

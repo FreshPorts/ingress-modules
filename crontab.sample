@@ -1,7 +1,7 @@
 #
-# $Id: crontab.sample,v 1.7.2.5 2003-04-23 19:47:07 dan Exp $
+# $Id: crontab.sample,v 1.7.2.6 2003-05-16 01:14:01 dan Exp $
 #
-# Copyright (c) 2001 DVL Software
+# Copyright (c) 2001-2003 DVL Software
 #
 # use /bin/sh to run commands, overriding the default set by cron
 SHELL=/bin/sh

@@ -1,8 +1,8 @@
 #!/usr/bin/perl
 #
-# $Id: ports_categories.pm,v 1.1.2.1 2003-03-05 13:07:35 dan Exp $
+# $Id: ports_categories.pm,v 1.1.2.2 2003-05-16 01:14:06 dan Exp $
 #
-# Copyright (c) 2001 DVL Software
+# Copyright (c) 2001-2003 DVL Software
 #
 
 package FreshPorts::PortsCategories;

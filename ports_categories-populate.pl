@@ -1,8 +1,8 @@
 #!/usr/bin/perl -w
 #
-# $Id: ports_categories-populate.pl,v 1.1.2.1 2003-03-05 13:07:44 dan Exp $
+# $Id: ports_categories-populate.pl,v 1.1.2.2 2003-05-16 01:14:06 dan Exp $
 #
-# Copyright (c) 1999-2001 DVL Software
+# Copyright (c) 1999-2003 DVL Software
 #
 
 use strict;
