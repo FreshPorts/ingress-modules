@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: daily_rendering_times.pl,v 1.1.2.1 2004-01-12 19:01:49 dan Exp $
+# $Id: daily_rendering_times.pl,v 1.1.2.2 2004-02-07 06:24:55 dan Exp $
 #
 # Copyright (c) 2004 DVL Software
 #
@@ -11,10 +11,21 @@ use lib "$ENV{HOME}/scripts";
 use port;
 use database; 
 use DBI;
+use commit_log_ports_ignore;
+use system_status;
 
 require config;
 
 my $date;
+
+#
+# see if the system is online.
+# If not, exit.
+#
+my $SystemStatus = FreshPorts::SystemStatus->new();
+if (!$SystemStatus->Online()) {
+	exit 0;
+}
 
 if (($#ARGV+1) >= 1) {
 	$date = $ARGV[0];
@@ -36,10 +47,10 @@ $sth->execute ||
 
 $sth->fetchrow_array;
 
-#$sql = "delete from page_load_detail where date = ('$date'::date - interval '14 days')::date";
-#$sth = $dbh->prepare($sql);
-#$sth->execute ||
-#        die "Could not execute SQL $sql ... maybe invalid?";
+$sql = "delete from page_load_detail where date < ('$date'::date - interval '7 days')::date";
+$sth = $dbh->prepare($sql);
+$sth->execute ||
+        die "Could not execute SQL $sql ... maybe invalid?";
 
 $sth->finish();
 
