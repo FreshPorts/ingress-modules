@@ -1,4 +1,4 @@
-# $Id: utilities.pm,v 1.11.2.7 2002-11-29 17:01:53 dan Exp $
+# $Id: utilities.pm,v 1.11.2.8 2002-12-12 04:59:13 dan Exp $
 #
 #
 # Copyright (c) 2001 DVL Software
@@ -130,7 +130,7 @@ hugs+kisses
 FreshPorts Daemon
 ";
 
-	FreshPorts::email::SendMail('FreshPorts Daemon <FreshPorts@FreshPorts.org>', $To, 'FreshPorts error on $hostname', $Body);
+	FreshPorts::email::SendMail('FreshPorts Daemon <FreshPorts@FreshPorts.org>', $To, 'FreshPorts error on $hostname', $Body, 'X-FreshPorts-Error: oops');
 }
 
 sub trim {

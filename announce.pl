@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: announce.pl,v 1.3.2.4 2002-11-24 17:14:57 dan Exp $
+# $Id: announce.pl,v 1.3.2.5 2002-12-12 04:59:12 dan Exp $
 #
 # Copyright (c) 1999-2000 DVL Software
 #
@@ -51,7 +51,7 @@ If a problem occurs, please send details, including the email
 address in question, to postmaster\@freshports.org
 ";
 
-	FreshPorts::email::SendMail('FreshPorts Announcement <FreshPorts-Announce@FreshPorts.org>', $To, 'HEADS UP: FreshPorts announcement', $Body);
+	FreshPorts::email::SendMail('FreshPorts Announcement <FreshPorts-Announce@FreshPorts.org>', $To, 'HEADS UP: FreshPorts announcement', $Body, 'X-FreshPorts-Announcement: HEADS UP');
 }
 
 sub SendToEachListMember($) {

@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: report-new-ports.pl,v 1.1.2.8 2002-12-12 04:38:15 dan Exp $
+# $Id: report-new-ports.pl,v 1.1.2.9 2002-12-12 04:59:12 dan Exp $
 #
 # Copyright (c) 2001-2002 DVL Software
 #
@@ -71,7 +71,7 @@ If a problem occurs, please send details, including the email address in
 question, to postmaster\@FreshPorts.org.
 ";
 
-	FreshPorts::email::SendMail('FreshPorts Watch Daemon <FreshPorts-Watch@FreshPorts.org>', $To, "FreshPorts $FrequencyLong new ports", $Body);
+	FreshPorts::email::SendMail('FreshPorts Watch Daemon <FreshPorts-Watch@FreshPorts.org>', $To, "FreshPorts $FrequencyLong new ports", $Body, 'X-FreshPorts-NewPorts: ' . $FrequencyLong);
 }
 
 
