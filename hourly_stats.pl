@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: hourly_stats.pl,v 1.1.2.3 2002-05-28 22:27:30 dan Exp $
+# $Id: hourly_stats.pl,v 1.1.2.4 2002-05-28 22:47:00 dan Exp $
 #
 # Copyright (c) 2001-2002 DVL Software
 #
@@ -55,26 +55,28 @@ sub CreateHourlySummary() {
 	umask(02);
 	# create the output file name gradually, ensuring the directories exist
 
-	my $OutputFile = $FreshPorts::Config::HourlySummaryDir;
+	my $OutputFileDir = $FreshPorts::Config::HourlySummaryDir;
 
-	if (-d $OutputFile) {
-		print "'$OutputFile' exists\n";
+	if (-d $OutputFileDir) {
+		print "'$OutputFileDir' exists\n";
 	} else {
-		print "'$OutputFile' does not exist\n";
-		print "   trying to mkdir '$OutputFile'\n";
-		if (mkdir $OutputFile, 0775) {
+		print "'$OutputFileDir' does not exist\n";
+		print "   trying to mkdir '$OutputFileDir'\n";
+		if (mkdir $OutputFileDir, 0775) {
 		} else {
-			print "Could not create directory $OutputFile\n";
+			print "Could not create directory $OutputFileDir\n";
 			return 1;
 		}
 	}
 
-	$OutputFile .= "/stats.html";
+	my $OutputFile = "$OutputFileDir/stats-temp.html";
 	print "trying to open '$OutputFile'\n";
    
 	if (open(FILE, ">$OutputFile")) {
 		print "that file was opened.  now writing output\n";
 		my $count =0;
+
+		print FILE '<BR>Caculated hourly:<BR>';
 
 		print FILE '<TABLE WIDTH="100%">' . "\n";
 		print FILE '<TR><TD><A HREF="/categories.php">Port count</A></TD> <TD ALIGN="right">'      . $Stats{new}       . '</TD></TR>' . "\n";
@@ -88,12 +90,15 @@ sub CreateHourlySummary() {
 		print FILE '<TR><TD><A HREF="/ports-new.php?interval=yesterday">new 48 hours</A></TD><TD ALIGN="right">'     . $Stats{yesterday} . '</TD></TR>' . "\n";
 
 		print FILE '<TR><TD><A HREF="/ports-new.php?interval=week">new 7 days</A></TD><TD ALIGN="right">'            . $Stats{week}      . '</TD></TR>' . "\n";
-		print FILE '<TR><TD><A HREF="/ports-new.php?interval=week">new fortnight</A></TD><TD ALIGN="right">'         . $Stats{fortnight} . '</TD></TR>' . "\n";
-		print FILE '<TR><TD><A HREF="/ports-new.php?interval=week">new month</A></TD><TD ALIGN="right">'             . $Stats{month}     . '</TD></TR>' . "\n";
+		print FILE '<TR><TD><A HREF="/ports-new.php?interval=fortnight">new fortnight</A></TD><TD ALIGN="right">'         . $Stats{fortnight} . '</TD></TR>' . "\n";
+		print FILE '<TR><TD><A HREF="/ports-new.php?interval=month">new month</A></TD><TD ALIGN="right">'             . $Stats{month}     . '</TD></TR>' . "\n";
 		print FILE '</TABLE>' . "\n";
 
-
+		print "closing file\n";
 		close FILE;
+
+		print "renaming '$OutputFile' to '$OutputFileDir/stats.html'\n";
+		rename "$OutputFile", "$OutputFileDir/stats.html";
 	} else {
 		print "could not open '$OutputFile'\n";
 		return 3;
