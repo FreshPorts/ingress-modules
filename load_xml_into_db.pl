@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: load_xml_into_db.pl,v 1.46.2.14 2003-05-16 01:14:04 dan Exp $
+# $Id: load_xml_into_db.pl,v 1.46.2.15 2003-09-08 18:19:21 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -269,6 +269,10 @@ sub handle_update_end
 
 	my %CommitLogPorts;	# array of port objects touched by this message.
 	my $ErrorFound = 0;
+
+	if (scalar(@Files) == 0) {
+		FreshPorts::Utilities::ReportError('Err', "No files found in commit '$Updates{MessageId}'.  Has some done a cvs import instead of addport?", 1)
+	}
 
 	%CommitLogPorts = FreshPorts::VerifyPort::SaveChangesToPortsTree($commit_log_id, \@Files, $dbh);
 	$dbh->commit();
