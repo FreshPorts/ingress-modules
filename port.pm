@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.38.2.16 2002-12-16 17:11:17 dan Exp $
+# $Id: port.pm,v 1.38.2.17 2003-02-10 15:32:40 dan Exp $
 #
 #
 # Copyright (c) 2001-2002 DVL Software
@@ -375,7 +375,7 @@ sub _ExtractValuesFromMakefile {
 
 	if ($result == 0) {
 
-		(my $portname, my $packagename, my $descrpath, my $categories, my $portversion, my $portrevision, my $commentfile,
+		(my $portname, my $packagename, my $descrpath, my $categories, my $portversion, my $portrevision, my $shortdescription,
 		 my $maintainer, my $extractsuffix, my $builddepends,
 		 my $rundepends, my $forbidden, my $broken) = split(/\n/s, $MakeResults);
 
@@ -390,7 +390,7 @@ sub _ExtractValuesFromMakefile {
 		print " categories   ='$categories'\n";
 		print " portversion  ='$portversion'\n";
 		print " portrevision ='$portrevision'\n";
-		print " commentfile  ='$commentfile'\n";
+		print " comment      ='$shortdescription'\n";
 		print " maintainer   ='$maintainer'\n";
 		print " extractsuffix='$extractsuffix'\n";
 		print " mastersites  ='$mastersites'\n";
@@ -400,22 +400,11 @@ sub _ExtractValuesFromMakefile {
 		# eliminate multiple // : PR 174
 		# to compensate for bug in File::PathConvert::realpath
 		$descrpath   =~ s|//|/|g;
-		$commentfile =~ s|//|/|g;
 
 		my $RealDescrPath	= File::PathConvert::realpath($descrpath);
-		my $RealCommentFile	= File::PathConvert::realpath($commentfile);
 
-		if (defined($RealDescrPath) && defined($RealCommentFile)) {
+		if (defined($RealDescrPath)) {
 			(my $longdescription, my $homepage) = _GetDescrAndHomePage($RealDescrPath);
-
-			my $shortdescription;
-
-			if (-f $RealCommentFile) {
-				$shortdescription = FreshPorts::Utilities::ReadFile($RealCommentFile);
-			} else {
-				$shortdescription =  `make -V PORTCOMMENT -f $MakefileDirectory/$FreshPorts::Constants::FILE_MAKEFILE`;
-				chomp $shortdescription;
-			}
 
 			my $packageexists = _PackageExists($packagename . ".tgz");
 
@@ -462,10 +451,10 @@ sub _ExtractValuesFromMakefile {
 			$this->{categories}			= $categories;
 
 		} else {
-			print "That make failed to return values for '-V DESCR -V COMMENT'.  I suspect an embedded make has failed.\n\n";
+			print "That make failed to return values for '-V DESCR'.  I suspect an embedded make has failed.\n\n";
 
-			FreshPorts::Utilities::ReportError('warning', "That make failed to return values for '-V DESCR -V COMMENT'.  I suspect an embedded make has failed. $this->{category}/$this->{name}", 0);
-			FreshPorts::CommitterOptIn::RecordErrorDetails("\n\nThat make failed to return values for '-V DESCR -V COMMENT'.  I suspect an embedded make has failed.\n\n");
+			FreshPorts::Utilities::ReportError('warning', "That make failed to return values for '-V DESCR'.  I suspect an embedded make has failed. $this->{category}/$this->{name}", 0);
+			FreshPorts::CommitterOptIn::RecordErrorDetails("\n\nThat make failed to return values for '-V DESCR'.  I suspect an embedded make has failed.\n\n");
 			$result = -1;
 		}
 
@@ -534,7 +523,7 @@ sub _FetchFilesNeedingRefresh {
 			mkdir "pkg",0;
 		}
 
-		my $makecommand = "make -V DESCR -V COMMENT -f $DESTDIR/$FILE PORTSDIR=$FreshPorts::Config::path_to_ports 2>&1";
+		my $makecommand = "make -V DESCR -V COMMENTFILE -f $DESTDIR/$FILE PORTSDIR=$FreshPorts::Config::path_to_ports 2>&1";
 
 		# remove previously created directory
 		rmdir "pkg";
@@ -547,7 +536,7 @@ sub _FetchFilesNeedingRefresh {
 		#
 
 		if ($? == 0) {
-			(my $DESCR, my $COMMENT) = split(/\n/s, $MakeResults);
+			(my $DESCR, my $COMMENTFILE) = split(/\n/s, $MakeResults);
 
 			#
 			# If the port contains something like this:
@@ -565,8 +554,8 @@ sub _FetchFilesNeedingRefresh {
 
 
 
-			print "raw       data DESCR   = $DESCR\n";
-			print "raw       data COMMENT = $COMMENT\n";
+			print "raw       data DESCR       = $DESCR\n";
+			print "raw       data COMMENTFILE = $COMMENTFILE\n";
 
 			#
 			# some ports (e.g. korean/netscape47-communicator) use
@@ -576,15 +565,19 @@ sub _FetchFilesNeedingRefresh {
 
 			# eliminate multiple // : PR 174
 			# to compensate for bug in File::PathConvert::realpath
-			$DESCR   =~ s|//|/|g;
-			$COMMENT =~ s|//|/|g;
+			$DESCR       =~ s|//|/|g;
+			$COMMENTFILE =~ s|//|/|g;
 
-			$DESCR   = File::PathConvert::realpath($DESCR);
-			$COMMENT = File::PathConvert::realpath($COMMENT);
+			#
+			# Recent observation (2003.02.10) shows that COMMENTFILE
+			# returns the realpath.
+			#
+			$DESCR       = File::PathConvert::realpath($DESCR);
+			$COMMENTFILE = File::PathConvert::realpath($COMMENTFILE);
 
-			if (defined($DESCR) && defined($COMMENT)) {
+			if (defined($DESCR) && defined($COMMENTFILE)) {
 				print "converted data DESCR   = $DESCR\n";
-				print "converted data COMMENT = $COMMENT\n";
+				print "converted data COMMENT = $COMMENTFILE\n";
 
 				#
 				# now fetch these two files.  Since we obtained
@@ -601,10 +594,10 @@ sub _FetchFilesNeedingRefresh {
 
 				if (FreshPorts::Utilities::FetchFile($DESTDIR, $SRCDIR, $FILE, $FreshPorts::Constants::HEAD)) {
 
-					my $directory	= File::Basename::dirname ($COMMENT);
-					my $FILE		= File::Basename::basename($COMMENT);
+					my $directory	= File::Basename::dirname ($COMMENTFILE);
+					my $FILE		   = File::Basename::basename($COMMENTFILE);
 					my $DESTDIR		= $directory;
-					$SRCDIR			= File::Basename::dirname(RemovePortsPrefix($COMMENT));
+					$SRCDIR			= File::Basename::dirname(RemovePortsPrefix($COMMENTFILE));
 
 					print "fetching \$DESTDIR = [$DESTDIR], \$SRCDIR = [$SRCDIR], \$FILE = [$FILE]\n";
 
@@ -613,10 +606,10 @@ sub _FetchFilesNeedingRefresh {
 					}
 				}
 			} else {
-				print "That make failed to return values for '-V DESCR -V COMMENT'.  I suspect an embedded make has failed.\n\n";
+				print "That make failed to return values for '-V DESCR -V COMMENTFILE'.  I suspect an embedded make has failed.\n\n";
 
-				FreshPorts::Utilities::ReportError('warning', "That make failed to return values for '-V DESCR -V COMMENT'.  I suspect an embedded make has failed. $this->{category}/$this->{name}", 0);
-				FreshPorts::CommitterOptIn::RecordErrorDetails("\n\nThat make failed to return values for '-V DESCR -V COMMENT'.  I suspect an embedded make has failed.\n\n");
+				FreshPorts::Utilities::ReportError('warning', "That make failed to return values for '-V DESCR -V COMMENTFILE'.  I suspect an embedded make has failed. $this->{category}/$this->{name}", 0);
+				FreshPorts::CommitterOptIn::RecordErrorDetails("\n\nThat make failed to return values for '-V DESCR -V COMMENTFILE'.  I suspect an embedded make has failed.\n\n");
 				$result = -1;
 			}
 			
@@ -844,7 +837,7 @@ sub GetNeedsRefreshForNewPort {
 			mkdir "pkg",0;
 		}
 
-		my $makecommand = "make -V DESCR -V COMMENT -f $DESTDIR/$FILE PORTSDIR=$FreshPorts::Config::path_to_ports";
+		my $makecommand = "make -V DESCR -V COMMENTFILE -f $DESTDIR/$FILE PORTSDIR=$FreshPorts::Config::path_to_ports";
 
 		# remove previously created directory
 		if ($FreshPorts::Config::mkdir_pkg) {
@@ -852,7 +845,7 @@ sub GetNeedsRefreshForNewPort {
 		}
 
 		print "makecommand = $makecommand\n";
-		(my $DESCR, my $COMMENT) = split(/\n/s, `$makecommand`);
+		(my $DESCR, my $COMMENTFILE) = split(/\n/s, `$makecommand`);
 
 		#
 		# we need to check this return value.  if it fails, we need to know
@@ -860,7 +853,7 @@ sub GetNeedsRefreshForNewPort {
 		$fetch_code = $?;
 		if ($fetch_code == 0) {
 			print "raw       data DESCR   = $DESCR\n";
-			print "raw       data COMMENT = $COMMENT\n";
+			print "raw       data COMMENT = $COMMENTFILE\n";
 
 			#
 			# some ports (e.g. korean/netscape47-communicator) use
@@ -869,8 +862,8 @@ sub GetNeedsRefreshForNewPort {
 			#
 			# eliminate multiple // : PR 174
 			# to compensate for bug in File::PathConvert::realpath
-			$DESCR   =~ s|//|/|g;
-			$COMMENT =~ s|//|/|g;
+			$DESCR       =~ s|//|/|g;
+			$COMMENTFILE =~ s|//|/|g;
 
 			$DESCR   = File::PathConvert::realpath($DESCR);
 
@@ -890,9 +883,9 @@ sub GetNeedsRefreshForNewPort {
 
 			$entry = $FreshPorts::Constants::FILE_COMMENT;
 
-			$COMMENT = File::PathConvert::realpath($COMMENT);
-			print "converted data COMMENT = $COMMENT\n";
-			if ($COMMENT eq "$FreshPorts::Config::path_to_ports/$category/$port/$entry") {
+			$COMMENTFILE = File::PathConvert::realpath($COMMENTFILE);
+			print "converted data COMMENT = $COMMENTFILE\n";
+			if ($COMMENTFILE eq "$FreshPorts::Config::path_to_ports/$category/$port/$entry") {
 				print "this port has it's own $entry\n";
 				my $index = $FreshPorts::Constants::FilesWhichPromptRefresh{$entry};
 				if ($index) {
@@ -900,7 +893,7 @@ sub GetNeedsRefreshForNewPort {
 					$needs_refresh |= $index;
 				}
 			} else {
-				print "this port uses $COMMENT\n";
+				print "this port uses $COMMENTFILE\n";
 			}
 
 			$result = 0;
