@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.33 2002-02-18 06:16:25 dan Exp $
+# $Id: port.pm,v 1.34 2002-02-21 17:59:33 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -180,7 +180,7 @@ sub FetchByID {
              where ports.id          = $this->{id} \
                and ports.category_id = categories.id \
                and ports.element_id  = element.id";
-	print "sql = '$sql'\n";
+#	print "sql = '$sql'\n";
 
 	$sth = $dbh->prepare($sql);
 	if (!$sth->execute) {
@@ -230,7 +230,7 @@ sub FetchByPartialPathName {
              where ports.element_id  = $this->{element_id} \
                and ports.category_id = categories.id \
                and ports.element_id  = element.id";
-	print "sql = '$sql'\n";
+#	print "sql = '$sql'\n";
 
 	$sth = $dbh->prepare($sql);
 	if (!$sth->execute) {
