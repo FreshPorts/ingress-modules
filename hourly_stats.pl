@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: hourly_stats.pl,v 1.1.2.7 2004-02-07 06:31:23 dan Exp $
+# $Id: hourly_stats.pl,v 1.1.2.8 2004-02-23 03:06:34 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -17,6 +17,7 @@ use system_status;
 my %Queries = (
 	new       => 'select Stats_PortCount()',
 	broken    => 'select Stats_PortCountBroken()',
+	deprecated => 'select Stats_PortCountDeprecated()',
 	forbidden => 'select Stats_PortCountForbidden()',
 	today     => 'select Stats_PortCountNewToday()',
 	yesterday => 'select Stats_PortCountNewYesterday()',
@@ -84,6 +85,7 @@ sub CreateHourlySummary() {
 		print FILE '<TR><TD><A HREF="/categories.php">Port count</A></TD> <TD ALIGN="right">'      . $Stats{new}       . '</TD></TR>' . "\n";
 
 		print FILE '<TR><TD><A HREF="/ports-broken.php">Broken</A></TD>     <TD ALIGN="right">'    . $Stats{broken}    . '</TD></TR>' . "\n";
+		print FILE '<TR><TD><A HREF="/ports-deprecated.php">Deprecated</A></TD>     <TD ALIGN="right">'    . $Stats{deprecated}    . '</TD></TR>' . "\n";
 
 		print FILE '<TR><TD><A HREF="/ports-forbidden.php">Forbidden</A></TD>  <TD ALIGN="right">' . $Stats{forbidden} . '</TD></TR>' . "\n";
 
