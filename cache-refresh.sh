@@ -1,4 +1,9 @@
 #!/bin/sh
+#
+# $Id: cache-refresh.sh,v 1.1.2.4 2004-10-12 00:44:16 dan Exp $
+#
+# Copyright (c) 2004 DVL Software Limited
+#
 
 if [ ! -f config.sh ]
 then
