@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: report-notification.pl,v 1.1.2.6 2002-06-16 19:43:55 dan Exp $
+# $Id: report-new-ports.pl,v 1.1.2.1 2002-06-16 19:43:56 dan Exp $
 #
 # Copyright (c) 2001-2002 DVL Software
 #
@@ -32,7 +32,7 @@ my $FormatTime	= "%H:%i";
 my $WatchURL	= $FreshPorts::Config::FreshPortsURL . "watch.php";
 my $AdjustURL	= $FreshPorts::Config::FreshPortsURL . "report-subscriptions.php";
 
-my $ReportID	= $FreshPorts::ReportConstants::Notification;
+my $ReportID	= $FreshPorts::ReportConstants::NewPorts;
 
 sub SendWatchNoticePersonal($;$;$) {
 
@@ -56,8 +56,6 @@ your selected ports which have changed since the last notification.  You
 have chosen to receive these notices on a $FrequencyLong basis.
 
 $Body
-
-Please refer to $WatchURL for details.
 
 Cheers and thanks for your support.
 
@@ -95,28 +93,19 @@ sub CompileWatchNotifyList($;$;$;$;$) {
 	               users.email, 
 	               categories.name as category, 
 	               element.name as port, 
-	               to_char(commit_log.commit_date + SystemTimeAdjust(), 'DD Mon YYYY') as commit_date,
-	               commit_log.description,
-				   commit_log.committer,
-                   commit_log.id
-	          from commit_log, watch_list_element, 
-	               watch_list, users, ports, categories, element, commit_log_ports, 
-                   report_frequency, report_subscriptions
-	         where commit_log.date_added            >= '$LastSent'
-	           and commit_log.id                     = commit_log_ports.commit_log_id 
-	           and watch_list_element.element_id     = ports.element_id
-	           and watch_list_element.watch_list_id  = watch_list.id 
-	           and users.id                          = watch_list.user_id 
-	           and report_frequency.frequency        = '$Frequency' 
+	               to_char(ports.date_added + SystemTimeAdjust(), 'DD Mon YYYY') as date_added,
+	               ports.short_description
+	          from users, ports, categories, element, report_frequency, report_subscriptions
+	         where report_frequency.frequency        = '$Frequency' 
 	           and length(users.email)               > 0 
 	           and users.emailbouncecount            = 0 
-	           and ports.id                          = commit_log_ports.port_id
 	           and ports.category_id                 = categories.id
 	           and ports.element_id                  = element.id 
                and users.id                          = report_subscriptions.user_id
                and report_subscriptions.report_id    = $ReportID
                and report_frequency.id               = report_subscriptions.report_frequency_id
-	      order by users.id, categories.name, element.name, commit_log.commit_date";
+               and ports.date_added                  > '$LastSent'
+	      order by users.id, categories.name, element.name, date_added";
 
 	if ($Debug)	{
 		print "sql is $sql\n";
@@ -155,10 +144,10 @@ sub CompileWatchNotifyList($;$;$;$;$) {
 	while (@row=$sth->fetchrow_array) {
 		print "now processing @row\n";
 		$NumPorts++;
-		if ($CommitLogID ne $row[7]) {
-			$NumCommits++;
-			$CommitLogID = $row[7];
-		}
+#		if ($CommitLogID ne $row[7]) {
+#			$NumCommits++;
+#			$CommitLogID = $row[7];
+#		}
 
 		# make sure that the first time through, we have a value
 		if (!defined($LastID)) {
@@ -188,8 +177,8 @@ sub CompileWatchNotifyList($;$;$;$;$) {
 		$Body .= "$FreshPorts::Config::FreshPortsURL" . $row[2] . '/' . $row[3] . "/\n";
 
 		# and wrap the description of the change.
-		$Body .= wrap("     ", "     ", $row[5]) . "\n";
-		$Body .=      "     $row[4] - $row[6]\n\n";
+		$Body .= wrap("     ", "     ", $row[5]);
+		$Body .=      "     $row[4]\n\n";
 	}
 
 	# if we got at least one, send out email
@@ -204,7 +193,7 @@ sub CompileWatchNotifyList($;$;$;$;$) {
 }
 
 sub AddToLogs($;$;$;$;$;$) {
-	my $Report_ID   = shift;
+	my $report_id   = shift;
 	my $Frequency	= shift;
 	my $NumMsgs		= shift;
 	my $NumCommits	= shift;
@@ -223,7 +212,7 @@ sub AddToLogs($;$;$;$;$;$) {
 	my $frequency_id = $row[0];
 
 	$sql = "insert into report_log (report_id, frequency_id, email_count, commit_count, port_count)
-									values ($Report_ID, '$frequency_id', $NumMsgs, $NumCommits, $NumPorts)";
+									values ($report_id, '$frequency_id', $NumMsgs, $NumCommits, $NumPorts)";
 	$sth = $dbh->prepare($sql);
 	$sth->execute ||
            die "Could not execute SQL $sql ... maybe invalid?";
@@ -277,6 +266,8 @@ if (($#ARGV+1) == 1) {
 				if ($Frequency eq 'W') { $last_sent = `eval date -v-7d "+%Y/%m/%d"`};
 				if ($Frequency eq 'F') { $last_sent = `eval date -v-2w "+%Y/%m/%d"`};
 				if ($Frequency eq 'M') { $last_sent = `eval date -v-1m "+%Y/%m/%d"`};
+
+				chomp $last_sent;
 			}
 
 			print "last_sent = $last_sent\n";
@@ -307,7 +298,7 @@ if (($#ARGV+1) == 1) {
 				AddToLogs($ReportID, $Frequency, $NumMsgs, $NumCommits, $NumPorts, $dbh);
 			}
 
-			$dbh->commit();
+#			$dbh->commit();
 			$dbh->disconnect();
 
 			print "message sent to users\n";
