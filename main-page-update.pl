@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: main-page-update.pl,v 1.7 2002-02-21 17:54:33 dan Exp $
+# $Id: main-page-update.pl,v 1.8 2002-02-24 02:37:53 dan Exp $
 #
 # Copyright (c) 1999-2002 DVL Software
 #
@@ -79,6 +79,8 @@ my $MaxCommitID;
 FreshPorts::Utilities::InitSyslog();
 
 while (1) {
+	sleep 60;
+
 	undef $MaxCommitID;
 
 	$dbh = FreshPorts::Database::GetDBHandle();
@@ -123,6 +125,4 @@ while (1) {
 	}
 
 	$dbh->disconnect();
-
-	sleep 60;
 }
