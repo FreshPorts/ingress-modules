@@ -1,5 +1,5 @@
 #
-# $Id: verifyport.pm,v 1.42.2.20 2004-01-05 04:36:33 dan Exp $
+# $Id: verifyport.pm,v 1.42.2.21 2004-01-05 05:02:07 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -313,7 +313,7 @@ sub FetchAllFiles($;$) {
 		#
 		# fetch only files in the ports tree
 		#
-		if (!($filename =~ "m|/*ports/")) {
+		if (!($filename =~ m|^/?ports/|)) {
 			print "outside ports tree: ignoring $filename\n";
 			next;
 		}
