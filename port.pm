@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.26 2002-01-23 02:46:56 dan Exp $
+# $Id: port.pm,v 1.27 2002-01-23 03:11:07 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -276,6 +276,10 @@ sub _FetchElementIDByPartialPathName {
 
 
 sub _ExtractValuesFromMakefile {
+	#
+	# returns 0 for success, -1 for failure
+	#
+
 	my $this = shift;
 
 	my $result;
@@ -312,6 +316,8 @@ sub _ExtractValuesFromMakefile {
 
 	# save this for later reference
 	$result = $?;
+
+print "\$result='$result'\n";
 
 	# remove previously created directory
 	if ($FreshPorts::Config::mkdir_pkg) {
@@ -585,14 +591,14 @@ sub RefreshFromFiles($) {
 	}
 
 	my $result = 0;
-	my $AllOK;
+	my $error;
 
 	my $FetchAttempts = 5;
 
 	if ($needs_refresh > 0) {
 		while ($FetchAttempts) {
 			if ($this->_FetchFilesNeedingRefresh()) {
-				$AllOK = $this->_ExtractValuesFromMakefile();
+				$error = $this->_ExtractValuesFromMakefile();
 				last;
 			} else {
 				# fetch failed
@@ -607,7 +613,7 @@ sub RefreshFromFiles($) {
 		print "this port does not need a refresh\n";
 	}
 
-	if (!$FetchAttempts || !$AllOK) {
+	if (!$FetchAttempts || $error) {
 		$result = 1;
 	}
 
