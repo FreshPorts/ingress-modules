@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: vuxml.pm,v 1.1.2.3 2004-12-09 02:07:50 dan Exp $
+# $Id: vuxml.pm,v 1.1.2.4 2004-12-11 00:58:31 dan Exp $
 #
 # Copyright (c) 2004 DVL Software
 #
@@ -22,7 +22,6 @@ sub new {
 
 sub _initialize {
 	my $this = shift;
-	my $row  = shift;
 }
 
 sub _GetValuesFromRow {

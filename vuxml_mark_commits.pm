@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: vuxml_mark_commits.pm,v 1.1.2.1 2004-10-03 02:20:15 dan Exp $
+# $Id: vuxml_mark_commits.pm,v 1.1.2.2 2004-12-11 00:58:31 dan Exp $
 #
 # Copyright (c) 1999-2004 DVL Software
 #
@@ -26,7 +26,6 @@ sub new {
 
 sub _initialize {
 	my $this = shift;
-	my $row  = shift;
 }
 
 
