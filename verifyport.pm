@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: verifyport.pm,v 1.29 2001-12-22 04:29:52 dan Exp $
+# $Id: verifyport.pm,v 1.30 2001-12-22 22:12:11 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -531,10 +531,9 @@ sub CreateDailySummary($;$) {
 	}
 
 	$OutputFile .= "/" .  substr($CommitDateStart, 8, 2) . ".inc";
-	print "   trying to open '$OutputFile'\n";
-	open FILE, ">$OutputFile"  || die "Could not open $OutputFile";
+	print "trying to open '$OutputFile'\n";
    
-	if (*FILE) {
+	if (open(FILE, ">$OutputFile")) {
 		print "that file was opened.  now writing output\n";
 		my $count =0;
 		while (@myrow = $sth->fetchrow_array) {
@@ -559,7 +558,7 @@ sub CreateDailySummary($;$) {
 
 		close FILE;
 	} else {
-		print "could not open $OutputFile\n";
+		print "could not open '$OutputFile'\n";
 		return 3;
 	}
    
