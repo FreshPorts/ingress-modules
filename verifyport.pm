@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: verifyport.pm,v 1.34 2001-12-29 21:24:55 dan Exp $
+# $Id: verifyport.pm,v 1.35 2001-12-29 21:37:06 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -460,7 +460,7 @@ sub RefreshAllPortsTouchedByCommit($) {
 		$port->RefreshFromFiles($commit_log_ports->{needs_refresh});
 
 		# after refreshing from the files, save the results
-		$port-save();
+		$port->save();
 
 		# and then update the commit_log_ports
 
