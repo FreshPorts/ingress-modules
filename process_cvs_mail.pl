@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: process_cvs_mail.pl,v 1.8.2.25 2004-11-27 13:54:07 dan Exp $
+# $Id: process_cvs_mail.pl,v 1.8.2.26 2004-12-09 01:25:43 dan Exp $
 #
 # Copyright (c) 2001-2003  DVL Software
 #
@@ -140,18 +140,18 @@ sub WriteXML {
 # DataToXML - Convert the data into XML; tends to call itself
 #####
 sub DataToXML {
-	my ($writer) = shift;
+	my ($writer)   = shift;
 	my ($data_ref) = shift;
 
 	my ($count) = $#{$data_ref};
 	for (my ($i) = 0; $i < $count; $i += 2) {
 		my ($element_name)		= shift @{$data_ref};
-		my ($element_content)		= shift @{$data_ref};
+		my ($element_content)	= shift @{$data_ref};
 
 		if ($element_name eq '0') {
 			$writer->characters($element_content);
 		} else {
-			my ($element_attributes)	= shift @{$element_content};
+			my ($element_attributes) = shift @{$element_content};
 
 			$writer->startTag($element_name, %$element_attributes);
 			&DataToXML($writer, $element_content);
