@@ -8,6 +8,7 @@ require	Exporter;
 use File::PathConvert;
 
 my $PORTSBASEDIR = "/usr/ports";
+my $SCRIPTDIR    = "/home/freshports.org/scripts";
 
 @ISA	= qw(Exporter);
 @EXPORT	= qw(PortUpdate ExtractCategoryFromDirectory GetDescrAndHomePage ReadFile PackageExists RefreshPort SendWatchNotice FilesWhichPromptRefresh RefreshOnePort CreateDailySummary GetNeedsRefreshForNewPort GetPortCategory GetPortID CreateCategory);
@@ -96,7 +97,7 @@ sub GetNeedsRefreshForNewPort($;$) {
    #
    # fetch the makefile for this port
    #
-   `sh /usr/local/etc/freshports/fetch-cvs-file.sh $category $port $FILE`;
+   `sh $SCRIPTDIR/fetch-cvs-file.sh $category $port $FILE`;
 
    if (($? >> 8)) {
       #
