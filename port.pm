@@ -1,6 +1,6 @@
 #!/usr/bin/perl
-# $Id: port.pm,v 1.18 2001-12-22 22:02:05 dan Exp $
 #
+# $Id: port.pm,v 1.19 2001-12-24 03:16:04 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -21,17 +21,7 @@ use constants;
 sub _initialize {
 	my $this = shift;
 
-	#
-	# a value of -1 means that the refresh requirements have
-	# not yet been established.
-	# essentially, this is a newly added port.  some ports
-	# are slave ports.  querying the Makefile will provide
-	# the locations of the master port files required to
-	# refresh this port.
-	#
-	$this->{needs_refresh}		= 0;
-
-#	$this->{portname}			= '';
+	$this->{portname}			= '';
 	$this->{short_description}	= '';
 	$this->{long_description}	= '';
 	$this->{version}			= '';
@@ -58,7 +48,6 @@ sub _GetValuesFromRow {
 	$this->{id} 				= $row->{id};
 	$this->{element_id}			= $row->{element_id};
 	$this->{category_id}		= $row->{category_id};
-	$this->{needs_refresh}		= $row->{needs_refresh};
 	$this->{category}			= $row->{category};
 	$this->{name}				= $row->{name};
 
@@ -112,7 +101,6 @@ sub save {
 
 		$sql = "update ports  \
 				set \
-				needs_refresh		= $this->{needs_refresh},
 				short_description	= " . $dbh->quote($this->{short_description})	. ", \
 				long_description	= " . $dbh->quote($this->{long_description})	. ", \
 				version				= " . $dbh->quote($this->{version})				. ", \
@@ -160,27 +148,10 @@ print "sql = $sql\n";
 
 		$this->{id} = FreshPorts::Database::GetNextValue($FreshPorts::Constants::ports_seq, $dbh);
 
-		#
-		# we might be creating a new port for a port which has just been deleted.
-		# we don't want to do this if the port has been deleted.
-		# that sounds odd... but anything can happen...
-		#
-		if (!defined($this->{deleted})) {
-			if (!defined($this->{name}) || !defined($this->{category})) {
-				Sys::Syslog::syslog('warning', "Cannot _GetNeedsRefreshForNewPort.  Insufficient data");
-				die "Cannot _GetNeedsRefreshForNewPort.  Insufficient data";
-			}
-			if (!$this->_GetNeedsRefreshForNewPort()) {
-				Sys::Syslog::syslog('warning', "Cannot _GetNeedsRefreshForNewPort.  Fetch failed");
-				die "Cannot _GetNeedsRefreshForNewPort.  Fetch failed";
-			}
-		}
-
-		$sql = "insert into ports (id, element_id, category_id, needs_refresh) values ( \
+		$sql = "insert into ports (id, element_id, category_id) values ( \
 				$this->{id}, \
 				$this->{element_id}, \ 
-				$this->{category_id}, \
-				$this->{needs_refresh})";
+				$this->{category_id})";
 
 		print "sql is $sql\n";
 
@@ -302,148 +273,6 @@ sub _FetchElementIDByPartialPathName {
 	return $this->{element_id};
 }
 
-sub _GetNeedsRefreshForNewPort {
-	my $this = shift;
-
-	my $result = 0;	# return 0 for fail
-	#
-	# When a new port is imported, we need to get the
-	# makefile and determine whether or not this port
-	# uses a description or comments file.  If it does,
-	# then we adjust needs_refresh accordingly.
-	# Note that some ports use another ports description
-	# or comments file.  Therefore we may not have
-	# to fetch those files in order to complete
-	# the importing of a new port
-	#
-	# this function tells you what files are needed by first fetching the Makefile
-	# and using that to determine the other information.
-
-
-	return 7;  # Let's just use this for now.  See how it goes.
-
-
-	my $category	= $this->{category};
-	my $port		= $this->{name};
-
-	if (!defined($category) || !defined($port)) {
-		Sys::Syslog::syslog('warning', "Cannot _GetNeedsRefreshForNewPort.  Insufficient data");
-		die "Cannot _GetNeedsRefreshForNewPort.  Insufficient data";
-	}
-
-	print "category = $category\n";
-	print "port     = $port\n";
-
-	#
-	# fetch the makefile for this port
-	#
-	my $DESTDIR	= "$FreshPorts::Config::path_to_ports/$category/$port";
-	my $SRCDIR	= "$FreshPorts::Config::ports_prefix/$category/$port";
-	my $FILE	= $FreshPorts::Constants::FILE_MAKEFILE;
-
-	my $FetchAttempts = 5;
-
-	while ($FetchAttempts) {
-		`sh $FreshPorts::Config::scriptpath/fetch-cvs-file.sh $DESTDIR $SRCDIR $FILE`;
-
-		if (($? >> 8)) {
-			#
-			# This might be a nice place to retry a fetch, or send an email
-			#
-			print "that fetch failed.  What do to?\n";
-
-			# and we're outta here
-			# fetch failed
-			# sleep, then try again
-			Sys::Syslog::syslog('warning', "sleeping after fetch failed for ($DESTDIR $SRCDIR $FILE)");
-			print "fetch failed, sleeping...\n";
-			sleep 10;
-			$FetchAttempts--;
-
-		} else {
-			# fetch worked
-			last;
-		}
-    }
-
-	#
-	# if we succeeded in our fetch..
-	if ($FetchAttempts) {
-		print "now doing a chdir to $DESTDIR\n";
-		chdir "$DESTDIR";
-
-		#
-		# create this directory to catch errors
-		# such as the pre-everything having only one ':'
-		#
-		mkdir "pkg",0;
-
-		my $makecommand = "make -V DESCR -V COMMENT -f $DESTDIR/$FILE";
-
-		# remove previously created directory
-		rmdir "pkg";
-
-		print "makecommand = $makecommand\n";
-		(my $DESCR, my $COMMENT) = split(/\n/s, `$makecommand`);
-
-		#
-		# we need to check this return value.  if it fails, we need to know
-		#
-
-		if ($? == 0) {
-			print "raw       data DESCR   = $DESCR\n";
-			print "raw       data COMMENT = $COMMENT\n";
-
-			#
-			# some ports (e.g. korean/netscape47-communicator) use
-			# ../ in their path names.  We must remove that in order
-			# to find out if have to retrieve a file in our path
-			#
-
-			$DESCR   = File::PathConvert::realpath($DESCR);
-
-			print "converted data DESCR   = $DESCR\n";
-			print "converted data COMMENT = $COMMENT\n";
-
-			my $entry = $FreshPorts::Constants::FILE_DESCRIPTION;
-			if ($DESCR eq "$FreshPorts::Config::path_to_ports/$category/$port/$entry") {
-				print "this port has it's own $entry\n";
-				my $index = $FreshPorts::Constants::FilesWhichPromptRefresh{$entry};
-				if ($index) {
-					print "index = $index\n";
-					$this->{needs_refresh} |= $index;
-				}
-			} else {
-				print "this port uses $DESCR\n";
-			}
-
-			$entry = $FreshPorts::Constants::FILE_COMMENT;
-
-			$COMMENT = File::PathConvert::realpath($COMMENT);
-			if ($COMMENT eq "$FreshPorts::Config::path_to_ports/$category/$port/$entry") {
-				print "this port has it's own $entry\n";
-				my $index = $FreshPorts::Constants::FilesWhichPromptRefresh{$entry};
-				if ($index) {
-					print "index = $index\n";
-					$this->{needs_refresh} |= $index;
-				}
-			} else {
-				print "this port uses $COMMENT\n";
-			}
-
-			$result = 1; # if we get here, we did good..
-
-		} else {
-			print "error executing make command for $category/$port: Error Code = " . ($? >> 8) . "\n";
-			Sys::Syslog::syslog('warning', "error executing make command for $category/$port: Error Code = " . ($? >> 8));
-			die "error executing make command for $category/$port: Error Code = " . ($? >> 8) . "\n";
-		}
-	}
-
-	print "\nand from _GetNeedsRefreshForNewPort we get needs_refresh = $this->{needs_refresh}\n";
-
-	return $result;
-}
 
 
 sub _ExtractValuesFromMakefile {
@@ -713,27 +542,26 @@ sub _PackageExists($) {
 	return $exists;
 }
 
-sub RefreshFromFiles() {
+sub RefreshFromFiles($) {
 #
 # refresh this port based on the make files associated with it and the value of needs_refresh
 #
-	my $this    = shift;
+	my $this			= shift;
+	my $needs_refresh	= shift;
 
 	my $result	= 0;
 
 	my $FetchAttempts = 5;
 
-	if ($this->{needs_refresh} > 0) {
+	if ($needs_refresh > 0) {
 		while ($FetchAttempts) {
 			if ($this->_FetchFilesNeedingRefresh()) {
 				$this->_ExtractValuesFromMakefile();
-				$this->{needs_refresh} = 0;
-				$this->save();
 				last;
 			} else {
 				# fetch failed
 				# sleep, then try again
-				Sys::Syslog::syslog('warning', "sleeping after fetch failed for ($this->{id}, $this->{category}, $this->{name}, $this->{needs_refresh})");
+				Sys::Syslog::syslog('warning', "sleeping after fetch failed for ($this->{id}, $this->{category}, $this->{name}, $needs_refresh)");
 				print "fetch failed, sleeping...\n";
 				sleep 10;
 				$FetchAttempts--;
@@ -749,6 +577,168 @@ sub RefreshFromFiles() {
 
 	return $result;
 }
+
+sub GetNeedsRefreshForNewPort {
+	my $this = shift;
+
+	my $needs_refresh	= 0;
+	my $result			= -1;
+
+	# return -1 for fail
+	#
+	# When a new port is imported, we need to get the
+	# makefile and determine whether or not this port
+	# uses a description or comments file.  If it does,
+	# then we adjust needs_refresh accordingly.
+	# Note that some ports use another ports description
+	# or comments file.  Therefore we may not have
+	# to fetch those files in order to complete
+	# the importing of a new port
+	#
+	# this function tells you what files are needed by first fetching the Makefile
+	# and using that to determine the other information.
+
+
+	return 7;  # Let's just use this for now.  See how it goes.
+
+	#
+	# we might be creating a new port for a port which has just been deleted.
+	# we don't want to do this if the port has been deleted.
+	# that sounds odd... but anything can happen...
+	#
+	if (!defined($this->{deleted})) {
+		if (!defined($this->{name}) || !defined($this->{category})) {
+			Sys::Syslog::syslog('warning', "Cannot GetNeedsRefreshForNewPort.  Insufficient data");
+			die "Cannot GetNeedsRefreshForNewPort.  Insufficient data";
+		}
+	}
+
+	my $category	= $this->{category};
+	my $port		= $this->{name};
+
+	if (!defined($category) || !defined($port)) {
+		Sys::Syslog::syslog('warning', "Cannot _GetNeedsRefreshForNewPort.  Insufficient data");
+		die "Cannot _GetNeedsRefreshForNewPort.  Insufficient data";
+	}
+
+	print "category = $category\n";
+	print "port     = $port\n";
+
+	#
+	# fetch the makefile for this port
+	#
+	my $DESTDIR	= "$FreshPorts::Config::path_to_ports/$category/$port";
+	my $SRCDIR	= "$FreshPorts::Config::ports_prefix/$category/$port";
+	my $FILE	= $FreshPorts::Constants::FILE_MAKEFILE;
+
+	my $FetchAttempts = 5;
+
+	while ($FetchAttempts) {
+		`sh $FreshPorts::Config::scriptpath/fetch-cvs-file.sh $DESTDIR $SRCDIR $FILE`;
+
+		if (($? >> 8)) {
+			#
+			# This might be a nice place to retry a fetch, or send an email
+			#
+			print "that fetch failed.  What do to?\n";
+
+			# and we're outta here
+			# fetch failed
+			# sleep, then try again
+			Sys::Syslog::syslog('warning', "sleeping after fetch failed for ($DESTDIR $SRCDIR $FILE)");
+			print "fetch failed, sleeping...\n";
+			sleep 10;
+			$FetchAttempts--;
+
+		} else {
+			# fetch worked
+			last;
+		}
+    }
+
+	#
+	# if we succeeded in our fetch..
+	if ($FetchAttempts) {
+		print "now doing a chdir to $DESTDIR\n";
+		chdir "$DESTDIR";
+
+		#
+		# create this directory to catch errors
+		# such as the pre-everything having only one ':'
+		#
+		mkdir "pkg",0;
+
+		my $makecommand = "make -V DESCR -V COMMENT -f $DESTDIR/$FILE";
+
+		# remove previously created directory
+		rmdir "pkg";
+
+		print "makecommand = $makecommand\n";
+		(my $DESCR, my $COMMENT) = split(/\n/s, `$makecommand`);
+
+		#
+		# we need to check this return value.  if it fails, we need to know
+		#
+
+		if ($? == 0) {
+			print "raw       data DESCR   = $DESCR\n";
+			print "raw       data COMMENT = $COMMENT\n";
+
+			#
+			# some ports (e.g. korean/netscape47-communicator) use
+			# ../ in their path names.  We must remove that in order
+			# to find out if have to retrieve a file in our path
+			#
+
+			$DESCR   = File::PathConvert::realpath($DESCR);
+
+			print "converted data DESCR   = $DESCR\n";
+			print "converted data COMMENT = $COMMENT\n";
+
+			my $entry = $FreshPorts::Constants::FILE_DESCRIPTION;
+			if ($DESCR eq "$FreshPorts::Config::path_to_ports/$category/$port/$entry") {
+				print "this port has it's own $entry\n";
+				my $index = $FreshPorts::Constants::FilesWhichPromptRefresh{$entry};
+				if ($index) {
+					print "index = $index\n";
+					$needs_refresh |= $index;
+				}
+			} else {
+				print "this port uses $DESCR\n";
+			}
+
+			$entry = $FreshPorts::Constants::FILE_COMMENT;
+
+			$COMMENT = File::PathConvert::realpath($COMMENT);
+			if ($COMMENT eq "$FreshPorts::Config::path_to_ports/$category/$port/$entry") {
+				print "this port has it's own $entry\n";
+				my $index = $FreshPorts::Constants::FilesWhichPromptRefresh{$entry};
+				if ($index) {
+					print "index = $index\n";
+					$needs_refresh |= $index;
+				}
+			} else {
+				print "this port uses $COMMENT\n";
+			}
+
+			$result = 0;
+		} else {
+			print "error executing make command for $category/$port: Error Code = " . ($? >> 8) . "\n";
+			Sys::Syslog::syslog('warning', "error executing make command for $category/$port: Error Code = " . ($? >> 8));
+			die "error executing make command for $category/$port: Error Code = " . ($? >> 8) . "\n";
+		}
+	}
+
+	print "\nand from _GetNeedsRefreshForNewPort we get needs_refresh = $needs_refresh\n";
+
+	if ($result == -1) {
+		$needs_refresh = -1;
+	}
+		
+	return $needs_refresh;
+}
+
+
 
 FreshPorts::Utilities::InitSyslog();
 

@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: commit_log_ports.pm,v 1.4 2001-12-22 21:48:55 dan Exp $
+# $Id: commit_log_ports.pm,v 1.5 2001-12-24 03:16:04 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -13,13 +13,27 @@ use strict;
 sub new {
 	my $this		= {};
 	my $class		= shift;
+
 	$this->{dbh}	= shift;
+
 	bless $this;
+
 	$this->_initialize();
+
 	return $this
 }
 
 sub _initialize {
+	#
+	# a value of -1 means that the refresh requirements have
+	# not yet been established.
+	# essentially, this is a newly added port.  some ports
+	# are slave ports.  querying the Makefile will provide
+	# the locations of the master port files required to
+	# refresh this port.
+	#
+    my $this = shift;
+	$this->{needs_refresh} = -1;
 }
 
 sub save {
@@ -30,9 +44,20 @@ sub save {
 	my $sql;
 	my @row;
 
-	# we are inserting
-	$sql = "insert into commit_log_ports (commit_log_id, port_id) values \
-				($this->{commit_log_id}, $this->{port_id})";
+	if (!defined($this->{saved})) {
+		# we are inserting
+		$sql = "insert into commit_log_ports \
+				(commit_log_id, port_id, needs_refresh, port_version) values \
+				($this->{commit_log_id}, $this->{port_id}, $this-<{needs_refresh}, \
+				 $dbh->quote($this->{port_version}))";
+	} else {
+		# we are updating
+		$sql = "update commit_log_ports \
+				   set needs_refresh =  $this-<{needs_refresh} . \
+				 	   port_version  =  $dbh->quote($this->{port_version}) \
+				 where commit_log_id =  $this->{commit_log_id} \
+				   and port_id       =  $this->{port_id}";
+	}
 
 	print "sql is $sql\n";
 
@@ -41,6 +66,12 @@ sub save {
 		Sys::Syslog::syslog('warning', "Could not execute SQL $sql ... maybe invalid? ". $dbh->errstr);
 		die "Could not execute SQL $sql ... maybe invalid? ". $dbh->errstr;
 	}
+
+	#
+	# This is the only way we know we've save this already.  we don't have an id.
+	# we could query the db for our primary key, but perhaps we don't have to.
+	#
+	$this->{saved} = 1;
 }
 
 1;

@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: verifyport.pm,v 1.30 2001-12-22 22:12:11 dan Exp $
+# $Id: verifyport.pm,v 1.31 2001-12-24 03:16:05 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -245,6 +245,13 @@ sub SaveChangesToPortsTree($;$;$) {
 			#
 			$commit_log_ports->{commit_log_id}	= $commit_log_id;
 			$commit_log_ports->{port_id}		= $port->{id};
+			$commit_log_ports->{needs_refresh}	= $port->GetNeedsRefreshForNewPort();
+
+			if ($commit_log_ports->{needs_refresh} == -1) {
+				Sys::Syslog::syslog('warning', "Cannot GetNeedsRefreshForNewPort.  Fetch failed");
+				die "Cannot GetNeedsRefreshForNewPort.  Fetch failed";
+			}
+
 			$commit_log_ports->save();
 		}
 
