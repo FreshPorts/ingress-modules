@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.38.2.33 2003-11-14 17:58:26 dan Exp $
+# $Id: port.pm,v 1.38.2.34 2003-11-20 14:16:46 dan Exp $
 #
 #
 # Copyright (c) 2001-2003 DVL Software
@@ -320,12 +320,25 @@ sub _ExtractValuesFromMakefile {
 							# in case we need it for error reporting
 	my $OtherErrors  = '';	# gets the results of the TmpFile used to collect errors.
 
-	my $TmpFile = FreshPorts::Utilities::TmpFileName("$this->{category}.$this->{name}.make-error");
-
 	my $MakefileDirectory = "$FreshPorts::Config::path_to_ports/$this->{category}/$this->{name}";
 
-	if (!LooksLikeAMakefile("$MakefileDirectory/$FreshPorts::Constants::FILE_MAKEFILE")) {
-		FreshPorts::Utilities::ReportError('warning', "$MakefileDirectory/$FreshPorts::Constants::FILE_MAKEFILE does not look like a makefile", 0);
+	my $Makefile = "$MakefileDirectory/$FreshPorts::Constants::FILE_MAKEFILE";
+
+	if (-f $Makefile) {
+		# good, the Makefile actually exists.  This should be the case.  If not, something
+		# rather unusual is happening.
+	} else {
+		# If the Makefile does not exist, suspect a repocopy.
+		# A repocopy is the process of manually moving things around within the cvs repository.
+		# This preserves commit history when a port is being renamed, but it makes life difficult
+		# for FreshPorts, which only tracks commits.
+		FreshPorts::CommitterOptIn::RecordErrorDetails("$this->{category}/$this->{name}", "I did not find a Makefile for this port, and none was mentioned in the commit.  If a repocopy has been done, please ignore this message.");
+	}
+
+	my $TmpFile = FreshPorts::Utilities::TmpFileName("$this->{category}.$this->{name}.make-error");
+
+	if (!LooksLikeAMakefile($Makefile)) {
+		FreshPorts::Utilities::ReportError('warning', "$Makefile does not look like a makefile", 0);
 		return -1;
 	}
 
@@ -353,7 +366,7 @@ sub _ExtractValuesFromMakefile {
 	#
 	$makecommand = "make -V PORTNAME -V PKGNAME -V DESCR -V CATEGORIES -V PORTVERSION -V PORTREVISION " .
 		" -V COMMENT -V COMMENTFILE -V MAINTAINER -V EXTRACT_SUFX " .
-		" -V BUILD_DEPENDS -V RUN_DEPENDS -V FORBIDDEN -V BROKEN -f $MakefileDirectory/$FreshPorts::Constants::FILE_MAKEFILE " . 
+		" -V BUILD_DEPENDS -V RUN_DEPENDS -V FORBIDDEN -V BROKEN -f $Makefile " . 
 		" PORTSDIR=$FreshPorts::Config::path_to_ports 2>$TmpFile";
 
 	print "makecommand = $makecommand\n";
@@ -372,7 +385,6 @@ sub _ExtractValuesFromMakefile {
 	if ($result != 0 && $MakeResults ne '') {
 		# save the results for error reporting
 		$ErrorMessage = $MakeResults;
-		FreshPorts::CommitterOptIn::RecordErrorDetails("$this->{category}/$this->{name}", "This command:\n\n$makecommand\n\nproduced this error:\n\n$ErrorMessage");
 	}
 
 	#
@@ -401,7 +413,7 @@ sub _ExtractValuesFromMakefile {
 	my $mastersites = '';
 	if ($result == 0) {
 		print "trying to get master sites\n";
-		my $mastersitescommand = "make master-sites-all -f $MakefileDirectory/$FreshPorts::Constants::FILE_MAKEFILE PORTSDIR=$FreshPorts::Config::path_to_ports";
+		my $mastersitescommand = "make master-sites-all -f $Makefile PORTSDIR=$FreshPorts::Config::path_to_ports";
 		print "'$mastersitescommand'\n";
 		$mastersites = `$mastersitescommand`;
 		# save this for later reference
