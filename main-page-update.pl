@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: main-page-update.pl,v 1.4 2002-02-17 20:04:19 dan Exp $
+# $Id: main-page-update.pl,v 1.5 2002-02-18 04:12:23 dan Exp $
 #
 # Copyright (c) 1999-2002 DVL Software
 #
@@ -71,36 +71,40 @@ my $housekeeping;
 
 FreshPorts::Utilities::InitSyslog();
 
-$dbh = FreshPorts::Database::GetDBHandle();
+while (1) {
 
-$housekeeping = FreshPorts::Housekeeping->new($dbh);
-$housekeeping->read();
+	$dbh = FreshPorts::Database::GetDBHandle();
 
+	$housekeeping = FreshPorts::Housekeeping->new($dbh);
+	$housekeeping->read();
 
-$MaxCommitLogPortId	= GetMaxCommitLogPortId      ($dbh);
+	$MaxCommitLogPortId	= GetMaxCommitLogPortId      ($dbh);
 
-if (!defined($housekeeping->{last_port_commit})) {
-	print "last_port_commit was not defined\n";
-	$housekeeping->{last_port_commit}	= 0;
-	$housekeeping->{refresh_now}		= 1;
+	if (!defined($housekeeping->{last_port_commit})) {
+		print "last_port_commit was not defined\n";
+		$housekeeping->{last_port_commit}	= 0;
+		$housekeeping->{refresh_now}		= 1;
+	}
+
+	print "\$MaxCommitLogPortId               = '$MaxCommitLogPortId'\n";
+	print "\$housekeeping->{last_port_commit} = '$housekeeping->{last_port_commit}'\n";
+	print "\$housekeeping->{refresh_now}      = '$housekeeping->{refresh_now}'\n";
+
+	if ($housekeeping->{refresh_now} || $MaxCommitLogPortId > $housekeeping->{last_port_commit}) {
+		RefreshMainPage($dbh);
+	}
+
+	#
+	# daily summaries are suspended until I figure out a good way to handle them...
+	#
+	## create the daily summaries (if we have a port there..)
+	#if (keys %CommitLogPorts) {
+	#	FreshPorts::VerifyPort::CreateDailySummary($commit_date, $dbh);
+	#} else {
+	#	print "No ports found: CreateDailySummary not being called\n";
+	#}
+
+	$dbh->disconnect();
+
+	sleep 60;
 }
-
-print "\$MaxCommitLogPortId               = '$MaxCommitLogPortId'\n";
-print "\$housekeeping->{last_port_commit} = '$housekeeping->{last_port_commit}'\n";
-print "\$housekeeping->{refresh_now}      = '$housekeeping->{refresh_now}'\n";
-
-if ($housekeeping->{refresh_now} || $MaxCommitLogPortId > $housekeeping->{last_port_commit}) {
-	RefreshMainPage($dbh);
-}
-
-#
-# daily summaries are suspended until I figure out a good way to handle them...
-#
-## create the daily summaries (if we have a port there..)
-#if (keys %CommitLogPorts) {
-#	FreshPorts::VerifyPort::CreateDailySummary($commit_date, $dbh);
-#} else {
-#	print "No ports found: CreateDailySummary not being called\n";
-#}
-
-$dbh->disconnect();
