@@ -1,5 +1,5 @@
 #
-# $Id: crontab.sample,v 1.7.2.10 2004-04-23 19:21:03 dan Exp $
+# $Id: crontab.sample,v 1.7.2.11 2004-10-03 02:26:54 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -9,6 +9,8 @@ SHELL=/bin/sh
 MAILTO=dan
 
 YYYY_MM_DD=`eval date -v-${DAYS}d "+%Y-%m-%d"`
+
+26	*	*		*	*	cd /usr/websites/working-copy.freshports.org/backend && ./compare.sh > /dev/null 2>&1
 
 DIR=/usr/websites/WEBSITE-NAME/scripts
 
@@ -37,7 +39,12 @@ DIR=/usr/websites/WEBSITE-NAME/scripts
 3		0	*	*	*	cd $DIR && sh daily_rendering_times.sh 1
 # 2>&1 > /dev/null
 
-*/5 *   *       *   *   cd $DIR && ./cache-refresh.sh  > /dev/null 2>&1
+*/5 *   *       *   *   cd $DIR && ./cache-refresh.sh    > /dev/null 2>&1
+3-59/7  *   *   *   *   cd $DIR && ./process_moved.sh    > /dev/null
+3-59/7  *   *   *   *   cd $DIR && ./process_updating.sh > /dev/null
+3-59/7  *   *   *   *   cd $DIR && ./process_vuxml.sh    > /dev/null
+
+*/5 *   *       *   *   cd $DIR && perl ./status.pl      > /dev/null 2>&1
 
 10	0	*		*	*	cd $DIR && ./archive-messages.sh >> /dev/null
 
