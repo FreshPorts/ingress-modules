@@ -2,7 +2,9 @@
 
 use strict;
 
-use lib '/usr/local/etc/freshports/updates';
+use Text::Wrap;
+
+use lib '/home/freshports.org/scripts/updates';
 use ports;
  
 use DBI;
@@ -27,8 +29,8 @@ sub CompileWatchNotifyList($;$) {
    # the following line restricts mailouts to just me.
    #               and users.id                      = 2
 
-   $sql = "select distinct(users.id), users.email \
-             from change_log, change_log_port, watch_notice, watch_port, watch, users \
+   $sql = "select users.id, users.email, categories.name as category, ports.name as port, change_log.commit_date, change_log.update_description  \
+             from change_log, change_log_port, watch_notice, watch_port, watch, users, ports, categories \
             where change_log.date_added         >= watch_notice.last_sent \
               and change_log.id                 = change_log_port.change_log_id \
               and watch_notice.frequency        = '$Frequency' \
@@ -38,7 +40,9 @@ sub CompileWatchNotifyList($;$) {
               and users.watchnotifyfrequency    = '$Frequency' \
               and length(users.email)           > 0 \
               and users.emailbouncecount        = 0 \
-            order by users.email";
+              and ports.id                      = change_log_port.port_id
+              and ports.primary_category_id     = categories.id
+            order by users.id, categories.name, ports.name, change_log.commit_date";
 
    print "sql is $sql\n";
 
@@ -46,21 +50,48 @@ sub CompileWatchNotifyList($;$) {
    $sth->execute ||
            die "Could not execute SQL $sql ... maybe invalid?";
 
+   my $LastID;
+   my $Body;
+   my $To;
+
+   undef($LastID);
+
    while (@row=$sth->fetchrow_array) {
       print "now processing @row\n";
-      push @USERS, "$row[1]"
+
+      # make sure that the first time through, we have a value
+      if (!defined($LastID)) {
+         print "* * * * grabbing our LastID\n";
+         $LastID = $row[0];
+         $To     = $row[1];
+      }
+
+      print "LastID = '$LastID' and id = '$row[0]'\n";
+      if ($LastID != $row[0]) {
+#         print "# # # # # sending email now to $To\n";
+#         print $Body;
+
+         SendWatchNoticePersonal("dan", $Body);
+
+         $Body   = '';
+         $To     = $row[1];
+         $LastID = $row[0];
+      }
+
+      # get the category and port
+      $Body .= $row[2] . '/' . $row[3] . "\n";
+
+      # and wrap the description of the change.
+      $Body .= wrap("     ", "     ", $row[5]) . "\n\n";
+
    }
 
-   foreach $dirname (@USERS) {
-      $Bcc .= $dirname . ',';
-      print "found $dirname\n";
+   # if we got at least one, send out email
+   if (defined($LastID)) {
+      SendWatchNoticePersonal("dan", $Body);
+      print "# # # # # sending email now to $To\n";
+      print $Body;
    }
-
-   $Bcc .= 'freshports-watch@freshports.org';
-
-   print "and the Bcc list is $Bcc\n";
-
-   return $Bcc
 }
 
 sub SetWatchLastNoticeDate($;$) {
@@ -90,13 +121,11 @@ if (($#ARGV+1) == 1) {
       #my $dbh = DBI->connect('dbi:mysql:freshportstest','root','xyzzy');
       my $dbh = DBI->connect('dbi:mysql:freshports','root','xyzzy');
 
-      $Bcc = CompileWatchNotifyList($Frequency, $dbh);
-
-      SetWatchLastNoticeDate($Frequency, $dbh);
+      CompileWatchNotifyList($Frequency, $dbh);
 
       $dbh->disconnect();
 
-      SendWatchNotice($Bcc);
+#      SetWatchLastNoticeDate($Frequency, $dbh);
 
       print "message sent to users\n";
    } else {
