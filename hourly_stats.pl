@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: hourly_stats.pl,v 1.1.2.2 2002-05-19 21:01:39 dan Exp $
+# $Id: hourly_stats.pl,v 1.1.2.3 2002-05-28 22:27:30 dan Exp $
 #
 # Copyright (c) 2001-2002 DVL Software
 #
@@ -19,6 +19,8 @@ my %Queries = (
 	today     => 'select Stats_PortCountNewToday()',
 	yesterday => 'select Stats_PortCountNewYesterday()',
 	week      => 'select Stats_PortCountNewThisWeek()',
+	fortnight => 'select Stats_PortCountNewInterval(\'2 weeks\')',
+	month     => 'select Stats_PortCountNewInterval(\'1 month\')',
 );
 
 my %Stats;
@@ -85,7 +87,9 @@ sub CreateHourlySummary() {
 
 		print FILE '<TR><TD><A HREF="/ports-new.php?interval=yesterday">new 48 hours</A></TD><TD ALIGN="right">'     . $Stats{yesterday} . '</TD></TR>' . "\n";
 
-		print FILE '<TR><TD><A HREF="/ports-new.php?interval=week">new 7 days</A></TD><TD ALIGN="right">'     . $Stats{week}      . '</TD></TR>' . "\n";
+		print FILE '<TR><TD><A HREF="/ports-new.php?interval=week">new 7 days</A></TD><TD ALIGN="right">'            . $Stats{week}      . '</TD></TR>' . "\n";
+		print FILE '<TR><TD><A HREF="/ports-new.php?interval=week">new fortnight</A></TD><TD ALIGN="right">'         . $Stats{fortnight} . '</TD></TR>' . "\n";
+		print FILE '<TR><TD><A HREF="/ports-new.php?interval=week">new month</A></TD><TD ALIGN="right">'             . $Stats{month}     . '</TD></TR>' . "\n";
 		print FILE '</TABLE>' . "\n";
 
 
