@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: process_updating.pl,v 1.1.2.2 2004-08-01 23:45:01 dan Exp $
+# $Id: process_updating.pl,v 1.1.2.3 2004-08-09 22:35:42 dan Exp $
 #
 # Copyright (c) 2004 DVL Software
 #
@@ -125,6 +125,11 @@ sub parsefile ($) {
 
 			my $ID = AddUpdating($dbh, $date, $affects, $author, $msg);
 
+			for my $port (@ports) {
+				print "$date THE PORTS ARE: $port ($ID)\n";
+				AddUpdatingXref($dbh, $ID, $port);
+			}
+
 
 		} elsif ($lines[$i] =~ m%^(\$FreeBSD: .+ \$)$%){
 			# get the UPDATING version in case we want it later.
@@ -168,7 +173,28 @@ sub AddUpdating($;$;$;$;$) {
 	my @row;
 
 	# quote everything going to the database
-	$sql = "select PortsUpdatingAdd($Date\:\:date, $Affects, $Author, $Reason)";;
+	$sql = "select PortsUpdatingAdd($Date\:\:date, $Affects, $Author, $Reason)";
+	$sth = $dbh->prepare($sql);
+	if (!$sth->execute())  {
+		FreshPorts::Utilities::ReportError('warning', "Could not execute sql: '$sql'", 1);
+	}
+	@row = $sth->fetchrow_array();   
+	$sth->finish();
+
+	return $row[0];
+}
+
+sub AddUpdatingXref($;$;$) {
+	my $dbh             = shift;
+	my $PortsUpdatingID = $dbh->quote(shift);
+	my $Port            = $dbh->quote(shift);
+
+	my $sth;
+	my $sql;
+	my @row;
+
+	# quote everything going to the database
+	$sql = "select PortsUpdatingPortsXrefAdd($PortsUpdatingID, $Port)";
 	$sth = $dbh->prepare($sql);
 	if (!$sth->execute())  {
 		FreshPorts::Utilities::ReportError('warning', "Could not execute sql: '$sql'", 1);
