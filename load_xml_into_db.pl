@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: load_xml_into_db.pl,v 1.46.2.15 2003-09-08 18:19:21 dan Exp $
+# $Id: load_xml_into_db.pl,v 1.46.2.16 2003-09-09 11:48:58 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -42,27 +42,27 @@ use committer_opt_in;
 use XML::Node;
 use DBI;
 
-my $commit_log_id				= 0;
-my $debug						= 0;
-my $overwrite					= 0;
-my $refresh_ports				= 1;	# refresh any ports touched by a commit
+my $commit_log_id			= 0;
+my $debug					= 0;
+my $overwrite				= 0;
+my $refresh_ports			= 1;	# refresh any ports touched by a commit
 my $fetch_before_refresh	= 1;	# by default, we fetch files from cvs 
-											# before refreshing from them
+									# before refreshing from them
 
-my $SystemID;							# the system id for this update.  Usually 'FreeBSD' => 1
+my $SystemID;						# the system id for this update.  Usually 'FreeBSD' => 1
 my $SystemBranchID;					# the system version id for this update.  Usually 'HEAD' => 1
 
 my $dbh;
 
-my @Files;								# files affected by this commit
+my @Files;							# files affected by this commit
 
 #
 # a file can be added to the repository, deleted (removed) from the repository,
 # or modified in the repository.
 #
 my %ValidFileActions = (	$FreshPorts::Constants::ADD		=> "A",
-									$FreshPorts::Constants::REMOVE	=> "R",
-									$FreshPorts::Constants::MODIFY	=> "M");
+							$FreshPorts::Constants::REMOVE	=> "R",
+							$FreshPorts::Constants::MODIFY	=> "M");
 
 
 FreshPorts::Utilities::InitSyslog();
@@ -161,30 +161,30 @@ sub main {
 sub SetupParser($) {
 	my $p = shift;
 
-	$p->register(">UPDATES",											"start" => \&handle_updates_start);
-	$p->register(">UPDATES>UPDATE",									"start" => \&handle_update_start);
+	$p->register(">UPDATES",									"start" => \&handle_updates_start);
+	$p->register(">UPDATES>UPDATE",								"start" => \&handle_update_start);
 
-	$p->register(">UPDATES>UPDATE>DATE:Year",						"attr" => \$Updates{dateyear});
+	$p->register(">UPDATES>UPDATE>DATE:Year",					"attr" => \$Updates{dateyear});
 	$p->register(">UPDATES>UPDATE>DATE:Month",					"attr" => \$Updates{datemonth});
-	$p->register(">UPDATES>UPDATE>DATE:Day",						"attr" => \$Updates{dateday});
+	$p->register(">UPDATES>UPDATE>DATE:Day",					"attr" => \$Updates{dateday});
 
-	$p->register(">UPDATES>UPDATE>TIME:Hour",						"attr" => \$Updates{timehour});
+	$p->register(">UPDATES>UPDATE>TIME:Hour",					"attr" => \$Updates{timehour});
 	$p->register(">UPDATES>UPDATE>TIME:Minute",					"attr" => \$Updates{timeminute});
 	$p->register(">UPDATES>UPDATE>TIME:Second",					"attr" => \$Updates{timesecond});
 	$p->register(">UPDATES>UPDATE>TIME:Timezone",				"attr" => \$Updates{timezone});
 
-	$p->register(">UPDATES>UPDATE>OS:Id",							"attr" => \$Updates{os});
-	$p->register(">UPDATES>UPDATE>OS:Branch",						"attr" => \$Updates{branch});
-	$p->register(">UPDATES>UPDATE>OS",								"end"  => \&handle_os_end);
+	$p->register(">UPDATES>UPDATE>OS:Id",						"attr" => \$Updates{os});
+	$p->register(">UPDATES>UPDATE>OS:Branch",					"attr" => \$Updates{branch});
+	$p->register(">UPDATES>UPDATE>OS",							"end"  => \&handle_os_end);
         
-	$p->register(">UPDATES>UPDATE>LOG",								"char" => \$Updates{log});
+	$p->register(">UPDATES>UPDATE>LOG",							"char" => \$Updates{log});
 
 	$p->register(">UPDATES>UPDATE>PEOPLE>UPDATER:Handle",		"attr" => \$Updates{committer});
 	$p->register(">UPDATES>UPDATE>PEOPLE>UPDATER",				"end"  => \&handle_updater_end);
 
 	$p->register(">UPDATES>UPDATE>MESSAGE:Id",					"attr" => \$Updates{MessageId});
 	$p->register(">UPDATES>UPDATE>MESSAGE:Subject",				"attr" => \$Updates{MessageSubject});
-	$p->register(">UPDATES>UPDATE>MESSAGE:EncodingLosses",	"attr" => \$Updates{MessageEncodingLosses});
+	$p->register(">UPDATES>UPDATE>MESSAGE:EncodingLosses",		"attr" => \$Updates{MessageEncodingLosses});
 
 
 	$p->register(">UPDATES>UPDATE>MESSAGE>DATE:Year",			"attr" => \$Updates{messageyear});
@@ -193,8 +193,8 @@ sub SetupParser($) {
 	$p->register(">UPDATES>UPDATE>MESSAGE>DATE:Day",			"attr" => \$Updates{messageday});
 
 	$p->register(">UPDATES>UPDATE>MESSAGE>TIME:Hour",			"attr" => \$Updates{messagehour});
-	$p->register(">UPDATES>UPDATE>MESSAGE>TIME:Minute",		"attr" => \$Updates{messageminute});
-	$p->register(">UPDATES>UPDATE>MESSAGE>TIME:Second",		"attr" => \$Updates{messagesecond});
+	$p->register(">UPDATES>UPDATE>MESSAGE>TIME:Minute",			"attr" => \$Updates{messageminute});
+	$p->register(">UPDATES>UPDATE>MESSAGE>TIME:Second",			"attr" => \$Updates{messagesecond});
 	$p->register(">UPDATES>UPDATE>MESSAGE>TIME:Timezone",		"attr" => \$Updates{messagezone});
 
 	$p->register(">UPDATES>UPDATE>MESSAGE>TO:Email",			"attr" => \$Updates{MessageTo});
@@ -204,13 +204,13 @@ sub SetupParser($) {
 
 	$p->register(">UPDATES>UPDATE>FILES>FILE:Path",				"attr" => \$Updates{FilePath});
 	$p->register(">UPDATES>UPDATE>FILES>FILE:Action",			"attr" => \$Updates{FileAction});
-	$p->register(">UPDATES>UPDATE>FILES>FILE:Revision",		"attr" => \$Updates{FileRevision});
+	$p->register(">UPDATES>UPDATE>FILES>FILE:Revision",			"attr" => \$Updates{FileRevision});
 
 	$p->register(">UPDATES>UPDATE>FILES>FILE",					"end"  => \&handle_file_end);
 
 
-	$p->register(">UPDATES>UPDATE",									"end" => \&handle_update_end);
-	$p->register(">UPDATES",											"end" => \&handle_updates_end);
+	$p->register(">UPDATES>UPDATE",								"end" => \&handle_update_end);
+	$p->register(">UPDATES",									"end" => \&handle_updates_end);
 }
 
 sub handle_updates_start
@@ -266,9 +266,16 @@ sub handle_update_end
 	# to the element table, and the element_revision table has been updated.
 	# Now we want to update the Ports subsection of the database based upon
 	# the list of files we have.
+	#
 
 	my %CommitLogPorts;	# array of port objects touched by this message.
 	my $ErrorFound = 0;
+
+	#
+	# Record the information which is used during Error Notification.
+	#
+	FreshPorts::CommitterOptIn::RecordCommitMessageID     ($Updates{MessageId});
+	FreshPorts::CommitterOptIn::RecordCommitMessageSubject($Updates{MessageSubject});
 
 	if (scalar(@Files) == 0) {
 		FreshPorts::Utilities::ReportError('Err', "No files found in commit '$Updates{MessageId}'.  Has some done a cvs import instead of addport?", 1)
@@ -353,10 +360,10 @@ sub handle_file_end
 	my $FilePath		= $Updates{FilePath};
 	my $FileRevision	= $Updates{FileRevision};
 	my $fileaction;		# the value obtained from the hash array
-								# and which will be stored into the database.
+						# and which will be stored into the database.
 
 	my $ElementAdded	= 0;
-	my $NewRevision	= 0;
+	my $NewRevision		= 0;
 	my $element;
 	my $element_id;
 	my $filename		= $FilePath;
