@@ -9,7 +9,7 @@
 
 use DBI;
 use strict;
-use lib '/usr/local/etc/freshports/updates';
+use lib '/home/freshports.org/scripts/updates';
 use ports;
 
 my $Debug = 0;
