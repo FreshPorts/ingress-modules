@@ -1,5 +1,5 @@
 #
-# $Id: verifyport.pm,v 1.42.2.23 2004-06-18 15:22:12 dan Exp $
+# $Id: verifyport.pm,v 1.42.2.24 2004-07-05 19:31:51 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -15,6 +15,7 @@ use commit_log_port_elements;
 use commit_log_ports_elements;
 use utilities;
 use committer_opt_in;
+use master_slave;
 
 require File::Basename;
 require Sys::Syslog;
@@ -577,12 +578,56 @@ sub RefreshAllSlavePortsOfPortsTouchedByCommit($;$;$) {
 	# given the ports touched by this commit,
 	# refresh any slaves
 	#
+	my $CommitLogPortsRef		= shift;
+	my %CommitLogPorts			= %{$CommitLogPortsRef};
+	my $fetch_before_refresh	= shift;
+	my $dbh						= shift;
+
 
 	my $ErrorFound = 0;
+	my $MasterSlave;
+	my %Slaves;
+	my %tmp;
 
 	print "# # # # Start refreshing slave ports # # # #\n\n";
 
-	print "Code to process slave ports is not written\n\n";
+	# For each port in this commit
+
+	$MasterSlave = FreshPorts::MasterSlave->new($dbh);
+
+	while (my ($portname, $commit_log_ports) = each %CommitLogPorts) {
+		my $port = $commit_log_ports->{port};
+
+		#    find all it's slave ports
+		%tmp = $MasterSlave->FetchByMaster("$port->{category}/$port->{name}");
+
+		#    add each one to a hash
+		while (my ($PortName, $ignore) = each %tmp) {
+			$Slaves{$PortName} = 1;
+		}
+	}
+
+	# For each slave port
+	while (my ($PortName, $ignore) = each %Slaves) {
+		# fetch it
+		my $port = FreshPorts::Port->new($dbh);
+
+		$port->{partialpathname} = $PortName;
+		$port->FetchByPartialPathName();
+
+		#  refresh it
+		$port->RefreshFromFiles(1, 0);	# refresh the port, don't fetch the files
+
+		#  save it
+		$port->save();
+
+		#  commit
+		$dbh->commit();
+
+		print "refreshed " . $port->{category} . '/' . $port->{name} . "\n";
+
+		undef $port;
+	}
 
 	print "# # # # Finish refreshing slave ports # # # #\n\n";
 
