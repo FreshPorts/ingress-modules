@@ -1,8 +1,8 @@
 #!/usr/bin/perl -w
 #
-# $Id: process_cvs_mail.pl,v 1.8.2.2 2002-04-02 01:03:29 dan Exp $
+# $Id: process_cvs_mail.pl,v 1.8.2.3 2002-04-12 05:20:27 dan Exp $
 #
-# Copyright (c) 2001 DVL Software
+# Copyright (c) 2001-2002  DVL Software
 #
 # Process incoming mail from cvs-all mailing list at freebsd.org
 # and convert it to XML output according to the FreshPorts DTD.
@@ -18,8 +18,8 @@ exit;
 # Main Processing Routine
 #####
 sub main {
-        # Get the message
-        my ($message) = &GetMessage;
+	# Get the message
+	my ($message) = &GetMessage;
 
 	# Get the data
 	my ($Data_ref) = &GetData($message);
@@ -53,6 +53,18 @@ sub GetData {
 
 	my $Message_Subject;
 	my $Log;
+	my $EncodingLosses = 'false';
+
+	#
+	# look for non-printable characters.
+	# this shows you them: perl -le 'print map chr,0x20..0x7e'
+	#
+	if ($message =~ /[^\x0a\x09\x20-\x7E]/) {
+		# we have messy characters in there
+
+		$message =~ tr/\x0a\x09\x20-\x7E/?/c;
+		$EncodingLosses = 'true';
+	}
 
 	$Message_Subject	= &GetMessage_Subject($message);
 	$Log				= &GetLog($message);
@@ -79,8 +91,9 @@ sub GetData {
 						&GetPeople($message)
 					],
 					'MESSAGE', [ {
-						Id	=> &GetMessage_Id($message),
-						Subject	=> $Message_Subject },
+						Id  => &GetMessage_Id($message),
+						Subject => $Message_Subject,
+						EncodingLosses => $EncodingLosses },
 						'DATE', [ &GetMessage_Date($message)
 						],
 						'TIME', [ &GetMessage_Time($message)
