@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: report-new-ports.pl,v 1.1.2.6 2002-11-26 03:44:09 dan Exp $
+# $Id: report-new-ports.pl,v 1.1.2.7 2002-12-10 18:40:49 dan Exp $
 #
 # Copyright (c) 2001-2002 DVL Software
 #
@@ -41,7 +41,12 @@ sub SendWatchNoticePersonal($;$;$) {
 	my $Body          = shift;
 
 
-	$Body = "
+	$Body = "HEADS UP: multiple watch lists:
+see http://www.freshports.org/phorum/read.php?f=1&i=451&t=420
+Your help is needed!
+
+--
+
 This is the new test report for notifications as found at
 $AdjustURL.
 

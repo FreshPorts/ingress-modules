@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: report-notification.pl,v 1.1.2.13 2002-11-24 16:27:39 dan Exp $
+# $Id: report-notification.pl,v 1.1.2.14 2002-12-10 18:40:49 dan Exp $
 #
 # Copyright (c) 2001-2002 DVL Software
 #
@@ -46,7 +46,13 @@ sub SendWatchNoticePersonal($;$;$) {
 	my $From		= 'FreshPorts Watch Daemon <FreshPorts-Watch@FreshPorts.org>';
 	my $Subject	= "FreshPorts $FrequencyLong notification";
 
-	$Body = "FreshPorts runs on hardware and bandwidth supplied by BChosting. See
+	$Body = "HEADS UP: multiple watch lists:
+see http://www.freshports.org/phorum/read.php?f=1&i=451&t=420
+Your help is needed!
+
+--
+
+FreshPorts runs on hardware and bandwidth supplied by BChosting. See
 http://bchosting.com/track.php?refID=5665 for details.
 
 
