@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: verifyport.pm,v 1.42.2.10 2003-04-05 00:42:52 dan Exp $
+# $Id: verifyport.pm,v 1.42.2.11 2003-04-28 20:07:19 dan Exp $
 #
 # Copyright (c) 2001-2001 DVL Software
 #
@@ -15,7 +15,6 @@ use commit_log_ports;
 use commit_log_port_elements;
 use utilities;
 use committer_opt_in;
-use housekeeping;
 
 require File::Basename;
 require Sys::Syslog;
@@ -402,8 +401,6 @@ sub RefreshAllPortsTouchedByCommit($;$;$) {
 	my $fetch_before_refresh	= shift;
 	my $dbh							= shift;
 
-	my $housekeeping = FreshPorts::Housekeeping->new($dbh);
-
 	my $port;
 	my $error 		= 0;
 	my $ErrorFound = 0;
@@ -430,13 +427,6 @@ sub RefreshAllPortsTouchedByCommit($;$;$) {
 			$commit_log_ports->{port_revision}	= $port->{revision};
 
 			$commit_log_ports->save();
-
-			#
-			# let others know that a refresh has been completed
-			# so that caching of pages can be properly done.
-			#
-			print " &&&&&&&&&&&&&&&&& setting housekeeping->refreshdone\n";
-			$housekeeping->refreshdone($FreshPorts::Housekeeping::RefreshPorts);
 
 			#
 			# commit everything we've done.  we don't want it falling over during

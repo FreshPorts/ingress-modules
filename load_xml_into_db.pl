@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: load_xml_into_db.pl,v 1.46.2.12 2003-04-05 00:43:17 dan Exp $
+# $Id: load_xml_into_db.pl,v 1.46.2.13 2003-04-28 20:07:18 dan Exp $
 #
 # Copyright (c) 2001-2002 DVL Software
 #
@@ -36,7 +36,6 @@ use commit_log_element;
 use db_utils;
 use database;
 use utilities;
-use housekeeping;
 use cache;
 use committer_opt_in;
 
@@ -294,14 +293,6 @@ sub handle_update_end
 		FreshPorts::Cache::DailySummaryDateAdd($commit_date, $dbh)
 	} else {
 		print "that was not a port, so not adding to daily summary refresh list\n";
-		
-		#
-		# let others know that a refresh has been completed
-		# so that caching of pages can be properly done.
-		#
-		my $housekeeping = FreshPorts::Housekeeping->new($dbh);
-		print " &&&&&&&&&&&&&&&&& setting housekeeping->refreshdone\n";
-		$housekeeping->refreshdone($FreshPorts::Housekeeping::Refresh);
 	}
 
 	if ($ErrorFound) {

@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: refresh-unrefreshed-ports.pl,v 1.20.2.4 2002-12-16 17:12:00 dan Exp $
+# $Id: refresh-unrefreshed-ports.pl,v 1.20.2.5 2003-04-28 20:07:18 dan Exp $
 #
 # Copyright (c) 1999-2001 DVL Software
 #
@@ -12,7 +12,6 @@ use DBI;
 use database;
 use utilities;
 use commit_log_ports;
-use housekeeping;
 
 my $dbh;
 
@@ -45,8 +44,6 @@ FreshPorts::Utilities::InitSyslog();
 	}
 
 $dbh = FreshPorts::Database::GetDBHandle();
-
-my $housekeeping = FreshPorts::Housekeeping->new($dbh);
 
 #
 # get a list of ports to update
@@ -137,13 +134,6 @@ foreach $porttorefresh (@PORTS) {
 			$commit_log_ports->{saved}			= 1;	# this forces an update, instead of an insert
 
 			$commit_log_ports->save();
-
-			#
-			# let others know that a refresh has been completed
-			# so that caching of pages can be properly done.
-			#
-			print " &&&&&&&&&&&&&&&&& setting housekeeping->refreshdone\n";
-			$housekeeping->refreshdone($FreshPorts::Housekeeping::RefreshPorts);
 
 			#
 			# commit everything we've done.  we don't want it falling over during
