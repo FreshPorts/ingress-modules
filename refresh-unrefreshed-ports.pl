@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: refresh-unrefreshed-ports.pl,v 1.15 2002-02-09 16:08:49 dan Exp $
+# $Id: refresh-unrefreshed-ports.pl,v 1.16 2002-02-09 19:47:32 dan Exp $
 #
 # Copyright (c) 1999-2001 DVL Software
 #
@@ -23,16 +23,6 @@ my $sql;
 my $sth;
 my @row;
 
-my $DoAllPorts = 0;
-
-if (($#ARGV+1) == 1) {
-	print "there is 1 argument\n";
-
-	$DoAllPorts = $ARGV[0];
-	if ($DoAllPorts ne 'ALL') {
-		print "argument not recognized: only ALL is known\n"}
-	}
-}
 
 FreshPorts::Utilities::InitSyslog();
 
@@ -46,13 +36,9 @@ $sql = "select ports.id, categories.name as category, element.name as port, comm
         from ports, categories, element, commit_log_ports \
         where ports.category_id              = categories.id \
           and ports.element_id               = element.id
-		  and commit_log_ports.port_id       = ports.id ";
-
-if ($DoAllPorts) {
-$sql .="  and commit_log_ports.needs_refresh <> 0 ";
-}
-
-$sql .= "        order by category, port";
+		  and commit_log_ports.port_id       = ports.id  \
+          and commit_log_ports.needs_refresh <> 0 \
+        order by category, port";
 
 print "sql = $sql\n";
 
@@ -99,17 +85,16 @@ foreach $porttorefresh (@PORTS) {
 		# now reset refreshed
 		#
 		if ($result == 0) {
-			if (!$DoAllPorts) {
-				$port->save();
 
-				$commit_log_ports->{commit_log_id}	= $commit_log_id;
-				$commit_log_ports->{port_id}		= $port->{id};
-				$commit_log_ports->{needs_refresh}	= 0;
-				$commit_log_ports->{port_version}	= $port->{version};
-				$commit_log_ports->{saved}			= 1;	# this forces an update, instead of an insert
+			$port->save();
 
-				$commit_log_ports->save();
-			}
+			$commit_log_ports->{commit_log_id}	= $commit_log_id;
+			$commit_log_ports->{port_id}		= $port->{id};
+			$commit_log_ports->{needs_refresh}	= 0;
+			$commit_log_ports->{port_version}	= $port->{version};
+			$commit_log_ports->{saved}			= 1;	# this forces an update, instead of an insert
+
+			$commit_log_ports->save();
 
 			$dbh->commit();
 		} else {
