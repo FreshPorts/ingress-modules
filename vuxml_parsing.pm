@@ -27,7 +27,7 @@
 # SUCH DAMAGE.
 
 #
-# @(#) $Id: vuxml_parsing.pm,v 1.1.2.1 2004-09-09 20:39:21 dan Exp $
+# @(#) $Id: vuxml_parsing.pm,v 1.1.2.2 2004-09-10 03:26:33 dan Exp $
 #
 # Parse the Vulnerabilities and Exposures (vuxml) database extracting
 # the entries for loading into a RDBMS.
@@ -43,7 +43,7 @@
 #
 #     /usr/ports/security/vuxml/vuln.xml
 
-package FreshPorts::vuxml-parsing;
+package FreshPorts::vuxml_parsing;
 
 use strict;
 use Carp;
