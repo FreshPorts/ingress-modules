@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: cache.pm,v 1.1.2.9 2003-09-09 16:08:01 dan Exp $
+# $Id: cache.pm,v 1.1.2.10 2003-09-16 11:01:51 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -48,7 +48,7 @@ sub DailySummaryDateRemove($;$) {
 	my $MaxCommitID;
 
 	$sql = "select DailySummaryDateRemove('$Date');";
-	print "sql = $sql\n";
+#	print "sql = $sql\n";
 
 	if ($sth = $dbh->prepare($sql)) {
 		if ($sth->execute) {
@@ -114,14 +114,12 @@ sub CreateDailySummary($;$) {
 				   and ports.element_id               = element.id
 				 ORDER by commit_log.commit_date desc, category, port";
 
-	print "\$sql='$sql'<BR>\n";
+#	print "\$sql='$sql'<BR>\n";
 
 	my $sth = $dbh->prepare($sql);
 
 	$sth->execute ||
 		FreshPorts::Utilities::ReportError('warning', "Could not execute SQL statement\n--$sql--\n... maybe invalid?", 1);
-
-	print "$sql\n";
 
 	umask(02);
 	# create the output file name gradually, ensuring the directories exist
@@ -129,37 +127,37 @@ sub CreateDailySummary($;$) {
 	my $OutputFile = $FreshPorts::Config::DailySummaryDir . "/" . substr($CommitDateStart, 0, 4);
 
 	if (-d $OutputFile) {
-		print "'$OutputFile' exists\n";
+#		print "'$OutputFile' exists\n";
 	} else {
-		print "'$OutputFile' does not exist\n";
-		print "   trying to mkdir '$OutputFile'\n";
+#		print "'$OutputFile' does not exist\n";
+#		print "   trying to mkdir '$OutputFile'\n";
 		if (mkdir $OutputFile, 0775) {
 		} else {
-			print "Could not create directory $OutputFile\n";
+			FreshPorts::Utilities::ReportError('err', "Could not create directory $OutputFile\n", 1);
 			return 1;
 		}
 	}
 
 	$OutputFile .= "/" . substr($CommitDateStart, 5, 2);
 	if (-d $OutputFile) {
-		print "'$OutputFile' exists\n";
+#		print "'$OutputFile' exists\n";
 	} else {
-		print "   trying to mkdir '$OutputFile'\n";
+#		print "   trying to mkdir '$OutputFile'\n";
 		if (mkdir $OutputFile, 0775) {
 		} else {
-		print "Could not create directory $OutputFile\n";
+			FreshPorts::Utilities::ReportError('err', "Could not create directory $OutputFile\n", 1);
 			return 2;
 		}
 	}
 
 	$OutputFile .= "/" .  substr($CommitDateStart, 8, 2) . ".inc";
-	print "trying to open '$OutputFile'\n";
+#	print "trying to open '$OutputFile'\n";
    
 	if (open(FILE, ">$OutputFile")) {
-		print "that file was opened.  now writing output\n";
+#		print "that file was opened.  now writing output\n";
 		my $count =0;
 		while ($myrow = $sth->fetchrow_hashref()) {
-			print $myrow->{commit_date} .': '. $myrow->{category}. '/' . $myrow->{port} . "\n";
+#			print $myrow->{commit_date} .': '. $myrow->{category}. '/' . $myrow->{port} . "\n";
 			print FILE "<A HREF=\"$myrow->{category}/$myrow->{port}/\">";
 			print FILE '<FONT SIZE="-1">' . $myrow->{port} . ' ';
 
@@ -173,18 +171,18 @@ sub CreateDailySummary($;$) {
 			if (defined($myrow->{version})) {
 				print FILE $myrow->{version};
 			}
-			if (defined($myrow->{revision}) && ($myrow->{revision} > 0)) {
+			if (defined($myrow->{revision}) && ($myrow->{revision} ne '') && ($myrow->{revision} ne '0')) {
 				print FILE '-' . $myrow->{revision};
 			}
 			print FILE "</FONT></A><BR>\n";     
 			$count++;
 		}
 
-		print "i wrote out $count records\n";
+#		print "i wrote out $count records\n";
 
 		close FILE;
 	} else {
-		print "could not open '$OutputFile'\n";
+		FreshPorts::Utilities::ReportError('err',  "could not open '$OutputFile'\n", 1);
 		return 3;
 	}
    
@@ -200,14 +198,15 @@ sub RefreshDailySummaries($) {
 	my $RefreshDate;
 	my $RefreshCount = 0;
 	my @RefreshDates;
+	my $Error = 0;
 
-	print "RefreshDailySummaries: start\n";
+#	print "RefreshDailySummaries: start\n";
 
 	$sql = "SELECT refresh_date
 			  FROM daily_refreshes
 		  ORDER BY refresh_date";
 
-	print "sql = $sql\n";
+#	print "sql = $sql\n";
 
 	if ($sth = $dbh->prepare($sql)) {
 		if ($sth->execute) {
@@ -219,15 +218,20 @@ sub RefreshDailySummaries($) {
 				$RefreshDates[$RefreshCount] = $RefreshDate;
 
 				$RefreshCount++;
-				print "RefreshDailySummaries: refreshing $RefreshDate\n";
+#				print "RefreshDailySummaries: refreshing $RefreshDate\n";
 
-				CreateDailySummary($RefreshDate, $dbh);
+				if (CreateDailySummary($RefreshDate, $dbh)) {
+					$Error = 1;
+					last;
+				}
 			}
 
-			# remove those dates from the refresh table
-			my $i;
-			for ($i = 0; $i < $RefreshCount; $i++) {
-				DailySummaryDateRemove($RefreshDates[$i], $dbh);
+			if (!$Error) {
+				# remove those dates from the refresh table
+				my $i;
+				for ($i = 0; $i < $RefreshCount; $i++) {
+					DailySummaryDateRemove($RefreshDates[$i], $dbh);
+				}
 			}
 
 		} else {
@@ -239,7 +243,11 @@ sub RefreshDailySummaries($) {
 
 	$sth->finish();
 
-	print "RefreshDailySummaries: finishes\n";
+#	print "RefreshDailySummaries: finishes\n";
+
+	if ($Error) {
+		$RefreshCount = -1;
+	}
 
 	return $RefreshCount;
 }
