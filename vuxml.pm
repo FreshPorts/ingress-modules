@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: vuxml.pm,v 1.1.2.6 2004-12-12 15:46:50 dan Exp $
+# $Id: vuxml.pm,v 1.1.2.7 2004-12-12 23:45:46 dan Exp $
 #
 # Copyright (c) 2004 DVL Software
 #
@@ -107,9 +107,9 @@ sub FetchByID {
 
 	$dbh = $this->{dbh};
 
-	$sql = "select vuxml.*
-              from vuxml
-             where vuxml.id = $this->{id}";
+	$sql = "SELECT vuxml.*
+              FROM vuxml
+             WHERE vuxml.id = $this->{id}";
 
 	print "sql = '$sql'\n";
 
@@ -139,9 +139,9 @@ sub FetchByVID {
 
 	$dbh = $this->{dbh};
 
-	$sql = "select vuxml.*
-              from vuxml
-             where vuxml.vid = '$this->{vid}'";
+	$sql = "SELECT vuxml.*
+              FROM vuxml
+             WHERE vuxml.vid = '$this->{vid}'";
 
 	print "sql = '$sql'\n";
 
