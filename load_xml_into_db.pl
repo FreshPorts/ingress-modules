@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: load_xml_into_db.pl,v 1.46.2.23 2004-11-27 13:54:07 dan Exp $
+# $Id: load_xml_into_db.pl,v 1.46.2.24 2005-01-26 20:55:32 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -23,14 +23,20 @@
 
 use strict;
 
+use database;
 use xml_munge;
 use observer_commits;
 
-my $Munger = FreshPorts::XML_Munge->new();
+my $dbh = FreshPorts::Database::GetDBHandle();
+if ($dbh->{Active}) {
 
+	my $ObserverCommits = FreshPorts::ObserverCommits->new($dbh);
 
-my $ObserverCommits = FreshPorts::ObserverCommits->new();
+	my $Munger = FreshPorts::XML_Munge->new();
 
-$Munger->add_observer($ObserverCommits);
+	$Munger->add_observer($ObserverCommits);
 
-$Munger->process();
+	$Munger->process();
+
+	$dbh->disconnect();
+}
