@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.32 2002-02-16 07:21:42 dan Exp $
+# $Id: port.pm,v 1.33 2002-02-18 06:16:25 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -852,20 +852,19 @@ sub RemovePortsPrefix($) {
 
 sub LooksLikeAMakefile($) {
 	my $Makefile = shift;
-	my $Result   = 0;
+	my $Result   = 1;
 
 	my $filetype = `file -b $Makefile`;
 	chomp($filetype);
 
 	print "$filetype\n";
 
-	if ($filetype eq 'ASCII English text' || $filetype eq 'ASCII text') {
-		print "yep, that's a Makefile as far as I'm concerned....\n";
-		$Result = 1;
+	if (index($filetype, 'HTML', 0) != -1) {
+		print "nope, that's HTML, not a Makefile as far as I'm concerned....\n";
+		$Result = 0;
 	}
 
 	return $Result;
-	
 }
 
 
