@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: verifyport.pm,v 1.42.2.1 2002-04-01 22:54:31 dan Exp $
+# $Id: verifyport.pm,v 1.42.2.2 2002-05-19 18:42:33 dan Exp $
 #
 # Copyright (c) 2001-2001 DVL Software
 #
@@ -180,11 +180,13 @@ print "SETTING CATEGORY =  $port->{category_id}\n";
 	return %ListOfPorts;
 }
 
-sub SaveChangesToPortsTree($;$;$;$) {
+
+sub SaveChangesToPortsTree($;$;$) {
 	my $commit_log_id	= shift;
 	my $Files			= shift;
 	my $dbh				= shift;
-	my $fetch_files		= shift;
+
+	my $fetch_files		= 1;
 
 	my %ListOfPorts;
 	my %CommitLogPorts;	# hash of commit_log_ports objects
@@ -355,13 +357,14 @@ sub _LoadMasterPortsForAnySlavePorts($;$) {
 				my $directory = File::Basename::dirname ($filename);
 				my $FILE      = File::Basename::basename($filename);
 
-				my $DESTDIR = "$FreshPorts::Config::path_to_tree/$directory";
-				my $SRCDIR  = $directory;
+				my $DESTDIR   = "$FreshPorts::Config::path_to_tree/$directory";
+				my $SRCDIR    = $directory;
+				my $REVISION  = $FreshPorts::Constants::HEAD;
 	
-				print "fetching \$DESTDIR = [$DESTDIR], \$SRCDIR = [$SRCDIR], \$FILE = [$FILE]\n";
+				print "fetching \$DESTDIR = [$DESTDIR], \$SRCDIR = [$SRCDIR], \$FILE = [$FILE] \$REVISION = [$REVISION]\n";
 
-				if (!FreshPorts::Utilities::FetchFile($DESTDIR, $SRCDIR, $FILE)) {
-					FreshPorts::Utilities::ReportError('warning', "Sorry, but we couldn't fetch all the files as required when we encounter a SLAVE/MASTER port", 1);
+				if (!FreshPorts::Utilities::FetchFile($DESTDIR, $SRCDIR, $FILE, $REVISION)) {
+					FreshPorts::Utilities::ReportError('warning', "Sorry, but we couldn't fetch all the files as required when we encounter a SLAVE/MASTER port", 0);
 				}
 			}
 		}
