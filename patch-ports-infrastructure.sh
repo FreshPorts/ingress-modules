@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $Id: patch-ports-infrastructure.sh,v 1.1.2.1 2004-12-19 23:15:00 dan Exp $
+# $Id: patch-ports-infrastructure.sh,v 1.1.2.2 2004-12-19 23:19:06 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
