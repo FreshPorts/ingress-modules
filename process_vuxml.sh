@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $Id: process_vuxml.sh,v 1.1.2.4 2005-01-03 21:35:48 dan Exp $
+# $Id: process_vuxml.sh,v 1.1.2.5 2005-01-06 04:26:40 dan Exp $
 #
 # Copyright (c) 2003-2005 DVL Software Limited
 #
@@ -16,7 +16,6 @@
 
 if [ ! -f config.sh ]
 then
-	echo "config.sh not found..."
 	exit 1
 fi
 
@@ -37,5 +36,5 @@ if [ -r ${VUXMLFLAGFILE} ]
 then
 	rm ${VUXMLFLAGFILE}
 	/usr/bin/perl ./process_vuxml.pl -w < ${PORTSDIR}/security/vuxml/vuln.xml
-	/usr/bin/perl ./vuxml_ident.pl      < ${PORTSDIR}/security/vuxml/vuln.xml > ${BASEDIR}/dynamic/vuxml_revision
+	/usr/bin/perl ./vuxml_ident.pl        ${PORTSDIR}/security/vuxml/vuln.xml > ${BASEDIR}/dynamic/vuxml_revision
 fi
