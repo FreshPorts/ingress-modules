@@ -708,7 +708,7 @@ sub RefreshOnePort($;$;$;$) {
          # makes this call fail (because it can't find the script).
          #
          
-         `sh /usr/local/etc/freshports/fetch-cvs-file.sh $category $port $key`;
+         `sh $SCRIPTDIR/fetch-cvs-file.sh $category $port $key`;
 
          if (($? >> 8)) {
             #
