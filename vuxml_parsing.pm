@@ -27,7 +27,7 @@
 # SUCH DAMAGE.
 
 #
-# @(#) $Id: vuxml_parsing.pm,v 1.1.2.14 2004-12-23 18:22:52 dan Exp $
+# @(#) $Id: vuxml_parsing.pm,v 1.1.2.15 2004-12-23 19:48:22 dan Exp $
 #
 # Parse the Vulnerabilities and Exposures (vuxml) database extracting
 # the entries for loading into a RDBMS.
@@ -380,10 +380,8 @@ sub RecentlyAdded {
 	my ($Y, $M, $D) = $Date =~ /(\d+)-(\d+)-(\d+)/;
 
 	my ($TodayY, $TodayM, $TodayD) = Today();
-	print "Today is $TodayY $TodayM $TodayD\n";
 
 	my ($TodayY2, $TodayM2, $TodayD2) = Add_Delta_Days($TodayY, $TodayM, $TodayD, -2);
-	print "two days ago is is $TodayY2 $TodayM2 $TodayD2\n";
 
 	return Date_to_Days($TodayY2, $TodayM2, $TodayD2) < Date_to_Days($Y, $M, $D)
 }
