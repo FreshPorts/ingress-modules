@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: verifyport.pm,v 1.42.2.5 2002-11-09 15:06:02 dan Exp $
+# $Id: verifyport.pm,v 1.42.2.6 2002-11-15 20:16:11 dan Exp $
 #
 # Copyright (c) 2001-2001 DVL Software
 #
@@ -198,15 +198,18 @@ sub SaveChangesToPortsTree($;$;$;$) {
 	my $commit_log_ports;
 
 
-#
-# %Files will contain a hash of all the files associated with this commit
-# We will do three things
-#   1 - populate PortsChecked with a list of ports 
-#   2 - ensure said ports and their categories exit
-#   3 - set needs_refresh for each port according to the files touched
-#       by this commit
-#
+	#
+	# %Files will contain a hash of all the files associated with this commit
+	# We will do three things
+	#   1 - populate PortsChecked with a list of ports 
+	#   2 - ensure said ports and their categories exit
+	#   3 - set needs_refresh for each port according to the files touched
+	#       by this commit
+	#	
 
+	if ($fetch_files) {
+		_FetchAllFiles($Files, $dbh);
+	}
 
 	#
 	# This list of ports may not all be in the database.
@@ -218,17 +221,6 @@ sub SaveChangesToPortsTree($;$;$;$) {
 	# only do this stuff if we actually have any ports to update...
 	#
 	if (scalar %ListOfPorts) {
-		#
-		# we must load the master ports before we save any
-		# port changes.  that's because we may have a new
-		# port being saved which requires the master port
-		# Makfile to be already on disk before we do a make -V ..etc
-		#
-
-		if ($fetch_files) {
-			_LoadMasterPortsForAnySlavePorts($Files, $dbh);
-		}
-
 		#
 		# for each port, ensure that we save away the new needs_refresh value
 		# This will also create any ports which need to be created
@@ -289,17 +281,9 @@ sub SaveChangesToPortsTree($;$;$;$) {
 	return %CommitLogPorts;
 }
 
-sub _LoadMasterPortsForAnySlavePorts($;$) {
+sub _FetchAllFiles($;$) {
 	#
-	# if there are any master/slave port combinations
-	# we need to load all the files to ensure they work
-	# when it comes time to refresh.
-	#
-	# we take the easy way out.  If more than one Makefile
-	# is updated by this commit, we double up.
-	# we fetch everything now even it it might be fetched
-	# again later during the port refresh.
-	# it's simple.  it works.  for this particular problem.
+	# fetch all the files associated with this commit
 	#
 
 	my $Files		= shift;
@@ -315,61 +299,35 @@ sub _LoadMasterPortsForAnySlavePorts($;$) {
 	my $basename;
 	my $MakefileCount = 0;
 
-	print "checking for any MASTER/SLAVE port dependencies.\n";
+	print "fetching all files from this commit.\n";
 
-    #
-    # find the number of Makefiles
-    #
+	foreach $value (@{$Files}) {
+		($action, $filename, $revision, $commit_log_element_id) = @$value;
 
-#	foreach $value (@{$Files}) {
-#		($action, $filename, $revision, $commit_log_element_id) = @$value;
-#		$basename = File::Basename::basename($filename);
-#		if ($basename eq $FreshPorts::Constants::FILE_MAKEFILE) {
-#			#
-#			# OK, that's Makefile.  But is it a category Makefile
-#			# or another port's Makefile?
-#			#
-#
-#			my ($subtree, $category_name, $port_name, $extra) = split/\//,$filename, 4;
-#			if (defined($port_name) && defined($extra)) {
-#				$MakefileCount++;
-#			}
-#		}
-#	}
-#
-	#
-	# temporary change to force fetching of all files associated with commit
-	# it's hard to know what included files will be needed
-	#
-	$MakefileCount = 2;
-	if ($MakefileCount > 1) {
-		foreach $value (@{$Files}) {
-			($action, $filename, $revision, $commit_log_element_id) = @$value;
+		#
+		# there is no sense in fetching removed files
+		#
+		my $directory = File::Basename::dirname ($filename);
+		my $FILE      = File::Basename::basename($filename);
 
-			#
-			# there is no sense in fetching removed files
-			#
-			if ($action ne $FreshPorts::Constants::REMOVE) {
-
-				#
-				# fetch this file into the ports tree
-				#
-
-				my $directory = File::Basename::dirname ($filename);
-				my $FILE      = File::Basename::basename($filename);
-
-				my $DESTDIR   = "$FreshPorts::Config::path_to_tree/$directory";
-				my $SRCDIR    = $directory;
-				my $REVISION  = $revision;
+		my $DESTDIR   = "$FreshPorts::Config::path_to_tree/$directory";
+		my $SRCDIR    = $directory;
+		my $REVISION  = $revision;
 	
-				print "fetching \$DESTDIR = [$DESTDIR], \$SRCDIR = [$SRCDIR], \$FILE = [$FILE] \$REVISION = [$REVISION]\n";
+		if ($action ne $FreshPorts::Constants::REMOVE) {
 
-				if (!FreshPorts::Utilities::FetchFile($DESTDIR, $SRCDIR, $FILE, $REVISION)) {
-					FreshPorts::Utilities::ReportError('warning', "Sorry, but we couldn't fetch all the files as required when we encounter a SLAVE/MASTER port", 0);
-				}
+			#
+			# fetch this file into the ports tree
+			#
+
+			print "fetching \$DESTDIR = [$DESTDIR], \$SRCDIR = [$SRCDIR], \$FILE = [$FILE] \$REVISION = [$REVISION]\n";
+
+			if (!FreshPorts::Utilities::FetchFile($DESTDIR, $SRCDIR, $FILE, $REVISION)) {
+				FreshPorts::Utilities::ReportError('warning', "Sorry, but we couldn't fetch all the files as required when we encounter a SLAVE/MASTER port", 0);
 			}
+		} else {
+			print "files was removed.  not fetching $SRCDIR/$FILE/?revision=$REVISION\n";
 		}
-		print " no other port Makefiles found.\n";
 	}
 
 	return 1;
