@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: report-new-ports.pl,v 1.1.2.5 2002-11-24 17:14:57 dan Exp $
+# $Id: report-new-ports.pl,v 1.1.2.6 2002-11-26 03:44:09 dan Exp $
 #
 # Copyright (c) 2001-2002 DVL Software
 #
@@ -40,6 +40,7 @@ sub SendWatchNoticePersonal($;$;$) {
 	my $FrequencyLong = shift;
 	my $Body          = shift;
 
+
 	$Body = "
 This is the new test report for notifications as found at
 $AdjustURL.
@@ -62,10 +63,10 @@ $FreshPorts::Config::FreshPortsURL but if you no longer wish to receive such mes
 please go to $AdjustURL.
 
 If a problem occurs, please send details, including the email address in
-question, to postmaster\@freshports.org.
+question, to postmaster\@FreshPorts.org.
 ";
 
-	FreshPorts::email::SendMail('FreshPorts Watch Daemon <FreshPorts-Watch\@FreshPorts.org>', $To, "FreshPorts $FrequencyLong new ports", $Body);
+	FreshPorts::email::SendMail('FreshPorts Watch Daemon <FreshPorts-Watch@FreshPorts.org>', $To, "FreshPorts $FrequencyLong new ports", $Body);
 }
 
 
