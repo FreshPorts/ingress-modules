@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: refresh-unrefreshed-ports.pl,v 1.8 2001-12-24 04:36:34 dan Exp $
+# $Id: refresh-unrefreshed-ports.pl,v 1.9 2001-12-28 22:38:28 dan Exp $
 #
 # Copyright (c) 1999-2001 DVL Software
 #
@@ -11,6 +11,7 @@ use port;
 use DBI;
 use database;
 use utilities;
+use commit_log_ports;
 
 my $dbh;
 
@@ -31,11 +32,13 @@ $dbh = FreshPorts::Database::GetDBHandle();
 # get a list of ports to update
 #
 
-$sql = "select ports.id, categories.name, element.name, needs_refresh \
-        from ports, categories, element \
-        where categories.id       = ports.category_id \
-          and ports.element_id    = element.id
-          and ports.needs_refresh <> 0";
+$sql = "select ports.id, categories.name as category, element.name as port, commit_log_ports.needs_refresh, commit_log_ports.commit_log_id \
+        from ports, categories, element, commit_log_ports \
+        where ports.category_id              = categories.id \
+          and ports.element_id               = element.id
+		  and commit_log_ports.port_id       = ports.id  \
+          and commit_log_ports.needs_refresh <> 0 \
+        order by category, port";
 
 print "sql = $sql\n";
 
@@ -45,29 +48,59 @@ $sth->execute ||
 
 while (@row=$sth->fetchrow_array) {
    print "now processing @row\n";
-   push @PORTS, "$row[0]:$row[1]:$row[2]:$row[3]"
+   push @PORTS, "$row[0]:$row[1]:$row[2]:$row[3]:$row[4]"
 }
  
+my $port				= FreshPorts::Port->new($dbh);
+my $element				= FreshPorts::Element->new($dbh);
+my $commit_log_ports	= FreshPorts::CommitLogPorts->new($dbh);
+
 foreach $porttorefresh (@PORTS) {
-	my $port_name;
-	my $category_name;
-	my $needs_refresh;
-	my $FetchWorked;
-	my $port;
-	my $port_id;
+	my $result;
 
 	print "found $porttorefresh\n";
 
-	($port_id, $category_name, $port_name, $needs_refresh) = split /:/,$porttorefresh, 4;
-
-	$port = FreshPorts::Port->new($dbh);
+	my ($port_id, $category_name, $port_name, $needs_refresh, $commit_log_id) = split /:/,$porttorefresh, 5;
 
 	$port->{id} = $port_id;
 	if ($port->FetchByID()) {
-		$port->RefreshFromFiles(fillintheblank);
+
+		$element->{id} = $port->{element_id};
+		if (defined($element->FetchByID())) {
+			if ($element->{status} eq $FreshPorts::Element::Deleted) {
+				#
+				# this port is deleted but needs refresh.
+				#
+				print "that port has been deleted and will not be refreshed\n";
+				$result = 0;
+			} else {
+				$result = $port->RefreshFromFiles($needs_refresh);
+				print "has been refreshed ($result)\n";
+			}
+		} else {
+			Sys::Syslog::syslog('warning', "Could not retrieve element ($port_id, $category_name, $port_name, $needs_refresh, $commit_log_id)");
+			die "Could not retrieve element ($port_id, $category_name, $port_name, $needs_refresh, $commit_log_id)";
+		}
+
+		#
+		# now reset refreshed
+		#
+		if ($result == 0) {
+			$commit_log_ports->{commit_log_id}	= $commit_log_id;
+			$commit_log_ports->{port_id}		= $port->{id};
+			$commit_log_ports->{needs_refresh}	= 0;
+			$commit_log_ports->{port_version}	= $port->{version};
+			$commit_log_ports->{saved}			= 1;	# this forces an update, instead of an insert
+
+			$commit_log_ports->save();
+
+			$dbh->commit();
+		} else {
+			print "update result is $result ******************************************\n";
+		}
 	} else {
-		Sys::Syslog::syslog('warning', "Could not retrieve port ($port_id, $category_name, $port_name, $needs_refresh)");
-		die "Could not retrieve port ($port_id, $category_name, $port_name, $needs_refresh)";
+		Sys::Syslog::syslog('warning', "Could not retrieve port ($port_id, $category_name, $port_name, $needs_refresh, $commit_log_id)");
+		die "Could not retrieve port ($port_id, $category_name, $port_name, $needs_refresh, $commit_log_id)";
 	}
 }
 
