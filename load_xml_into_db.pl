@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: load_xml_into_db.pl,v 1.47 2002-03-23 04:32:53 dan Exp $
+# $Id: load_xml_into_db.pl,v 1.48 2002-04-01 21:20:03 dan Exp $
 #
 # Copyright (c) 2001-2002 DVL Software
 #
@@ -37,6 +37,7 @@ use db_utils;
 use database;
 use utilities;
 use housekeeping;
+use cache;
 
 use XML::Node;
 use DBI;
@@ -292,6 +293,13 @@ sub handle_update_end
 
 	if ($refresh_ports) {
 		FreshPorts::VerifyPort::RefreshAllPortsTouchedByCommit(\%CommitLogPorts, $fetch_before_refresh, $dbh);
+	}
+
+	if (scalar(keys %CommitLogPorts)) {
+		print "adding that commit date to the daily summary refresh list\n";
+		FreshPorts::Cache::DailySummaryDateAdd($commit_date, $dbh)
+	} else {
+		print "that was not a port, so not adding to daily summary refresh list\n";
 	}
 }
 
