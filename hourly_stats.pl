@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: hourly_stats.pl,v 1.1.2.14 2004-12-09 13:49:17 dan Exp $
+# $Id: hourly_stats.pl,v 1.1.2.15 2005-02-17 04:37:16 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -14,16 +14,18 @@ use commit_log_ports_ignore;
 use system_status;
 
 my %Queries = (
-	new        => 'select Stats_PortCount()',
-	broken     => 'select Stats_PortCountBroken()',
-	deprecated => 'select Stats_PortCountDeprecated()',
-	ignore     => 'select Stats_PortCountIgnore()',
-	forbidden  => 'select Stats_PortCountForbidden()',
-	today      => 'select Stats_PortCountNewToday()',
-	yesterday  => 'select Stats_PortCountNewYesterday()',
-	week       => 'select Stats_PortCountNewThisWeek()',
-	fortnight  => 'select Stats_PortCountNewInterval(\'2 weeks\')',
-	month      => 'select Stats_PortCountNewInterval(\'1 month\')',
+	new         => 'select Stats_PortCount()',
+	broken      => 'select Stats_PortCountBroken()',
+	deprecated  => 'select Stats_PortCountDeprecated()',
+	ignore      => 'select Stats_PortCountIgnore()',
+	forbidden   => 'select Stats_PortCountForbidden()',
+	restricted  => 'select Stats_PortCountRestricted()',
+	no_cdrom    => 'select Stats_PortCountNoCDROM()',
+	today       => 'select Stats_PortCountNewToday()',
+	yesterday   => 'select Stats_PortCountNewYesterday()',
+	week        => 'select Stats_PortCountNewThisWeek()',
+	fortnight   => 'select Stats_PortCountNewInterval(\'2 weeks\')',
+	month       => 'select Stats_PortCountNewInterval(\'1 month\')',
 );
 
 my %Stats;
@@ -89,6 +91,8 @@ sub CreateHourlySummary() {
 		print FILE '<TR><TD><A HREF="/ports-ignore.php" TITLE="Ports that you should ignore">Ignore</A></TD>     <TD ALIGN="right">'    . $Stats{ignore}    . '</TD></TR>' . "\n";
 
 		print FILE '<TR><TD><A HREF="/ports-forbidden.php" TITLE="Ports that are forbidden">Forbidden</A></TD>  <TD ALIGN="right">' . $Stats{forbidden} . '</TD></TR>' . "\n";
+		print FILE '<TR><TD><A HREF="/ports-restricted.php" TITLE="Ports that are restricted">Restricted</A></TD>  <TD ALIGN="right">' . $Stats{restricted} . '</TD></TR>' . "\n";
+		print FILE '<TR><TD><A HREF="/ports-no-cdrom.php" TITLE="Ports that are marked as NO CDROM">No CDROM</A></TD>  <TD ALIGN="right">' . $Stats{no_cdrom} . '</TD></TR>' . "\n";
 
 		print FILE '<TR><TD><A HREF="/ports-new.php?interval=today" TITLE="Ports added in the last 24 hours">new 24 hours</A></TD>    <TD ALIGN="right">'     . $Stats{today}     . '</TD></TR>' . "\n";
 
