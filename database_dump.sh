@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $Id: database_dump.sh,v 1.8.2.1 2003-05-16 01:14:02 dan Exp $
+# $Id: database_dump.sh,v 1.8.2.2 2003-05-31 13:34:24 dan Exp $
 #
 # Copyright (c) 1999-2003 DVL Software
 #
@@ -8,14 +8,14 @@
 #
 
 #
-# the name of the backup file. file name format is 
+# the name of the backup file. file name format is
 # freshports.backup.2000.01.12.at.22.59.48.tgz
 #
-WorkingDirectory=$HOME
-BackupFile="freshports.backup.`date +%Y.%m.%d.at.%H.%M.%S`.tgz"
+WorkingDirectory=${HOME}
+BackupFile="nezlok.freshports.backup.`date +%Y.%m.%d.at.%H.%M.%S`.tgz"
 TempFreshportsFile="freshports.backup.txt"
-TempFreshportsForumFile="freshports.phorum.backup.txt"
-TempFreshportsSurveyFile="freshports.survey.backup.txt"
+TempFreshPortsPhorum=freshports.phorum.backup.txt
+TempPhpAds=freshports.phpads.backup.txt
 
 #
 # dump the database.
@@ -26,19 +26,30 @@ TempFreshportsSurveyFile="freshports.survey.backup.txt"
 #     database   - the name of database to dump
 #     /pathto/   - the path to the backup file
 #
-/usr/local/bin/pg_dump FreshPorts2TestLists > $WorkingDirectory/$TempFreshportsFile
+echo "/usr/local/bin/pg_dump freshports > $WorkingDirectory/$TempFreshportsFile"
+/usr/local/bin/pg_dump freshports > $WorkingDirectory/$TempFreshportsFile
+
+/usr/local/bin/pg_dump fpphorum   > $WorkingDirectory/$TempFreshPortsPhorum
+echo "/usr/local/bin/pg_dump fpphorum   > $WorkingDirectory/$TempFreshPortsPhorum"
+
+/usr/local/bin/pg_dump phpads     > $WorkingDirectory/$TempPhpAds
+echo "/usr/local/bin/pg_dump phpads     > $WorkingDirectory/$TempPhpAds"
+
 #
 # compress it
 #
-zip -9 $BackupFile $WorkingDirectory/$TempFreshportsFile
+echo tar cvfz $BackupFile $WorkingDirectory/$TempFreshportsFile $WorkingDirectory/$TempFreshPortsPhorum $WorkingDirectory/$TempPhpAds
+tar cvfz $BackupFile $WorkingDirectory/$TempFreshportsFile $WorkingDirectory/$TempFreshPortsPhorum $WorkingDirectory/$TempPhpAds
 
 #
 # copy it offsite
 #
 
-/usr/bin/scp -P 2222 $BackupFile dan@diary.unixathome.org:$BackupFile
+echo /usr/bin/scp -P 2222 $BackupFile ftpbackup@bast.unixathome.org:
+/usr/bin/scp -P 2222 $BackupFile ftpbackup@bast.unixathome.org:
 
 #
 # remove the files we created
 #
-rm $BackupFile $WorkingDirectory/$TempFreshportsFile $WorkingDirectory/$TempFreshportsForumFile $WorkingDirectory/$TempFreshportsSurveyFile
+echo $BackupFile $WorkingDirectory/$TempFreshportsFile $WorkingDirectory/$TempFreshPortsPhorum $WorkingDirectory/$TempPhpAds
+rm $BackupFile $WorkingDirectory/$TempFreshportsFile $WorkingDirectory/$TempFreshPortsPhorum $WorkingDirectory/$TempPhpAds
