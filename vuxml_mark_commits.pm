@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: vuxml_mark_commits.pm,v 1.1.2.5 2005-01-22 14:40:48 dan Exp $
+# $Id: vuxml_mark_commits.pm,v 1.1.2.6 2005-01-25 01:31:49 dan Exp $
 #
 # Copyright (c) 1999-2004 DVL Software
 #
@@ -27,8 +27,6 @@ sub new {
 sub _initialize {
 	my $this = shift;
 }
-
-
 
 sub CommitsForThisPackage($) {
 	my $this        = shift;
@@ -75,6 +73,7 @@ sub EmptyCommitLogPortsVuXML() {
 		FreshPorts::Utilities::ReportError('warning', "Could not execute sql", 1);
 	}
 }
+
 sub ValueOrNull($) {
 	my $this  = shift;
 	my $Value = shift;
@@ -167,6 +166,7 @@ SELECT commit_log_id,
 
 	print "\nfinished marking those commits\n";
 }
+
 sub PackageVersion($;$;$) {
 	my $this         = shift;
 	my $PortVersion  = shift;
@@ -216,8 +216,6 @@ sub TestVersionValues($;$;$) {
 	my $result  = `$command`;
 
 	chomp $result;
-
-
 
 	my $ValidResults = $Operators{$Operator};
 #	while ( my ($op, $index) = each %$ValidResults) {
