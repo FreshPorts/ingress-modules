@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: vuxml.pm,v 1.1.2.7 2004-12-12 23:45:46 dan Exp $
+# $Id: vuxml.pm,v 1.1.2.8 2004-12-13 21:38:03 dan Exp $
 #
 # Copyright (c) 2004 DVL Software
 #
@@ -10,6 +10,9 @@ package FreshPorts::vuxml;
 use strict;
 use utilities;
 use constants;
+use vuxml_package;
+
+my @Packages;
 
 sub new {
 	my $this		= {};
@@ -131,6 +134,7 @@ sub FetchByID {
 
 sub FetchByVID {
 	my $this = shift;
+	my $VID  = shift;
 
 	my $dbh;
 	my $sql;
@@ -141,7 +145,7 @@ sub FetchByVID {
 
 	$sql = "SELECT vuxml.*
               FROM vuxml
-             WHERE vuxml.vid = '$this->{vid}'";
+             WHERE vuxml.vid = '$VID'";
 
 	print "sql = '$sql'\n";
 
@@ -163,5 +167,23 @@ sub FetchByVID {
 	return $this->{vid};
 }
 
+sub FetchPackages {
+	my $this = shift;
+	my $VID  = shift;
+
+
+	my $vuxml_package = FreshPorts::vuxml_package->new( $this->{dbh} );
+
+	my @Packages = $vuxml_package->FetchByVID($VID);
+
+	$this->{packages} = \@Packages;
+
+	print "vuxml.pm:179 loop\n";
+	foreach my $package (@{$this->{packages}}) {
+		print $package->{id} . "\n";
+	}
+
+	return $VID;
+}
 
 1;
