@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: process_cvs_mail.pl,v 1.8.2.14 2003-05-16 01:14:06 dan Exp $
+# $Id: process_cvs_mail.pl,v 1.8.2.15 2003-09-16 11:00:35 dan Exp $
 #
 # Copyright (c) 2001-2003  DVL Software
 #
@@ -16,6 +16,7 @@ use lib "$ENV{HOME}/scripts";
 use strict;
 use XML::Writer;
 use constants;
+use utilities;
 
 &main;
 exit;
@@ -335,8 +336,6 @@ sub GetFiles {
 	for (@lines) {
 		my ($line) = $_;
 
-#		print "file :" . $line . "\n";
-
 		#
 		# see also GetLog for use of Revision.
 		#
@@ -360,6 +359,51 @@ sub GetFiles {
 				}
 			}
 		}
+
+		push @files, 'FILE', [ { Action => $action, Revision => $revision, Changes => "$changes1 $changes2", Path => $path } ]; 
+	}
+
+	if (scalar(@files) == 0) {
+		@files = GetFilesImported($message);
+	}
+
+	return @files;
+}
+
+sub GetFilesImported {
+	my ($message) = shift;
+	my (@files);
+	my (@lines) = split("\n", $message);
+
+	my $EndOfFiles = 'by this import';
+
+	# Modified Files
+	my ($found) = 0;
+	for (@lines) {
+		my ($line) = $_;
+
+#		print "file :" . $line . "\n";
+
+		#
+		# see also GetLog for use of Revision.
+		#
+		if ($line =~ /^  Release Tags:/) { $found = 1; next; }
+		next unless $found == 1;
+
+		$line = FreshPorts::Utilities::trim($line);
+
+		# immediately after the Release Tags line is a blank line
+		next if ($line eq '');
+
+		last if ($line =~ /by this import/);
+
+		my ($action, $path) = split(" ", $line);
+
+		# we discard the $action obtained above as it is not needed
+		$action = $FreshPorts::Constants::ADD;
+		my $revision = '1.1.1.1';
+		my $changes1 = '0';
+		my $changes2 = '0';
 
 		push @files, 'FILE', [ { Action => $action, Revision => $revision, Changes => "$changes1 $changes2", Path => $path } ]; 
 	}
