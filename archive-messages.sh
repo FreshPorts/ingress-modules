@@ -1,14 +1,15 @@
 #!/bin/sh
 #
-# $Id: archive-messages.sh,v 1.1.2.2 2003-04-23 19:17:12 dan Exp $
+# $Id: archive-messages.sh,v 1.1.2.3 2003-05-10 19:44:29 dan Exp $
 #
-# Copyright (c) 2001 DVL Software Limited
+# Copyright (c) 2003 DVL Software Limited
 #
 # archive away all the messages which were created yesterday.
 # this script is designed to be called like this from crontab:
 #
-#  10  0   *   *   *  archive-messages.sh 1
+#  10  0   *   *   *  cd $DIR && ./archive-messages.sh 1 >> /dev/null
 #
+# where $DIR is the directory in which this file exists.
 
 if [ $# -ne 1 ]
 then
@@ -26,9 +27,16 @@ fi
 
 DAYS=$1
 
-
 BASEDIR=${MSGDIR}/msgs/FreeBSD
 
-${SCRIPTDIR}/archive-logs.sh ${DAYS} ${BASEDIR}/raw        ${BASEDIR}/archive/raw
-${SCRIPTDIR}/archive-logs.sh ${DAYS} ${BASEDIR}/xml        ${BASEDIR}/archive/xml
-${SCRIPTDIR}/archive-logs.sh ${DAYS} ${BASEDIR}/xml-output ${BASEDIR}/archive/xml-output
+YYYY_MM_DD=`eval date -v-${DAYS}d "+%Y_%m_%d"`
+YYYY_MM=`eval date -v-${DAYS}d "+%Y_%m"`
+YYYYMMDD=`eval date -v-${DAYS}d "+%Y.%m.%d"`
+
+mkdir -p ${BASEDIR}/archive/${YYYY_MM}/${YYYY_MM_DD}
+
+SRC="${BASEDIR}/recent/${YYYYMMDD}*"
+DEST="${BASEDIR}/archive/${YYYY_MM}/${YYYY_MM_DD}/"
+
+echo ${SRC} ${DEST}
+mv   ${SRC} ${DEST}
