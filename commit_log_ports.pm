@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: commit_log_ports.pm,v 1.8 2002-02-02 03:06:28 dan Exp $
+# $Id: commit_log_ports.pm,v 1.9 2002-02-02 04:46:41 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -8,7 +8,7 @@
 package FreshPorts::CommitLogPorts;
 
 use strict;
-
+use utilities;
 
 sub new {
 	my $this		= {};

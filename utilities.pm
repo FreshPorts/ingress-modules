@@ -1,10 +1,11 @@
-# $Id: utilities.pm,v 1.9 2002-02-02 03:20:55 dan Exp $
+# $Id: utilities.pm,v 1.10 2002-02-02 04:46:42 dan Exp $
 #
 #
 # Copyright (c) 2001 DVL Software
 #
 package FreshPorts::Utilities;
 
+require config;
 require Sys::Syslog;
 
 # =================================

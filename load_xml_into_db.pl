@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: load_xml_into_db.pl,v 1.35 2002-02-02 03:06:30 dan Exp $
+# $Id: load_xml_into_db.pl,v 1.36 2002-02-02 04:46:42 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -35,6 +35,7 @@ use commit_log;
 use commit_log_element;
 use db_utils;
 use database;
+use utilities;
 
 use XML::Node;
 use DBI;

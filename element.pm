@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: element.pm,v 1.8 2002-02-02 03:11:10 dan Exp $
+# $Id: element.pm,v 1.9 2002-02-02 04:46:42 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -9,6 +9,7 @@ package FreshPorts::Element;
 
 use strict;
 use File::Basename;
+use utilities;
 
 $FreshPorts::Element::Active	= 'A';
 $FreshPorts::Element::Deleted	= 'D';

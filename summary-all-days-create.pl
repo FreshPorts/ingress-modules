@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: summary-all-days-create.pl,v 1.4 2002-02-02 03:06:30 dan Exp $
+# $Id: summary-all-days-create.pl,v 1.5 2002-02-02 04:46:42 dan Exp $
 #
 # Copyright (c) 1999-2000 DVL Software
 #
@@ -13,7 +13,7 @@ use strict;
 
 use lib '/home/freshports.org/scripts';
 use freshports_database;
-
+use utilities;
 
 my $NotifyByMail = "root";
 my $PathToUse    = "/usr/local/etc/freshports.changes/archives";  # must NOT include a trailing /
