@@ -27,7 +27,7 @@
 # SUCH DAMAGE.
 
 #
-# @(#) $Id: vuxml_parsing.pm,v 1.1.2.11 2004-12-13 21:36:25 dan Exp $
+# @(#) $Id: vuxml_parsing.pm,v 1.1.2.12 2004-12-15 14:44:16 dan Exp $
 #
 # Parse the Vulnerabilities and Exposures (vuxml) database extracting
 # the entries for loading into a RDBMS.
@@ -348,11 +348,11 @@ sub update_database
 		}
 	}
 
-	if ($FullInsert) {
-	    my $vuxml_id = $self->update_database_vuxml();
-		$self->update_database_vuxml_affected  ($vuxml_id);
-	    $self->update_database_vuxml_references($vuxml_id);
-	}
+    if ($FullInsert) {
+        my $vuxml_id = $self->database_vuxml_insert();
+        $self->database_vuxml_insert_affected  ($vuxml_id);
+        $self->database_vuxml_insert_references($vuxml_id);
+    }
 
 
     return $self;
@@ -429,26 +429,19 @@ sub vuxml_differs
 
 	my $differs = 0;
 
-print "1differs = $differs\n";
 	$differs = 1 if ($self->values_differ($vuxml->{vid}            , $self->vid()));
-print "$vuxml->{vid}            , " . $self->vid() . "\n";
-print "2differs = $differs\n";
 	$differs = 1 if ($self->values_differ($vuxml->{topic}          , $self->topic()));
-print "'$vuxml->{topic}'          , '" . $self->topic() . "'\n";
-print "3differs = $differs\n";
 	$differs = 1 if ($self->values_differ($vuxml->{description}    , $self->description()));
-print "4differs = $differs\n";
 	$differs = 1 if ($self->values_differ($vuxml->{date_discovery} , $self->date_discovery()));
-print "5differs = $differs\n";
 	$differs = 1 if ($self->values_differ($vuxml->{date_entry}     , $self->date_entry()));
-print "6differs = $differs\n";
 	$differs = 1 if ($self->values_differ($vuxml->{date_modified}  , $self->date_modified()));
-print "7differs = $differs\n";
+
+#	$differs = 1 if ($self->
 
 	return $differs;
 }
 
-sub update_database_vuxml
+sub database_vuxml_insert
 {
     my __PACKAGE__ $self = shift;
     my $id               = shift;
@@ -469,7 +462,7 @@ sub update_database_vuxml
     return $vuxml_id;
 }
 
-sub update_database_vuxml_affected
+sub database_vuxml_insert_affected
 {
     my __PACKAGE__ $self = shift;
     my $vuxml_id         = shift;
@@ -542,7 +535,7 @@ sub update_database_vuxml_affected
     return $package_count;
 }
 
-sub update_database_vuxml_references
+sub database_vuxml_insert_references
 {
     my __PACKAGE__ $self = shift;
     my $vuxml_id         = shift;
