@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: INDEX-verify-ports.pl,v 1.1 2002-03-03 23:52:28 dan Exp $
+# $Id: INDEX-verify-ports.pl,v 1.2 2002-03-17 19:24:12 dan Exp $
 #
 # Copyright (c) 2001-2002 DVL Software
 #
@@ -30,6 +30,15 @@ sub ExtractPortFromLine($) {
 my $sth;
 my $sql;
 my $IndexLine;
+my $IndexFile = 0;
+
+for (my $i = 1; $i < ($#ARGV+1); $i++) {
+	print "checking arg $i\n";
+	if ($ARGV[$i] eq '-I') {
+		print "debugging....\n";
+		$IndexFile = 1;
+	}
+}
 
 my $dbh = FreshPorts::Database::GetDBHandle();
 
@@ -52,9 +61,14 @@ if ($dbh) {
 		# remove the trailing CR/LF
 		$IndexLine =~ s/\n//g;
 
-		my $result = ExtractPortFromLine($IndexLine);
-		print "$result\n";
+		my $result;
+		if ($IndexFile) {
+			$result = ExtractPortFromLine($IndexLine);
+		} else {
+			$result = $IndexLine;
+		}
 
+#		print "$result\n";
 		(my $category, my $port) = split ("/", $result);
 
 		$sql = "select PortVerifyAddOne('$category', '$port')";
@@ -66,6 +80,8 @@ if ($dbh) {
 
 	$dbh->commit() ||
 		FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql ... maybe invalid?", 1);
+
+#exit;
 
 	print "now calculating results...\n";
 	$sql = "select PortsVerifyProcess()";
