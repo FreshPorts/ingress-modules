@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $Id: freebsd-cvs.sh,v 1.7.2.6 2004-10-12 00:45:28 dan Exp $
+# $Id: freebsd-cvs.sh,v 1.7.2.7 2005-01-06 04:28:59 dan Exp $
 #
 # Copyright (c) 1999-2003 DVL Software
 #
@@ -65,15 +65,12 @@ RESULT=$?
 if [ -f ${OUTPUT}/$FILE.errors ]
 then
 #  found errors
-   if [  -s ${OUTPUT}/$FILE.errors ]
+   if [ -s ${OUTPUT}/$FILE.errors ]
    then
-      if [ $RESULT -eq 2 ] || [ $RESULT -eq 4 ]
-      then
-#         rm ${OUTPUT}/$FILE.errors
-      else
-         exit 0
-      fi
+      # do nothing, leave that file there.
    else
       rm ${OUTPUT}/$FILE.errors
    fi
 fi
+
+exit $RESULT
