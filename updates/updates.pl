@@ -291,7 +291,7 @@ my $NotifyByMail = "root";
 my $PortID;
 my $ChangePortID;
 
-my $dbh = DBI->connect('dbi:mysql:freshportsnew','updater','xyzzy');
+my $dbh = DBI->connect('dbi:mysql:DATABASE','updater','PASSWORD');
 if (!$dbh) {
    # email the main man
    open  MAIL, "|mail -s 'freshports error' $NotifyByMail";
