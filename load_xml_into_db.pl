@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: load_xml_into_db.pl,v 1.41 2002-02-14 23:36:31 dan Exp $
+# $Id: load_xml_into_db.pl,v 1.42 2002-02-17 20:03:59 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -281,16 +281,11 @@ sub handle_update_end
 	undef $Updates{MessageSubject};
 
 	# now we should refresh all the ports associated with this commit
+	# as each port is refreshed, it will be committed
 
 	if ($refresh_ports) {
-		FreshPorts::VerifyPort::RefreshAllPortsTouchedByCommit(\%CommitLogPorts, $fetch_before_refresh);
+		FreshPorts::VerifyPort::RefreshAllPortsTouchedByCommit(\%CommitLogPorts, $fetch_before_refresh, $dbh);
 	}
-
-	#
-	# commit everything we've done.  we don't want it falling over during
-	# the daily summary creation and then doing a rollback.
-	#
-	$dbh->commit();
 }
 
 sub handle_updates_end {
