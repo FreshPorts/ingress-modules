@@ -1,4 +1,4 @@
-# $Id: constants.pm,v 1.7.2.5 2003-05-16 01:14:01 dan Exp $
+# $Id: constants.pm,v 1.7.2.6 2003-09-23 15:34:33 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -12,7 +12,7 @@ use strict;
 
 $FreshPorts::Constants::ports_seq					= "ports_id_seq";
 $FreshPorts::Constants::commit_log_seq				= "commit_log_id_seq";
-$FreshPorts::Constants::commit_log_elements_seq	= "commit_log_elements_id_seq";
+$FreshPorts::Constants::commit_log_elements_seq		= "commit_log_elements_id_seq";
 $FreshPorts::Constants::commit_log_seq				= "commit_log_id_seq";
 $FreshPorts::Constants::system_branch_seq			= "system_branch_id_seq";
 
@@ -26,14 +26,14 @@ $FreshPorts::Constants::FreeBSD						= 'FreeBSD';
 $FreshPorts::Constants::FILE_MAKEFILE				= "Makefile";
 $FreshPorts::Constants::FILE_DESCRIPTION			= "pkg-descr";
 $FreshPorts::Constants::FILE_COMMENT				= "pkg-comment";
-$FreshPorts::Constants::FILE_MAKEFILECOMMON		= "Makefile.common";
+$FreshPorts::Constants::FILE_MAKEFILECOMMON			= "Makefile.common";
 $FreshPorts::Constants::FILE_MAKEFILEMAN			= "files/Makefile.man";
 
 %FreshPorts::Constants::FilesWhichPromptRefresh = (
 	$FreshPorts::Constants::FILE_MAKEFILE			=> 1,
 	$FreshPorts::Constants::FILE_DESCRIPTION		=> 2,
 	$FreshPorts::Constants::FILE_COMMENT			=> 4,
-	$FreshPorts::Constants::FILE_MAKEFILECOMMON	=> 8,
+	$FreshPorts::Constants::FILE_MAKEFILECOMMON		=> 8,
 	$FreshPorts::Constants::FILE_MAKEFILEMAN		=> 16,
 );
 
@@ -44,20 +44,20 @@ $FreshPorts::Constants::FILE_MAKEFILEMAN			= "files/Makefile.man";
 %FreshPorts::Constants::IgnoredItems = (
 	"Attic"			=> 1,
 	"distfiles"		=> 2,
-	"Mk"				=> 3,
+	"Mk"			=> 3,
 	"Tools"			=> 4,
 	"Templates"		=> 5,
 	"Makefile"		=> 6,
-	"pkg"				=> 7,
+	"pkg"			=> 7,
 	"Makefile.inc"	=> 8,
 );
 
-$FreshPorts::Constants::UsualPortsTreeLocation				= '/usr';
+$FreshPorts::Constants::UsualPortsTreeLocation			= '/usr';
 
-$FreshPorts::Constants::HEAD										= 'HEAD';
+$FreshPorts::Constants::HEAD							= 'HEAD';
 
 $FreshPorts::Constants::ReportIDMaintainerNotification	= 3;
-$FreshPorts::Constants::ReportIDAnnouncements				= 4;
-$FreshPorts::Constants::ReportDeletedPorts					= 5;
+$FreshPorts::Constants::ReportIDAnnouncements			= 4;
+$FreshPorts::Constants::ReportDeletedPorts				= 5;
 
 1;
