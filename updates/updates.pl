@@ -106,8 +106,8 @@ sub ChangeLogDetailInsert($;$;$;$;$) {
       }
    }
 
-   my $sql = "INSERT INTO change_log_details (change_log_port_id, port_id, change_type, details) \
-                values ($ChangePortID, $PortID, '$change_type', '$details')";
+   my $sql = "INSERT INTO change_log_details (change_log_port_id, change_type, details) \
+                values ($ChangePortID, '$change_type', '$details')";
 
    print "ChangeLogDetailInsert sql is $sql\n";
 
@@ -200,15 +200,20 @@ sub MarkPortAsRefreshNeeded($;$;$;$;$) {
    $sql = "update ports set last_change_log_id = $ChangeLogID ";
 
    if ($action eq "remove") {
-      # make sure we aren't deleting this port!
+      # only when the Makefile is removed do we actually delete the port
       if ($entry eq "Makefile") {
          $sql .= ", status = 'D'";
+         #
          # if we are deleting a port, we don't need to refresh it.
          # we do this in case the port is already waiting for a refresh
          # when it is deleted.
+         #
          $sql .= ", needs_refresh = 0";
       }
    } else {
+      #
+      # we aren't removing anything, we are adding or modifying
+      #
 
       #
       # depending on what has changed, we need to take action accordingly
@@ -219,11 +224,18 @@ sub MarkPortAsRefreshNeeded($;$;$;$;$) {
 
       my $index = $FilesWhichPromptRefresh{$entry};
       if ($index) {
+         # this *is* a file for which we must do a refresh.
+
          #
-         # if the port has not been deleted
+         # but we don't refresh if the port has been deleted.
          #
-         if ($StatusOriginal ne "D") {
-            $sql .= ", needs_refresh = needs_refresh | $index";
+         $sql .= ", needs_refresh = needs_refresh | $index ";
+         if ($StatusOriginal eq "D") {
+            #
+            # if we have a deleted port, and we just added one of
+            # the items which prompts a refresh, we undelete the port.
+            #
+            $sql .= ", status = 'A'";
          }
       }
    }
