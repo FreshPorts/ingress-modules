@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: load_xml_into_db.pl,v 1.27 2001-12-22 04:30:40 dan Exp $
+# $Id: load_xml_into_db.pl,v 1.28 2001-12-22 21:50:12 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -21,7 +21,7 @@
 #we make a great deal of use of a global variable Updates.  We should fix that up.
 # use strict;
 
-use lib '/home/lists-test/scripts';
+use lib '/home/lists/scripts';
 
 require Sys::Syslog;
 
@@ -38,6 +38,7 @@ use DBI;
 
 my $commit_log_id	= 0;
 my $debug			= 0;
+my $overwrite		= 0;
 
 my $SystemID;			# the system id for this update.  Usually 'FreeBSD' => 1
 my $SystemBranchID;		# the system version id for this update.  Usually 'HEAD' => 1
@@ -80,14 +81,24 @@ sub main {
 			print "please specify an input file name which exists\n";
 			exit 1;
 		}
-		if (($#ARGV+1) >= 2) {
-			if ($ARGV[1] eq '-D') {
+		my $i;
+
+		for ($i = 1; $i < ($#ARGV+1); $i++) {
+			print "checking arg $i\n";
+			if ($ARGV[$i] eq '-D') {
 				print "debugging....\n";
 				$debug = 1;
 			}
+
+			if ($ARGV[$i] eq '-O') {
+				print "overwriting....\n";
+				$overwrite = 1;
+			}
+			
 		}
+
 	} else {
-		print "USAGE : $0 INPUTFILE [-D] <-D means debug, don't actually update the database>\n";
+		print "USAGE : $0 INPUTFILE [-D] [-O] <-D means debug, don't actually update the database> <-O means overwrite any existing message id>\n";
 		exit 1;
 	}
 
@@ -262,8 +273,12 @@ sub handle_update_end
 
 	FreshPorts::VerifyPort::RefreshAllPortsTouchedByCommit(\%Ports);
 
-	# create the daily summaries
-	FreshPorts::VerifyPort::CreateDailySummary($commit_date, $dbh);
+	# create the daily summaries (if we have a port there..)
+	if (keys %Ports) {
+		FreshPorts::VerifyPort::CreateDailySummary($commit_date, $dbh);
+	} else {
+		print "No ports found: CreateDailySummary not being called\n";
+	}
 
 	$dbh->commit();
 }
@@ -550,8 +565,22 @@ sub SaveUpdateToDB {
 	if (defined($existing_commit_id)) {
 		Sys::Syslog::syslog('warning',"message $message_id has already been added to the database");
 		print "message $message_id has already been added to the database\n";
-		my $nullvalue;
-		return $nullvalue;
+
+		if ($overwrite) {
+			Sys::Syslog::syslog('warning',"message $message_id being removed");
+			print "message $message_id being removed\n";
+
+			# delete that message
+			$sql = "delete from commit_log where message_id = $message_id";
+			$sth = $dbh->prepare($sql);
+			if (!$sth->execute) {
+				Sys::Syslog::syslog('warning', "Could not execute SQL $sql $dbh->err");
+				die "Could not execute SQL $sql ... maybe invalid? $dbh->err";
+			}
+		} else {
+			my $nullvalue;
+			return $nullvalue;
+		}
 	}
 
 
