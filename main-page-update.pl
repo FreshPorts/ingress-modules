@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: main-page-update.pl,v 1.10.2.1 2002-04-01 22:42:00 dan Exp $
+# $Id: main-page-update.pl,v 1.10.2.2 2002-07-27 19:53:40 dan Exp $
 #
 # Copyright (c) 1999-2002 DVL Software
 #
@@ -57,8 +57,28 @@ while (1) {
 		if ($sth = $dbh->prepare($sql)) {
 			if ($sth->execute) {
 				print "refreshing main page now.\n";
-				$MaxCommitID   = FreshPorts::Cache::RefreshMainPage($dbh);
+				if ($housekeeping->{refresh_now} == $FreshPorts::Housekeeping::RefreshPorts) {
+					my $MaxCommitID1 = FreshPorts::Cache::RefreshMainPage($FreshPorts::Housekeeping::RefreshPorts, $dbh);
+					print "MaxCommitID1 ='$MaxCommitID1'\n"; 
 
+					my $MaxCommitID2 = FreshPorts::Cache::RefreshMainPage($FreshPorts::Housekeeping::Refresh, $dbh);
+					print "MaxCommitID2 ='$MaxCommitID2'\n"; 
+
+					my $MaxCommitID;
+					if ($MaxCommitID1 > $MaxCommitID2) {
+						$MaxCommitID = $MaxCommitID1;
+					} else {
+						$MaxCommitID = $MaxCommitID2;
+					}
+					print "MaxCommitID ='$MaxCommitID'\n"; 
+				}
+
+				#
+				# if we need to refresh the ports, we need to refresh 
+
+				if ($housekeeping->{refresh_now} == $FreshPorts::Housekeeping::Refresh) {
+					$MaxCommitID   = FreshPorts::Cache::RefreshMainPage($FreshPorts::Housekeeping::Refresh, $dbh);
+				}
 			} else {
 	            FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql ... maybe invalid?", 0);
 			}

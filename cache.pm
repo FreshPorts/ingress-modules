@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: cache.pm,v 1.1.2.5 2002-04-18 14:05:54 dan Exp $
+# $Id: cache.pm,v 1.1.2.6 2002-07-27 19:53:40 dan Exp $
 #
 # Copyright (c) 2001-2002 DVL Software
 #
@@ -10,16 +10,22 @@ package FreshPorts::Cache;
 use strict;
 use config;
 use utilities;
+use housekeeping;
 
-sub RefreshMainPage($) {
-	my $dbh = shift;
+sub RefreshMainPage($;$) {
+	my $refresh_now	= shift;
+	my $dbh			= shift;
 
 	my $sql;
 	my $sth;
 	my @row;
 	my $MaxCommitID;
 
-	$sql = "select RecordLastestPortCommits();";
+	if ($refresh_now == $FreshPorts::Housekeeping::Refresh) {
+		$sql = "select RecordLastestCommits();"
+	} else {
+		$sql = "select RecordLastestPortCommits();";
+	}
 	print "sql = $sql\n";
 
 	if ($sth = $dbh->prepare($sql)) {

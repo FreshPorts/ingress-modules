@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: verifyport.pm,v 1.42.2.2 2002-05-19 18:42:33 dan Exp $
+# $Id: verifyport.pm,v 1.42.2.3 2002-07-27 19:53:41 dan Exp $
 #
 # Copyright (c) 2001-2001 DVL Software
 #
@@ -496,7 +496,7 @@ sub RefreshAllPortsTouchedByCommit($;$;$) {
 			# so that caching of pages can be properly done.
 			#
 			print " &&&&&&&&&&&&&&&&& setting housekeeping->refreshdone\n";
-			$housekeeping->refreshdone();
+			$housekeeping->refreshdone($FreshPorts::Housekeeping::RefreshPorts);
 
 			#
 			# commit everything we've done.  we don't want it falling over during

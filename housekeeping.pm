@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: housekeeping.pm,v 1.1.2.1 2002-04-01 22:53:11 dan Exp $
+# $Id: housekeeping.pm,v 1.1.2.2 2002-07-27 19:53:40 dan Exp $
 #
 # Copyright (c) 2002 DVL Software
 #
@@ -9,6 +9,9 @@ package FreshPorts::Housekeeping;
 
 use strict;
 use utilities;
+
+$FreshPorts::Housekeeping::Refresh      = 1;
+$FreshPorts::Housekeeping::RefreshPorts = 2;
 
 sub new {
 	my $this		= {};
@@ -23,7 +26,8 @@ sub _initialize {
 }
 
 sub refreshdone {
-	my $this = shift;
+	my $this  = shift;
+	my $value = shift;
 
 	my $dbh = $this->{dbh}; # just a short cut...
 	my $sth;
@@ -31,7 +35,7 @@ sub refreshdone {
 	my @row;
 
 	# we are always updating here.  It is cleared during the stored procedure RecordLastestPortCommits
-	$sql = "update housekeeping set refresh_now = 1";
+	$sql = "update housekeeping set refresh_now = $value";
 
 	print "sql is $sql\n";
 

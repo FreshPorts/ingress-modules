@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: refresh-unrefreshed-ports.pl,v 1.20.2.1 2002-04-21 23:46:07 dan Exp $
+# $Id: refresh-unrefreshed-ports.pl,v 1.20.2.2 2002-07-27 19:53:41 dan Exp $
 #
 # Copyright (c) 1999-2001 DVL Software
 #
@@ -126,7 +126,7 @@ foreach $porttorefresh (@PORTS) {
 			# so that caching of pages can be properly done.
 			#
 			print " &&&&&&&&&&&&&&&&& setting housekeeping->refreshdone\n";
-			$housekeeping->refreshdone();
+			$housekeeping->refreshdone($FreshPorts::Housekeeping::RefreshPorts);
 
 			#
 			# commit everything we've done.  we don't want it falling over during
