@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: cache.pm,v 1.1.2.4 2002-04-02 01:48:34 dan Exp $
+# $Id: cache.pm,v 1.1.2.5 2002-04-18 14:05:54 dan Exp $
 #
 # Copyright (c) 2001-2002 DVL Software
 #
@@ -201,7 +201,7 @@ sub CreateDailySummary($;$) {
 			if (defined($myrow->{version})) {
 				print FILE $myrow->{version};
 			}
-			if (defined($myrow->{revision})) {
+			if (defined($myrow->{revision}) && ($myrow->{revision} > 0)) {
 				print FILE '-' . $myrow->{revision};
 			}
 			print FILE "</FONT></A><BR>\n";     
