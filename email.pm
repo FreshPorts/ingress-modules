@@ -1,5 +1,5 @@
 #
-# $Id: email.pm,v 1.1.2.8 2003-05-16 01:14:03 dan Exp $
+# $Id: email.pm,v 1.1.2.9 2003-07-31 17:46:59 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -13,9 +13,10 @@ use config;
 use utilities;
 
 
-sub SendMail($;$;$;$;$) {
+sub SendMail($;$;$;$;$;$) {
 	my $From 	= shift;
 	my $To		= shift;
+	my $CC      = shift;
 	my $Subject	= shift;
 	my $Body		= shift;
 	my $Headers = shift;
@@ -29,7 +30,7 @@ sub SendMail($;$;$;$;$) {
             client => $FreshPorts::Config::email_client
             };
 
-	$result = $sender->Open({to => $To, subject => $Subject, headers=> $Headers});
+	$result = $sender->Open({to => $To, cc => $CC, subject => $Subject, headers=> $Headers});
 
 	if (ref $result) {
 		$sender->SendEnc($Body);
