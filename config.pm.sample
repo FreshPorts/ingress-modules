@@ -1,0 +1,64 @@
+#
+# $Id: config.pm.sample,v 1.13 2002-01-23 01:54:14 dan Exp $
+#
+# Copyright (c) 2001 DVL Software
+#
+
+package FreshPorts::Config;
+
+use File::PathConvert;
+
+#
+# This section contains local settings.  Change them to suit your environment.
+#
+
+$FreshPorts::Config::FreshPortsURL		= 'http://lists-test.freshports.org/';
+
+$FreshPorts::Config::TimeAdjust			= '-10800 seconds';
+
+$FreshPorts::Config::dbname				= 'databasename';
+$FreshPorts::Config::user				= 'user';
+$FreshPorts::Config::password			= 'password';
+
+$FreshPorts::Config::scriptpath			= $ENV{HOME} . "/scripts";
+
+$FreshPorts::Config::mkdir_pkg			= 0;
+
+#
+# where on disk is the ports tree?
+#
+$FreshPorts::Config::path_to_tree		= $ENV{HOME};
+
+#
+# path to ports tree. no trailing slash
+#
+$FreshPorts::Config::path_to_ports		= $FreshPorts::Config::path_to_tree . '/ports';
+
+#
+# where in the cvs tree are ports?
+#
+$FreshPorts::Config::ports_prefix		= 'ports';
+
+$FreshPorts::Config::DailySummaryDir	= $ENV{HOME} . "/src/www/archives"; # no trailing /
+
+
+#
+# Change only above. Do not change below.
+#
+
+#
+# ensure we have the real path names here...
+# otherwise we'll have trouble with determining relative pathnames
+#
+$FreshPorts::Config::scriptpath			= File::PathConvert::realpath($FreshPorts::Config::scriptpath);
+$FreshPorts::Config::path_to_tree		= File::PathConvert::realpath($FreshPorts::Config::path_to_tree);	
+$FreshPorts::Config::path_to_ports		= File::PathConvert::realpath($FreshPorts::Config::path_to_ports);
+
+#
+# for debugging....
+#
+print "\$FreshPorts::Config::scriptpath    '$FreshPorts::Config::scriptpath'\n";
+print "\$FreshPorts::Config::path_to_tree  '$FreshPorts::Config::path_to_tree'\n";
+print "\$FreshPorts::Config::path_to_ports '$FreshPorts::Config::path_to_ports'\n";
+
+1;
