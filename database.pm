@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: database.pm,v 1.4 2002-02-02 04:46:41 dan Exp $
+# $Id: database.pm,v 1.4.2.1 2002-08-17 21:28:51 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -20,7 +20,7 @@ sub GetDBHandle {
 		$dbh_pg->{AutoCommit} = 0;
 
 		if (!$dbh_pg) {
-			FreshPorts::Utilities::ReportError('warning', "could not connect to FreshPorts2", 1);
+			FreshPorts::Utilities::ReportError('warning', "could not connect to $FreshPorts::Config::dbname", 1);
 		}
 	}
 
