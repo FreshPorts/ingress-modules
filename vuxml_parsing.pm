@@ -27,7 +27,7 @@
 # SUCH DAMAGE.
 
 #
-# @(#) $Id: vuxml_parsing.pm,v 1.1.2.4 2004-09-11 00:45:46 dan Exp $
+# @(#) $Id: vuxml_parsing.pm,v 1.1.2.5 2004-09-11 01:08:20 dan Exp $
 #
 # Parse the Vulnerabilities and Exposures (vuxml) database extracting
 # the entries for loading into a RDBMS.
@@ -308,7 +308,7 @@ sub update_database
     #
     # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-    #	my $vuxml_id =  $self->update_database_vuxml();
+    my $vuxml_id =  $self->update_database_vuxml();
 
     $self->print_self();    # For debugging purposes
 
@@ -320,11 +320,11 @@ sub update_database_vuxml
     my __PACKAGE__ $self = shift;
 
     use vuxml;
-    use db_utils;
-    use vuxml_affected;
-    use vuxml_names;
-    use vuxml_ranges;
-    use vuxml_references;
+#    use db_utils;
+#    use vuxml_affected;
+#    use vuxml_names;
+#    use vuxml_ranges;
+#    use vuxml_references;
 
     my $vuxml = FreshPorts::vuxml->new( $self->{db_handle} );
 
