@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: report-security-notice.pl,v 1.1.2.7 2004-01-29 16:28:45 dan Exp $
+# $Id: report-security-notice.pl,v 1.1.2.8 2004-02-07 06:30:09 dan Exp $
 #
 # Copyright (c) 2001-2004 DVL Software
 #
@@ -13,6 +13,9 @@ use database;
 use DBI;
 use config;
 use report_constants;
+use announcements;
+use commit_log_ports_ignore;
+use system_status;
 
 use Text::Wrap;
 use email;
@@ -25,7 +28,7 @@ my @row;
 my $Bcc;
 my $NumMsgs		= 0;
 my $NumCommits	= 0;
-my $NumPorts   = 0;
+my $NumPorts    = 0;
 
 my $FormatDate	= "%W, %b %e";
 my $FormatTime	= "%H:%i";
@@ -61,12 +64,13 @@ $FreshPorts::ReportConstants::Footer
 }
 
 
-sub CompileWatchNotifyList($;$;$;$;$) {
+sub CompileWatchNotifyList($;$;$;$;$;$) {
 
 	my $Frequency = shift;
 	my $NewPorts  = shift;
 	my $PortCount = shift;
 	my $LastSent  = shift;
+	my $Announce  = shift;
 	my $dbh       = shift;
 
 	my $row;
@@ -116,6 +120,7 @@ sub CompileWatchNotifyList($;$;$;$;$) {
      and report_subscriptions.report_id    = $ReportID
      and report_frequency.id               = report_subscriptions.report_frequency_id
      and commit_log.id                     = security_notice.commit_log_id
+and users.id = 1
 order by watch_list_id, watch_list_name, user_id, category, port, commit_date";
 
 	if ($Debug)	{
@@ -154,6 +159,7 @@ order by watch_list_id, watch_list_name, user_id, category, port, commit_date";
 	}
 	
 	my $BodyHeader = '';
+	$BodyHeader .= $Announce . "\n"; 
 	$BodyHeader .= "Port count: " . sprintf("%5u", $PortCount) . " http://www.FreshPorts.org/categories.php\n";
 	$BodyHeader .= " New ports: " . sprintf("%5u", $NewPorts)  . " http://www.FreshPorts.org/ports-new.php?interval=$Interval\n\n";
 
@@ -245,6 +251,15 @@ sub AddToLogs($;$;$;$;$;$) {
 }
 
 #
+# see if the system is online.
+# If not, exit.
+#
+my $SystemStatus = FreshPorts::SystemStatus->new();
+if (!$SystemStatus->Online()) {
+	exit 0;
+}
+
+#
 # use current time as cutoff for next time we do this
 #
 my $time = `date "+%Y-%m-%d %H:%M:%S"`;
@@ -315,7 +330,10 @@ if (($#ARGV+1) == 1) {
 
 			print "NewPorts = $NewPorts, PortCount = $PortCount\n";
 
-			CompileWatchNotifyList($Frequency, $NewPorts, $PortCount, $last_sent, $dbh);
+			my $Announcements = new FreshPorts::Announcements->new($dbh);
+			my $TextAnnounce = $Announcements->Get();
+
+			CompileWatchNotifyList($Frequency, $NewPorts, $PortCount, $last_sent, $TextAnnounce, $dbh);
 
 			if (!$Debug) {
 				AddToLogs($ReportID, $Frequency, $NumMsgs, $NumCommits, $NumPorts, $dbh);
