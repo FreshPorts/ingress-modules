@@ -55,11 +55,12 @@ sub ChangeLogInsert($;$;$;$) {
    return $ChangeLogID;
 }
 
-#ChangeLogDetailInsert($ChangeLogID, $PortID, $action, $dbh);
-sub ChangeLogDetailInsert($;$;$;$) {
+#ChangeLogDetailInsert($ChangeLogID, $PortID, $action, $details, $dbh);
+sub ChangeLogDetailInsert($;$;$;$;$) {
    my $ChangeLogID = shift;
    my $PortID      = shift;
    my $action      = shift;
+   my $details     = shift;
    my $dbh         = shift;
 
    my $change_type = '?';
@@ -74,12 +75,18 @@ sub ChangeLogDetailInsert($;$;$;$) {
       } else {
          if ($action eq "import") {
             $change_type = 'I';
+         } else {
+            if ($action eq "add") {
+               $change_type = 'A';
+           }
          }
       }
    }
 
-   my $sql = "INSERT INTO change_log_details (change_log_id, port_id, change_type) \
-                values ($ChangeLogID, $PortID, '$change_type')";
+   my $sql = "INSERT INTO change_log_details (change_log_id, port_id, change_type, details) \
+                values ($ChangeLogID, $PortID, '$change_type', '$details')";
+
+   print "ChangeLogDetailInsert sql is $sql\n";
 
    my $sth = $dbh->prepare($sql);
 
@@ -119,7 +126,7 @@ sub PortUpdate($;$;$;$;$;$;$;$;$) {
 
       # update the port, creating it if necessary
 
-      $sql = "select id from ports where name = '" . $port . "' and primary_category_id = $categoryid";
+      $sql = "select id, needs_refresh, status from ports where name = '" . $port . "' and primary_category_id = $categoryid";
       print $sql, "\n";
       $sth = $dbh->prepare($sql);
    
@@ -134,17 +141,6 @@ sub PortUpdate($;$;$;$;$;$;$;$;$) {
          print "nothing found\n";
       }
 
-      #
-      # depending on what has changed, we need to take action accordingly
-      # if we are removing a file, we definitely don't need to refresh.
-      # that's because any file which prompts a refresh, and is removed
-      # pretty much means the port is being deleted.
-      #
-
-      if ($entry =~ /$FilesWhichPromptRefresh/ and $action ne "remove") {
-         $refresh_needed = "Y";
-      }
-
       print "port id = " . @row[0] . "\n";
 
       if (!@row) {
@@ -155,8 +151,11 @@ sub PortUpdate($;$;$;$;$;$;$;$;$) {
          # we assume above that the package does not exist until we are told otherwise.
 
          # we don't get a version when inserting, so we must fake it by supplying a name.
+         # and the date created is this timestamp.  we used to use current_time,
+         # but that defaults to local time, which is not necessarily the same time zone
+         # which can give things like created > last_update.
          $sql .= "'$port', '$timestamp', $categoryid, '$description', " . 
-                 "'$committer', current_timestamp, 'Y', 'A', 'N', '-- waiting for description --')";
+                 "'$committer', '$timestamp', 'Y', 'A', 'N', '-- waiting for description --')";
 
          print "$sql\n";
 
@@ -165,6 +164,10 @@ sub PortUpdate($;$;$;$;$;$;$;$;$) {
          $sth->execute ||
             die "Could not execute SQL statement ... maybe invalid?";
 
+         my $PortID = $sth->{'mysql_insertid'};
+
+         print "newly created port has ID = $PortID\n";
+
          $sql = "insert into newports (name, primary_category_id) values ('$port', $categoryid)";
 
          $sth = $dbh->prepare($sql);
@@ -172,11 +175,9 @@ sub PortUpdate($;$;$;$;$;$;$;$;$) {
          $sth->execute ||
             die "Could not execute SQL port insert statement ... $sql maybe invalid?";
 
-         my $PortId = $sth->{'mysql_insertid'};
+         my $last_change_log_detail_id = ChangeLogDetailInsert($ChangeLogID, $PortID, $action, $entry, $dbh);
 
-         my $last_change_log_detail_id = ChangeLogDetailInsert($ChangeLogID, $PortID, $action, $dbh);
-
-         $sql = "update ports set last_change_log_detail_id = $last_change_log_detail_id where id = $PortId";
+         $sql = "update ports set last_change_log_detail_id = $last_change_log_detail_id where id = $PortID";
 
          $sth = $dbh->prepare($sql);
 
@@ -184,22 +185,45 @@ sub PortUpdate($;$;$;$;$;$;$;$;$) {
             die "Could not execute port update SQL statement ... $sql maybe invalid?";
 
       } else {
-         my $PortID = @row[0];
-         my $last_change_log_detail_id = ChangeLogDetailInsert($ChangeLogID, $PortID, $action, $dbh);
+         my $PortID			= @row[0];
+         my $NeedsRefreshOriginal	= @row[1];
+         my $StatusOriginal		= @row[2];
+         my $last_change_log_detail_id = ChangeLogDetailInsert($ChangeLogID, $PortID, $action, $entry, $dbh);
 
          # update the time on the port
          $sql = "update ports set last_update = '$timestamp', committer = '$committer', " .
                 "last_update_description = '$description', last_change_log_detail_id = $last_change_log_detail_id ";
 
-         if ($refresh_needed eq "Y") {
-            $sql .= ", needs_refresh = 'Y'";
-         }
+
 
          if ($action eq "remove") {
             # make sure we aren't deleting this port!
             if ($entry eq "Makefile") {
                $sql .= ", status = 'D'";
+               # if we are deleting a port, we don't need to refresh it.
+               # we do this in case the port is already waiting for a refresh
+               # when it is deleted.
+               $refresh_needed = "N"
             }
+         } else {
+
+            #
+            # depending on what has changed, we need to take action accordingly
+            # if we are removing a file, we definitely don't need to refresh.
+            # that's because any file which prompts a refresh, and is removed
+            # pretty much means the port is being deleted.
+            #
+
+            if ($entry =~ /$FilesWhichPromptRefresh/) {
+               $refresh_needed = "Y";
+            }
+         }
+
+         #
+         # change the needs_refresh flag if necessary.
+         #
+         if ($NeedsRefreshOriginal ne $refresh_needed) {
+            $sql .= ", needs_refresh = '$refresh_needed'";
          }
 
          $sql .= " where id = $PortID";
