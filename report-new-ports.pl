@@ -1,12 +1,11 @@
 #!/usr/bin/perl -w
 #
-# $Id: report-new-ports.pl,v 1.1.2.18 2004-04-22 11:37:48 dan Exp $
+# $Id: report-new-ports.pl,v 1.1.2.19 2004-11-27 13:54:08 dan Exp $
 #
 # Copyright (c) 2001-2004 DVL Software
 #
 
 use strict;
-use lib "$ENV{HOME}/scripts";
 
 use port;
 use database;

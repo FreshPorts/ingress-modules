@@ -1,13 +1,12 @@
 #!/usr/bin/perl -w
 #
-# $Id: CompareListofPortsWithDatabase.pl,v 1.1.2.3 2003-01-15 05:30:18 dan Exp $
+# $Id: CompareListofPortsWithDatabase.pl,v 1.1.2.4 2004-11-27 13:54:09 dan Exp $
 #
 # Copyright (c) 2001-2002 DVL Software
 #
 
 use strict;
-use lib "$ENV{HOME}/scripts";
-
+use lib "../";
 #require port;
 require DBI;
 require database;

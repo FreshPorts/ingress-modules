@@ -1,12 +1,12 @@
 #!/usr/bin/perl -w
 #
-# $Id: refresh-unrefreshed-ports.pl,v 1.20.2.9 2004-02-07 06:31:23 dan Exp $
+# $Id: refresh-unrefreshed-ports.pl,v 1.20.2.10 2004-11-27 13:54:07 dan Exp $
 #
 # Copyright (c) 1999-2004 DVL Software
 #
 
 use strict;
-use lib "$ENV{HOME}/scripts";
+
 use port;
 use DBI;
 use database;

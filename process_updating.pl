@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: process_updating.pl,v 1.1.2.6 2004-08-27 13:55:24 dan Exp $
+# $Id: process_updating.pl,v 1.1.2.7 2004-11-27 13:54:07 dan Exp $
 #
 # Copyright (c) 2004 DVL Software
 #
@@ -15,8 +15,6 @@
 
 use strict;
 use warnings;
-
-use lib "$ENV{HOME}/scripts";
 
 require Sys::Syslog;
 

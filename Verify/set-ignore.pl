@@ -1,12 +1,12 @@
 #!/usr/bin/perl -w
 #
-# $Id: set-ignore.pl,v 1.1.2.1 2004-06-29 21:02:58 dan Exp $
+# $Id: set-ignore.pl,v 1.1.2.2 2004-11-27 13:54:09 dan Exp $
 #
 # Copyright (c) 1999-2004 DVL Software
 #
 
 use strict;
-use lib "$ENV{HOME}/scripts";
+use lib "../";
 use port;
 use DBI;
 use database;

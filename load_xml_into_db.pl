@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: load_xml_into_db.pl,v 1.46.2.22 2004-08-18 16:48:23 dan Exp $
+# $Id: load_xml_into_db.pl,v 1.46.2.23 2004-11-27 13:54:07 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -21,10 +21,7 @@
 # we make a great deal of use of a global variable Updates.  We should fix that up.
 #
 
-
-# use strict;
-
-use lib "$ENV{HOME}/scripts";
+use strict;
 
 use xml_munge;
 use observer_commits;

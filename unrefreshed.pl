@@ -1,12 +1,11 @@
 #!/usr/bin/perl -w
 #
-# $Id: unrefreshed.pl,v 1.11.2.13 2004-02-07 06:31:24 dan Exp $
+# $Id: unrefreshed.pl,v 1.11.2.14 2004-11-27 13:54:08 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
 
 use strict;
-use lib "$ENV{HOME}/scripts";
 
 use port;
 use database; 

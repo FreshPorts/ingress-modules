@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: vuxml_load_vuxml_dot_xml.pl,v 1.1.2.1 2004-10-03 01:45:09 dan Exp $
+# $Id: vuxml_load_vuxml_dot_xml.pl,v 1.1.2.2 2004-11-27 13:54:08 dan Exp $
 #
 # Copyright (c) 2001-2004 DVL Software
 #
@@ -9,10 +9,6 @@
 
 #we make a great deal of use of a global variable Updates.  We should fix that up.
 use strict;
-
-push (@INC, '~/scripts');
-
-use lib "$ENV{HOME}/scripts";
 
 require Sys::Syslog;
 

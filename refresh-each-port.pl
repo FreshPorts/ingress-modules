@@ -1,12 +1,11 @@
 #!/usr/bin/perl -w
 #
-# $Id: refresh-each-port.pl,v 1.2.2.3 2004-01-29 15:25:05 dan Exp $
+# $Id: refresh-each-port.pl,v 1.2.2.4 2004-11-27 13:54:07 dan Exp $
 #
 # Copyright (c) 1999-2004 DVL Software
 #
 
 use strict;
-use lib "$ENV{HOME}/scripts";
 use port;
 use DBI;
 use database;

@@ -1,12 +1,11 @@
 #!/usr/bin/perl -w
 #
-# $Id: report-security-notice.pl,v 1.1.2.9 2004-02-10 15:54:14 dan Exp $
+# $Id: report-security-notice.pl,v 1.1.2.10 2004-11-27 13:54:08 dan Exp $
 #
 # Copyright (c) 2001-2004 DVL Software
 #
 
 use strict;
-use lib "$ENV{HOME}/scripts";
 
 use port;
 use database;

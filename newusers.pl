@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: newusers.pl,v 1.3.2.6 2004-02-07 06:31:23 dan Exp $
+# $Id: newusers.pl,v 1.3.2.7 2004-11-27 13:54:07 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -8,7 +8,6 @@
 use strict;
 use DBI;
 
-use lib "$ENV{HOME}/scripts";
 use database;
 use commit_log_ports_ignore;
 use system_status;

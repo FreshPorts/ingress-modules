@@ -1,12 +1,11 @@
 #!/usr/bin/perl -w
 #
-# $Id: report-notification.pl,v 1.1.2.25 2004-03-22 19:09:20 dan Exp $
+# $Id: report-notification.pl,v 1.1.2.26 2004-11-27 13:54:08 dan Exp $
 #
 # Copyright (c) 2001-2004 DVL Software
 #
 
 use strict;
-use lib "$ENV{HOME}/scripts";
 
 use port;
 use database;

@@ -1,12 +1,12 @@
 #!/usr/bin/perl -w
 #
-# $Id: set-historical-epoch.pl,v 1.1.2.5 2004-09-25 19:53:11 dan Exp $
+# $Id: set-historical-epoch.pl,v 1.1.2.6 2004-11-27 13:54:09 dan Exp $
 #
 # Copyright (c) 1999-2004 DVL Software
 #
 
 use strict;
-use lib "$ENV{HOME}/scripts";
+use lib "../";
 use port;
 use DBI;
 use database;

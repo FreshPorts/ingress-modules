@@ -1,12 +1,11 @@
 #!/usr/bin/perl -w
 #
-# $Id: daily_stats.pl,v 1.1.2.6 2004-02-07 06:31:22 dan Exp $
+# $Id: daily_stats.pl,v 1.1.2.7 2004-11-27 13:54:06 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
 
 use strict;
-use lib "$ENV{HOME}/scripts";
 
 use port;
 use database; 

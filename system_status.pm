@@ -1,16 +1,12 @@
 #!/usr/bin/perl
 #
-# $Id: system_status.pm,v 1.1.2.1 2004-02-07 06:33:47 dan Exp $
+# $Id: system_status.pm,v 1.1.2.2 2004-11-27 13:54:08 dan Exp $
 #
 # Copyright (c) 2001-2004 DVL Software
 #
 
 
 package FreshPorts::SystemStatus;
-
-push (@INC, '~/scripts');
-
-use lib "$ENV{HOME}/scripts";
 
 use strict;
 use utilities;

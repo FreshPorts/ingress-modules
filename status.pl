@@ -1,12 +1,11 @@
 #!/usr/bin/perl -w
 #
-# $Id: status.pl,v 1.1.2.1 2003-11-24 16:39:57 dan Exp $
+# $Id: status.pl,v 1.1.2.2 2004-11-27 13:54:08 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
 
 use strict;
-use lib "$ENV{HOME}/scripts";
 
 use email;
 use config;

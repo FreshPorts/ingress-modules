@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: process_moved.pl,v 1.1.2.6 2004-08-01 23:45:32 dan Exp $
+# $Id: process_moved.pl,v 1.1.2.7 2004-11-27 13:54:07 dan Exp $
 #
 # Copyright (c) 2001-2004 DVL Software
 #
@@ -9,10 +9,6 @@
 
 #we make a great deal of use of a global variable Updates.  We should fix that up.
 use strict;
-
-push (@INC, '~/scripts');
-
-use lib "$ENV{HOME}/scripts";
 
 require Sys::Syslog;
 

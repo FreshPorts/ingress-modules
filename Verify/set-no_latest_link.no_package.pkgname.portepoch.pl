@@ -1,12 +1,12 @@
 #!/usr/bin/perl -w
 #
-# $Id: set-no_latest_link.no_package.pkgname.portepoch.pl,v 1.1.2.3 2004-11-19 02:39:40 dan Exp $
+# $Id: set-no_latest_link.no_package.pkgname.portepoch.pl,v 1.1.2.4 2004-11-27 13:54:09 dan Exp $
 #
 # Copyright (c) 1999-2004 DVL Software
 #
 
 use strict;
-#use lib "$ENV{HOME}/scripts-vuxml";
+use lib "../";
 use port;
 use DBI;
 use database;

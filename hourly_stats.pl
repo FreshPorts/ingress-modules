@@ -1,12 +1,11 @@
 #!/usr/bin/perl -w
 #
-# $Id: hourly_stats.pl,v 1.1.2.10 2004-03-22 20:29:47 dan Exp $
+# $Id: hourly_stats.pl,v 1.1.2.11 2004-11-27 13:54:06 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
 
 use strict;
-use lib "$ENV{HOME}/scripts";
 
 use port;
 use database; 

@@ -1,12 +1,11 @@
 #!/usr/bin/perl -w
 #
-# $Id: ports_categories-populate.pl,v 1.1.2.2 2003-05-16 01:14:06 dan Exp $
+# $Id: ports_categories-populate.pl,v 1.1.2.3 2004-11-27 13:54:07 dan Exp $
 #
 # Copyright (c) 1999-2003 DVL Software
 #
 
 use strict;
-use lib "$ENV{HOME}/scripts";
 use port;
 use DBI;
 use category;
