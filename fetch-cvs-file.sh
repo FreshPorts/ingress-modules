@@ -48,7 +48,13 @@ else
 # wget --user-agent=Lynx -O $FETCHFILE http://www.freebsd.org/cgi/cvsweb.cgi/~checkout~/ports/$CATEG/$PORT/$FILE?rev=HEAD
 # fetch -o $FETCHFILE http://www.freebsd.org/cgi/cvsweb.cgi/~checkout~/ports/$CATEG/$PORT/$FILE?rev=HEAD
 #/usr/local/bin/lynx -source -dump http://www.freebsd.org/cgi/cvsweb.cgi/~checkout~/ports/$CATEG/$PORT/$FILE?rev=HEAD > $FETCHFILE
-/usr/local/bin/lynx -source -dump http://www.freebsd.org/cgi/cvsweb.cgi/ports/$CATEG/$PORT/$FILE?rev=HEAD > $FETCHFILE
+
+#
+# try to get around any possible caching by using a timestamp as a parameter
+#
+time=`/bin/date +"%s"`
+
+/usr/local/bin/lynx -source -dump http://www.freebsd.org/cgi/cvsweb.cgi/ports/$CATEG/$PORT/$FILE?rev=HEAD\&abcd=$time > $FETCHFILE
  if [ $? -ne 0 ]
  then
     exit 6
