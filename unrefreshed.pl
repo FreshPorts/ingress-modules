@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: unrefreshed.pl,v 1.11.2.7 2002-12-17 16:39:45 dan Exp $
+# $Id: unrefreshed.pl,v 1.11.2.8 2003-02-10 15:05:27 dan Exp $
 #
 # Copyright (c) 2001-2002 DVL Software
 #
@@ -47,14 +47,18 @@ my @row;
 # get a list of ports to update
 #
 
-$sql = "select ports.id, element.name as port, categories.name as category, commit_log_ports.commit_log_id \
-        from ports, categories, element, commit_log_ports \
-        where ports.category_id               = categories.id \
-		  and ports.element_id                = element.id \
-		  and commit_log_ports.port_id        = ports.id \
-          and commit_log_ports.needs_refresh <> 0 \
-          and element.status                  = 'A'
-	        order by category, port";
+$sql = "
+select ports.id, 
+       element.name     as port, 
+       categories.name  as category,
+       commit_log_ports.commit_log_id
+  from ports, categories, element, commit_log_ports
+ where ports.category_id               = categories.id
+   and ports.element_id                = element.id
+   and commit_log_ports.port_id        = ports.id
+   and commit_log_ports.needs_refresh <> 0
+   and element.status                  = 'A'
+order by category, port";
 
 $sth = $dbh->prepare($sql);
 $sth->execute ||
