@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: main-page-update.pl,v 1.8 2002-02-24 02:37:53 dan Exp $
+# $Id: main-page-update.pl,v 1.9 2002-03-02 17:02:29 dan Exp $
 #
 # Copyright (c) 1999-2002 DVL Software
 #
@@ -106,6 +106,7 @@ while (1) {
 		if ($sth = $dbh->prepare($sql)) {
 			if ($sth->execute) {
 				$dbh->commit;
+				print "refreshing main page now.\n";
 				$MaxCommitID = RefreshMainPage($dbh);
 			} else {
 	            FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql ... maybe invalid?", 0);

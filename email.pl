@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: email.pl,v 1.6 2002-01-06 06:22:59 dan Exp $
+# $Id: email.pl,v 1.7 2002-03-02 17:02:28 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -21,6 +21,8 @@ my $sql;
 my $sth;
 my @row;
 my $Bcc;
+my $NumMsgs		= 0;
+my $NumCommits	= 0;
 
 my $FormatDate	= "%W, %b %e";
 my $FormatTime	= "%H:%i";
@@ -117,8 +119,11 @@ sub CompileWatchNotifyList($;$) {
 	if ($Frequency eq 'M') { $FrequencyLong = 'monthly'};
 
 
+	
+
 	while (@row=$sth->fetchrow_array) {
 		print "now processing @row\n";
+		$NumCommits++;
 
 		# make sure that the first time through, we have a value
 		if (!defined($LastID)) {
@@ -128,6 +133,7 @@ sub CompileWatchNotifyList($;$) {
 
 #		print "LastID = '$LastID' and id = '$row[0]'\n";
 		if ($LastID != $row[0]) {
+			$NumMsgs++;
 			SendWatchNoticePersonal($To, $FrequencyLong, $Body);
 
 			$Body   = '';
@@ -145,8 +151,22 @@ sub CompileWatchNotifyList($;$) {
 
 	# if we got at least one, send out email
 	if (defined($LastID)) {
+		$NumMsgs++;
 		SendWatchNoticePersonal($To, $FrequencyLong, $Body);
 	}
+}
+
+sub AddToLogs($;$;$;$) {
+	my $Frequency	= shift;
+	my $NumMsgs		= shift;
+	my $NumCommits	= shift;
+	my $dbh			= shift;
+
+	my $sql = "insert into watch_notice_log (frequency, msg_count, commit_count)
+									values ('$Frequency', $NumMsgs, $NumCommits)";
+	$sth = $dbh->prepare($sql);
+	$sth->execute ||
+           die "Could not execute SQL $sql ... maybe invalid?";
 }
 
 sub SetWatchLastNoticeDate($;$;$) {
@@ -195,6 +215,8 @@ if (($#ARGV+1) == 1) {
 
 			SetWatchLastNoticeDate($Frequency, $dbh, $time);
 
+			AddToLogs($Frequency, $NumMsgs, $NumCommits, $dbh);
+
 			$dbh->commit();
 			$dbh->disconnect();
 
@@ -206,5 +228,6 @@ if (($#ARGV+1) == 1) {
 } else {
 	print "please specify a frequency such as D, W, F, M\n";
 }
+
 
 print "start " . `date "+%Y-%m-%d %H:%M:%S"`;

@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: refresh-each-port.pl,v 1.1 2002-02-09 22:49:21 dan Exp $
+# $Id: refresh-each-port.pl,v 1.2 2002-03-02 17:02:29 dan Exp $
 #
 # Copyright (c) 1999-2001 DVL Software
 #
@@ -34,7 +34,7 @@ $sql = "select ports.id, categories.name as category, element.name as port
    	      from ports, categories, element 
          where ports.category_id = categories.id 
            and ports.element_id  = element.id 
-		   and ports.version       is null 
+		   and element.status    = 'A'
          order by category, port ";
 
 print "sql = $sql\n";
@@ -43,10 +43,17 @@ $sth = $dbh->prepare($sql);
 $sth->execute ||
 		FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql ... maybe invalid?", 1);
 
+my $started = 0;
 while (@row=$sth->fetchrow_array) {
-   print "now reading @row\n";
-   push @PORTS, "$row[0]:$row[1]:$row[2]"
+#	if ($row[0] == 4820 || $started) {
+#		$started = 1;
+		print "now reading @row\n";
+		push @PORTS, "$row[0]:$row[1]:$row[2]"
+#	}
 }
+
+print "press ENTER to continue";
+<STDIN>;
  
 my $port	= FreshPorts::Port->new($dbh);
 my $element	= FreshPorts::Element->new($dbh);
@@ -97,4 +104,3 @@ $sth->finish();
 $dbh->commit();
 $dbh->disconnect();
 
-`touch  /home/freshports.org/lastupdate`
