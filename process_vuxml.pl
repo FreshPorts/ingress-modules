@@ -1,7 +1,6 @@
-#!/usr/bin/perl
-# -w
+#!/usr/bin/perl -w
 #
-# $Id: process_vuxml.pl,v 1.1.2.2 2004-09-11 01:08:07 dan Exp $
+# $Id: process_vuxml.pl,v 1.1.2.3 2004-09-11 01:10:39 dan Exp $
 #
 # Copyright (c) 2001-2004 DVL Software
 #
