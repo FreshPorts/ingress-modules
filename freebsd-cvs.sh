@@ -1,8 +1,8 @@
 #!/bin/sh
 #
-# $Id: freebsd-cvs.sh,v 1.6 2002-02-22 16:33:31 dan Exp $
+# $Id: freebsd-cvs.sh,v 1.7 2002-02-24 02:37:35 dan Exp $
 #
-# Copyright (c) 1999-2000 DVL Software
+# Copyright (c) 1999-2002 DVL Software
 #
 # Process a raw mail message by converting it to XML, then importing it into
 # the database.
@@ -52,12 +52,9 @@ then
       then
 #         rm $HOME/$OUTPUT/$FILE.errors
       else
-         exit 3
+         exit 0
       fi
    else
       rm $HOME/$OUTPUT/$FILE.errors
    fi
 fi
-
-#echo $FILE
-mv $FILE $HOME/msgs/FreeBSD/raw/$FILES
