@@ -1,12 +1,12 @@
 #
-# $Id: config.pm.sample,v 1.13.2.12 2004-10-03 16:06:29 dan Exp $
+# $Id: config.pm.sample,v 1.13.2.13 2005-04-07 02:11:22 dan Exp $
 #
 # Copyright (c) 2001-2004 DVL Software
 #
 
 package FreshPorts::Config;
 
-use File::PathConvert;
+use Cwd;
 
 #
 # This section contains local settings.  Change them to suit your environment.
@@ -55,9 +55,9 @@ $FreshPorts::Config::NotifyAdmin        = 1;	# Notify me
 # ensure we have the real path names here...
 # otherwise we'll have trouble with determining relative pathnames
 #
-$FreshPorts::Config::scriptpath			= File::PathConvert::realpath($FreshPorts::Config::scriptpath);
-$FreshPorts::Config::path_to_tree		= File::PathConvert::realpath($FreshPorts::Config::path_to_tree);	
-$FreshPorts::Config::path_to_ports		= File::PathConvert::realpath($FreshPorts::Config::path_to_ports);
+$FreshPorts::Config::scriptpath			= Cwd::abs_path($FreshPorts::Config::scriptpath);
+$FreshPorts::Config::path_to_tree		= Cwd::abs_path($FreshPorts::Config::path_to_tree);	
+$FreshPorts::Config::path_to_ports		= Cwd::abs_path($FreshPorts::Config::path_to_ports);
 
 $FreshPorts::Config::email_server		= 'localhost';
 $FreshPorts::Config::email_port			= 25;

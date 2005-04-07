@@ -1,5 +1,5 @@
 #
-# $Id: README.txt,v 1.3.2.4 2004-12-22 16:50:26 dan Exp $
+# $Id: README.txt,v 1.3.2.5 2005-04-07 02:11:22 dan Exp $
 #
 #
 # Copyright (c) 2001-2003 DVL Software
@@ -10,8 +10,10 @@ load_xml_into_db.pl resides.
 
 The following packages are needed to run these scripts:
 
-http://search.cpan.org/search?dist=File-PathConvert
-http://www.cpan.org/authors/id/R/RB/RBS/File-PathConvert-0.85.tar.gz
+# We no longer use File-PathConvert.  We use Cwd instead.
+#
+#http://search.cpan.org/search?dist=File-PathConvert
+#http://www.cpan.org/authors/id/R/RB/RBS/File-PathConvert-0.85.tar.gz
 
 textproc/p5-XML-Node
 http://search.cpan.org/search?dist=XML-Node

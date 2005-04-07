@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.38.2.46 2005-03-13 10:06:45 dan Exp $
+# $Id: port.pm,v 1.38.2.47 2005-04-07 02:11:23 dan Exp $
 #
 #
 # Copyright (c) 2001-2003 DVL Software
@@ -516,7 +516,7 @@ sub _ExtractValuesFromMakefile {
 		print " libdepends   ='$libdepends'\n";
 
 		# eliminate multiple // : PR 174
-		# to compensate for bug in File::PathConvert::realpath
+		# to compensate for bug in File::PathConvert::realpath (which is no longer used; Cwd is used instead)
 		$descrpath   =~ s|//|/|g;
 
 		my $RealDescrPath	= Cwd::abs_path($descrpath);
@@ -701,6 +701,7 @@ sub _FetchFilesNeedingRefresh {
 			#   make: cannot open /usr/home/dan/ports/misc/cheatah/../sword//usr/home/dan/ports/misc/cheatah/Makefile.
 			# which is what $DESCR will contain.
 			# which means the call to File::PathConvert::realpath below will fail
+			# BUT now we use Cwd, not File::PathConvert
 			#
 			# The solution is at http://www.freebsd.org/cgi/cvsweb.cgi/ports/www/mozilla-embedded/Makefile.diff?r1=1.15&r2=1.16&f=h
 			# In summary, like this:
@@ -720,6 +721,7 @@ sub _FetchFilesNeedingRefresh {
 
 			# eliminate multiple // : PR 174
 			# to compensate for bug in File::PathConvert::realpath
+			# but now we use Cwd.
 			$DESCR       =~ s|//|/|g;
 
 			#
@@ -910,6 +912,7 @@ sub RemovePortsPrefix($) {
 
 	# eliminate multiple // : PR 174
 	# to compensate for bug in File::PathConvert::realpath
+	# but now we use Cwd.
 	$SuffixPath =~ s|//|/|g;
 
 	$SuffixPath = Cwd::abs_path($SuffixPath);
