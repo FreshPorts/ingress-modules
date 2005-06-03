@@ -1,5 +1,5 @@
 #
-# $Id: observer_commits.pm,v 1.1.2.5 2005-01-26 20:54:04 dan Exp $
+# $Id: observer_commits.pm,v 1.1.2.6 2005-06-03 02:43:24 dan Exp $
 #
 # Copyright (c) 2004 DVL Software
 #
@@ -45,6 +45,13 @@ sub update {
 		print "Observer has noticed that commit '" . $object->id() . "' has been saved with a commit log id of $params{commit_log_id}.  Thank you.\n";
 	}
 
+	#
+	# NOTE: we now do this during the File Update.
+	# I think we should do this after the file fetch.
+	# That way, script processing will not attempt to run
+	# through a file that is not yet fetched, or worse still,
+	# is being fetched.
+	#
 	if ($action eq $FreshPorts::Messages::FileUpdate) {
 		print "Observer has noticed that commit '" . $object->id() . "' contains file $params{FilePath} as revision $params{FileRevision}\n";
 		FreshPorts::SpecialProcessingFiles::Eat($class->{dbh}, $params{FileAction}, $params{FilePath}, $params{FileRevision});
