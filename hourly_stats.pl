@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: hourly_stats.pl,v 1.1.2.16 2005-03-18 03:37:55 dan Exp $
+# $Id: hourly_stats.pl,v 1.1.2.17 2005-06-25 17:58:36 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -22,6 +22,8 @@ my %Queries = (
 	restricted  => 'select Stats_PortCountRestricted()',
 	no_cdrom    => 'select Stats_PortCountNoCDROM()',
 	vulnerable  => 'select Stats_PortCountVulnerable()',
+	expiration  => 'select Stats_Expiration()',
+	expired     => 'select Stats_Expired()',
 	today       => 'select Stats_PortCountNewToday()',
 	yesterday   => 'select Stats_PortCountNewYesterday()',
 	week        => 'select Stats_PortCountNewThisWeek()',
@@ -95,6 +97,9 @@ sub CreateHourlySummary() {
 		print FILE '<TR><TD><A HREF="/ports-restricted.php" TITLE="Ports that are restricted">Restricted</A></TD>  <TD ALIGN="right">' . $Stats{restricted} . '</TD></TR>' . "\n";
 		print FILE '<TR><TD><A HREF="/ports-no-cdrom.php" TITLE="Ports that are marked as NO CDROM">No CDROM</A></TD>  <TD ALIGN="right">' . $Stats{no_cdrom} . '</TD></TR>' . "\n";
 		print FILE '<TR><TD><A HREF="/ports-vulnerable.php" TITLE="Ports that vulnerable to exploitation">Vulnerable</A></TD>  <TD ALIGN="right">' . $Stats{vulnerable} . '</TD></TR>' . "\n";
+
+		print FILE '<TR><TD><A HREF="/ports-expired.php" TITLE="Ports that have expired">Expired</A></TD>  <TD ALIGN="right">' . $Stats{expired} . '</TD></TR>' . "\n";
+		print FILE '<TR><TD><A HREF="/ports-expiration-date.php" TITLE="Ports that have an expiration date set">Set to expire</A></TD>  <TD ALIGN="right">' . $Stats{expiration} . '</TD></TR>' . "\n";
 
 		print FILE '<TR><TD><A HREF="/ports-new.php?interval=today" TITLE="Ports added in the last 24 hours">new 24 hours</A></TD>    <TD ALIGN="right">'     . $Stats{today}     . '</TD></TR>' . "\n";
 
