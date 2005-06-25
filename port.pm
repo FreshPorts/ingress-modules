@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.38.2.47 2005-04-07 02:11:23 dan Exp $
+# $Id: port.pm,v 1.38.2.48 2005-06-25 15:51:09 dan Exp $
 #
 #
 # Copyright (c) 2001-2003 DVL Software
@@ -61,6 +61,7 @@ sub _initialize {
 	$this->{portepoch}			= '';
 	$this->{restricted}			= '';
 	$this->{no_cdrom}			= '';
+	$this->{expiration_date}	= '';
 
 	$this->{categories}			= '';
 	$this->{status}				= '';
@@ -103,6 +104,7 @@ sub _GetValuesFromRow {
 	$this->{portepoch}			= $row->{portepoch};
 	$this->{restricted}			= $row->{restricted};
 	$this->{no_cdrom}			= $row->{no_cdrom};
+	$this->{expiration_date}	= $row->{expiration_date};
 
 	$this->{categories}			= $row->{categories};
 	$this->{last_commit_id}		= $row->{last_commit_id};
@@ -138,9 +140,18 @@ sub save {
 	my $sth;
 	my $sql;
 	my @row;
+	my $expiration_date_alt;
 
 	if ($this->{id}) {
 		# we are updating
+
+       if ($this->{expiration_date} == '') {
+          $expiration_date_alt = 'NULL';
+       } else {
+          $expiration_date_alt   = $this->{expiration_date};
+       }
+
+
 
 # correct this sql to update all fields...
 
@@ -169,7 +180,7 @@ update ports
        portepoch         = " . $dbh->quote($this->{portepoch})			. ", 
        restricted        = " . $dbh->quote($this->{restricted})			. ", 
        no_cdrom          = " . $dbh->quote($this->{no_cdrom})			. ", 
-
+       expiration_date   = " . $dbh->quote($this->{expiration_date_at})	. ", 
        categories        = " . $dbh->quote($this->{categories});
 
 		# we don't always have this value, so we don't change it....
@@ -403,7 +414,7 @@ sub _ExtractValuesFromMakefile {
 		" -V COMMENT -V COMMENTFILE -V MAINTAINER -V EXTRACT_SUFX " .
 		" -V BUILD_DEPENDS -V RUN_DEPENDS -V LIB_DEPENDS -V FORBIDDEN -V BROKEN -V DEPRECATED -V IGNORE ".
 		" -V MASTERPORT -V LATEST_LINK -V NO_LATEST_LINK -V NO_PACKAGE -V PKGNAMEPREFIX -V PKGNAMESUFFIX -V PORTEPOCH " .
-		" -V RESTRICTED -V NO_CDROM -f $Makefile " .
+		" -V RESTRICTED -V NO_CDROM -V EXPIRATION_DATE -f $Makefile " .
 		" DISTDIR=$FreshPorts::Constants::DISTDIR " .
 		" PORTSDIR=$FreshPorts::Config::path_to_ports LOCALBASE=/nonexistentlocal X11BASE=/nonexistentx 2>$TmpFile";
 
@@ -490,7 +501,7 @@ sub _ExtractValuesFromMakefile {
 		 my $CommentFile, my $maintainer, my $extractsuffix, my $builddepends,
 		 my $rundepends, my $libdepends, my $forbidden, my $broken, my $deprecated, my $ignore,
 		 my $master_port, my $latest_link, my $no_latest_link, my $no_package, my $pkgnameprefix, my $pkgnamesuffix, my $portepoch,
-		 my $restricted, my $no_cdrom) = split(/\n/s, $MakeResults);
+		 my $restricted, my $no_cdrom, my $expiration_date) = split(/\n/s, $MakeResults);
 
 		my $package_name = $pkgnameprefix . $portname . $pkgnamesuffix;
 
@@ -554,6 +565,7 @@ sub _ExtractValuesFromMakefile {
 		print "25 \$portepoch        = '$portepoch'\n";
 		print "26 \$restricted       = '$restricted'\n";
 		print "27 \$no_cdrom         = '$no_cdrom'\n";
+		print "27 \$expiration_date  = '$expiration_date'\n";
 
 		print "28 \$categories       = '$categories'\n";
 
@@ -602,6 +614,7 @@ sub _ExtractValuesFromMakefile {
 		$this->{portepoch}			= $portepoch;
 		$this->{restricted}			= $restricted;
 		$this->{no_cdrom}			= $no_cdrom;
+		$this->{expiration_date}	= $expiration_date;
 		$this->{categories}			= $categories;
 
 	} else {
