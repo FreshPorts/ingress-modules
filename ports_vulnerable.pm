@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: ports_vulnerable.pm,v 1.1.2.1 2005-01-26 20:52:37 dan Exp $
+# $Id: ports_vulnerable.pm,v 1.1.2.2 2005-07-16 04:55:50 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -26,7 +26,7 @@ sub new {
 sub _initialize {
 }
 
-sub _AdjustVulnerabilityCount($) {
+sub AdjustVulnerabilityCountForPort($) {
 	my $this    = shift;
 	my $port_id = shift;
 
@@ -81,14 +81,12 @@ sub PortsVulnerabilityCountAdjust($) {
 		$port = $commit_log_ports->{port};
 		print "port = $portname, port_id = '$port->{id}', category_id='$port->{category_id}'\n";
 
-		$this->_AdjustVulnerabilityCount($port->{id});
+		$this->AdjustVulnerabilityCountForPort($port->{id});
 	}
 
 	print "# # # # done updating ports_vulnerable table # # # #\n\n";
 
 	return $ErrorFound;
 }
-
-
 
 1;

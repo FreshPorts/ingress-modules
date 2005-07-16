@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: vuxml_mark_commits.pm,v 1.1.2.6 2005-01-25 01:31:49 dan Exp $
+# $Id: vuxml_mark_commits.pm,v 1.1.2.7 2005-07-16 04:55:49 dan Exp $
 #
 # Copyright (c) 1999-2004 DVL Software
 #
@@ -12,6 +12,7 @@ use DBI;
 use database;
 use constants;
 use email;
+use ports_vulnerable;
 
 sub new {
 	my $this		= {};
@@ -261,6 +262,7 @@ sub ProcessEachRangeRecord() {
 
 	my @Commits         = undef;
 	my @AffectedCommits = ();
+	my %Ports;
 
 
 	$sql = "select * from vuxml_ranges();";
@@ -320,6 +322,9 @@ sub ProcessEachRangeRecord() {
 				                         }
 				                       );
 
+				# keep track of this ports because we need to recalculate
+				$Ports{$Commit->{'port_id'}} = $Commit->{'port_id'};
+
 #				$Commit = undef;
 
 				print "We have found " . scalar(@AffectedCommits) . " affected commits\n";
@@ -330,7 +335,21 @@ sub ProcessEachRangeRecord() {
 
 	$this->MarkTheseCommits(\@AffectedCommits);
 
+	$this->CalculateVulnerabilityCount(\%Ports);
+
     return $i;
+}
+
+sub CalculateVulnerabilityCount($;$) {
+	my $this     = shift;
+	my $PortsRef = shift;
+	my %Ports	 = %{$PortsRef};
+
+	
+	my $PV = FreshPorts::PortsVulnerable->new($this->{dbh});
+	while (my ($port_id, $ignore) = each %Ports) {
+		$PV->AdjustVulnerabilityCountForPort($port_id);
+	}	
 }
 
 sub RecordVulnerabilitiesForThisPortVersion($;$;$) {
