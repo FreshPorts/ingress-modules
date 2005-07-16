@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: report-security-notice.pl,v 1.1.2.10 2004-11-27 13:54:08 dan Exp $
+# $Id: report-security-notice.pl,v 1.1.2.11 2005-07-16 04:56:57 dan Exp $
 #
 # Copyright (c) 2001-2004 DVL Software
 #
@@ -54,6 +54,7 @@ $FreshPorts::ReportConstants::Footer
 ";
 
 	my $Headers = '';
+	$Headers .= 'Auto-Submitted: auto-generated'                     . "\n";
 	$Headers .= 'X-FreshPorts-WatchListName: '      . $WatchListName . "\n";
 	$Headers .= 'X-FreshPorts-WatchListFrequency: ' . $FrequencyLong . "\n";
 

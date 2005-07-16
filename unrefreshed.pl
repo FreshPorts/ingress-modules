@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: unrefreshed.pl,v 1.11.2.14 2004-11-27 13:54:08 dan Exp $
+# $Id: unrefreshed.pl,v 1.11.2.15 2005-07-16 04:56:57 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -28,7 +28,9 @@ sub SendNotice($;$;$) {
 	my $From         = 'FreshPorts Daemon <FreshPorts@FreshPorts.org>';
 	my $CC           = '';
 	my $Subject      = 'FreshPorts -- ports needing refresh';
-	my $ExtraHeaders = 'X-FreshPorts-RefreshNeeded: ' . $count;
+	my $ExtraHeaders = '';
+	$ExtraHeaders   .= 'Auto-Submitted: auto-generated'        . "\n";
+	$ExtraHeaders   .= 'X-FreshPorts-RefreshNeeded: ' . $count . "\n";
 
 
 	my $Body = 'At ' . $hostname . '::' . $FreshPorts::Config::dbname . ", there are $count ports needing refresh.

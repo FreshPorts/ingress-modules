@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: newusers.pl,v 1.3.2.7 2004-11-27 13:54:07 dan Exp $
+# $Id: newusers.pl,v 1.3.2.8 2005-07-16 04:56:57 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -20,7 +20,10 @@ sub SendNotice($;$) {
 	my $To           = 'Dan Langille <dan@langille.org>';
 	my $CC           = '';
 	my $Subject      = "FreshPorts -- new users  - $StartDate";
-	my $ExtraHeaders = 'X-FreshPorts-NewUsers: ' . $StartDate;
+
+	my $ExtraHeaders = '';
+	$ExtraHeaders .= 'Auto-Submitted: auto-generated'       . "\n";
+	$ExtraHeaders .= 'X-FreshPorts-NewUsers: ' . $StartDate . "\n";
 
 	my $Body = "The following users were added yesterday:
 

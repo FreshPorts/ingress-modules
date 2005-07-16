@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: report-new-ports.pl,v 1.1.2.20 2005-03-13 10:05:15 dan Exp $
+# $Id: report-new-ports.pl,v 1.1.2.21 2005-07-16 04:56:57 dan Exp $
 #
 # Copyright (c) 2001-2004 DVL Software
 #
@@ -40,7 +40,9 @@ sub SendWatchNoticePersonal($;$;$) {
 
 	my $From         = 'FreshPorts Watch Daemon <FreshPorts-Watch@FreshPorts.org>';
 	my $Subject      = "FreshPorts $FrequencyLong new ports";
-	my $ExtraHeaders = 'X-FreshPorts-NewPorts: ' . $FrequencyLong;
+	my $ExtraHeaders = '';
+	$ExtraHeaders   .= 'Auto-Submitted: auto-generated'           . "\n";
+	$ExtraHeaders   .= 'X-FreshPorts-NewPorts: ' . $FrequencyLong . "\n";
 	my $CC           = '';
 
 	$Body = "$Body

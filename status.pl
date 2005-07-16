@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: status.pl,v 1.1.2.2 2004-11-27 13:54:08 dan Exp $
+# $Id: status.pl,v 1.1.2.3 2005-07-16 04:56:57 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -21,7 +21,9 @@ sub SendNotice($) {
 	my $To           = $FreshPorts::Config::SystemOwnerEmail;
 	my $From         = 'FreshPorts Daemon <FreshPorts@FreshPorts.org>';
 	my $Subject      = 'FreshPorts -- queue status';
-	my $ExtraHeaders = 'X-FreshPorts-Status: non-zero queues found';
+	my $ExtraHeaders = '';
+	$ExtraHeaders   .= 'X-FreshPorts-Status: non-zero queues found' . "\n";
+	$ExtraHeaders   .= 'Auto-Submitted: auto-generated'             . "\n";
 
 
 	my $Body = 'At ' . $hostname . "\n\n" . $Msg;

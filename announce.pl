@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: announce.pl,v 1.3.2.9 2004-01-29 15:27:24 dan Exp $
+# $Id: announce.pl,v 1.3.2.10 2005-07-16 04:56:57 dan Exp $
 #
 # Copyright (c) 1999-2004 DVL Software
 #
@@ -24,43 +24,28 @@ sub SendAnnouncement($) {
 
 	my $To   = shift;
 
-	my $From         = 'FreshPorts Announcement Daemon <FreshPorts-Announce@FreshPorts.org>';
-	my $CC           = '';
-	my $Subject      = 'HEADS UP: FreshPorts announcement';
-	my $ExtraHeaders = 'X-FreshPorts-Announcement: HEADS UP';
+	my $From          = 'FreshPorts Announcement Daemon <FreshPorts-Announce@FreshPorts.org>';
+	my $CC            = '';
+	my $Subject       = 'HEADS UP: FreshPorts announcement';
+	my $ExtraHeaders = '';
+	$ExtraHeaders   .= 'Auto-Submitted: auto-generated'      . "\n";
+	$ExtraHeaders   .= 'X-FreshPorts-Announcement: HEADS UP' . "\n";
+
 
 
 	my $Body = "Folks,
 
-FreshPorts Upgrade / Blacklist
+FreshPorts - changes to email headers
 
-Blacklist: 
-The FreshPorts mail server was caught up in a blacklist recently.
-This means you may not have been receiving FreshPorts as expected.
+Starting on Saturday July 16, the report notifications that go
+out from FreshPorts will contain a header to indicate it was
+automatically generated.  The main purpose of this is so I don't
+get replies from your vacation programs.
 
-I urge you to review your watch list for any changes over the 
-past two weeks for which you may not have received an update
-notice.
-
-For more information on the blacklist:
-
-http://www.freebsddiary.org/freshports-release-2003.04.29.php
-
-In the short term, FreshPorts mail is now going out from a
-new mail server.
-
-
-Upgrade:
-
-The FreshPorts server has been upgraded.  Now you can have
-one watch list per machine.  For details, see
-
-http://www.freebsddiary.org/freshports-release-2003.04.29.php
-http://www.freshports.org/release-2003-04-29.php
+The main reason I'm writing is in case of any side effects this
+header may have on any scripts you might be running.
 
 Cheers 
-
-
 
 --
 

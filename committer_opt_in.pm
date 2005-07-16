@@ -1,5 +1,5 @@
 #
-# $Id: committer_opt_in.pm,v 1.1.2.14 2004-02-28 20:19:09 dan Exp $
+# $Id: committer_opt_in.pm,v 1.1.2.15 2005-07-16 04:56:57 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -117,7 +117,8 @@ FreshPorts Daemon
 	# we must cut off the trailing newlines or the headers will not be altogether
 	chomp $Hostname;
 
-	my $ExtraHeaders = "X-FreshPorts-Sanity: error\n" .
+	my $ExtraHeaders = 'Auto-Submitted: auto-generated'           . "\n" .
+					   "X-FreshPorts-Sanity: error\n" .
 	                   "X-FreshPorts-Hostname: $Hostname\n" . 
 	                   "X-FreshPorts-Database: $FreshPorts::Config::dbname";
 
