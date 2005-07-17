@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: load_xml_into_db.pl,v 1.46.2.26 2005-02-01 18:49:47 dan Exp $
+# $Id: load_xml_into_db.pl,v 1.46.2.27 2005-07-17 14:20:04 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -39,7 +39,7 @@ if ($dbh->{Active}) {
 	print " about to process\n";
 	my $ErrorFound = $Munger->process();
 
-	print " now is the commit\n";
+	print " now is the commit:\n";
 
 	if ($ErrorFound) {
 		$dbh->rollback();
@@ -48,4 +48,5 @@ if ($dbh->{Active}) {
 	}
 
 	$dbh->disconnect();
+	print "EOF\n";
 }
