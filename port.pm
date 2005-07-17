@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.38.2.48 2005-06-25 15:51:09 dan Exp $
+# $Id: port.pm,v 1.38.2.49 2005-07-17 14:20:28 dan Exp $
 #
 #
 # Copyright (c) 2001-2003 DVL Software
@@ -145,7 +145,7 @@ sub save {
 	if ($this->{id}) {
 		# we are updating
 
-       if ($this->{expiration_date} == '') {
+       if (!defined($this->{expiration_date}) || $this->{expiration_date} eq '') {
           $expiration_date_alt = 'NULL';
        } else {
           $expiration_date_alt   = $this->{expiration_date};
