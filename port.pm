@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.38.2.49 2005-07-17 14:20:28 dan Exp $
+# $Id: port.pm,v 1.38.2.50 2005-07-18 12:16:45 dan Exp $
 #
 #
 # Copyright (c) 2001-2003 DVL Software
@@ -148,7 +148,7 @@ sub save {
        if (!defined($this->{expiration_date}) || $this->{expiration_date} eq '') {
           $expiration_date_alt = 'NULL';
        } else {
-          $expiration_date_alt   = $this->{expiration_date};
+          $expiration_date_alt   = $dbh->quote($this->{expiration_date});
        }
 
 
@@ -180,7 +180,7 @@ update ports
        portepoch         = " . $dbh->quote($this->{portepoch})			. ", 
        restricted        = " . $dbh->quote($this->{restricted})			. ", 
        no_cdrom          = " . $dbh->quote($this->{no_cdrom})			. ", 
-       expiration_date   = " . $dbh->quote($this->{expiration_date_at})	. ", 
+       expiration_date   = " . $expiration_date_alt				    	. ", 
        categories        = " . $dbh->quote($this->{categories});
 
 		# we don't always have this value, so we don't change it....
@@ -565,9 +565,8 @@ sub _ExtractValuesFromMakefile {
 		print "25 \$portepoch        = '$portepoch'\n";
 		print "26 \$restricted       = '$restricted'\n";
 		print "27 \$no_cdrom         = '$no_cdrom'\n";
-		print "27 \$expiration_date  = '$expiration_date'\n";
-
-		print "28 \$categories       = '$categories'\n";
+		print "28 \$expiration_date  = '$expiration_date'\n";
+		print "29 \$categories       = '$categories'\n";
 
 		print "\n ---------------------------------------- \n";
 
