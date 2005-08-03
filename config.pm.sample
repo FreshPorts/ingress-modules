@@ -1,5 +1,5 @@
 #
-# $Id: config.pm.sample,v 1.13.2.13 2005-04-07 02:11:22 dan Exp $
+# $Id: config.pm.sample,v 1.13.2.14 2005-08-03 12:04:10 dan Exp $
 #
 # Copyright (c) 2001-2004 DVL Software
 #
@@ -65,6 +65,7 @@ $FreshPorts::Config::email_client		= 'localhost';
 
 $FreshPorts::Config::SystemOwnerEmail	= 'dan@langille.org';
 
+$FreshPorts::Config::JobWaiting			= $FreshPorts::Config::BaseDir . '/dynamic/job_waiting';
 $FreshPorts::Config::MovedFileFlag		= $FreshPorts::Config::BaseDir . '/dynamic/refresh_moved';
 $FreshPorts::Config::UpdatingFileFlag	= $FreshPorts::Config::BaseDir . '/dynamic/refresh_updating';
 $FreshPorts::Config::VuXMLFileFlag		= $FreshPorts::Config::BaseDir . '/dynamic/vuxml';
