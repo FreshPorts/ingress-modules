@@ -1,9 +1,9 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.38.2.50 2005-07-18 12:16:45 dan Exp $
+# $Id: port.pm,v 1.38.2.51 2005-10-07 23:52:57 dan Exp $
 #
 #
-# Copyright (c) 2001-2003 DVL Software
+# Copyright (c) 2001-2005 DVL Software
 #
 
 package FreshPorts::Port;
@@ -62,6 +62,9 @@ sub _initialize {
 	$this->{restricted}			= '';
 	$this->{no_cdrom}			= '';
 	$this->{expiration_date}	= '';
+	$this->{is_interactive}		= '';
+	$this->{only_for_archs}		= '';
+	$this->{not_for_archs}		= '';
 
 	$this->{categories}			= '';
 	$this->{status}				= '';
@@ -105,6 +108,9 @@ sub _GetValuesFromRow {
 	$this->{restricted}			= $row->{restricted};
 	$this->{no_cdrom}			= $row->{no_cdrom};
 	$this->{expiration_date}	= $row->{expiration_date};
+	$this->{is_interactive}		= $row->{is_interactive};
+	$this->{only_for_archs}		= $row->{only_for_archs};
+	$this->{not_for_archs}		= $row->{not_for_archs};
 
 	$this->{categories}			= $row->{categories};
 	$this->{last_commit_id}		= $row->{last_commit_id};
@@ -141,16 +147,28 @@ sub save {
 	my $sql;
 	my @row;
 	my $expiration_date_alt;
+	my $is_interactive_alt;
+	my $not_for_archs_alt;
+	my $only_for_archs_alt;
 
 	if ($this->{id}) {
 		# we are updating
 
-       if (!defined($this->{expiration_date}) || $this->{expiration_date} eq '') {
-          $expiration_date_alt = 'NULL';
-       } else {
-          $expiration_date_alt   = $dbh->quote($this->{expiration_date});
-       }
+		if (!defined($this->{expiration_date}) || $this->{expiration_date} eq '') {
+			$expiration_date_alt = 'NULL';
+		} else {
+			$expiration_date_alt   = $dbh->quote($this->{expiration_date});
+		}
 
+		if (!defined($this->{is_interactive}) || $this->{is_interactive} eq '' || 
+			$this->{is_interactive} ne 'yes') {
+			$is_interactive_alt = 'false';
+		} else {
+			$is_interactive_alt = 'true';
+		}
+
+		$not_for_archs_alt  = $this->_NULLIfEmpty($this->{not_for_archs});
+		$only_for_archs_alt = $this->_NULLIfEmpty($this->{only_for_archs});
 
 
 # correct this sql to update all fields...
@@ -181,11 +199,14 @@ update ports
        restricted        = " . $dbh->quote($this->{restricted})			. ", 
        no_cdrom          = " . $dbh->quote($this->{no_cdrom})			. ", 
        expiration_date   = " . $expiration_date_alt				    	. ", 
+       is_interactive    = " . $is_interactive_alt				    	. ", 
+       only_for_archs    = " . $only_for_archs_alt                      . ",
+       not_for_archs     = " . $not_for_archs_alt                       . ",
        categories        = " . $dbh->quote($this->{categories});
 
 		# we don't always have this value, so we don't change it....
 		if (defined($this->{last_commit_id})) {
-			$sql .= ", last_commit_id		= $this->{last_commit_id}";
+			$sql .= "\n, last_commit_id		= $this->{last_commit_id}";
 		}
 		
 		$sql .= " where id = $this->{id}";
@@ -414,7 +435,8 @@ sub _ExtractValuesFromMakefile {
 		" -V COMMENT -V COMMENTFILE -V MAINTAINER -V EXTRACT_SUFX " .
 		" -V BUILD_DEPENDS -V RUN_DEPENDS -V LIB_DEPENDS -V FORBIDDEN -V BROKEN -V DEPRECATED -V IGNORE ".
 		" -V MASTERPORT -V LATEST_LINK -V NO_LATEST_LINK -V NO_PACKAGE -V PKGNAMEPREFIX -V PKGNAMESUFFIX -V PORTEPOCH " .
-		" -V RESTRICTED -V NO_CDROM -V EXPIRATION_DATE -f $Makefile " .
+		" -V RESTRICTED -V NO_CDROM -V EXPIRATION_DATE -V IS_INTERACTIVE " . 
+		" -V ONLY_FOR_ARCHS -V NOT_FOR_ARCHS -f $Makefile " .
 		" DISTDIR=$FreshPorts::Constants::DISTDIR " .
 		" PORTSDIR=$FreshPorts::Config::path_to_ports LOCALBASE=/nonexistentlocal X11BASE=/nonexistentx 2>$TmpFile";
 
@@ -501,7 +523,8 @@ sub _ExtractValuesFromMakefile {
 		 my $CommentFile, my $maintainer, my $extractsuffix, my $builddepends,
 		 my $rundepends, my $libdepends, my $forbidden, my $broken, my $deprecated, my $ignore,
 		 my $master_port, my $latest_link, my $no_latest_link, my $no_package, my $pkgnameprefix, my $pkgnamesuffix, my $portepoch,
-		 my $restricted, my $no_cdrom, my $expiration_date) = split(/\n/s, $MakeResults);
+		 my $restricted, my $no_cdrom, my $expiration_date, 
+		 my $is_interactive, my $only_for_archs, my $not_for_archs) = split(/\n/s, $MakeResults);
 
 		my $package_name = $pkgnameprefix . $portname . $pkgnamesuffix;
 
@@ -509,22 +532,22 @@ sub _ExtractValuesFromMakefile {
 		$rundepends		= freshports_ConvertPortPathToStandardLocation(FreshPorts::Utilities::trim_multiple_to_single(FreshPorts::Utilities::trim($rundepends)));
 		$libdepends		= freshports_ConvertPortPathToStandardLocation(FreshPorts::Utilities::trim_multiple_to_single(FreshPorts::Utilities::trim($libdepends)));
 
-		print " portname     ='$this->{name}'\n";
-		print " packagename  ='$portname'\n";
-		print " category     ='$this->{category}'\n";
-		print " packagename  ='$packagename'\n";
-		print " descrpath    ='$descrpath'\n";
-		print " categories   ='$categories'\n";
-		print " portversion  ='$portversion'\n";
-		print " portrevision ='$portrevision'\n";
-		print " comment      ='$shortdescription'\n";
+		print " portname     = '$this->{name}'\n";
+		print " packagename  = '$portname'\n";
+		print " category     = '$this->{category}'\n";
+		print " packagename  = '$packagename'\n";
+		print " descrpath    = '$descrpath'\n";
+		print " categories   = '$categories'\n";
+		print " portversion  = '$portversion'\n";
+		print " portrevision = '$portrevision'\n";
+		print " comment      = '$shortdescription'\n";
 		print " CommentFile  = '$CommentFile'\n";
-		print " maintainer   ='$maintainer'\n";
-		print " extractsuffix='$extractsuffix'\n";
-		print " mastersites  ='$mastersites'\n";
-		print " builddepends ='$builddepends'\n";
-		print " rundepends   ='$rundepends'\n";
-		print " libdepends   ='$libdepends'\n";
+		print " maintainer   = '$maintainer'\n";
+		print " extractsuffix= '$extractsuffix'\n";
+		print " mastersites  = '$mastersites'\n";
+		print " builddepends = '$builddepends'\n";
+		print " rundepends   = '$rundepends'\n";
+		print " libdepends   = '$libdepends'\n";
 
 		# eliminate multiple // : PR 174
 		# to compensate for bug in File::PathConvert::realpath (which is no longer used; Cwd is used instead)
@@ -546,7 +569,7 @@ sub _ExtractValuesFromMakefile {
 		chomp($longdescription); # get rid of the trailing whitespace.
 
 		print "12 \$shortdescription = '$shortdescription'\n";
-		print "13 \$longdescription  ='$longdescription'\n";
+		print "13 \$longdescription  = '$longdescription'\n";
 		print "14 \$homepage='";
 		if (defined($homepage)) {
 			print "$homepage";
@@ -566,7 +589,10 @@ sub _ExtractValuesFromMakefile {
 		print "26 \$restricted       = '$restricted'\n";
 		print "27 \$no_cdrom         = '$no_cdrom'\n";
 		print "28 \$expiration_date  = '$expiration_date'\n";
-		print "29 \$categories       = '$categories'\n";
+		print "29 \$is_interactive   = '$is_interactive'\n";
+		print "30 \$only_for_archs   = '$only_for_archs'\n";
+		print "31 \$not_for_archs    = '$not_for_archs'\n";
+		print "32 \$categories       = '$categories'\n";
 
 		print "\n ---------------------------------------- \n";
 
@@ -614,11 +640,40 @@ sub _ExtractValuesFromMakefile {
 		$this->{restricted}			= $restricted;
 		$this->{no_cdrom}			= $no_cdrom;
 		$this->{expiration_date}	= $expiration_date;
+		$this->{is_interactive}		= $is_interactive;
+		$this->{only_for_archs}		= $only_for_archs;
+		$this->{not_for_archs}		= $not_for_archs;
 		$this->{categories}			= $categories;
+
+		$result = $this->_Validate();
 
 	} else {
 		print "That make failed:\n\n'$ErrorMessage'\n\n";
 		FreshPorts::Utilities::ReportError('warning', "error executing make command for $this->{category}/$this->{name}: " . $ErrorMessage, 0);
+	}
+
+	return $result;
+}
+
+sub _Validate {
+	#
+	# run some sanity checks on the data input
+	#
+	my $this		= shift;
+	my $result		= 0;
+	my $ErrorMsg	= '';
+
+	print "_Validating....\n";
+
+	if (!IsValidDate($this->{expiration_date})) {
+		$ErrorMsg .= " EXPIRATION_DATE contains '" . $this->{expiration_date} . "', which is not a valid date."
+	}
+
+	if ($ErrorMsg ne '') {
+		FreshPorts::CommitterOptIn::RecordErrorDetails(
+			"$this->{category}/$this->{name}",
+			$ErrorMsg);
+		$result = -1;		
 	}
 
 	return $result;
@@ -993,6 +1048,27 @@ sub SetDeleted {
 	$this->{status} = $FreshPorts::Element::Deleted;
 
 	return $OldStatus;
+}
+
+sub _NULLIfEmpty {
+	my $this   = shift;
+	my $value  = shift;
+
+	my $result = undef;
+
+	if (!defined($value) || $value eq '') {
+		$result = 'NULL';
+	} else {
+		$result = $this->dbh->quote($value);
+	}
+
+	return $result;
+
+}
+
+
+sub IsValidDate {
+	return 1;
 }
 
 
