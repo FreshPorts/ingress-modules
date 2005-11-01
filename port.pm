@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.38.2.51 2005-10-07 23:52:57 dan Exp $
+# $Id: port.pm,v 1.38.2.52 2005-11-01 23:10:56 dan Exp $
 #
 #
 # Copyright (c) 2001-2005 DVL Software
@@ -199,7 +199,7 @@ update ports
        restricted        = " . $dbh->quote($this->{restricted})			. ", 
        no_cdrom          = " . $dbh->quote($this->{no_cdrom})			. ", 
        expiration_date   = " . $expiration_date_alt				    	. ", 
-       is_interactive    = " . $is_interactive_alt				    	. ", 
+       is_interactive    = " . $dbh->quote($this->{is_interactive})		. ", 
        only_for_archs    = " . $only_for_archs_alt                      . ",
        not_for_archs     = " . $not_for_archs_alt                       . ",
        categories        = " . $dbh->quote($this->{categories});
@@ -1059,7 +1059,7 @@ sub _NULLIfEmpty {
 	if (!defined($value) || $value eq '') {
 		$result = 'NULL';
 	} else {
-		$result = $this->dbh->quote($value);
+		$result = $this->{dbh}->quote($value);
 	}
 
 	return $result;
