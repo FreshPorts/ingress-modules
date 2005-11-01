@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: hourly_stats.pl,v 1.1.2.17 2005-06-25 17:58:36 dan Exp $
+# $Id: hourly_stats.pl,v 1.1.2.18 2005-11-01 23:11:22 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -24,6 +24,7 @@ my %Queries = (
 	vulnerable  => 'select Stats_PortCountVulnerable()',
 	expiration  => 'select Stats_Expiration()',
 	expired     => 'select Stats_Expired()',
+	interactive => 'select Stats_Interactive()',
 	today       => 'select Stats_PortCountNewToday()',
 	yesterday   => 'select Stats_PortCountNewYesterday()',
 	week        => 'select Stats_PortCountNewThisWeek()',
@@ -101,6 +102,7 @@ sub CreateHourlySummary() {
 		print FILE '<TR><TD><A HREF="/ports-expired.php" TITLE="Ports that have expired">Expired</A></TD>  <TD ALIGN="right">' . $Stats{expired} . '</TD></TR>' . "\n";
 		print FILE '<TR><TD><A HREF="/ports-expiration-date.php" TITLE="Ports that have an expiration date set">Set to expire</A></TD>  <TD ALIGN="right">' . $Stats{expiration} . '</TD></TR>' . "\n";
 
+		print FILE '<TR><TD><A HREF="/ports-interactive.php" TITLE="Ports that require interaction during installation">Interactive</A></TD>  <TD ALIGN="right">' . $Stats{interactive} . '</TD></TR>' . "\n";
 		print FILE '<TR><TD><A HREF="/ports-new.php?interval=today" TITLE="Ports added in the last 24 hours">new 24 hours</A></TD>    <TD ALIGN="right">'     . $Stats{today}     . '</TD></TR>' . "\n";
 
 		print FILE '<TR><TD><A HREF="/ports-new.php?interval=yesterday" TITLE="Ports added in the last 48 hours">new 48 hours</A></TD><TD ALIGN="right">'     . $Stats{yesterday} . '</TD></TR>' . "\n";
