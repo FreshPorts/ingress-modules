@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: category.pm,v 1.8.2.11 2004-09-28 22:15:48 dan Exp $
+# $Id: category.pm,v 1.8.2.12 2005-11-09 17:24:20 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -181,12 +181,78 @@ sub FetchByName {
 
 # =================================
 
+sub _description_read {
+	my $category	= shift;
+
+	my $description = '';
+
+	my $MakefileDirectory = "$FreshPorts::Config::path_to_ports/$category";
+	my $TmpFile = FreshPorts::Utilities::TmpFileName("$category.make-error");
+
+	my $ErrorMessage = '';	# stores the result of the latest make command
+							# in case we need it for error reporting
+	my $OtherErrors  = '';	# gets the results of the TmpFile used to collect errors.
+
+	chdir "$MakefileDirectory";
+
+	my $makecommand = "make -V COMMENT " .
+	               "DISTDIR=$FreshPorts::Constants::DISTDIR " .
+	               "PORTSDIR=$FreshPorts::Config::path_to_ports LOCALBASE=/nonexistentlocal X11BASE=/nonexistentx 2>$TmpFile";
+	
+	print "makecommand = $makecommand\n";
+
+	my $MakeResults = `$makecommand`;
+	# save this for later reference
+	my $result = $?;
+
+	print 'Result = ' . $result . "\n";
+
+	if ($result != 0) {
+		#
+		# Some errors aren't caught by the Makefile script, but are grabbed in the tmp file
+		# Such as:
+		# -s: not found
+		# "/usr/home/dan/ports/french/homard/Makefile", line 39: warning: " -s"
+		# returned non-zero status
+		# caused by doing:     unames!= ${UNAME} -s
+		# without first doing: .include  <bsd.port.pre.mk>
+		#
+
+		print 'size is ' . -s $TmpFile;
+		print "\n";
+
+		if (-s $TmpFile > 0) {
+			print "getting error message from temp file\n";
+			$ErrorMessage = "Error message is: " . `cat $TmpFile`;
+		}
+
+		if ($MakeResults ne '') {
+			# save the results for error reporting
+			$ErrorMessage .= "Make results are : " . $MakeResults;
+		}
+
+		$ErrorMessage = "This command (FreshPorts code 1):\n\n$makecommand\n\nproduced this error:\n\n$ErrorMessage";
+		FreshPorts::CommitterOptIn::RecordErrorDetails($category, $ErrorMessage);
+		$result = -1;
+	}
+
+	# remove that error collection file
+	`rm $TmpFile`;
+
+	if ($result == 0) {
+		($description) = split(/\n/s, $MakeResults);
+	}
+
+	return $description;
+
+}
+
 sub _description_fetch {
 	my $category	= shift;
 
-	my $DESTDIR	= "$FreshPorts::Config::path_to_ports/$category/pkg";
-	my $SRCDIR	= "ports/$category/pkg";
-	my $FILE	= "COMMENT";
+	my $DESTDIR	= "$FreshPorts::Config::path_to_ports/$category";
+	my $SRCDIR	= "ports/$category";
+	my $FILE	= "Makefile";
 
 	my $description;
 
@@ -196,7 +262,8 @@ sub _description_fetch {
 	print "FILE   =$FILE\n";
 
 	if (FreshPorts::Utilities::FetchFile($DESTDIR, $SRCDIR, $FILE, $FreshPorts::Constants::HEAD)) {
-		$description = FreshPorts::Utilities::ReadFile("$DESTDIR/$FILE");
+		$description = _description_read("$category");
+
 	} else {
 		FreshPorts::Utilities::ReportError('warning', "Could not fetch file for '$DESTDIR' '$SRCDIR' '$FILE'.  Error code = " . ($? >> 8), 0);
 		$description = 'No description supplied (pkg/COMMENT not found)';
