@@ -1,5 +1,5 @@
 #
-# $Id: README.txt,v 1.3.2.5 2005-04-07 02:11:22 dan Exp $
+# $Id: README.txt,v 1.3.2.6 2005-12-01 04:52:37 dan Exp $
 #
 #
 # Copyright (c) 2001-2003 DVL Software
@@ -30,7 +30,7 @@ use lib '/home/lists/scripts';
 
 
 
-And you also need to run dir-create.sh
+And you also need to run procmail/create_dirs.sh
 
 
 If you need to add an archive contents to FreshPorts, you can start
