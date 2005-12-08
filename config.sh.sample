@@ -1,7 +1,10 @@
 #!/bin/sh
 #
-# $Id: config.sh.sample,v 1.1.2.10 2005-03-13 13:22:43 dan Exp $
+# $Id: config.sh.sample,v 1.1.2.11 2005-12-08 05:00:25 dan Exp $
 #
+
+FETCH="/usr/bin/fetch"
+FETCH_OPTIONS="-qo"
 
 BASEDIR="/usr/websites/DIRNAME"
 
@@ -36,6 +39,8 @@ PORTSFREEZEFILE="${BASEDIR}/dynamic/PortsFreezeIsOn"
 
 VUXMLFLAGFILE="${BASEDIR}/dynamic/vuxml"
 VUXMLMUTEX="${BASEDIR}/dynamic/vuxml_mutex"
+
+CACHE_NEEDS_REFRESH="${BASEDIR}/dynamic/cache_needs_refresh"
 
 PORTSDIR="PORTS_DIR"
 ADMINEMAIL="ADMIN_EMAIL"
