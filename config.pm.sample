@@ -1,5 +1,5 @@
 #
-# $Id: config.pm.sample,v 1.13.2.14 2005-08-03 12:04:10 dan Exp $
+# $Id: config.pm.sample,v 1.13.2.15 2005-12-08 04:59:43 dan Exp $
 #
 # Copyright (c) 2001-2004 DVL Software
 #
@@ -55,27 +55,28 @@ $FreshPorts::Config::NotifyAdmin        = 1;	# Notify me
 # ensure we have the real path names here...
 # otherwise we'll have trouble with determining relative pathnames
 #
-$FreshPorts::Config::scriptpath			= Cwd::abs_path($FreshPorts::Config::scriptpath);
-$FreshPorts::Config::path_to_tree		= Cwd::abs_path($FreshPorts::Config::path_to_tree);	
-$FreshPorts::Config::path_to_ports		= Cwd::abs_path($FreshPorts::Config::path_to_ports);
+$FreshPorts::Config::scriptpath				= Cwd::abs_path($FreshPorts::Config::scriptpath);
+$FreshPorts::Config::path_to_tree			= Cwd::abs_path($FreshPorts::Config::path_to_tree);	
+$FreshPorts::Config::path_to_ports			= Cwd::abs_path($FreshPorts::Config::path_to_ports);
 
-$FreshPorts::Config::email_server		= 'localhost';
-$FreshPorts::Config::email_port			= 25;
-$FreshPorts::Config::email_client		= 'localhost';
+$FreshPorts::Config::email_server			= 'localhost';
+$FreshPorts::Config::email_port				= 25;
+$FreshPorts::Config::email_client			= 'localhost';
 
-$FreshPorts::Config::SystemOwnerEmail	= 'dan@langille.org';
+$FreshPorts::Config::SystemOwnerEmail		= 'dan@langille.org';
 
-$FreshPorts::Config::JobWaiting			= $FreshPorts::Config::BaseDir . '/dynamic/job_waiting';
-$FreshPorts::Config::MovedFileFlag		= $FreshPorts::Config::BaseDir . '/dynamic/refresh_moved';
-$FreshPorts::Config::UpdatingFileFlag	= $FreshPorts::Config::BaseDir . '/dynamic/refresh_updating';
-$FreshPorts::Config::VuXMLFileFlag		= $FreshPorts::Config::BaseDir . '/dynamic/vuxml';
+$FreshPorts::Config::JobWaiting				= $FreshPorts::Config::BaseDir . '/dynamic/job_waiting';
+$FreshPorts::Config::MovedFileFlag			= $FreshPorts::Config::BaseDir . '/dynamic/refresh_moved';
+$FreshPorts::Config::UpdatingFileFlag		= $FreshPorts::Config::BaseDir . '/dynamic/refresh_updating';
+$FreshPorts::Config::VuXMLFileFlag			= $FreshPorts::Config::BaseDir . '/dynamic/vuxml';
+$FreshPorts::Config::RefreshCachFileFlag	= $FreshPorts::Config::BaseDir . '/dynamic/cache_needs_refresh';
 
-$FreshPorts::Config::PortsFreezeFile    = $FreshPorts::Config::BaseDir . '/dynamic/PortsFreezeIsInEffect';
+$FreshPorts::Config::PortsFreezeFile    	= $FreshPorts::Config::BaseDir . '/dynamic/PortsFreezeIsInEffect';
 
 #
 # For fetching files from CVS
 #
-$FreshPorts::Config::CVS_Repository		= "http://www.freebsd.org/cgi/cvsweb.cgi";
+$FreshPorts::Config::CVS_Repository			= "http://www.freebsd.org/cgi/cvsweb.cgi";
 
 #
 # for debugging....
