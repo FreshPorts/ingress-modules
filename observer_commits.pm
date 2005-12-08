@@ -1,5 +1,5 @@
 #
-# $Id: observer_commits.pm,v 1.1.2.6 2005-06-03 02:43:24 dan Exp $
+# $Id: observer_commits.pm,v 1.1.2.7 2005-12-08 21:55:44 dan Exp $
 #
 # Copyright (c) 2004 DVL Software
 #
@@ -27,7 +27,8 @@ sub new {
 sub _initialize {
 	my $this = shift;
 
-	$this->{patching_needed} = 0;
+	$this->{patching_needed}      = 0;
+	$this->{cache_refresh_needed} = 0;
 }
 
 sub update {
@@ -43,6 +44,7 @@ sub update {
 
 	if ($action eq $FreshPorts::Messages::CommitSaved) {
 		print "Observer has noticed that commit '" . $object->id() . "' has been saved with a commit log id of $params{commit_log_id}.  Thank you.\n";
+		$this->{cache_refresh_needed} = 1;
 	}
 
 	#
@@ -74,6 +76,9 @@ sub update {
 
 	if ($action eq $FreshPorts::Messages::ProcessingDone) {
 		print "Observer has noticed that processing has finished.\n";
+		if ($this->{cache_refresh_needed}) {
+			`/usr/bin/touch $FreshPorts::Config::RefreshCachFileFlag`;
+		}
 	}
 
 	if ($action eq $FreshPorts::Messages::PortsFreezeCheck) {
