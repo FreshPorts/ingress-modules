@@ -1,5 +1,5 @@
 #
-# $Id: committer_opt_in.pm,v 1.1.2.15 2005-07-16 04:56:57 dan Exp $
+# $Id: committer_opt_in.pm,v 1.1.2.16 2005-12-12 11:47:18 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -83,10 +83,10 @@ The following is a list of the ports which had errors:
 ";
 
 	while (my ($Port, $Error) = each %PortList) {
-		$Body .= $Port . "\n";
+		$Body .= $FreshPorts::Config::FreshPortsURL . $Port . "/\n";
 	}
 
-	$Body .= "\nThe exact errors appear below.\n\n";
+	$Body .= "\n\nThe exact errors appear below.\n\n";
 
 	while (my ($Port, $Error) = each %PortList) {
 		$Body .= $Port . ":\n\n" . Text::Wrap::wrap('', '', $Error) . "\n";
@@ -132,7 +132,7 @@ FreshPorts Daemon
 			FreshPorts::Utilities::ReportError('warning', "Committer $committer would have been notified of errors if they were opted in: $FreshPorts::CommitterOptIn::Errors", 0);
 		}
 	} else {
-		$Body = "Committer notifications are disabled.\n\n$Body";
+		$Body = "Committer notifications are disabled.  This commit was by $committer\n\n$Body";
 		FreshPorts::Utilities::ReportError('warning', "Committer notifications are disabled.", 0);
 	}
 
