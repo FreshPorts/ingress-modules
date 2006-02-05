@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: category.pm,v 1.8.2.12 2005-11-09 17:24:20 dan Exp $
+# $Id: category.pm,v 1.8.2.13 2006-02-05 21:52:15 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -77,14 +77,21 @@ sub save {
 		$this->{description} = _description_fetch("$this->{name}");
 	}
 
+	my $elementid;
+	if (defined($this->{element_id})) {
+		$elementid = $this->{element_id};
+	} else {
+		$elementid = 'NULL';
+	}
+
 	if ($this->{id}) {
 		# we are updating
-		$sql = "update categories  \
-				set \
-				is_primary = " . $dbh->quote($this->{is_primary}) . ", \
-				element_id = $this->{element_id}, \
-				name      = " . $dbh->quote($this->{name}) . ", \
-				description = " . $dbh->quote($this->{description}) . " \
+		$sql = "update categories  
+				set 
+				is_primary = " . $dbh->quote($this->{is_primary}) . ", 
+				element_id = " . $elementid . ",
+				name      = " . $dbh->quote($this->{name}) . ", 
+				description = " . $dbh->quote($this->{description}) . " 
 				 where id = $this->{id}";
 		$sth = $this->{dbh}->prepare($sql);
 		$sth->execute ||
@@ -124,7 +131,7 @@ sub FetchByID {
 	$dbh = $this->{dbh};
 
 	$sql = "select * from categories where id = $this->{id}";
-#	print "sql = '$sql'\n";
+	print "sql = '$sql'\n";
 
 	$sth = $dbh->prepare($sql);
 	if ( !defined $sth ) {
@@ -310,6 +317,12 @@ sub FetchAll {
 	}
 
 	return %Categories;
+}
+
+sub RefreshDescription {
+	my $this = shift;
+
+	$this->{description} = FreshPorts::Category::_description_read($this->{name});
 }
 
 1;
