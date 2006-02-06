@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: category-description-refresh.pl,v 1.1.2.1 2006-02-05 21:49:51 dan Exp $
+# $Id: category-description-refresh.pl,v 1.1.2.2 2006-02-06 16:31:41 dan Exp $
 #
 # Copyright (c) 1999-2004 DVL Software
 #
@@ -59,11 +59,17 @@ foreach $categorytorefresh (@CATEGORIES) {
 	if ($category->FetchByID()) {
 		my $name = $category->{name} . ' ' . $category->{id} . "\n";
 
-		print 'name is ' . $name;
+		print 'name is ' . $name . ' primary ' . $category->{is_primary} ;
 
-		$category->RefreshDescription();
-#		$category->save();
-		print $category->{name} . ': ' . $category->{description} . "\n";
+		if ($category->{is_primary}) {
+
+			my $description = FreshPorts::Category::_description_read($category->{name});
+
+			$category->{description} = $description;
+			print $category->{name} . ': ' . $category->{description} . "\n";
+		} else {
+			$category->{description} = 'no description available';
+		}
 
 		$category->save();
 	} else {
