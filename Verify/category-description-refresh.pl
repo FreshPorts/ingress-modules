@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: category-description-refresh.pl,v 1.1.2.2 2006-02-06 16:31:41 dan Exp $
+# $Id: category-description-refresh.pl,v 1.1.2.3 2006-02-06 16:57:53 dan Exp $
 #
 # Copyright (c) 1999-2004 DVL Software
 #
@@ -68,7 +68,7 @@ foreach $categorytorefresh (@CATEGORIES) {
 			$category->{description} = $description;
 			print $category->{name} . ': ' . $category->{description} . "\n";
 		} else {
-			$category->{description} = 'no description available';
+			$category->{description} = 'This is a virtual category. No description is available.';
 		}
 
 		$category->save();
