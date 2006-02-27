@@ -1,8 +1,8 @@
 #!/usr/bin/perl -w
 #
-# $Id: vuxml_mark_commits.pm,v 1.1.2.7 2005-07-16 04:55:49 dan Exp $
+# $Id: vuxml_mark_commits.pm,v 1.1.2.8 2006-02-27 23:14:58 dan Exp $
 #
-# Copyright (c) 1999-2004 DVL Software
+# Copyright (c) 1999-2006 DVL Software
 #
 
 package FreshPorts::vuxml_mark_commits;
@@ -213,7 +213,7 @@ sub TestVersionValues($;$;$) {
 	                         },
 	                );
 
-	my $command = "/usr/local/sbin/pkg_version -t $Version1 $Version2";
+	my $command = "$FreshPorts::vuxml_mark_commits::PKGVERSION -t $Version1 $Version2";
 	my $result  = `$command`;
 
 	chomp $result;
@@ -390,6 +390,18 @@ sub RecordVulnerabilitiesForThisPortVersion($;$;$) {
 	}
 
     return $i;
+}
+
+my ($FreeBSDVersion) = `uname -r` =~ /(\d+).*/;
+
+if ($FreeBSDVersion eq 4) {
+  $FreshPorts::vuxml_mark_commits::PKGVERSION = '/usr/local/sbin/pkg_version';
+} else {
+  if ($FreeBSDVersion eq 6) {
+    $FreshPorts::vuxml_mark_commits::PKGVERSION = '/usr/sbin/pkg_version';
+  } else {
+    die('cannot determine correct pkg_version for ' . `uname -a`);
+  }
 }
 
 1;
