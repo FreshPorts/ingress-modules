@@ -1,7 +1,7 @@
 #
-# $Id: constants.pm,v 1.7.2.10 2005-01-12 14:56:58 dan Exp $
+# $Id: constants.pm,v 1.7.2.11 2006-02-27 23:14:29 dan Exp $
 #
-# Copyright (c) 2001-2003 DVL Software
+# Copyright (c) 2001-2006 DVL Software
 #
 
 package FreshPorts::Constants;
