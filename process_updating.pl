@@ -1,8 +1,8 @@
 #!/usr/bin/perl
 #
-# $Id: process_updating.pl,v 1.1.2.8 2005-01-08 14:30:10 dan Exp $
+# $Id: process_updating.pl,v 1.1.2.9 2006-05-01 13:46:20 dan Exp $
 #
-# Copyright (c) 2004 DVL Software
+# Copyright (c) 2004-2006 DVL Software
 #
 # Original code by Travis Campbell (HCoyote).
 #
@@ -77,28 +77,41 @@ sub parsefile ($) {
 	for (my $i = 0; $i < scalar @lines; $i++) {
 		# encounter a line with a date
 		if ($lines[$i] =~ m/^(\d{8}):/) {
-			my ($affects, $author, $msg);
+			my ($affects, $author, $msg, $InAffects);
 			my $date = $1;
+
+			$InAffects = 0;
+			$affects   = '';
 			# parse the stuff between lines with dates
 			for (my $j = $i + 1; $j < scalar @lines; $j++) {
 				my $line = $lines[$j];
 				last if ($line =~ m/^\d{8}:/);
-				last if ($line =~ m/^\$FreeBSD:/);
+				last if ($line =~ m/^\$FreeBSD:/);	# last line of file
 				if ($line =~ m/\s+AFFECTS:\s+(.*)$/){
-					$affects = $1; 
+					$affects   = $1;
+					$InAffects = 1;
 				} elsif ($line =~ m/\s+AUTHOR:\s+(.*)$/) {
-					$author = $1;
+					$author    = $1;
+					$InAffects = 0;
+				} elsif ($InAffects) {
+					# the AFFECTS section is usually terminated by the AUTHOR section.
+					# sometimes there is no AUTHOR, and we have a blank line instead
+					if ($line =~ m/\S+/) { # if the line contains something not-whitespace
+						# grab the non-whitespace
+						$line =~ m/^\s+(.*)$/;
+						# line it up under the AFFECTS: banner
+						$affects .= "\n         " . $1;
+					} else {
+						$InAffects = 0;
+					}
 				} else {
 					$msg .= $line . "\n";
 				}
-				#} elsif ($line =~ m/^(?:\s+)?(.*)$/ or $line =~ m/(^$)/) {
-				#	$msg .= $1 . "\n";
-				#} 
 			}
 
 			# lets deal with port names
 			my @ports;
-			my @affects_match =  split(/,?\s+/, $affects);
+			my @affects_match = split(/,?\s+/, $affects);
 
 			# take the split up $affects tokens and see if they look
 			# like ports entries.
@@ -195,7 +208,7 @@ sub EmptyUpdating($) {
 	# quote everything going to the database
 	$sql = "DELETE FROM ports_updating";
 	$sth = $dbh->prepare($sql);
-	if (!$sth->execute())  {
+	if (!$sth->execute()) {
 		FreshPorts::Utilities::ReportError('warning', "Could not execute sql", 1);
 	}
 }
