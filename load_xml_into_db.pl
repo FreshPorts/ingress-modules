@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: load_xml_into_db.pl,v 1.46.2.27 2005-07-17 14:20:04 dan Exp $
+# $Id: load_xml_into_db.pl,v 1.46.2.28 2006-05-03 15:25:00 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -36,7 +36,7 @@ if ($dbh->{Active}) {
 
 	$Munger->add_observer($ObserverCommits);
 
-	print " about to process\n";
+	print "about to process\n";
 	my $ErrorFound = $Munger->process();
 
 	print " now is the commit:\n";
