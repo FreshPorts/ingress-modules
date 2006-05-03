@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: process_cvs_mail.pl,v 1.8.2.26 2004-12-09 01:25:43 dan Exp $
+# $Id: process_cvs_mail.pl,v 1.8.2.27 2006-05-03 15:24:05 dan Exp $
 #
 # Copyright (c) 2001-2003  DVL Software
 #
@@ -520,6 +520,10 @@ sub GetTime {
 		($hour, $minute, $second) = split(/:/, $time);
 		last;
 	}
+	
+	if (!defined($timezone)) {
+		$timezone = '';
+	}
 										
 	$time = {	Hour		=> int($hour),
 				Minute		=> int($minute),
@@ -564,9 +568,20 @@ sub GetMessage_Time {
 		if ($line =~ /^Date: /) {
 			($time, $timezone) = (split(/\s+/, $line))[5,7];
 			($hour, $minute, $second) = split(/:/, $time);
-			$timezone = substr($timezone, 1, 3);
+			
+			if (!defined($timezone)) {
+				$timezone = '';
+			}
+
+			if ($timezone =~ m/\S/) {
+				$timezone = substr($timezone, 1, 3);
+			}
 			last;
 		}
+	}
+
+	if (!defined($timezone)) {
+		$timezone = '';
 	}
 
 	$time = {	Hour		=> int($hour),
@@ -586,7 +601,7 @@ sub GetMessage_Id {
 	for (@lines) {
 		my ($line) = $_;
 
-		if ($line =~ /^Message-Id:/) {
+		if ($line =~ /^Message-Id:/i) {
 			$line =~ /\<(.*?)\>/g;
 			$Id = $1;
 			last;
