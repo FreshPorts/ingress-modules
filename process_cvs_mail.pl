@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: process_cvs_mail.pl,v 1.8.2.28 2006-05-03 15:24:42 dan Exp $
+# $Id: process_cvs_mail.pl,v 1.8.2.29 2006-05-30 21:22:07 dan Exp $
 #
 # Copyright (c) 2001-2003  DVL Software
 #
@@ -172,7 +172,7 @@ sub GetPR {
 	for (@lines) {          
 		my ($line) = $_;
 	   
-		if ($line =~ /^  PR:/) {
+		if ($line =~ /^  PR:/i) {
 			$PR = (split(" ", $line, 2))[1];
 			last;
 		}
@@ -219,7 +219,7 @@ sub GetObtainedFrom {
 	for (@lines) {          
 		my ($line) = $_;
 	   
-		if ($line =~ /^  Obtained from:/) {
+		if ($line =~ /^  Obtained from:/i) {
 			$ObtainedFrom = (split(" ", $line, 3))[2];
 			last;
 		}
@@ -237,7 +237,7 @@ sub GetApprover {
 	for (@lines) {          
 		my ($line) = $_;
 	   
-		if ($line =~ /^  Approved by:/) {
+		if ($line =~ /^  Approved by:/i) {
 			$Approver = (split(" ", $line, 3))[2];
 			last;
 		}
@@ -255,7 +255,7 @@ sub GetReviewer {
 	for (@lines) {
 		my ($line) = $_;
 		
-		if ($line =~ /^  Reviewed by:/) {
+		if ($line =~ /^  Reviewed by:/i) {
 			$Reviewer = (split(" ", $line, 3))[2];
 			last;
 		}
@@ -273,7 +273,7 @@ sub GetSubmitter {
 	for (@lines) {
 		my ($line) = $_;
 		
-		if ($line =~ /^  Submitted by:/) {
+		if ($line =~ /^  Submitted by:/i) {
 			$Submitter = (split(" ", $line, 3))[2];
 			last;
 		}
@@ -317,7 +317,7 @@ sub GetFiles {
 		#
 		# see also GetLog for use of Revision.
 		#
-		if ($line =~ /^  Revision .*Changes .*Path$/) { $found = 1; next; }
+		if ($line =~ /^  Revision .*Changes .*Path$/i) { $found = 1; next; }
 		next unless $found == 1;
 
 		last if (length($line) == 0 || substr($line, 0, length($EndOfFiles)) eq $EndOfFiles);
@@ -371,7 +371,7 @@ sub GetFilesImported {
 		#
 		# see also GetLog for use of Revision.
 		#
-		if ($line =~ /^  Release Tags:/) { $found = 1; next; }
+		if ($line =~ /^  Release Tags:/i) { $found = 1; next; }
 		next unless $found == 1;
 
 		$line = FreshPorts::Utilities::trim($line);
@@ -379,7 +379,7 @@ sub GetFilesImported {
 		# immediately after the Release Tags line is a blank line
 		next if ($line eq '');
 
-		last if ($line =~ /by this import/);
+		last if ($line =~ /by this import/i);
 
 		my ($action, $path) = split(" ", $line);
 
@@ -414,7 +414,7 @@ sub GetOS_Branch {
 	my (@lines) = split("\n", $message);
 
 	for (@lines) {
-		next unless ($_ =~ /X-FreeBSD-CVS-Branch/);
+		next unless ($_ =~ /X-FreeBSD-CVS-Branch/i);
 		$branch = $_;
 		$branch =~ s/X-FreeBSD-CVS-Branch: //;
 		last;
@@ -445,7 +445,7 @@ sub GetLog {
 #		$line =~ s/ +$//;
 #		$line .= "\n";
 
-		if ($line =~ /  Log:/) { $log_found = 1; next; }
+		if ($line =~ /  Log:/i) { $log_found = 1; next; }
 		next unless ($log_found == 1);
 
 		# Check to see if we've gone too far
@@ -543,7 +543,7 @@ sub GetMessage_Date {
 	for (@lines) {
 		my ($line) = $_;
 
-		if ($line =~ /^Date: /) {
+		if ($line =~ /^Date: /i) {
 			($day, $month, $year) = (split(/\s+/, $line))[2..4];
 			last;
 		}
@@ -565,7 +565,7 @@ sub GetMessage_Time {
 	for (@lines) {
 		my ($line) = $_;
 										  
-		if ($line =~ /^Date: /) {
+		if ($line =~ /^Date: /i) {
 			($time, $timezone) = (split(/\s+/, $line))[5,7];
 			($hour, $minute, $second) = split(/:/, $time);
 			
@@ -620,7 +620,7 @@ sub GetMessage_To {
 	for (@lines) {
 		my ($line) = $_;
 
-		if ($line =~ /^To: /) {
+		if ($line =~ /^To: /i) {
 			$data = (split/: /, $line, 2)[1];
 			last;
 		}
@@ -667,7 +667,7 @@ sub GetMessage_Subject {
 				last;
 			}
 		} else {
-			if ($line =~ /^Subject:/) {
+			if ($line =~ /^Subject:/i) {
 				$Subject = (split/: /, $line, 2)[1];
 				$FoundSubject = 1;
 			}
