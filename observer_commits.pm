@@ -1,5 +1,5 @@
 #
-# $Id: observer_commits.pm,v 1.1.2.7 2005-12-08 21:55:44 dan Exp $
+# $Id: observer_commits.pm,v 1.1.2.8 2006-05-30 20:51:56 dan Exp $
 #
 # Copyright (c) 2004 DVL Software
 #
@@ -71,6 +71,10 @@ sub update {
 
 		$PV = FreshPorts::PortsVulnerable->new($class->{dbh});
 		$PV->PortsVulnerabilityCountAdjust($params{CommitLogPorts});
+
+		use caching;
+		$Caching = FreshPorts::Caching->new($class->{dbh});
+		$Caching->RemovePortsFromCache($params{CommitLogPorts});
 
 	}
 
