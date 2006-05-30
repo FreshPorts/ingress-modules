@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.38.2.52 2005-11-01 23:10:56 dan Exp $
+# $Id: port.pm,v 1.38.2.53 2006-05-30 21:22:59 dan Exp $
 #
 #
 # Copyright (c) 2001-2005 DVL Software
@@ -736,7 +736,7 @@ sub _FetchFilesNeedingRefresh {
 			mkdir "pkg",0;
 		}
 
-		my $makecommand = "make -V DESCR -V -f $DESTDIR/$FILE PORTSDIR=$FreshPorts::Config::path_to_ports " .
+		my $makecommand = "make -V DESCR -f $DESTDIR/$FILE PORTSDIR=$FreshPorts::Config::path_to_ports " .
 		                  "LOCALBASE=/nonexistentlocal X11BASE=/nonexistentx 2>$TmpFile";
 
 		print "makecommand = $makecommand\n";
@@ -778,7 +778,7 @@ sub _FetchFilesNeedingRefresh {
 
 
 
-			print "raw       data DESCR       = '$DESCR'\n";
+			print "raw data DESCR = '$DESCR'\n";
 
 			#
 			# some ports (e.g. korean/netscape47-communicator) use
@@ -789,7 +789,11 @@ sub _FetchFilesNeedingRefresh {
 			# eliminate multiple // : PR 174
 			# to compensate for bug in File::PathConvert::realpath
 			# but now we use Cwd.
-			$DESCR       =~ s|//|/|g;
+			$DESCR =~ s|//|/|g;
+			
+			print "raw data DESCR = '$DESCR'\n";
+
+			
 
 			#
 			# Recent observation (2003.02.10) shows that COMMENTFILE
@@ -797,6 +801,8 @@ sub _FetchFilesNeedingRefresh {
 			# not used and COMMENT returns the actual comment.
 			#
 			$DESCR = Cwd::abs_path($DESCR);
+			print "raw data DESCR = '$DESCR'\n";
+
 
 			if (defined($DESCR)) {
 				print "converted data DESCR       = '$DESCR'\n";
