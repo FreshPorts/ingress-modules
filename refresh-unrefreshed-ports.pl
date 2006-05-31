@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: refresh-unrefreshed-ports.pl,v 1.20.2.11 2004-12-11 15:27:20 dan Exp $
+# $Id: refresh-unrefreshed-ports.pl,v 1.20.2.12 2006-05-31 04:13:59 dan Exp $
 #
 # Copyright (c) 1999-2004 DVL Software
 #
@@ -14,6 +14,7 @@ use utilities;
 use commit_log_ports;
 use system_status;
 use commit_log_ports_ignore;
+use caching;
 
 my $dbh;
 
@@ -94,6 +95,9 @@ my $port				= FreshPorts::Port->new($dbh);
 my $element				= FreshPorts::Element->new($dbh);
 my $commit_log_ports	= FreshPorts::CommitLogPorts->new($dbh);
 
+my $Caching				= FreshPorts::Caching->new($dbh);
+
+
 my %DatesToRefresh;
 
 foreach $porttorefresh (@PORTS) {
@@ -148,6 +152,9 @@ foreach $porttorefresh (@PORTS) {
 			# the daily summary creation and then doing a rollback.
 			#
 			$dbh->commit();
+			
+			print "removing from cache: $port->{category}/$port->{name}\n";
+			$Caching->RemovePortFromCache($port->{category}, $port->{name});
 
 			#
 			# save that date away for later use
