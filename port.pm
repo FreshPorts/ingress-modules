@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.38.2.53 2006-05-30 21:22:59 dan Exp $
+# $Id: port.pm,v 1.38.2.54 2006-06-10 02:22:30 dan Exp $
 #
 #
 # Copyright (c) 2001-2005 DVL Software
@@ -405,6 +405,7 @@ sub _ExtractValuesFromMakefile {
 	my $TmpFile = FreshPorts::Utilities::TmpFileName("$this->{category}.$this->{name}.make-error");
 
 	if (!LooksLikeAMakefile($Makefile)) {
+		FreshPorts::CommitterOptIn::RecordErrorDetails("$this->{category}/$this->{name}", "The Makefile fetched via cvsweb did not have filetype==ASCII. Such errors are usually temporary.  FreshPorts will try again later.");
 		FreshPorts::Utilities::ReportError('warning', "$Makefile does not look like a makefile", 0);
 		return -1;
 	}
@@ -483,7 +484,7 @@ sub _ExtractValuesFromMakefile {
 	}
 
 	# remove that error collection file
-	`rm $TmpFile`;
+	unlink($TmpFile);
 
 	my $mastersites = '';
 	if ($result == 0) {
@@ -748,7 +749,7 @@ sub _FetchFilesNeedingRefresh {
 			FreshPorts::Utilities::ReportErrorEmail('warning', "error executing make command for $this->{category}/$this->{name} for database $FreshPorts::Config::dbname\n: '$makecommand' ->" . $Errors, 1, 0);
 		}
 		# remove the error collection file
-		`rm $TmpFile`;
+		unlink($TmpFile);
 
 
 		# remove previously created directory
