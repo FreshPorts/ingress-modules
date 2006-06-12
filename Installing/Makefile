@@ -1,5 +1,5 @@
 #
-# $Id: Makefile,v 1.1.2.5 2006-03-29 09:01:25 dan Exp $
+# $Id: Makefile,v 1.1.2.6 2006-06-12 05:19:25 dan Exp $
 #
 # Install the ports needed by FreshPorts
 #
@@ -37,7 +37,8 @@ RUN_DEPENDS=	${LOCALBASE}/bin/svstat:${PORTSDIR}/sysutils/daemontools \
 		${LOCALBASE}/bin/mysql_install_db:${PORTSDIR}/databases/mysql41-server \
 		${PREFIX}/share/pear/HTML/Common.php:${PORTSDIR}/devel/pear-HTML_Common \
 		${PREFIX}/share/pear/HTML/Page2.php:${PORTSDIR}/devel/pear-HTML_Page2 \
-		${SITE_PERL}/Class/Observable.pm:${PORTSDIR}/devel/p5-Class-Observable
+		${SITE_PERL}/Class/Observable.pm:${PORTSDIR}/devel/p5-Class-Observable \
+		${PREFIX}/include/php/ext/pgsql/config.h:${PORTSDIR}/lang/php4-extensions
 				
 NO_WRKSUBDIR=	YES
 NO_BUILD=		YES
