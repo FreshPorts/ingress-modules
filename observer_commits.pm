@@ -1,7 +1,7 @@
 #
-# $Id: observer_commits.pm,v 1.1.2.8 2006-05-30 20:51:56 dan Exp $
+# $Id: observer_commits.pm,v 1.1.2.9 2006-06-28 05:40:03 dan Exp $
 #
-# Copyright (c) 2004 DVL Software
+# Copyright (c) 2004-2006 DVL Software
 #
 
 #
@@ -10,6 +10,8 @@
 package FreshPorts::ObserverCommits;
 
 use special_processing_files;
+
+my %PortsCacheRemove;
 
 sub new {
 	my $this		= {};
@@ -71,11 +73,21 @@ sub update {
 
 		$PV = FreshPorts::PortsVulnerable->new($class->{dbh});
 		$PV->PortsVulnerabilityCountAdjust($params{CommitLogPorts});
+		
+		print "Observer will clear the following items from cach after the commit:\n";
+		
+		my %CommitLogPorts = %{$params{CommitLogPorts}};
 
-		use caching;
-		$Caching = FreshPorts::Caching->new($class->{dbh});
-		$Caching->RemovePortsFromCache($params{CommitLogPorts});
 
+		while (my ($portname, $commit_log_ports) = each %CommitLogPorts) {
+			$CommitLogPorts{$portname}	= $commit_log_ports;
+
+			$port = $commit_log_ports->{port};
+			print "$port->{category}/$port->{name}\n";
+			
+			$PortsCacheRemove{"$port->{category}/$port->{name}"}	= "$port->{category}/$port->{name}";
+		}
+		print "*** end of items to be cleared\n"
 	}
 
 	if ($action eq $FreshPorts::Messages::ProcessingDone) {
@@ -91,6 +103,15 @@ sub update {
 
 	if ($action eq $FreshPorts::Messages::FilesFetched && $class->{patching_needed}) {
 		`$FreshPorts::Config::scriptpath/patch-ports-infrastructure.sh`
+	}
+
+
+	if ($action eq $FreshPorts::Messages::TransactionCommitted) {
+		print "Observer has noticed that a transaction has been committed.\n";
+
+		use caching;
+		$Caching = FreshPorts::Caching->new($class->{dbh});
+		$Caching->RemovePortsFromCache(\%PortsCacheRemove);
 	}
 
 }
