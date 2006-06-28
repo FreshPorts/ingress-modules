@@ -1,8 +1,8 @@
 #!/usr/bin/perl
 #
-# $Id: caching.pm,v 1.1.2.3 2006-06-06 14:28:45 dan Exp $
+# $Id: caching.pm,v 1.1.2.4 2006-06-28 03:45:12 dan Exp $
 #
-# Copyright (c) 2001-2003 DVL Software
+# Copyright (c) 2001-2006 DVL Software
 #
 
 package FreshPorts::Caching;
