@@ -1,6 +1,6 @@
-# $Id: xml_munge.pm,v 1.1.2.9 2005-02-01 17:51:39 dan Exp $
+# $Id: xml_munge.pm,v 1.1.2.10 2006-06-28 05:36:53 dan Exp $
 #
-# Copyright (c) 2001-2004 DVL Software
+# Copyright (c) 2001-2006 DVL Software
 #
 # Parse cvs messages in XML format so they can be put into a database
 # Version 4 - uses DTD version 0.12
