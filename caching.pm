@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: caching.pm,v 1.1.2.4 2006-06-28 03:45:12 dan Exp $
+# $Id: caching.pm,v 1.1.2.5 2006-06-28 04:10:10 dan Exp $
 #
 # Copyright (c) 2001-2006 DVL Software
 #
@@ -35,10 +35,12 @@ sub RemovePortFromCache($;$) {
 	my $category_name = shift;
 	my $port_name     = shift;
 	
-	my $CachingFile = $FreshPorts::Config::CachingRoot . '/cache/' . $category_name . '.' . $port_name;
-	
+	my $CachingFile = $FreshPorts::Config::CachingRoot . '/cache/' . $category_name . '.' . $port_name;	
+
 	if (-e $CachingFile) {
-		unlink($CachingFile);
+		if (!unlink($CachingFile)) {
+			FreshPorts::Utilities::ReportError('warning', "Cache removal failed: $CachingFile", 0);
+		}
 	}
 }
 
@@ -69,7 +71,5 @@ sub RemovePortsFromCache($) {
 
 	return $ErrorFound;
 }
-
-
 
 1;
