@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: caching.pm,v 1.1.2.5 2006-06-28 04:10:10 dan Exp $
+# $Id: caching.pm,v 1.1.2.6 2006-06-28 05:39:12 dan Exp $
 #
 # Copyright (c) 2001-2006 DVL Software
 #
@@ -35,13 +35,9 @@ sub RemovePortFromCache($;$) {
 	my $category_name = shift;
 	my $port_name     = shift;
 	
-	my $CachingFile = $FreshPorts::Config::CachingRoot . '/cache/' . $category_name . '.' . $port_name;	
+	my $CachingFile = $FreshPorts::Config::CachingRoot . '/cache/ports/' . $category_name . '/' . $port_name . '.*.html';
 
-	if (-e $CachingFile) {
-		if (!unlink($CachingFile)) {
-			FreshPorts::Utilities::ReportError('warning', "Cache removal failed: $CachingFile", 0);
-		}
-	}
+	unlink glob($CachingFile);
 }
 
 sub RemovePortsFromCache($) {
@@ -60,11 +56,11 @@ sub RemovePortsFromCache($) {
 	my $ErrorFound = 0;
 
 	print "# # # # Removing ports from the cache # # # #\n\n";
-	while (my ($portname, $commit_log_ports) = each %CommitLogPorts) {
-		$port = $commit_log_ports->{port};
-		print "$port->{category}/$port->{name}\n";
+	while (my ($candidate, ) = each %CommitLogPorts) {
+		my ($category, $port) = split('/', $candidate);
+		print "$category/$port\n";
 
-		$this->RemovePortFromCache($port->{category}, $port->{name});
+		$this->RemovePortFromCache($category, $port);
 	}
 
 	print "\n# # # # Finished: Removing ports from the cache # # # #\n\n";
