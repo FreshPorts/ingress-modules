@@ -1,5 +1,5 @@
 #
-# $Id: utilities.pm,v 1.11.2.22 2006-02-27 23:14:28 dan Exp $
+# $Id: utilities.pm,v 1.11.2.23 2006-06-29 19:48:46 dan Exp $
 #
 # Copyright (c) 2001-2006 DVL Software
 #
@@ -48,6 +48,7 @@ sub FetchFile($;$;$;$;) {
 
 	return FetchFileURL($FreshPorts::Config::CVS_Repository, $DESTDIR, $SRCDIR, $FILE, $REVISION, "''");
 }
+
 sub FetchFileURL($;$;$;$;$;$) {
 	#
 	# fetch a file
