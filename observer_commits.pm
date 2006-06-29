@@ -1,5 +1,5 @@
 #
-# $Id: observer_commits.pm,v 1.1.2.9 2006-06-28 05:40:03 dan Exp $
+# $Id: observer_commits.pm,v 1.1.2.10 2006-06-29 23:51:52 dan Exp $
 #
 # Copyright (c) 2004-2006 DVL Software
 #
@@ -74,7 +74,7 @@ sub update {
 		$PV = FreshPorts::PortsVulnerable->new($class->{dbh});
 		$PV->PortsVulnerabilityCountAdjust($params{CommitLogPorts});
 		
-		print "Observer will clear the following items from cach after the commit:\n";
+		print "Observer will clear the following items from cache after the commit:\n";
 		
 		my %CommitLogPorts = %{$params{CommitLogPorts}};
 
