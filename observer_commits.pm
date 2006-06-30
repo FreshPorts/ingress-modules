@@ -1,5 +1,5 @@
 #
-# $Id: observer_commits.pm,v 1.1.2.10 2006-06-29 23:51:52 dan Exp $
+# $Id: observer_commits.pm,v 1.1.2.11 2006-06-30 11:48:04 dan Exp $
 #
 # Copyright (c) 2004-2006 DVL Software
 #
@@ -73,21 +73,6 @@ sub update {
 
 		$PV = FreshPorts::PortsVulnerable->new($class->{dbh});
 		$PV->PortsVulnerabilityCountAdjust($params{CommitLogPorts});
-		
-		print "Observer will clear the following items from cache after the commit:\n";
-		
-		my %CommitLogPorts = %{$params{CommitLogPorts}};
-
-
-		while (my ($portname, $commit_log_ports) = each %CommitLogPorts) {
-			$CommitLogPorts{$portname}	= $commit_log_ports;
-
-			$port = $commit_log_ports->{port};
-			print "$port->{category}/$port->{name}\n";
-			
-			$PortsCacheRemove{"$port->{category}/$port->{name}"}	= "$port->{category}/$port->{name}";
-		}
-		print "*** end of items to be cleared\n"
 	}
 
 	if ($action eq $FreshPorts::Messages::ProcessingDone) {
@@ -105,6 +90,24 @@ sub update {
 		`$FreshPorts::Config::scriptpath/patch-ports-infrastructure.sh`
 	}
 
+
+	if ($action eq $FreshPorts::Messages::UpdateEnds) {
+		print "Observer has noticed that the update for $params{message_id} has finished.\n";
+
+		print "Observer will clear the following items from cache after the commit:\n";
+		
+		my %CommitLogPorts = %{$params{CommitLogPorts}};
+
+		while (my ($portname, $commit_log_ports) = each %CommitLogPorts) {
+			$CommitLogPorts{$portname}	= $commit_log_ports;
+
+			$port = $commit_log_ports->{port};
+			print "$port->{category}/$port->{name}\n";
+			
+			$PortsCacheRemove{"$port->{category}/$port->{name}"}	= "$port->{category}/$port->{name}";
+		}
+		print "*** end of items to be cleared\n"
+	}
 
 	if ($action eq $FreshPorts::Messages::TransactionCommitted) {
 		print "Observer has noticed that a transaction has been committed.\n";
