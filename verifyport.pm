@@ -1,7 +1,7 @@
 #
-# $Id: verifyport.pm,v 1.42.2.31 2006-06-29 19:51:21 dan Exp $
+# $Id: verifyport.pm,v 1.42.2.32 2006-06-30 11:43:55 dan Exp $
 #
-# Copyright (c) 2001-2003 DVL Software
+# Copyright (c) 2001-2006 DVL Software
 #
 
 package FreshPorts::VerifyPort;
@@ -306,6 +306,8 @@ sub FetchAllFiles($;$) {
 
 	my $basename;
 	my $MakefileCount = 0;
+	
+	my $FetchOK = 1;
 
 	print "fetching all files from this commit.\n";
 
@@ -338,15 +340,17 @@ sub FetchAllFiles($;$) {
 
 			print "fetching \$DESTDIR = [$DESTDIR], \$SRCDIR = [$SRCDIR], \$FILE = [$FILE] \$REVISION = [$REVISION]\n";
 
-			if (!FreshPorts::Utilities::FetchFile($DESTDIR, $SRCDIR, $FILE, $REVISION)) {
-				FreshPorts::Utilities::ReportError('warning', "Sorry, but we couldn't fetch all the files as required when we encounter a SLAVE/MASTER port", 0);
+			
+			$FetchOK = FreshPorts::Utilities::FetchFile($DESTDIR, $SRCDIR, $FILE, $REVISION);
+			if (!$FetchOK) {
+				FreshPorts::Utilities::ReportError('warning', "Sorry, but we couldn't fetch all the files", 0);
 			}
 		} else {
 			print "file was removed.  not fetching $SRCDIR/$FILE/?revision=$REVISION\n";
 		}
 	}
 
-	return 1;
+	return $FetchOK;
 }
 	
 
