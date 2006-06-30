@@ -1,5 +1,5 @@
 #
-# $Id: messages.pm,v 1.1.2.5 2006-06-28 05:37:17 dan Exp $
+# $Id: messages.pm,v 1.1.2.6 2006-06-30 01:14:15 dan Exp $
 #
 # Copyright (c) 2004-2006 DVL Software
 #
@@ -10,6 +10,8 @@
 package FreshPorts::Messages;
 
 $FreshPorts::Messages::ProcessingBegins		= 'ProcessingBegins';
+$FreshPorts::Messages::UpdateBegins			= 'UpdateBegins';
+$FreshPorts::Messages::UpdateEnds			= 'UpdateEnds';
 $FreshPorts::Messages::CommitSaved			= 'CommitSaved';
 $FreshPorts::Messages::FileUpdate			= 'FileUpdate';
 $FreshPorts::Messages::PortsRefreshed		= 'PortsRefreshed';
