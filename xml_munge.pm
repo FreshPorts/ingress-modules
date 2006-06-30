@@ -1,4 +1,5 @@
-# $Id: xml_munge.pm,v 1.1.2.10 2006-06-28 05:36:53 dan Exp $
+#
+# $Id: xml_munge.pm,v 1.1.2.11 2006-06-30 11:46:53 dan Exp $
 #
 # Copyright (c) 2001-2006 DVL Software
 #
@@ -251,6 +252,7 @@ sub handle_updates_start {
 
 sub handle_update_start {
 	print "\n --- start of an update --- \n";
+	$self->notify_observers($FreshPorts::Messages::UpdateBegins);
 
 	#
 	# make sure we initialize things correctly for each message.
@@ -298,7 +300,8 @@ sub handle_update_end {
 	#
 
 	my %CommitLogPorts;	# array of port objects touched by this message.
-	my $ErrorFound = 0;
+	my $ErrorFound   = 0;
+	my $FetchProblem = 0;
 
 	#
 	# Record the information which is used during Error Notification.
@@ -320,33 +323,38 @@ sub handle_update_end {
 	print "\n --- end of this update --- \n";
 
 	if ($fetch_before_refresh) {
-		FreshPorts::VerifyPort::FetchAllFiles(\@Files, $self->{dbh});
-		$self->notify_observers($FreshPorts::Messages::FilesFetched);
+		$FetchProblem = FreshPorts::VerifyPort::FetchAllFiles(\@Files, $self->{dbh});
+		if (!$FetchProblem) {
+			$self->notify_observers($FreshPorts::Messages::FilesFetched);
+		}
 	}
-
-    my $commit_date = sprintf "%04u-%02u-%02u", $Updates{dateyear}, $Updates{datemonth}, $Updates{dateday};
 
 	# now we should refresh all the ports associated with this commit
 	# as each port is refreshed, it will be committed
+	
+	if (!$FetchProblem) {
+		if ($refresh_ports) {
+			$ErrorFound = FreshPorts::VerifyPort::RefreshAllPortsTouchedByCommit(\%CommitLogPorts, 0, $self->{dbh});
 
-	if ($refresh_ports) {
-		$ErrorFound = FreshPorts::VerifyPort::RefreshAllPortsTouchedByCommit(\%CommitLogPorts, 0, $self->{dbh});
+			if (!$ErrorFound) {
+				$ErrorFound = FreshPorts::VerifyPort::RefreshAllSlavePortsOfPortsTouchedByCommit(\%CommitLogPorts, 0, $self->{dbh});
+			}
 
-		if (!$ErrorFound) {
-			$ErrorFound = FreshPorts::VerifyPort::RefreshAllSlavePortsOfPortsTouchedByCommit(\%CommitLogPorts, 0, $self->{dbh});
-		}
+			if (!$ErrorFound) {
+				$ErrorFound = FreshPorts::VerifyPort::MarkVulnerableCommits(\%CommitLogPorts, 0, $self->{dbh});
+			}
 
-		if (!$ErrorFound) {
-			$ErrorFound = FreshPorts::VerifyPort::MarkVulnerableCommits(\%CommitLogPorts, 0, $self->{dbh});
+	    $self->notify_observers($FreshPorts::Messages::PortsRefreshed, 
+				(message_id => $Updates{MessageId}, CommitLogPorts => \%CommitLogPorts) );
+
 		}
 	}
 
-	$self->notify_observers($FreshPorts::Messages::PortsRefreshed, 
-			(message_id => $Updates{MessageId}, CommitLogPorts => \%CommitLogPorts) );
-
-
 	if (scalar(keys %CommitLogPorts)) {
 		print "adding that commit date to the daily summary refresh list\n";
+
+	    my $commit_date = sprintf "%04u-%02u-%02u", $Updates{dateyear}, $Updates{datemonth}, $Updates{dateday};
+
 		FreshPorts::Cache::DailySummaryDateAdd($commit_date, $self->{dbh})
 	} else {
 		print "that was not a port, so not adding to daily summary refresh list\n";
@@ -359,6 +367,9 @@ sub handle_update_end {
 	} else {
 		print "No errors found during that commit\n";
 	}
+	
+	$self->notify_observers($FreshPorts::Messages::UpdateEnds, 
+			(message_id => $Updates{MessageId}, CommitLogPorts => \%CommitLogPorts) );
 
 	# we don't clear these values until the end of the update
 	undef $Updates{os};
