@@ -1,5 +1,5 @@
 #
-# $Id: xml_munge.pm,v 1.1.2.11 2006-06-30 11:46:53 dan Exp $
+# $Id: xml_munge.pm,v 1.1.2.12 2006-07-01 17:03:11 dan Exp $
 #
 # Copyright (c) 2001-2006 DVL Software
 #
@@ -300,8 +300,8 @@ sub handle_update_end {
 	#
 
 	my %CommitLogPorts;	# array of port objects touched by this message.
-	my $ErrorFound   = 0;
-	my $FetchProblem = 0;
+	my $ErrorFound = 0;
+	my $FetchOK    = 0;
 
 	#
 	# Record the information which is used during Error Notification.
@@ -323,16 +323,20 @@ sub handle_update_end {
 	print "\n --- end of this update --- \n";
 
 	if ($fetch_before_refresh) {
-		$FetchProblem = FreshPorts::VerifyPort::FetchAllFiles(\@Files, $self->{dbh});
-		if (!$FetchProblem) {
+		$FetchOK = FreshPorts::VerifyPort::FetchAllFiles(\@Files, $self->{dbh});
+		if ($FetchOK) {
 			$self->notify_observers($FreshPorts::Messages::FilesFetched);
+		} else {
+			print "There was a problem fetching, so I won't be telling the Observer that files have been fetched\n";
 		}
+	} else {
+		print "We are not fetching before refreshing\n";
 	}
 
 	# now we should refresh all the ports associated with this commit
 	# as each port is refreshed, it will be committed
 	
-	if (!$FetchProblem) {
+	if ($FetchOK) {
 		if ($refresh_ports) {
 			$ErrorFound = FreshPorts::VerifyPort::RefreshAllPortsTouchedByCommit(\%CommitLogPorts, 0, $self->{dbh});
 
