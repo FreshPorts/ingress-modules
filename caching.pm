@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: caching.pm,v 1.1.2.6 2006-06-28 05:39:12 dan Exp $
+# $Id: caching.pm,v 1.1.2.7 2006-07-05 12:45:58 dan Exp $
 #
 # Copyright (c) 2001-2006 DVL Software
 #
@@ -35,9 +35,16 @@ sub RemovePortFromCache($;$) {
 	my $category_name = shift;
 	my $port_name     = shift;
 	
-	my $CachingFile = $FreshPorts::Config::CachingRoot . '/cache/ports/' . $category_name . '/' . $port_name . '.*.html';
+	
+	my $CachingFile = $FreshPorts::Config::CachingRoot . '/cache/ports/' . $category_name . '/' . $port_name . '.Detail.html';
 
-	unlink glob($CachingFile);
+	print "removing $CachingFile\n";
+
+	print `ls -l $CachingFile` ."\n";
+
+	unlink($CachingFile);
+	
+	print `ls -l $CachingFile` ."\n";
 }
 
 sub RemovePortsFromCache($) {
