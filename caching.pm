@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: caching.pm,v 1.1.2.8 2006-07-09 23:12:08 dan Exp $
+# $Id: caching.pm,v 1.1.2.9 2006-07-09 23:57:04 dan Exp $
 #
 # Copyright (c) 2001-2006 DVL Software
 #
@@ -37,31 +37,17 @@ sub RemovePortFromCache($;$) {
 
 	my $CachingFile = $FreshPorts::Config::CachingRoot . '/cache/ports/' . $category_name . '/' . $port_name . '.Detail.html';
 
-	my $MaxAttempts    = 5;
-	my $AttemptNumber  = 0;
 	
 	print "checking cache for '$CachingFile'\n";
-#	system "ls -l $CachingFile";
-#	system "id";
 	if (-e "$CachingFile") {
-		print "cache entry exists\n";
-		while (($AttemptNumber < $MaxAttempts) && (-e $CachingFile)) {
-			$AttemptNumber++;
+		print "cache entry exists.  removing it\n";
 
-#			print `ls -l $CachingFile` ."\n";
-			print 'attempt #' . $AttemptNumber . " removing $CachingFile\n";
-
-			unlink("$CachingFile");
-#			sleep 1;
-		}
-
-		if ($AttemptNumber >= $MaxAttempts && (-e $CachingFile)) {
+		if (!unlink("$CachingFile")) {
 			print "!!!unable to delete $CachingFile\n";
 		}
 	} else {
 		print "nothing in the cache to remove\n"
 	}
-
 }
 
 sub RemovePortsFromCache($) {
