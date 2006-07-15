@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $Id: config.sh.sample,v 1.1.2.12 2006-07-15 02:35:13 dan Exp $
+# $Id: config.sh.sample,v 1.1.2.13 2006-07-15 03:21:09 dan Exp $
 #
 
 FETCH="/usr/bin/fetch"
@@ -27,7 +27,7 @@ MSGDIR="MSG_ARCHIVE"
 CACHINGROOT="${BASEDIR}/dynamic/caching"
 
 CACHEDIR="${CACHINGROOT}/cache"
-NEWSCACHDIR="${CACHINGROOT}/news"
+NEWSCACHEDIR="${CACHINGROOT}/news"
 SPOOLINGDIR="${CACHINGROOT}/tmp"
 
 # What file do we set for /usr/ports/MOVED?
