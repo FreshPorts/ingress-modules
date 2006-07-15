@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $Id: cache-refresh.sh,v 1.1.2.10 2006-07-15 02:35:13 dan Exp $
+# $Id: cache-refresh.sh,v 1.1.2.11 2006-07-15 03:29:57 dan Exp $
 #
 # Copyright (c) 2004 DVL Software Limited
 #
@@ -41,12 +41,12 @@ then
 	#
 	# remove the flag
 	#
-	rm "${CACHE_NEEDS_REFRESH}"
+	/bin/rm "${CACHE_NEEDS_REFRESH}"
 
 	#
 	# the following remove the old news feeds
 	#
-	rm "${NEWSDIR}/*.xml"
+	/bin/rm -f "${NEWSCACHEDIR}/*.xml"
 
 	${FETCH} ${FETCH_OPTIONS} ${SPOOLINGDIR}/index.html      ${WEBSITEURL}caching-files/index.php?numcommits=10
 	${FETCH} ${FETCH_OPTIONS} ${SPOOLINGDIR}/commits.html    ${WEBSITEURL}caching-files/index.php?numcommits=100
