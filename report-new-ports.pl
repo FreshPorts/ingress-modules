@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: report-new-ports.pl,v 1.1.2.22 2006-02-05 21:55:02 dan Exp $
+# $Id: report-new-ports.pl,v 1.1.2.23 2006-07-18 10:34:58 dan Exp $
 #
 # Copyright (c) 2001-2004 DVL Software
 #
@@ -173,7 +173,11 @@ order by users.id, (ports.date_added + SystemTimeAdjust())::date asc, categories
 		$Body .= "$FreshPorts::Config::FreshPortsURL" . $row->{category} . '/' . $row->{port} . "/\n";
 
 		# and wrap the description of the change.
-		$Body .= wrap("     ", "     ", $row->{description});
+		if (defined($row->{description})) {
+			$Body .= wrap("     ", "     ", $row->{description});
+		} else {
+			$Body .= "     [description was not available; the link will have full details]";
+		}
 		$Body .= "\n\n";
 
 	}
