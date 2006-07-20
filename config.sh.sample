@@ -1,14 +1,18 @@
 #!/bin/sh
 #
-# $Id: config.sh.sample,v 1.1.2.13 2006-07-15 03:21:09 dan Exp $
+# $Id: config.sh.sample,v 1.1.2.14 2006-07-20 10:06:47 dan Exp $
 #
 
 FETCH="/usr/bin/fetch"
 FETCH_OPTIONS="-qo"
 
+# where is this website installed?
+# do not include a trailing slash
+# this directory should contain the www and scripts directories.
 BASEDIR="/usr/websites/DIRNAME"
 
 # what is the URL for this website?
+# MUST have a trailing /
 WEBSITEURL="http://WEBSITE_URL"
 
 #
