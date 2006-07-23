@@ -1,5 +1,5 @@
 #
-# $Id: constants.pm,v 1.7.2.11 2006-02-27 23:14:29 dan Exp $
+# $Id: constants.pm,v 1.7.2.12 2006-07-23 13:19:15 dan Exp $
 #
 # Copyright (c) 2001-2006 DVL Software
 #
@@ -59,5 +59,7 @@ $FreshPorts::Constants::ReportIDAnnouncements			= 4;
 $FreshPorts::Constants::ReportDeletedPorts				= 5;
 
 $FreshPorts::Constants::VERSION_REVISION_JOINER			= '_';
+
+$FreshPorts::Constants::VUXML_URL                       = 'http://www.vuxml.org/freebsd/';
 
 1;
