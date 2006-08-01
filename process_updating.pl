@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: process_updating.pl,v 1.1.2.9 2006-05-01 13:46:20 dan Exp $
+# $Id: process_updating.pl,v 1.1.2.10 2006-08-01 14:40:32 dan Exp $
 #
 # Copyright (c) 2004-2006 DVL Software
 #
@@ -22,6 +22,8 @@ use db_utils;
 use database;
 use utilities;
 use config;
+use caching;
+
 
 use DBI;
 
@@ -53,6 +55,8 @@ sub main {
 		EmptyUpdating($dbh);
 
 		parsefile($dbh);
+
+		ClearCacheFiles($dbh);
 
 # hmmm, this might be a good way to debug...
 # issue a rollback after each attempt...
@@ -212,3 +216,36 @@ sub EmptyUpdating($) {
 		FreshPorts::Utilities::ReportError('warning', "Could not execute sql", 1);
 	}
 }
+
+sub ClearCacheFiles($) {
+	my $dbh = shift;
+	my $sth;
+	my $sql;
+	my $updated_port;
+	my $i = 0;
+
+	$sql = '
+SELECT C.name AS category,
+       E.name AS port
+ FROM element E, categories C, ports P 
+    JOIN (SELECT DISTINCT port_id
+            FROM ports_updating_ports_xref) as tmp on P.id = tmp.port_id
+           WHERE E.id = P.element_id
+             AND C.id = P.category_id
+        ORDER BY 1, 2';
+
+	print "sql is $sql\n";
+
+	$sth = $dbh->prepare($sql);
+	$sth->execute ||
+		die "Could not execute SQL $sql ... maybe invalid?";
+
+	my $Caching = FreshPorts::Caching->new($dbh);
+    while ($updated_port = $sth->fetchrow_hashref()) {
+        $i++;
+		$Caching->RemovePortFromCache($updated_port->{category}, $updated_port->{port});
+	}
+
+    return $i;
+}
+

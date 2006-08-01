@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: process_moved.pl,v 1.1.2.7 2004-11-27 13:54:07 dan Exp $
+# $Id: process_moved.pl,v 1.1.2.8 2006-08-01 14:40:32 dan Exp $
 #
 # Copyright (c) 2001-2004 DVL Software
 #
@@ -15,6 +15,7 @@ require Sys::Syslog;
 use db_utils;
 use database;
 use utilities;
+use caching;
 
 use DBI;
 
@@ -44,6 +45,8 @@ sub main {
 		EmptyMoved($dbh);
 
 		parsefile($dbh);
+
+		ClearCacheFiles($dbh);
 
 # hmmm, this might be a good way to debug...
 # issue a rollback after each attempt...
@@ -117,3 +120,39 @@ sub EmptyMoved($) {
 		FreshPorts::Utilities::ReportError('warning', "Could not execute sql", 1);
 	}
 }
+
+sub ClearCacheFiles($) {
+	my $dbh = shift;
+	my $sth;
+	my $sql;
+	my $updated_port;
+	my $i = 0;
+
+	$sql = '
+SELECT C.name AS category,
+       E.name AS port
+ FROM element E, categories C, ports P 
+    JOIN (SELECT from_port_id as port_id
+            FROM ports_moved
+	       UNION
+	      SELECT to_port_id as port_id
+            FROM ports_moved) as tmp on P.id = tmp.port_id
+           WHERE E.id = P.element_id
+             AND C.id = P.category_id
+        ORDER BY 1, 2';
+
+	print "sql is $sql\n";
+
+	$sth = $dbh->prepare($sql);
+	$sth->execute ||
+		die "Could not execute SQL $sql ... maybe invalid?";
+
+	my $Caching = FreshPorts::Caching->new($dbh);
+    while ($updated_port = $sth->fetchrow_hashref()) {
+        $i++;
+		$Caching->RemovePortFromCache($updated_port->{category}, $updated_port->{port});
+	}
+
+    return $i;
+}
+

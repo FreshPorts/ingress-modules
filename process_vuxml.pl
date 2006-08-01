@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: process_vuxml.pl,v 1.1.2.7 2004-12-09 02:08:36 dan Exp $
+# $Id: process_vuxml.pl,v 1.1.2.8 2006-08-01 14:40:32 dan Exp $
 #
 # Copyright (c) 2001-2004 DVL Software
 #
@@ -72,7 +72,9 @@ sub main {
 		if ($WipeExistingVuXMLEntries) {
 			my $CommitMarker = FreshPorts::vuxml_mark_commits->new($dbh);
 			my $i = $CommitMarker->ProcessEachRangeRecord();
+			$CommitMarker->ClearCachedEntries();
 		}
+		
 
 
 # hmmm, this might be a good way to debug...
