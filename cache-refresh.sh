@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $Id: cache-refresh.sh,v 1.1.2.12 2006-07-15 04:48:12 dan Exp $
+# $Id: cache-refresh.sh,v 1.1.2.13 2006-08-02 19:09:17 dan Exp $
 #
 # Copyright (c) 2004 DVL Software Limited
 #
@@ -53,10 +53,7 @@ then
 	${FETCH} ${FETCH_OPTIONS} ${SPOOLINGDIR}/news.rss        ${WEBSITEURL}caching-files/news.php
 	${FETCH} ${FETCH_OPTIONS} ${SPOOLINGDIR}/ports-new.rss   ${WEBSITEURL}caching-files/ports-new.php
 
-	${FETCH} ${FETCH_OPTIONS} ${SPOOLINGDIR}/categories-by-category.html    ${WEBSITEURL}caching-files/categories.php?sort=category
-	${FETCH} ${FETCH_OPTIONS} ${SPOOLINGDIR}/categories-by-count.html       ${WEBSITEURL}caching-files/categories.php?sort=count
-	${FETCH} ${FETCH_OPTIONS} ${SPOOLINGDIR}/categories-by-description.html ${WEBSITEURL}caching-files/categories.php?sort=description
-	${FETCH} ${FETCH_OPTIONS} ${SPOOLINGDIR}/categories-by-lastupdate.html  ${WEBSITEURL}caching-files/categories.php?sort=lastupdate
+	${FETCH} ${FETCH_OPTIONS} ${SPOOLINGDIR}/categories-by-category.html    ${WEBSITEURL}caching-files/categories.php
 
 	#
 	# because of these wild cards, we need to have exclusive use of SPOOLINGDIR
