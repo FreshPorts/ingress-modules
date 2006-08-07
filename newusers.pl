@@ -1,8 +1,8 @@
 #!/usr/bin/perl
 #
-# $Id: newusers.pl,v 1.3.2.8 2005-07-16 04:56:57 dan Exp $
+# $Id: newusers.pl,v 1.3.2.9 2006-08-07 02:48:49 dan Exp $
 #
-# Copyright (c) 2001-2003 DVL Software
+# Copyright (c) 2001-2006 DVL Software
 #
 
 use strict;
@@ -23,6 +23,7 @@ sub SendNotice($;$) {
 
 	my $ExtraHeaders = '';
 	$ExtraHeaders .= 'Auto-Submitted: auto-generated'       . "\n";
+	$ExtraHeaders .= 'Precedence: bulk'                     . "\n";
 	$ExtraHeaders .= 'X-FreshPorts-NewUsers: ' . $StartDate . "\n";
 
 	my $Body = "The following users were added yesterday:

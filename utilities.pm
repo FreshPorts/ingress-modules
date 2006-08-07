@@ -1,5 +1,6 @@
 #
-# $Id: utilities.pm,v 1.11.2.23 2006-06-29 19:48:46 dan Exp $
+#
+# $Id: utilities.pm,v 1.11.2.24 2006-08-07 02:48:50 dan Exp $
 #
 # Copyright (c) 2001-2006 DVL Software
 #
@@ -168,6 +169,7 @@ sub SendEmailNotice($;$) {
 	my $Subject      = 'FreshPorts error on ' . `hostname`;
 	my $ExtraHeaders = '';
 	$ExtraHeaders   .= 'Auto-Submitted: auto-generated'      . "\n";
+	$ExtraHeaders   .= 'Precedence: bulk'                    . "\n";
 	$ExtraHeaders   .= 'X-FreshPorts-Error: oops'            . "\n";
 
 	$Text::Wrap::columns = 72;

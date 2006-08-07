@@ -1,8 +1,8 @@
 #!/usr/bin/perl -w
 #
-# $Id: report-security-notice.pl,v 1.1.2.12 2006-07-23 13:19:49 dan Exp $
+# $Id: report-security-notice.pl,v 1.1.2.13 2006-08-07 02:48:49 dan Exp $
 #
-# Copyright (c) 2001-2004 DVL Software
+# Copyright (c) 2001-2006 DVL Software
 #
 
 use strict;
@@ -55,6 +55,7 @@ $FreshPorts::ReportConstants::Footer
 
 	my $Headers = '';
 	$Headers .= 'Auto-Submitted: auto-generated'                     . "\n";
+	$Headers .= 'Precedence: bulk'                                   . "\n";
 	$Headers .= 'X-FreshPorts-WatchListName: '      . $WatchListName . "\n";
 	$Headers .= 'X-FreshPorts-WatchListFrequency: ' . $FrequencyLong . "\n";
 

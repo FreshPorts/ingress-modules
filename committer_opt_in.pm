@@ -1,7 +1,8 @@
 #
-# $Id: committer_opt_in.pm,v 1.1.2.16 2005-12-12 11:47:18 dan Exp $
 #
-# Copyright (c) 2001-2003 DVL Software
+# $Id: committer_opt_in.pm,v 1.1.2.17 2006-08-07 02:48:49 dan Exp $
+#
+# Copyright (c) 2001-2006 DVL Software
 #
 
 package FreshPorts::CommitterOptIn;
@@ -118,6 +119,7 @@ FreshPorts Daemon
 	chomp $Hostname;
 
 	my $ExtraHeaders = 'Auto-Submitted: auto-generated'           . "\n" .
+                       'Precedence: bulk'                         . "\n" .
 					   "X-FreshPorts-Sanity: error\n" .
 	                   "X-FreshPorts-Hostname: $Hostname\n" . 
 	                   "X-FreshPorts-Database: $FreshPorts::Config::dbname";

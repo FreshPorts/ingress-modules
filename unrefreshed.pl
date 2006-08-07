@@ -1,8 +1,8 @@
 #!/usr/bin/perl -w
 #
-# $Id: unrefreshed.pl,v 1.11.2.15 2005-07-16 04:56:57 dan Exp $
+# $Id: unrefreshed.pl,v 1.11.2.16 2006-08-07 02:48:49 dan Exp $
 #
-# Copyright (c) 2001-2003 DVL Software
+# Copyright (c) 2001-2006 DVL Software
 #
 
 use strict;
@@ -30,6 +30,7 @@ sub SendNotice($;$;$) {
 	my $Subject      = 'FreshPorts -- ports needing refresh';
 	my $ExtraHeaders = '';
 	$ExtraHeaders   .= 'Auto-Submitted: auto-generated'        . "\n";
+	$ExtraHeaders   .= 'Precedence: bulk'                      . "\n";
 	$ExtraHeaders   .= 'X-FreshPorts-RefreshNeeded: ' . $count . "\n";
 
 

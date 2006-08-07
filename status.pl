@@ -1,8 +1,8 @@
 #!/usr/bin/perl -w
 #
-# $Id: status.pl,v 1.1.2.3 2005-07-16 04:56:57 dan Exp $
+# $Id: status.pl,v 1.1.2.4 2006-08-07 02:48:49 dan Exp $
 #
-# Copyright (c) 2001-2003 DVL Software
+# Copyright (c) 2001-2006 DVL Software
 #
 
 use strict;
@@ -24,6 +24,7 @@ sub SendNotice($) {
 	my $ExtraHeaders = '';
 	$ExtraHeaders   .= 'X-FreshPorts-Status: non-zero queues found' . "\n";
 	$ExtraHeaders   .= 'Auto-Submitted: auto-generated'             . "\n";
+	$ExtraHeaders   .= 'Precedence: bulk'                           . "\n";
 
 
 	my $Body = 'At ' . $hostname . "\n\n" . $Msg;

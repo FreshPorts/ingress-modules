@@ -1,8 +1,8 @@
 #!/usr/bin/perl -w
 #
-# $Id: announce.pl,v 1.3.2.10 2005-07-16 04:56:57 dan Exp $
+# $Id: announce.pl,v 1.3.2.11 2006-08-07 02:48:49 dan Exp $
 #
-# Copyright (c) 1999-2004 DVL Software
+# Copyright (c) 1999-2006 DVL Software
 #
 
 use strict;
@@ -29,6 +29,7 @@ sub SendAnnouncement($) {
 	my $Subject       = 'HEADS UP: FreshPorts announcement';
 	my $ExtraHeaders = '';
 	$ExtraHeaders   .= 'Auto-Submitted: auto-generated'      . "\n";
+	$ExtraHeaders   .= 'Precedence: bulk'                    . "\n";
 	$ExtraHeaders   .= 'X-FreshPorts-Announcement: HEADS UP' . "\n";
 
 
