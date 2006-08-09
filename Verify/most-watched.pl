@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: most-watched.pl,v 1.1.2.1 2006-08-09 03:51:55 dan Exp $
+# $Id: most-watched.pl,v 1.1.2.2 2006-08-09 04:09:06 dan Exp $
 #
 # Copyright (c) 1999-2005 DVL Software
 #
@@ -31,6 +31,7 @@ $sql = "
    WHERE P.element_id   = WLE.element_id
      AND P.category_id  = C.id
      AND WLE.element_id = E.id
+     AND E.status       = 'A'
 GROUP BY C.name, E.name
 ORDER BY 2 desc;";
 
