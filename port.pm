@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.38.2.54 2006-06-10 02:22:30 dan Exp $
+# $Id: port.pm,v 1.38.2.55 2006-09-13 15:07:05 dan Exp $
 #
 #
 # Copyright (c) 2001-2005 DVL Software
@@ -645,6 +645,10 @@ sub _ExtractValuesFromMakefile {
 		$this->{only_for_archs}		= $only_for_archs;
 		$this->{not_for_archs}		= $not_for_archs;
 		$this->{categories}			= $categories;
+		# convert all whitespace to a single space
+		# This arose from 200609130717.k8D7HpNc057638@repoman.freebsd.org
+		#
+		$this->{categories}			=~ s/\s+/ /g;
 
 		$result = $this->_Validate();
 
