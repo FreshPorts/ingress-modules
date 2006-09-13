@@ -1,5 +1,5 @@
 #
-# $Id: constants.pm,v 1.7.2.12 2006-07-23 13:19:15 dan Exp $
+# $Id: constants.pm,v 1.7.2.13 2006-09-13 15:08:06 dan Exp $
 #
 # Copyright (c) 2001-2006 DVL Software
 #
@@ -61,5 +61,11 @@ $FreshPorts::Constants::ReportDeletedPorts				= 5;
 $FreshPorts::Constants::VERSION_REVISION_JOINER			= '_';
 
 $FreshPorts::Constants::VUXML_URL                       = 'http://www.vuxml.org/freebsd/';
+
+$FreshPorts::Constants::Notify_ports_moved				= 'notify_ports_moved';			# /usr/ports/MOVED
+$FreshPorts::Constants::Notify_ports_updating			= 'notify_ports_updating';		# /usr/ports/UPDATING
+$FreshPorts::Constants::Notify_port_updated				= 'notify_port_updated';		# a port has been updated
+$FreshPorts::Constants::Notify_vuxml					= 'notify_vuxml';				# vuxml has been updated
+$FreshPorts::Constants::Notify_cvsroot_approvers		= 'notify_cvsroot_approvers';	# CVSROOT/approvers has been updated
 
 1;
