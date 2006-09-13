@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: category.pm,v 1.8.2.13 2006-02-05 21:52:15 dan Exp $
+# $Id: category.pm,v 1.8.2.14 2006-09-13 15:03:21 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -167,7 +167,7 @@ sub FetchByName {
 
 	$tmp = $dbh->quote($this->{name});
 	$sql = "select * from categories where name = $tmp";
-	print "sql = '$sql'\n";
+	print 'sql = "' . $sql . '"' . "\n";
 
 	$sth = $dbh->prepare($sql);
 	if (!$sth->execute) {
