@@ -1,5 +1,5 @@
 #
-# $Id: verifyport.pm,v 1.42.2.32 2006-06-30 11:43:55 dan Exp $
+# $Id: verifyport.pm,v 1.42.2.33 2006-09-13 15:08:00 dan Exp $
 #
 # Copyright (c) 2001-2006 DVL Software
 #
@@ -215,9 +215,15 @@ sub SaveChangesToPortsTree($;$;$) {
 		# This will also create any ports which need to be created
 		#
 		while (my ($portname, $port) = each %ListOfPorts) {
-			print "port = $portname, port_id = '";
+			print "port = $portname";
 			if (defined($port->{id})) {
-				print $port->{id};
+				print ", port_id = '". $port->{id} . "'";
+			}
+			print "\n";
+			
+			if ($FreshPorts::Config::Debug_FetchBeforeSavingPort && defined($port->{id})) {
+				print "Fetching port before saving\n";
+				print "/usr/bin/fetch $FreshPorts::Config::FreshPortsURL$portname"
 			}
 
 			print "', category_id='";
