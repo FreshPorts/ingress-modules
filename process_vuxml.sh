@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $Id: process_vuxml.sh,v 1.1.2.6 2005-01-13 23:14:37 dan Exp $
+# $Id: process_vuxml.sh,v 1.1.2.7 2006-10-01 19:14:22 dan Exp $
 #
 # Copyright (c) 2003-2005 DVL Software Limited
 #
@@ -44,5 +44,6 @@ then
 	rm ${VUXMLFLAGFILE}
 	/usr/bin/perl ./process_vuxml.pl -w < ${PORTSDIR}/security/vuxml/vuln.xml
 	/usr/bin/perl ./vuxml_ident.pl        ${PORTSDIR}/security/vuxml/vuln.xml > ${BASEDIR}/dynamic/vuxml_revision
+	/usr/bin/perl ./vuln_latest.pl
 	rm ${VUXMLMUTEX}
 fi
