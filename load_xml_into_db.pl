@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: load_xml_into_db.pl,v 1.46.2.29 2006-06-28 05:37:56 dan Exp $
+# $Id: load_xml_into_db.pl,v 1.46.2.30 2006-10-14 15:26:24 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -41,12 +41,6 @@ if ($dbh->{Active}) {
 
 	print " now is the commit:\n";
 
-	if ($ErrorFound) {
-		$dbh->rollback();
-	} else {
-		$dbh->commit();
-	}
-	
 	$Munger->notify_observers($FreshPorts::Messages::TransactionCommitted);
 
 	$dbh->disconnect();
