@@ -1,5 +1,5 @@
 #
-# $Id: constants.pm,v 1.7.2.13 2006-09-13 15:08:06 dan Exp $
+# $Id: constants.pm,v 1.7.2.14 2006-10-14 15:24:36 dan Exp $
 #
 # Copyright (c) 2001-2006 DVL Software
 #
@@ -17,6 +17,7 @@ $FreshPorts::Constants::commit_log_seq				= "commit_log_id_seq";
 $FreshPorts::Constants::commit_log_elements_seq		= "commit_log_elements_id_seq";
 $FreshPorts::Constants::commit_log_seq				= "commit_log_id_seq";
 $FreshPorts::Constants::system_branch_seq			= "system_branch_id_seq";
+$FreshPorts::Constants::sanity_test_failures_seq	= "sanity_test_failures_id_seq";
 
 # for VuXML
 $FreshPorts::Constants::vuxml_seq					= "vuxml_id_seq";
