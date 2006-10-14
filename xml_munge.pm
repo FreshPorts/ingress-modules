@@ -1,5 +1,5 @@
 #
-# $Id: xml_munge.pm,v 1.1.2.12 2006-07-01 17:03:11 dan Exp $
+# $Id: xml_munge.pm,v 1.1.2.13 2006-10-14 15:25:06 dan Exp $
 #
 # Copyright (c) 2001-2006 DVL Software
 #
@@ -43,6 +43,7 @@ use cache;
 use committer_opt_in;
 use non_ports;
 use messages;
+use sanity_test_failures;
 
 use XML::Node;
 use DBI;
@@ -366,12 +367,21 @@ sub handle_update_end {
 	}
 
 	if ($ErrorFound) {
+		$self->{dbh}->rollback();		
+		print "recording sanity test failure\n";
+		$Msg = FreshPorts::CommitterOptIn::GetErrors();
+		my $SanityTestFailure = FreshPorts::SanityTestFailures->new( $self->{dbh} );
+		$SanityTestFailure->SetCommitLogID(commit_log_id());
+		$SanityTestFailure->SetErrorText($Msg);
+		my $STFID = $SanityTestFailure->Save();
+		print "saved as STFID $STFID\n";
 		print "sending NotifyCommitter to $Updates{committerAll}\n";
 		FreshPorts::CommitterOptIn::NotifyCommitter($Updates{committerAll}, $self->{dbh});
 	} else {
 		print "No errors found during that commit\n";
 	}
 	
+	$self->{dbh}->commit();
 	$self->notify_observers($FreshPorts::Messages::UpdateEnds, 
 			(message_id => $Updates{MessageId}, CommitLogPorts => \%CommitLogPorts) );
 
