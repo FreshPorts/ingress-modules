@@ -1,6 +1,6 @@
 #
 #
-# $Id: committer_opt_in.pm,v 1.1.2.17 2006-08-07 02:48:49 dan Exp $
+# $Id: committer_opt_in.pm,v 1.1.2.18 2006-10-14 15:27:20 dan Exp $
 #
 # Copyright (c) 2001-2006 DVL Software
 #
@@ -63,6 +63,16 @@ sub CommitterHasOptedIn($;$) {
 	}
 
 	return $OptedIn;
+}
+
+sub GetErrors {
+	my $Msg = '';
+	
+	while (my ($Port, $Error) = each %PortList) {
+		$Msg .= $Port . ":\n\n" . Text::Wrap::wrap('', '', $Error) . "\n";
+	}
+
+	return $Msg;
 }
 
 sub NotifyCommitter {
