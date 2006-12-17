@@ -1,52 +1,45 @@
 #!/bin/sh
+<<<<<<< fetch-cvs-file.sh
 #
-# $Id: fetch-cvs-file.sh,v 1.8 2002-02-18 06:16:44 dan Exp $
+# $Id: fetch-cvs-file.sh,v 1.9 2006-12-17 12:04:00 dan Exp $
 #
 # Copyright (c) 1999-2001 DVL Software
 #
 # This script used to fetch files from the cvs repo into our own tree.
 #
-
-if  [ $# -ne 3 ];
-   then echo $0 : usage $0 DESTDIR SRCDIR FILE 1>&2
-   exit 1
+=======
+#
+# $Id: fetch-cvs-file.sh,v 1.9 2006-12-17 12:04:00 dan Exp $
+#
+# Copyright (c) 2000-2004 DVL Software
+#
+echo "num of params = $#"
+if  [ $# -ne 6 ];
+	then echo $0 : usage $0 URL DESTDIR SRCDIR FILE REVISION SUFFIX 1>&2
+	exit 1
 else
-   DESTDIR=$1
-   SRCDIR=$2
-   FILE=$3
+	URL=$1
+	DESTDIR=$2
+	SRCDIR=$3
+	FILE=$4
+	REVISION=$5
+	SUFFIX=$6
 
-   mkdir -p ${DESTDIR}
-   if [ $? -ne 0 ]
-   then
-      exit 3
-   fi
+	mkdir -p ${DESTDIR}
+	if [ $? -ne 0 ]
+	then
+		exit 3
+	fi
 
-# we don't need this any more.
-# But it did help to find the pre-everything bugs
-# see also 3BB8479C.16045.406FAE31@localhost
-# in the freebsd mailing list archives.
-#
-#      mkdir /usr/ports/${CATEG}/${PORT}/pkg
-#      if [ $? -ne 0 ]
-#      then
-#         exit 2
-#      fi
+	FETCHFILE=$DESTDIR/$FILE
 
- FETCHFILE=$DESTDIR/$FILE
+	# try to get around any possible caching by using a timestamp as a parameter
+	#
+	time=`/bin/date +"%s"`
 
- echo about to fetch http://www.freebsd.org/cgi/cvsweb.cgi/~checkout~/$SRCDIR/$FILE?rev=HEAD
- echo fetching into $FETCHFILE
+	echo "* * * about to fetch '$URL/$SRCDIR/$FILE?rev=$REVISION$SUFFIX&cache_busting_value=$time'"
+	echo "* * * fetching into $FETCHFILE"
 
-# try to get around any possible caching by using a timestamp as a parameter
-#
-time=`/bin/date +"%s"`
-
-/usr/bin/fetch -o $FETCHFILE http://www.freebsd.org/cgi/cvsweb.cgi/$SRCDIR/$FILE?rev=HEAD\&abcd=$time
- if [ $? -ne 0 ]
- then
-    exit 6
- fi
-
- exit 0
+	/usr/bin/fetch -A -o $FETCHFILE "$URL/$SRCDIR/$FILE?rev=$REVISION$SUFFIX&cache_busting_value=$time"
+	exit $?
 fi
-

@@ -1,8 +1,8 @@
 #!/bin/sh
 #
-# $Id: freebsd-cvs.sh,v 1.7 2002-02-24 02:37:35 dan Exp $
+# $Id: freebsd-cvs.sh,v 1.8 2006-12-17 12:04:00 dan Exp $
 #
-# Copyright (c) 1999-2002 DVL Software
+# Copyright (c) 1999-2003 DVL Software
 #
 # Process a raw mail message by converting it to XML, then importing it into
 # the database.
@@ -16,45 +16,61 @@ then
    exit 1
 fi
 
-XML="msgs/FreeBSD/xml"
-OUTPUT="msgs/FreeBSD/xml-output"
+if [ ! -f config.sh ]
+then
+	echo "config.sh not found..."
+	exit 1
+fi
+
+. config.sh
+
+if [ $OFFLINE = 1 ]
+then
+	exit 0
+fi
+
+XML="${MSGDIR}/msgs/FreeBSD/recent"
+OUTPUT="${MSGDIR}/msgs/FreeBSD/recent"
 
 PATHNAME=$1
-echo processing $PATHNAME
 
-FILE=`basename $PATHNAME` 
+FILE=`basename ${PATHNAME}` 
 
-/usr/bin/perl $HOME/scripts/process_cvs_mail.pl < $PATHNAME >    \
-       $HOME/$XML/$FILE 2>$HOME/$XML/$FILE.errors
+#
+# convert the raw file to XML
+#
+/usr/bin/perl ${SCRIPTDIR}/process_cvs_mail.pl < ${PATHNAME} >    \
+       ${XML}/${FILE}.xml 2>${XML}/${FILE}.errors
 RESULT=$?
 
-if [ -f $HOME/$XML/$FILE.errors ]
+if [ -f ${XML}/${FILE}.errors ]
 then
 #  found errors
-   if [  -s $HOME/$XML/$FILE.errors ]
+   if [  -s $XML/$FILE.errors ]
    then
       exit 2
    else
-      rm $HOME/$XML/$FILE.errors
+      rm $XML/$FILE.errors
    fi
 fi
 
-/usr/bin/perl $HOME/scripts/load_xml_into_db.pl $HOME/$XML/$FILE > \
-               $HOME/$OUTPUT/$FILE 2>$HOME/$OUTPUT/$FILE.errors
+#
+# load the XML into the database
+#
+
+/usr/bin/perl ${SCRIPTDIR}/load_xml_into_db.pl ${XML}/${FILE}.xml > \
+               ${OUTPUT}/${FILE}.loading 2>${OUTPUT}/$FILE.errors
 RESULT=$?
 
-if [ -f $HOME/$OUTPUT/$FILE.errors ]
+if [ -f ${OUTPUT}/$FILE.errors ]
 then
 #  found errors
-   if [  -s $HOME/$OUTPUT/$FILE.errors ]
+   if [ -s ${OUTPUT}/$FILE.errors ]
    then
-      if [ $RESULT -eq 2 ] || [ $RESULT -eq 4 ]
-      then
-#         rm $HOME/$OUTPUT/$FILE.errors
-      else
-         exit 0
-      fi
+      # do nothing, leave that file there.
    else
-      rm $HOME/$OUTPUT/$FILE.errors
+      rm ${OUTPUT}/$FILE.errors
    fi
 fi
+
+exit $RESULT

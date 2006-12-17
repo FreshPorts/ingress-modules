@@ -1,65 +1,65 @@
 #!/usr/bin/perl -w
 #
-# $Id: announce.pl,v 1.5 2002-04-25 03:08:19 dan Exp $
+# $Id: announce.pl,v 1.6 2006-12-17 12:03:58 dan Exp $
 #
-# Copyright (c) 1999-2002 DVL Software
+# Copyright (c) 1999-2006 DVL Software
 #
+
 use strict;
 use DBI;
+use database;
+use constants;
+use email;
 
-use lib '/home/freshports.org/scripts';
-use freshports_database;
-
-
-my $dirname='';
 my @USERS;
 my $sql;
 my $sth;
 my @row;
 my $Bcc;
 
+my $ReportID = $FreshPorts::Constants::ReportIDAnnouncements;
+
 
 sub SendAnnouncement($) {
 
-  my $To = shift;
+	my $To   = shift;
 
-   open(SENDMAIL, "|/usr/sbin/sendmail -oi -t")
-                    or die "Can't fork for sendmail: $!\n";
+	my $From          = 'FreshPorts Announcement Daemon <FreshPorts-Announce@FreshPorts.org>';
+	my $CC            = '';
+	my $Subject       = 'HEADS UP: FreshPorts announcement';
+	my $ExtraHeaders = '';
+	$ExtraHeaders   .= 'Auto-Submitted: auto-generated'      . "\n";
+	$ExtraHeaders   .= 'Precedence: bulk'                    . "\n";
+	$ExtraHeaders   .= 'X-FreshPorts-Announcement: HEADS UP' . "\n";
 
-print SENDMAIL <<"EOF";
-From: FreshPorts announcement <freshports-announce\@freshports.org>
-To: $To
-Subject: FreshPorts announcement
 
-Folks,
 
-The testing at http://test.freshports.org/ has gone well.
-The site is done and is ready to go into production.  We
-have already gone through a trail migration of the user
-logins and watch lists.  I'm not sure when we will go live
-but it will probably be within the next couple of weeks.
+	my $Body = "Folks,
 
-In the meantime, if you haven't already checked the above
-URL, I urge you to do so.  If you have any suggestions or
-comment *now* is the time to submit them.
+FreshPorts - changes to email headers
 
-My thanks to the people who have been helping with the
-testing and those who provided suggestions over the past
-couple of months.  It has been very useful.
+Starting on Saturday July 16, the report notifications that go
+out from FreshPorts will contain a header to indicate it was
+automatically generated.  The main purpose of this is so I don't
+get replies from your vacation programs.
+
+The main reason I'm writing is in case of any side effects this
+header may have on any scripts you might be running.
+
+Cheers 
 
 --
 
 You are receiving this message as part of the service
-you joined at http://freshports.org/ but if you no longer
-wish to recieve such messages, please go to
-http://freshports.org/customize.php3 and disable announcements.
+you joined at http://www.FreshPorts.org/ but if you no longer
+wish to receive such messages, please go to
+http://www.FreshPorts.org/report-subscriptions.php
 
 If a problem occurs, please send details, including the email
 address in question, to postmaster\@freshports.org
-EOF
+";
 
-   close(SENDMAIL)     or warn "sendmail didn't close nicely";
-
+	FreshPorts::email::SendMail($From, $To, $CC, $Subject, $Body, $ExtraHeaders);
 }
 
 sub SendToEachListMember($) {
@@ -74,12 +74,12 @@ sub SendToEachListMember($) {
    # the following line restricts mailouts to just me.
    #               and users.id                      = 2
 
-   $sql = "select users.email               \
-             from users                     \
-            where length(users.email) > 0   \
-              and emailsitenotices_yn = 'Y' \
-              and emailbouncecount    = 0   \
-            group by users.id";
+   $sql = "select users.email
+             from users, report_subscriptions
+            where length(users.email)            > 0
+              and report_subscriptions.user_id   = users.id
+              and emailbouncecount               = 0
+              and report_subscriptions.report_id = $ReportID";
 
    print "sql is $sql\n";
 
@@ -88,17 +88,17 @@ sub SendToEachListMember($) {
            die "Could not execute SQL $sql ... maybe invalid?";
 
    while (@row=$sth->fetchrow_array) {
-#      SendAnnouncement($row[0]);
+      SendAnnouncement($row[0]);
    }
-
 }
 
 
-      my $dbh = freshports_connect();
+exit;
+      my $dbh = FreshPorts::Database::GetDBHandle();
 
       SendToEachListMember($dbh);
 
       $dbh->disconnect();
 
-      print "message sent to users\n";
+      print "\nmessage sent to users\n";
 

@@ -1,8 +1,8 @@
 #!/usr/bin/perl -w
 #
-# $Id: process_cvs_mail.pl,v 1.9 2002-03-22 23:06:24 dan Exp $
+# $Id: process_cvs_mail.pl,v 1.10 2006-12-17 12:04:02 dan Exp $
 #
-# Copyright (c) 2001 DVL Software
+# Copyright (c) 2001-2003  DVL Software
 #
 # Process incoming mail from cvs-all mailing list at freebsd.org
 # and convert it to XML output according to the FreshPorts DTD.
@@ -10,6 +10,8 @@
 
 use strict;
 use XML::Writer;
+use constants;
+use utilities;
 
 &main;
 exit;
@@ -18,8 +20,8 @@ exit;
 # Main Processing Routine
 #####
 sub main {
-        # Get the message
-        my ($message) = &GetMessage;
+	# Get the message
+	my ($message) = &GetMessage;
 
 	# Get the data
 	my ($Data_ref) = &GetData($message);
@@ -53,22 +55,30 @@ sub GetData {
 
 	my $Message_Subject;
 	my $Log;
+	my $EncodingLosses = 'false';
 
 	$Message_Subject	= &GetMessage_Subject($message);
+
 	$Log				= &GetLog($message);
 
 	if ($Log eq '') {
 		$Log = $Message_Subject;
 	}
 
-	@Data =	[	'UPDATES', [ { Version => '0.13' },
+	my $MessageID = &GetMessage_Id($message);
+	if (!defined($MessageID)) {
+		FreshPorts::Utilities::ReportError('err', "No message ID found for this commit message (" . $Message_Subject . ").\n\nIs this a corrupted commit or email?", 1)
+	}
+
+
+	@Data =	[	'UPDATES', [ { Version => '1.3.2.1' },
 				'UPDATE', [ {},
 					'DATE', [ &GetDate($message)
 					],
 					'TIME', [ &GetTime($message)
 					],
 					'OS', [ {
-						Id	=> &GetOS_Id,
+						Id	    => &GetOS_Id,
 						Branch	=> &GetOS_Branch($message) }
 					],
 					'LOG', [ {},
@@ -79,8 +89,9 @@ sub GetData {
 						&GetPeople($message)
 					],
 					'MESSAGE', [ {
-						Id	=> &GetMessage_Id($message),
-						Subject	=> $Message_Subject },
+						Id             => $MessageID,
+						Subject		   => $Message_Subject,
+						EncodingLosses => $EncodingLosses },
 						'DATE', [ &GetMessage_Date($message)
 						],
 						'TIME', [ &GetMessage_Time($message)
@@ -112,15 +123,11 @@ sub WriteXML {
 	my ($writer) = new XML::Writer( DATA_INDENT => 4,
 					DATA_MODE => 1 );
 
-	# use the right encoding so strings like Lyngbøl will work for XML::Parser when
-	# it comes time to read this stuff back in...
-	# the default is: UTF-8.  We want ISO-8859-1.
-
 	# Add the main XML tag
 	$writer->xmlDecl("ISO-8859-1");
 
 	# Add the XML Document Type
-	$writer->doctype('UPDATES','-//Freshports//DTD Freshports 2.0//EN', 'http://www.freshports.org/docs/fp-updates.dtd');
+	$writer->doctype('UPDATES','-//FreshPorts//DTD FreshPorts 2.0//EN', 'http://www.freshports.org/docs/fp-updates.dtd');
 
 	# Convert the data into XML
 	&DataToXML($writer, $data_ref); 
@@ -133,18 +140,18 @@ sub WriteXML {
 # DataToXML - Convert the data into XML; tends to call itself
 #####
 sub DataToXML {
-	my ($writer) = shift;
+	my ($writer)   = shift;
 	my ($data_ref) = shift;
 
 	my ($count) = $#{$data_ref};
 	for (my ($i) = 0; $i < $count; $i += 2) {
 		my ($element_name)		= shift @{$data_ref};
-		my ($element_content)		= shift @{$data_ref};
+		my ($element_content)	= shift @{$data_ref};
 
 		if ($element_name eq '0') {
 			$writer->characters($element_content);
 		} else {
-			my ($element_attributes)	= shift @{$element_content};
+			my ($element_attributes) = shift @{$element_content};
 
 			$writer->startTag($element_name, %$element_attributes);
 			&DataToXML($writer, $element_content);
@@ -157,21 +164,21 @@ sub DataToXML {
 ####################################################################
 
 sub GetPR {
-        my ($message) = @_;
-        my ($PR);
+	my ($message) = @_;
+	my ($PR);
 
-        my (@lines) = split("\n", $message);
-        
-        for (@lines) {          
-                my ($line) = $_;
-       
-                if ($line =~ /^  PR:/) {
-                        $PR = (split(" ", $line, 2))[1];
-                        last;
-                }
-        }
+	my (@lines) = split("\n", $message);
+		
+	for (@lines) {          
+		my ($line) = $_;
+	   
+		if ($line =~ /^  PR:/i) {
+			$PR = (split(" ", $line, 2))[1];
+			last;
+		}
+	}
 
-        return $PR;
+	return $PR;
 }
 
 sub GetPeople {
@@ -204,74 +211,74 @@ sub GetPeople {
 }
 
 sub GetObtainedFrom {
-        my ($message) = @_;
-        my ($ObtainedFrom);
+	my ($message) = @_;
+	my ($ObtainedFrom);
 
-        my (@lines) = split("\n", $message);
-        
-        for (@lines) {          
-                my ($line) = $_;
-       
-                if ($line =~ /^  Obtained from:/) {
-                        $ObtainedFrom = (split(" ", $line, 3))[2];
-                        last;
-                }
-        }
+	my (@lines) = split("\n", $message);
+		
+	for (@lines) {          
+		my ($line) = $_;
+	   
+		if ($line =~ /^  Obtained from:/i) {
+			$ObtainedFrom = (split(" ", $line, 3))[2];
+			last;
+		}
+	}
 
-        return $ObtainedFrom;
+	return $ObtainedFrom;
 }
 
 sub GetApprover {
-        my ($message) = @_;
-        my ($Approver);
+	my ($message) = @_;
+	my ($Approver);
 
-        my (@lines) = split("\n", $message);
-        
-        for (@lines) {          
-                my ($line) = $_;
-       
-                if ($line =~ /^  Approved by:/) {
-                        $Approver = (split(" ", $line, 3))[2];
-                        last;
-                }
-        }
+	my (@lines) = split("\n", $message);
+		
+	for (@lines) {          
+		my ($line) = $_;
+	   
+		if ($line =~ /^  Approved by:/i) {
+			$Approver = (split(" ", $line, 3))[2];
+			last;
+		}
+	}
 
-        return $Approver;
+	return $Approver;
 }
 
 sub GetReviewer { 
-        my ($message) = @_;
-        my ($Reviewer);
+	my ($message) = @_;
+	my ($Reviewer);
 
-        my (@lines) = split("\n", $message);
+	my (@lines) = split("\n", $message);
 
-        for (@lines) {
-                my ($line) = $_;
-        
-                if ($line =~ /^  Reviewed by:/) {
-                        $Reviewer = (split(" ", $line, 3))[2];
-                        last;
-                }
-        }
+	for (@lines) {
+		my ($line) = $_;
+		
+		if ($line =~ /^  Reviewed by:/i) {
+			$Reviewer = (split(" ", $line, 3))[2];
+			last;
+		}
+	}
 
-        return $Reviewer;
+	return $Reviewer;
 }
 
 sub GetSubmitter {  
-        my ($message) = @_;
-        my ($Submitter);
-        
-        my (@lines) = split("\n", $message); 
-                 
-        for (@lines) {
-                my ($line) = $_;
-        
-                if ($line =~ /^  Submitted by:/) {
-                        $Submitter = (split(" ", $line, 3))[2];
-                        last;
-                }
-        }
-         
+	my ($message) = @_;
+	my ($Submitter);
+		
+	my (@lines) = split("\n", $message); 
+				 
+	for (@lines) {
+		my ($line) = $_;
+		
+		if ($line =~ /^  Submitted by:/i) {
+			$Submitter = (split(" ", $line, 3))[2];
+			last;
+		}
+	}
+		 
 	return $Submitter;
 }
 
@@ -298,6 +305,10 @@ sub GetFiles {
 	my (@files);
 	my (@lines) = split("\n", $message);
 
+	my $EndOfFiles = '_____';
+	
+	my %TrackDuplicates;
+
 	# Modified Files
 	my ($found) = 0;
 	for (@lines) {
@@ -306,25 +317,82 @@ sub GetFiles {
 		#
 		# see also GetLog for use of Revision.
 		#
-		if ($line =~ /^  Revision  Changes    Path/) { $found = 1; next; }
+		if ($line =~ /^  Revision .*Changes .*Path$/i) { $found = 1; next; }
 		next unless $found == 1;
 
-		last if (length($line) == 0);
+		last if (length($line) == 0 || substr($line, 0, length($EndOfFiles)) eq $EndOfFiles);
 
 		my ($revision, $changes1, $changes2, $path, $action) = split(" ", $line);
 
 		if (!defined($action)) {
-			$action = 'Modify';
+			$action = $FreshPorts::Constants::MODIFY;
 		} else {
 			if ($action eq '(dead)') {
-				$action = 'Remove';
+				$action = $FreshPorts::Constants::REMOVE;
 			} else {
 				if ($action eq '(new)') {
-					$action = 'Add';
+					$action = $FreshPorts::Constants::ADD;
 				} else {
 					$action = 'unknown action';
 				}
 			}
+		}
+
+		if (defined($TrackDuplicates{$path})) {
+			FreshPorts::Utilities::ReportError('err', "Duplicate file name ('$path') found in commit message (" . GetMessage_Id($message) . ").\n\nIs this a corrupted commit or email?", 1)
+		} else {
+			$TrackDuplicates{$path} = 1;
+		}
+
+		push @files, 'FILE', [ { Action => $action, Revision => $revision, Changes => "$changes1 $changes2", Path => $path } ];
+	}
+
+	if (scalar(@files) == 0) {
+		@files = GetFilesImported($message);
+	}
+
+	return @files;
+}
+
+sub GetFilesImported {
+	my ($message) = shift;
+	my (@files);
+	my (@lines) = split("\n", $message);
+
+	my $EndOfFiles = 'by this import';
+
+	my %TrackDuplicates;
+
+	# Modified Files
+	my ($found) = 0;
+	for (@lines) {
+		my ($line) = $_;
+
+		#
+		# see also GetLog for use of Revision.
+		#
+		if ($line =~ /^  Release Tags:/i) { $found = 1; next; }
+		next unless $found == 1;
+
+		$line = FreshPorts::Utilities::trim($line);
+
+		# immediately after the Release Tags line is a blank line
+		next if ($line eq '');
+
+		last if ($line =~ /by this import/i);
+
+		my ($action, $path) = split(" ", $line);
+
+		# we discard the $action obtained above as it is not needed
+		$action = $FreshPorts::Constants::ADD;
+		my $revision = '1.1.1.1';
+		my $changes1 = '0';
+		my $changes2 = '0';
+
+		if (defined($TrackDuplicates{$path})) {
+			FreshPorts::Utilities::ReportError('err', "Duplicate file name ('$path') found in commit message (" . GetMessage_Id($message) . ").\n\nIs this a corrupted commit or email?", 1)
+		} else {
+			$TrackDuplicates{$path} = 1;
 		}
 
 		push @files, 'FILE', [ { Action => $action, Revision => $revision, Changes => "$changes1 $changes2", Path => $path } ]; 
@@ -346,7 +414,7 @@ sub GetOS_Branch {
 	my (@lines) = split("\n", $message);
 
 	for (@lines) {
-		next unless ($_ =~ /X-FreeBSD-CVS-Branch/);
+		next unless ($_ =~ /X-FreeBSD-CVS-Branch/i);
 		$branch = $_;
 		$branch =~ s/X-FreeBSD-CVS-Branch: //;
 		last;
@@ -356,8 +424,8 @@ sub GetOS_Branch {
 }
 
 sub GetLog {
-	my ($message) = @_;
-	my ($log);
+	my ($message)  = @_;
+	my ($log)      = '';
 	my ($log_done) = 0;
 
 	#
@@ -373,7 +441,11 @@ sub GetLog {
 	for (@lines) {
 		my ($line) = $_;
 
-		if ($line =~ /  Log:/) { $log_found = 1; next; }
+		# remove trailing spaces.
+#		$line =~ s/ +$//;
+#		$line .= "\n";
+
+		if ($line =~ /  Log:/i) { $log_found = 1; next; }
 		next unless ($log_found == 1);
 
 		# Check to see if we've gone too far
@@ -381,163 +453,178 @@ sub GetLog {
 			if ($line =~ /^$_/) { $log_done = 1; };
 		}
 		last if ($log_done == 1);
+
+		# here we remove the two spaces at the start of the log which are added
+		# by the email composing script
 		if (length($line) >= 2) {
 			$log .= substr($line,2) . "\n";
 		}
 	}
 
-	if (defined($log)) {
-		$log =~ s/(^\s+)|(\s+$)//g;;
-	} else {
-		$log = '';
-	}
+	# and we remove any trailing space in the log message
+	$log =~ s/\s+$//;
 
 	return $log;
 }
 
 sub GetUpdater_Handle {
-        my ($message) = @_;
-        my ($handle);
+	my ($message) = @_;
+	my ($handle);
 
-        my (@lines) = split("\n", $message);
+	my (@lines) = split("\n", $message);
 
-        my ($newline_found) = 0;
-        for (@lines) {
-                if (length == 0) { $newline_found = 1; next; }
-                next unless ($newline_found == 1);
-                ($handle) = split(" ", $_);
-                last;
-        }
+	my ($newline_found) = 0;
+	for (@lines) {
+		if (length == 0) { $newline_found = 1; next; }
+		next unless ($newline_found == 1);
+		($handle) = split(" ", $_);
+		last;
+	}
 
-        return $handle;
+	return $handle;
 }
 
 sub GetDate {
-        my ($message) = @_;
-        my ($date, $year, $month, $day);
+	my ($message) = @_;
+	my ($date, $year, $month, $day);
 
-        my (@lines) = split("\n", $message);
+	my (@lines) = split("\n", $message);
 
-        my ($newline_found) = 0; 
-        for (@lines) {
-                if (length == 0) { $newline_found = 1; next; }                
-                next unless ($newline_found == 1);
-                $date = (split /\s+/, $_, 3)[1];
-		($year, $month, $day) = split(/\//, $date);
-                last;
-        }
+	my ($newline_found) = 0; 
+	for (@lines) {
+		if (length == 0) { $newline_found = 1; next; }                
+		next unless ($newline_found == 1);
+		$date = (split /\s+/, $_, 3)[1];
+		($year, $month, $day) = split(/[\/-]/, $date);
+		last;
+	}
 
 	$date = {	Year	=> $year,
-			Month	=> int($month),
-			Day	=> int($day) };
+				Month	=> int($month),
+				Day		=> int($day) };
 
 	return $date;
 }
  
 sub GetTime {
-        my ($message) = @_;                     
-        my ($time, $hour, $minute, $second, $timezone);
-                                                 
-        my (@lines) = split("\n", $message);
-        
-        my ($newline_found) = 0;
-        for (@lines) {
-                if (length == 0) { $newline_found = 1; next; }
-                next unless ($newline_found == 1);
-                ($time, $timezone) = (split /\s+/, $_, 4)[2,3];
-                ($hour, $minute, $second) = split(/:/, $time);
-                last;
-        }
-                                        
-        $time = {	Hour		=> int($hour),
-                        Minute		=> int($minute),
-                        Second		=> int($second),
-			Timezone	=> $timezone };
+	my ($message) = @_;                     
+	my ($time, $hour, $minute, $second, $timezone);
+												 
+	my (@lines) = split("\n", $message);
+		
+	my ($newline_found) = 0;
+	for (@lines) {
+		if (length == 0) { $newline_found = 1; next; }
+		next unless ($newline_found == 1);
+		($time, $timezone) = (split /\s+/, $_, 4)[2,3];
+		($hour, $minute, $second) = split(/:/, $time);
+		last;
+	}
+	
+	if (!defined($timezone)) {
+		$timezone = '';
+	}
+										
+	$time = {	Hour		=> int($hour),
+				Minute		=> int($minute),
+				Second		=> int($second),
+				Timezone	=> $timezone };
 
 	return $time;
 }
 
 sub GetMessage_Date {
-        my ($message) = @_;
-        my ($date, $year, $month, $day);
+	my ($message) = @_;
+	my ($date, $year, $month, $day);
 	my (%months) = ( 'Jan' => 1, 'Feb' => 2, 'Mar' => 3, 'Apr' => 4, 'May' => 5, 'Jun' => 6, 'Jul' => 7, 'Aug' => 8, 'Sep' => 9, 'Oct' => 10, 'Nov' => 11, 'Dec' => 12 ); 
 
 	my (@lines) = split("\n", $message);
 
-        for (@lines) {
-                my ($line) = $_;
+	for (@lines) {
+		my ($line) = $_;
 
-                if ($line =~ /^Date: /) {
-        	        ($day, $month, $year) = (split(/\s+/, $line))[2..4];
-                        last;
-                }
-        }
-
-        $date = {       Year    => $year,
-                        Month   => int($months{$month}),     
-                        Day     => int($day) };
-
-        return $date;
-}
-                                          
-sub GetMessage_Time {
-        my ($message) = @_;
-        my ($time, $hour, $minute, $second, $timezone);
-
-        my (@lines) = split("\n", $message);
-                                                
-        for (@lines) {
-                my ($line) = $_;
-                                          
-                if ($line =~ /^Date: /) {
-                        ($time, $timezone) = (split(/\s+/, $line))[5,7];
-			($hour, $minute, $second) = split(/:/, $time);
-			$timezone = substr($timezone, 1, 3);
+		if ($line =~ /^Date: /i) {
+			($day, $month, $year) = (split(/\s+/, $line))[2..4];
 			last;
-                }
-        }
+		}
+	}
 
-        $time = {	Hour		=> int($hour),
-			Minute		=> int($minute),
-			Second		=> int($second),
-			Timezone	=> $timezone };
+	$date = {   Year    => $year,
+				Month   => int($months{$month}),     
+				Day     => int($day) };
 
-        return $time;
+	return $date;
+}
+										  
+sub GetMessage_Time {
+	my ($message) = @_;
+	my ($time, $hour, $minute, $second, $timezone);
+
+	my (@lines) = split("\n", $message);
+												
+	for (@lines) {
+		my ($line) = $_;
+										  
+		if ($line =~ /^Date: /i) {
+			($time, $timezone) = (split(/\s+/, $line))[5,7];
+			($hour, $minute, $second) = split(/:/, $time);
+			
+			if (!defined($timezone)) {
+				$timezone = '';
+			}
+
+			if ($timezone =~ m/\S/) {
+				$timezone = substr($timezone, 1, 3);
+			}
+			last;
+		}
+	}
+
+	if (!defined($timezone)) {
+		$timezone = '';
+	}
+
+	$time = {	Hour		=> int($hour),
+				Minute		=> int($minute),
+				Second		=> int($second),
+				Timezone	=> $timezone };
+
+	return $time;
 }
 
 sub GetMessage_Id {
-        my ($message) = @_;
-        my ($Id);
+	my ($message) = @_;
+	my ($Id);
 
-        my (@lines) = split("\n", $message);
+	my (@lines) = split("\n", $message);
 
-        for (@lines) {
-                my ($line) = $_;
+	for (@lines) {
+		my ($line) = $_;
 
-                if ($line =~ /^Message-Id:/) {
-                        $line =~ /\<(.*?)\>/g;
-                        $Id = $1;
-                        last;
-                } 
-        }
+		if ($line =~ /^Message-Id:/i) {
+			$line =~ /\<(.*?)\>/g;
+			$Id = $1;
+			last;
+		} 
+	}
 
-        return $Id;
+	return $Id;
 }
 
 sub GetMessage_To {
-        my ($message) = @_;
-        my ($data, $to);
+	my ($message) = @_;
+	my ($data, $to);
 
-        my (@lines) = split("\n", $message);
+	my (@lines) = split("\n", $message);
 
-        for (@lines) {
-                my ($line) = $_;
+	for (@lines) {
+		my ($line) = $_;
 
-                if ($line =~ /^To: /) {
-                        $data = (split/: /, $line, 2)[1];
-                        last;
-                }
-        }
+		if ($line =~ /^To: /i) {
+			$data = (split/: /, $line, 2)[1];
+			last;
+		}
+	}
 
 	my (@data) = split(/, /, $data);
 
@@ -547,7 +634,7 @@ sub GetMessage_To {
 		push @to, [{ 'Email' => $_ } ];
 	}
 
-        return @to;
+	return @to;
 }
 
 sub GetMessage_Subject {
@@ -562,30 +649,30 @@ sub GetMessage_Subject {
 # This assumes 9 spaces there...
 #
 
-        my ($message) = @_;
-        my ($Subject);
+	my ($message) = @_;
+	my ($Subject);
 
-		my ($FoundSubject) = 0;
+	my ($FoundSubject) = 0;
 
-        my (@lines) = split("\n", $message);
+	my (@lines) = split("\n", $message);
 
-        for (@lines) {
-                my ($line) = $_;
+	for (@lines) {
+		my ($line) = $_;
 
-				if ($FoundSubject) {
-					if ($line =~ /^         /) {
-						$Subject .= ' ' . (split/         /, $line, 2)[1];
-						next;
-					} else {
-						last;
-					}
-				} else {
-	                if ($line =~ /^Subject:/) {
-    	                    $Subject = (split/: /, $line, 2)[1];
-							$FoundSubject = 1;
-                	}
-				}
-        }
+		if ($FoundSubject) {
+			if ($line =~ /^         /) {
+				$Subject .= ' ' . (split/         /, $line, 2)[1];
+				next;
+			} else {
+				last;
+			}
+		} else {
+			if ($line =~ /^Subject:/i) {
+				$Subject = (split/: /, $line, 2)[1];
+				$FoundSubject = 1;
+			}
+		}
+	}
 
-        return $Subject;
+	return $Subject;
 }

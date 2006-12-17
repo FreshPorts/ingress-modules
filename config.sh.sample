@@ -1,0 +1,60 @@
+#!/bin/sh
+#
+# $Id: config.sh.sample,v 1.2 2006-12-17 12:04:00 dan Exp $
+#
+
+FETCH="/usr/bin/fetch"
+FETCH_OPTIONS="-qo"
+
+# where is this website installed?
+# do not include a trailing slash
+# this directory should contain the www and scripts directories.
+BASEDIR="/usr/websites/DIRNAME"
+
+# what is the URL for this website?
+# MUST have a trailing /
+WEBSITEURL="http://WEBSITE_URL"
+
+#
+# where do I find files such as load_xml_into_db.pl
+#
+SCRIPTDIR="${BASEDIR}/scripts"
+
+#
+# Where does the msg directory start?
+# This directory should contain the files
+# created by ${SCRIPTDIR}/procmail/create_dirs.sh
+# and be the value which supplied to that script.
+#
+MSGDIR="MSG_ARCHIVE"
+
+CACHINGROOT="${BASEDIR}/dynamic/caching"
+
+CACHEDIR="${CACHINGROOT}/cache"
+NEWSCACHEDIR="${CACHINGROOT}/news"
+SPOOLINGDIR="${CACHINGROOT}/tmp"
+
+# What file do we set for /usr/ports/MOVED?
+
+MOVEDFLAGFILE="${BASEDIR}/dynamic/refresh_moved"
+
+# What file do we set for /usr/ports/UPDATING?
+
+UPDATINGFLAGFILE="${BASEDIR}/dynamic/refresh_updating"
+
+PORTSFREEZEFILE="${BASEDIR}/dynamic/PortsFreezeIsOn"
+
+VUXMLFLAGFILE="${BASEDIR}/dynamic/vuxml"
+VUXMLMUTEX="${BASEDIR}/dynamic/vuxml_mutex"
+
+CACHE_NEEDS_REFRESH="${BASEDIR}/dynamic/cache_needs_refresh"
+
+PORTSDIR="PORTS_DIR"
+ADMINEMAIL="ADMIN_EMAIL"
+
+if [ -e 'OFFLINE' ]
+then
+	OFFLINE=1;
+else
+	OFFLINE=0;
+fi

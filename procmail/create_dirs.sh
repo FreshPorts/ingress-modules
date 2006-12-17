@@ -1,18 +1,25 @@
 #!/bin/sh
 #
-# $Id: create_dirs.sh,v 1.2 2002-03-22 19:52:42 dan Exp $
+# $Id: create_dirs.sh,v 1.3 2006-12-17 12:04:07 dan Exp $
 #
 # Copyright (c) 1999-2002 DVL Software
 #
-# use this script to create the directories needed by the .procmailrc script
+# use this script to create the directories needed by the ~/scripts/procmail/dot.procmailrc
+# script and ~/scripts/config.sh
 #
 
-mkdir $HOME/mail
-mkdir $HOME/msgs
-mkdir $HOME/msgs/spooling
-mkdir $HOME/msgs/FreeBSD
-mkdir $HOME/msgs/FreeBSD/archive
-mkdir $HOME/msgs/FreeBSD/incoming
-mkdir $HOME/msgs/FreeBSD/raw
-mkdir $HOME/msgs/FreeBSD/xml
-mkdir $HOME/msgs/FreeBSD/xml-output
+if [ $# -ne 1 ]
+then
+   echo $0 : usage $0 BASEDIRECTORY
+   exit 1
+fi
+
+BASEDIRECTORY=$1
+
+mkdir -p $BASEDIRECTORY/msgs
+mkdir -p $BASEDIRECTORY/msgs/FreeBSD
+mkdir -p $BASEDIRECTORY/msgs/FreeBSD/archive
+mkdir -p $BASEDIRECTORY/msgs/FreeBSD/incoming
+mkdir -p $BASEDIRECTORY/msgs/FreeBSD/recent
+mkdir -p $BASEDIRECTORY/msgs/FreeBSD/retry
+mkdir -p $BASEDIRECTORY/msgs/FreeBSD/spooling

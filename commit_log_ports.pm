@@ -1,8 +1,8 @@
 #!/usr/bin/perl
 #
-# $Id: commit_log_ports.pm,v 1.9 2002-02-02 04:46:41 dan Exp $
+# $Id: commit_log_ports.pm,v 1.10 2006-12-17 12:03:59 dan Exp $
 #
-# Copyright (c) 2001 DVL Software
+# Copyright (c) 2001-2003 DVL Software
 #
 
 package FreshPorts::CommitLogPorts;
@@ -46,22 +46,23 @@ sub save {
 
 	my $quoted_port_version		= $dbh->quote($this->{port_version});
 	my $quoted_port_revision	= $dbh->quote($this->{port_revision});
+	my $quoted_port_epoch		= $dbh->quote($this->{port_epoch});
 
 	if (!defined($this->{saved})) {
 		# we are inserting
-
-		$sql = "insert into commit_log_ports                                                \
-				(commit_log_id, port_id, needs_refresh, port_version, port_revision) values \
-				($this->{commit_log_id}, $this->{port_id}, $this->{needs_refresh},          \
+		$sql = "insert into commit_log_ports
+				(commit_log_id, port_id, needs_refresh, port_version, port_revision) values
+				($this->{commit_log_id}, $this->{port_id}, $this->{needs_refresh},
 				 $quoted_port_version, $quoted_port_revision)";
 	} else {
 		# we are updating
-		$sql = "update commit_log_ports                         \
-				   set needs_refresh =  $this->{needs_refresh}, \
-					   port_version  =  $quoted_port_version,   \
-					   port_revision =  $quoted_port_revision   \
-				 where commit_log_id =  $this->{commit_log_id}  \
-				   and port_id       =  $this->{port_id}";
+		$sql = "update commit_log_ports
+				   set needs_refresh  =  $this->{needs_refresh},
+					    port_version  =  $quoted_port_version,
+					    port_revision =  $quoted_port_revision,
+					    port_epoch    =  $quoted_port_epoch
+				 where commit_log_id  =  $this->{commit_log_id}
+				   and port_id        =  $this->{port_id}";
 	}
 
 	print "sql is $sql\n";

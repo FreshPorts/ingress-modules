@@ -1,37 +1,47 @@
 #!/usr/bin/perl
 #
-# $Id: newusers.pl,v 1.3 2002-01-06 07:17:04 dan Exp $
+# $Id: newusers.pl,v 1.4 2006-12-17 12:04:01 dan Exp $
 #
-# Copyright (c) 2001 DVL Software
+# Copyright (c) 2001-2006 DVL Software
 #
 
 use strict;
 use DBI;
 
-use lib "$ENV{HOME}/scripts";
 use database;
+use commit_log_ports_ignore;
+use system_status;
 
 sub SendNotice($;$) {
    my $StartDate = shift;
    my $msgbody   = shift;
 
-   open(SENDMAIL, "|/usr/sbin/sendmail -oi -t")
-                    or die "Can't fork for sendmail: $!\n";
+	my $From         = 'FreshPorts Daemon <FreshPorts@FreshPorts.org>';
+	my $To           = 'Dan Langille <dan@langille.org>';
+	my $CC           = '';
+	my $Subject      = "FreshPorts -- new users  - $StartDate";
 
-print SENDMAIL <<"EOF";
-From: Dan Langille <dan\@freshports.org>
-To: Dan Langille <dan\@freebsddiary.org>
-Subject: FreshPorts -- new users  - $StartDate
+	my $ExtraHeaders = '';
+	$ExtraHeaders .= 'Auto-Submitted: auto-generated'       . "\n";
+	$ExtraHeaders .= 'Precedence: bulk'                     . "\n";
+	$ExtraHeaders .= 'X-FreshPorts-NewUsers: ' . $StartDate . "\n";
 
-The following users were added yesterday:
+	my $Body = "The following users were added yesterday:
 
 $msgbody --
 
-EOF
-
-   close(SENDMAIL)     or warn "sendmail didn't close nicely";
+";
+	FreshPorts::email::SendMail($From, $To, $CC, $Subject, $Body, $ExtraHeaders);
 }
 
+#
+# see if the system is online.
+# If not, exit.
+#
+my $SystemStatus = FreshPorts::SystemStatus->new();
+if (!$SystemStatus->Online()) {
+	exit 0;
+}
 
 if (($#ARGV+1) == 2) {
    print "there are 2 arguments\n";
@@ -45,8 +55,7 @@ if (($#ARGV+1) == 2) {
    }
    my $sql = "select id, name, email, firstlogin \
               from users \
-              where firstlogin >= '$StartDate' \
-                and firstlogin <= '$EndDate' \
+              where date_trunc('day', firstlogin) = '$StartDate'
               order by id";
 
    print "sql is $sql\n";

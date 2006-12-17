@@ -1,8 +1,8 @@
 #!/usr/bin/perl
 #
-# $Id: commit_log_port_elements.pm,v 1.3 2002-02-02 04:46:41 dan Exp $
+# $Id: commit_log_port_elements.pm,v 1.4 2006-12-17 12:03:59 dan Exp $
 #
-# Copyright (c) 2001 DVL Software
+# Copyright (c) 2001-2003 DVL Software
 #
 
 package FreshPorts::CommitLogPortElements;

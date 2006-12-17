@@ -1,8 +1,8 @@
 #!/usr/bin/perl
 #
-# $Id: commit_log_element.pm,v 1.4 2002-02-02 04:46:41 dan Exp $
+# $Id: commit_log_element.pm,v 1.5 2006-12-17 12:03:59 dan Exp $
 #
-# Copyright (c) 2001 DVL Software
+# Copyright (c) 2001-2003 DVL Software
 #
 
 
@@ -37,13 +37,13 @@ sub save {
 	my $sql;
 	my @row;
 
-print "$FreshPorts::Constants::commit_log_seq\n";
-print "$FreshPorts::Constants::ports_seq\n";
-print "$FreshPorts::Constants::commit_log_elements_seq\n";
-
+	print "commit_log_element::save..........\n";
+	print "\$FreshPorts::Constants::commit_log_seq='$FreshPorts::Constants::commit_log_seq'\n";
+	print "\$FreshPorts::Constants::ports_seq='$FreshPorts::Constants::ports_seq'\n";
+	print "\$FreshPorts::Constants::commit_log_elements_seq='$FreshPorts::Constants::commit_log_elements_seq'\n";
 
 	if (!$this->{id}) {
-		print "getting id from '" . "$FreshPorts::Constants::commit_log_elements_seq\n";
+		print "getting id from '" . $FreshPorts::Constants::commit_log_elements_seq . "'\n";
 		$this->{id} = FreshPorts::Database::GetNextValue($FreshPorts::Constants::commit_log_elements_seq, $dbh);
 		# we are inserting
 		$sql = "insert into commit_log_elements(id, commit_log_id, element_id, revision_name, change_type) values \

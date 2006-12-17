@@ -1,5 +1,5 @@
 #
-# $Id: dot.procmailrc,v 1.1 2002-02-18 05:38:12 dan Exp $
+# $Id: dot.procmailrc,v 1.2 2006-12-17 12:04:07 dan Exp $
 #
 # Copyright (c) 1999-2002 DVL Software
 #
@@ -10,8 +10,8 @@ PATH=$HOME/bin:/usr/bin:/usr/ucb:/bin:/usr/local/bin:.
 MAILDIR=$HOME/mail	# You'd better make sure it exists
 DEFAULT=$MAILDIR/mbox
 LOGFILE=$MAILDIR/procmail.log
+#VERBOSE=yes
 LOCKFILE=$HOME/.lockmail
-TMPDIR=$HOME/msgs/spooling
 UMASK=022
 
 #
@@ -19,8 +19,11 @@ UMASK=022
 #
 FILE=`date +%Y.%m.%d.%H.%M.%S`.$$.txt
 
+ARG = $1
+
 :0
-* ^Sender: owner-cvs-all@FreeBSD\.ORG
+* ARG ?? ^^working-copy.freshports.org^^|^^beta.freshports.org^^
+* ^Sender: owner-cvs-all@FreeBSD.ORG
 {
    #
    # this should restrict all entries to just that from the mailing list
@@ -29,13 +32,13 @@ FILE=`date +%Y.%m.%d.%H.%M.%S`.$$.txt
    * ^X-FreeBSD-CVS-Branch: *
    {
 
-      MSGDIR=$HOME/msgs/FreeBSD
-      :0c
-         $MSGDIR/raw/$FILE
-
+      MSGDIR=$HOME/FreshPorts/$ARG/msgs/FreeBSD
+		TMPDIR=$MSGDIR/spooling
+		SPOOL=${TMPDIR}/${FILE}
+		DEST=${MSGDIR}/incoming/${FILE}
+	   TRAP='echo \$SPOOL is $SPOOL && echo \$DEST. is $DEST'
       :0
-         | cat > $TMPDIR/$FILE && \
-         mv $TMPDIR/$FILE $MSGDIR/incoming/$FILE
+         | cat > ${SPOOL} && mv ${SPOOL} ${DEST}
    }
 
    #
@@ -46,11 +49,4 @@ FILE=`date +%Y.%m.%d.%H.%M.%S`.$$.txt
 }
 
 :0
-{
-   :0fwh  # Adjust some headers before forwarding
-      | formail -A"X-Folder: cvs@freebsddiary.org"
-
-   # forward the email
-   :0
-      !dan
-!dan
+!dan@langille.org

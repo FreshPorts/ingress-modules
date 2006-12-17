@@ -1,18 +1,45 @@
 #!/bin/sh
 #
-# $Id: archive-messages.sh,v 1.1 2001-12-22 23:23:08 dan Exp $
+# $Id: archive-messages.sh,v 1.2 2006-12-17 12:03:59 dan Exp $
 #
-# Copyright (c) 2001 DVL Software Limited
+# Copyright (c) 2003 DVL Software Limited
 #
 # archive away all the messages which were created yesterday.
 # this script is designed to be called like this from crontab:
 #
-#  10  0   *   *   *  archive-messages.sh
+#  10  0   *   *   *  cd $DIR && ./archive-messages.sh 1 >> /dev/null
 #
+# where $DIR is the directory in which this file exists.
 
-BASEDIR=${HOME}/msgs/FreeBSD
-SCRIPTDIR=${HOME}/scripts
+if [ $# -ne 1 ]
+then
+   echo $0 : usage $0 DAYS
+   exit 1
+fi
 
-${SCRIPTDIR}/archive-logs.sh 1 ${BASEDIR}/raw        ${BASEDIR}/archive/raw
-${SCRIPTDIR}/archive-logs.sh 1 ${BASEDIR}/xml        ${BASEDIR}/archive/xml
-${SCRIPTDIR}/archive-logs.sh 1 ${BASEDIR}/xml-output ${BASEDIR}/archive/xml-output
+if [ ! -f config.sh ]
+then
+	echo "config.sh not found..."
+	exit 1
+fi
+
+. config.sh
+
+if [ $OFFLINE = 1 ]
+then
+	exit 0
+fi
+
+DAYS=$1
+
+BASEDIR=${MSGDIR}/msgs/FreeBSD
+
+YYYY_MM_DD=`eval date -v-${DAYS}d "+%Y_%m_%d"`
+YYYY_MM=`eval date -v-${DAYS}d "+%Y_%m"`
+YYYYMMDD=`eval date -v-${DAYS}d "+%Y.%m.%d"`
+
+
+DEST="${BASEDIR}/archive/${YYYY_MM}/${YYYY_MM_DD}/"
+mkdir -p ${DEST}
+
+find ${BASEDIR}/recent -type f -name ${YYYYMMDD}\* | xargs -n 1 -J {} mv {} ${DEST}

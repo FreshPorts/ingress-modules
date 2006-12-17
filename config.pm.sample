@@ -1,18 +1,18 @@
 #
-# $Id: config.pm.sample,v 1.13 2002-01-23 01:54:14 dan Exp $
+# $Id: config.pm.sample,v 1.14 2006-12-17 12:04:00 dan Exp $
 #
-# Copyright (c) 2001 DVL Software
+# Copyright (c) 2001-2006 DVL Software
 #
 
 package FreshPorts::Config;
 
-use File::PathConvert;
+use Cwd;
 
 #
 # This section contains local settings.  Change them to suit your environment.
 #
 
-$FreshPorts::Config::FreshPortsURL		= 'http://lists-test.freshports.org/';
+$FreshPorts::Config::FreshPortsURL		= 'http://WEBSITE_URL/';
 
 $FreshPorts::Config::TimeAdjust			= '-10800 seconds';
 
@@ -20,7 +20,9 @@ $FreshPorts::Config::dbname				= 'databasename';
 $FreshPorts::Config::user				= 'user';
 $FreshPorts::Config::password			= 'password';
 
-$FreshPorts::Config::scriptpath			= $ENV{HOME} . "/scripts";
+$FreshPorts::Config::BaseDir			= "/usr/websites/WEBSITE_URL";
+
+$FreshPorts::Config::scriptpath			= $FreshPorts::Config::BaseDir . '/scripts';
 
 $FreshPorts::Config::mkdir_pkg			= 0;
 
@@ -39,8 +41,11 @@ $FreshPorts::Config::path_to_ports		= $FreshPorts::Config::path_to_tree . '/port
 #
 $FreshPorts::Config::ports_prefix		= 'ports';
 
-$FreshPorts::Config::DailySummaryDir	= $ENV{HOME} . "/src/www/archives"; # no trailing /
+$FreshPorts::Config::DailySummaryDir	= $FreshPorts::Config::BaseDir . "/www/archives"; # no trailing /
+$FreshPorts::Config::HourlySummaryDir	= $FreshPorts::Config::BaseDir . "/dynamic";
 
+$FreshPorts::Config::CommitterNotify	= 0;	# Should we notify committers of problems?
+$FreshPorts::Config::NotifyAdmin        = 1;	# Notify me
 
 #
 # Change only above. Do not change below.
@@ -50,15 +55,44 @@ $FreshPorts::Config::DailySummaryDir	= $ENV{HOME} . "/src/www/archives"; # no tr
 # ensure we have the real path names here...
 # otherwise we'll have trouble with determining relative pathnames
 #
-$FreshPorts::Config::scriptpath			= File::PathConvert::realpath($FreshPorts::Config::scriptpath);
-$FreshPorts::Config::path_to_tree		= File::PathConvert::realpath($FreshPorts::Config::path_to_tree);	
-$FreshPorts::Config::path_to_ports		= File::PathConvert::realpath($FreshPorts::Config::path_to_ports);
+$FreshPorts::Config::scriptpath				= Cwd::abs_path($FreshPorts::Config::scriptpath);
+$FreshPorts::Config::path_to_tree			= Cwd::abs_path($FreshPorts::Config::path_to_tree);	
+$FreshPorts::Config::path_to_ports			= Cwd::abs_path($FreshPorts::Config::path_to_ports);
+
+$FreshPorts::Config::email_server			= 'localhost';
+$FreshPorts::Config::email_port				= 25;
+$FreshPorts::Config::email_client			= 'localhost';
+
+$FreshPorts::Config::SystemOwnerEmail		= 'dan@langille.org';
+
+$FreshPorts::Config::JobWaiting				= $FreshPorts::Config::BaseDir . '/dynamic/job_waiting';
+$FreshPorts::Config::MovedFileFlag			= $FreshPorts::Config::BaseDir . '/dynamic/refresh_moved';
+$FreshPorts::Config::UpdatingFileFlag		= $FreshPorts::Config::BaseDir . '/dynamic/refresh_updating';
+$FreshPorts::Config::VuXMLFileFlag			= $FreshPorts::Config::BaseDir . '/dynamic/vuxml';
+$FreshPorts::Config::RefreshCachFileFlag	= $FreshPorts::Config::BaseDir . '/dynamic/cache_needs_refresh';
+
+$FreshPorts::Config::PortsFreezeFile    	= $FreshPorts::Config::BaseDir . '/dynamic/PortsFreezeIsInEffect';
+
+#
+# for ports caching
+#
+$FreshPorts::Config::CachingRoot            = $FreshPorts::Config::BaseDir . '/dynamic/caching';
+
+#
+# For fetching files from CVS
+#
+$FreshPorts::Config::CVS_Repository			= "http://www.freebsd.org/cgi/cvsweb.cgi";
+
+#
+# various debugging settings
+#
+$FreshPorts::Config::Debug_FetchBeforeSavingPort = 0;
 
 #
 # for debugging....
 #
-print "\$FreshPorts::Config::scriptpath    '$FreshPorts::Config::scriptpath'\n";
-print "\$FreshPorts::Config::path_to_tree  '$FreshPorts::Config::path_to_tree'\n";
-print "\$FreshPorts::Config::path_to_ports '$FreshPorts::Config::path_to_ports'\n";
+#print "\$FreshPorts::Config::scriptpath    '$FreshPorts::Config::scriptpath'\n";
+#print "\$FreshPorts::Config::path_to_tree  '$FreshPorts::Config::path_to_tree'\n";
+#print "\$FreshPorts::Config::path_to_ports '$FreshPorts::Config::path_to_ports'\n";
 
 1;

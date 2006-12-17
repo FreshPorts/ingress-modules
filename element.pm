@@ -1,8 +1,8 @@
 #!/usr/bin/perl
 #
-# $Id: element.pm,v 1.10 2002-02-21 17:59:33 dan Exp $
+# $Id: element.pm,v 1.11 2006-12-17 12:04:00 dan Exp $
 #
-# Copyright (c) 2001 DVL Software
+# Copyright (c) 2001-2003 DVL Software
 #
 
 package FreshPorts::Element;
@@ -15,7 +15,7 @@ $FreshPorts::Element::Active	= 'A';
 $FreshPorts::Element::Deleted	= 'D';
 
 sub new {
-	my $this		= {};
+	my $this			= {};
 	my $class		= shift;
 	$this->{dbh}	= shift;
 	bless $this;
@@ -74,18 +74,20 @@ sub save {
 		#
 		my $parent = FreshPorts::Element->new($dbh);
 		$parent->{pathname} = $parent_name;
-		$this->{parent_id} = $parent->FetchByName();
+		$this->{parent_id}  = $parent->FetchByName();
 	}
 
 	if ($this->{id}) {
 		# we are updating
-		$sql = "update element  \
-				set \
-				name      = " . $dbh->quote($this->{name}) . ", \
-				parent_id = $this->{parent_id}, \
-				directory_file_flag = " . $dbh->quote($this->{directory_file_flag}) . ", \
-				status    = " . $dbh->quote($this->{status}) . " \
-				 where id = $this->{id}";
+
+		$sql = "
+update element  
+   set name                = " . $dbh->quote($this->{name}) . ", 
+       parent_id           = $this->{parent_id}, 
+       directory_file_flag = " . $dbh->quote($this->{directory_file_flag}) . ", 
+       status              = " . $dbh->quote($this->{status}) . " 
+ where id                  = $this->{id}";
+
 		$sth = $this->{dbh}->prepare($sql);
 		$sth->execute ||
 			FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql ... maybe invalid?", 1);
@@ -111,6 +113,40 @@ sub save {
 	return $this->{id};
 }
 
+sub update_status {
+	my $this = shift;
+
+	#
+	# if id is supplied, we are updating. otherwise we are inserting.
+	# if parent_id is supplied, it will be used.  Otherwise, it will
+	# be derived from pathname.  if parent_id is set, it is assumed
+	# that pathname is correct.
+	# if name is not supplied, it will be derived from pathname.
+	# 
+
+	my $dbh = $this->{dbh}; # just a short cut...
+	my $sth;
+	my $sql;
+	my @row;
+
+	if ($this->{id}) {
+		# we are updating
+
+		$sql = "
+update element  
+   set status = " . $dbh->quote($this->{status}) . " 
+ where id     = $this->{id}";
+
+		$sth = $this->{dbh}->prepare($sql);
+		$sth->execute ||
+			FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql ... maybe invalid?", 1);
+	}
+
+	# after saving, return the ID
+	return $this->{id};
+}
+
+
 sub FetchByID {
 	my $this	= shift;
 
@@ -128,12 +164,12 @@ sub FetchByID {
 
 	$sth->finish();
 
-	$this->{id} 				= $row->{id};
-	$this->{name}				= $row->{name};
-	$this->{parent_id}			= $row->{parent_id};
-	$this->{directory_file_flag}= $row->{directory_file_flag};
-	$this->{status}				= $row->{status};
-	$this->{pathname}			= $row->{pathname};
+	$this->{id}                  = $row->{id};
+	$this->{name}                = $row->{name};
+	$this->{parent_id}           = $row->{parent_id};
+	$this->{directory_file_flag} = $row->{directory_file_flag};
+	$this->{status}              = $row->{status};
+	$this->{pathname}            = $row->{pathname};
 
 	return $this->{id};
 }
