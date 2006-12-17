@@ -1,7 +1,6 @@
 #!/bin/sh
-<<<<<<< fetch-cvs-file.sh
 #
-# $Id: fetch-cvs-file.sh,v 1.9 2006-12-17 12:04:00 dan Exp $
+# $Id: fetch-cvs-file.sh,v 1.10 2006-12-17 17:56:21 dan Exp $
 #
 # Copyright (c) 1999-2001 DVL Software
 #
@@ -9,7 +8,7 @@
 #
 =======
 #
-# $Id: fetch-cvs-file.sh,v 1.9 2006-12-17 12:04:00 dan Exp $
+# $Id: fetch-cvs-file.sh,v 1.10 2006-12-17 17:56:21 dan Exp $
 #
 # Copyright (c) 2000-2004 DVL Software
 #
