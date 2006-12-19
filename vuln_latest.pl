@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: vuln_latest.pl,v 1.3 2006-12-19 01:02:34 dan Exp $
+# $Id: vuln_latest.pl,v 1.4 2006-12-19 01:09:48 dan Exp $
 #
 # Copyright (c) 2006 DVL Software
 #
@@ -65,11 +65,11 @@ ORDER BY coalesce(V.date_modified, V.date_entry, V.date_discovery) desc, categor
 
 		print FILE '<TABLE WIDTH="100%">' . "\n";
 		while ($row = $sth->fetchrow_hashref()) {
-			print FILE '<TR><TD align="left"><A HREF="' . $FreshPorts::Constants::VUXML_URL . $row->{vid} . '.html">' . $row->{port};
+			print FILE '<TR><TD align="left"><A HREF="' . $FreshPorts::Constants::VUXML_URL . $row->{vid} . '.html">' . $row->{port} . '</a>';
 			if (!$row->{new}) {
 				print FILE '<sup>*</sup>';
 			}
-			print FILE '</A></TD>' . 
+			print FILE '</TD>' . 
 			     '<TD nowrap ALIGN="right">' . $row->{date_formatted} . '</TD></TR>' . "\n";
 		}
 		print FILE '</TABLE>' . "\n";
