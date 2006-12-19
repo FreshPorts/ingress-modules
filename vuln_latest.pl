@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: vuln_latest.pl,v 1.2 2006-12-17 12:04:04 dan Exp $
+# $Id: vuln_latest.pl,v 1.3 2006-12-19 01:02:34 dan Exp $
 #
 # Copyright (c) 2006 DVL Software
 #
@@ -45,7 +45,13 @@ sub CreateVulnHTML($) {
 
 		my $row;
 		my $query = "
-  SELECT distinct PA.category, PA.name as port, coalesce(V.date_modified, V.date_entry, V.date_discovery), V.vid, to_char(coalesce(V.date_modified, V.date_entry, V.date_discovery)::date, 'Mon DD') as date_formatted
+  SELECT DISTINCT
+         PA.category,
+         PA.name AS port,
+         coalesce(V.date_modified, V.date_entry, V.date_discovery) AS date,
+         V.vid,
+         to_char(coalesce(V.date_modified, V.date_entry, V.date_discovery)::date, 'Mon DD') AS date_formatted,
+         V.date_modified IS NOT NULL AS new
     FROM commit_log_ports_vuxml CLPV, vuxml V, ports_all PA
    WHERE CLPV.vuxml_id = V.id
      AND CLPV.port_id  = PA.id
@@ -59,7 +65,11 @@ ORDER BY coalesce(V.date_modified, V.date_entry, V.date_discovery) desc, categor
 
 		print FILE '<TABLE WIDTH="100%">' . "\n";
 		while ($row = $sth->fetchrow_hashref()) {
-			print FILE '<TR><TD align="left"><A HREF="' . $FreshPorts::Constants::VUXML_URL . $row->{vid} . '.html">' . $row->{port} . '</A></TD>' . 
+			print FILE '<TR><TD align="left"><A HREF="' . $FreshPorts::Constants::VUXML_URL . $row->{vid} . '.html">' . $row->{port};
+			if (!$row->{new}) {
+				print FILE '<sup>*</sup>';
+			}
+			print FILE '</A></TD>' . 
 			     '<TD nowrap ALIGN="right">' . $row->{date_formatted} . '</TD></TR>' . "\n";
 		}
 		print FILE '</TABLE>' . "\n";
