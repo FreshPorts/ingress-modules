@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: vuln_latest.pl,v 1.5 2006-12-19 01:17:30 dan Exp $
+# $Id: vuln_latest.pl,v 1.6 2006-12-19 01:21:40 dan Exp $
 #
 # Copyright (c) 2006 DVL Software
 #
@@ -55,7 +55,7 @@ sub CreateVulnHTML($) {
     FROM commit_log_ports_vuxml CLPV, vuxml V, ports_all PA
    WHERE CLPV.vuxml_id = V.id
      AND CLPV.port_id  = PA.id
-ORDER BY coalesce(V.date_modified, V.date_entry, V.date_discovery) desc, category, name
+ORDER BY coalesce(V.date_modified, V.date_entry, V.date_discovery) desc, lower(name)
    LIMIT 15";
         
 		my $sth = $dbh->prepare($query);
