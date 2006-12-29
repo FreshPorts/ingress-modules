@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: vuln_latest.pl,v 1.6 2006-12-19 01:21:40 dan Exp $
+# $Id: vuln_latest.pl,v 1.7 2006-12-29 01:00:58 dan Exp $
 #
 # Copyright (c) 2006 DVL Software
 #
@@ -51,7 +51,8 @@ sub CreateVulnHTML($) {
          coalesce(V.date_modified, V.date_entry, V.date_discovery) AS date,
          V.vid,
          to_char(coalesce(V.date_modified, V.date_entry, V.date_discovery)::date, 'Mon DD') AS date_formatted,
-         V.date_modified IS NULL AS new
+         V.date_modified IS NULL AS new,
+         lower(name)
     FROM commit_log_ports_vuxml CLPV, vuxml V, ports_all PA
    WHERE CLPV.vuxml_id = V.id
      AND CLPV.port_id  = PA.id
