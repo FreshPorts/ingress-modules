@@ -1,8 +1,8 @@
 #!/usr/bin/perl -w
 #
-# $Id: job-waiting.pl,v 1.2 2006-12-17 12:04:01 dan Exp $
+# $Id: job-waiting.pl,v 1.3 2007-01-29 00:17:35 dan Exp $
 #
-# Copyright (c) 1999-2005 DVL Software
+# Copyright (c) 1999-2007 DVL Software
 #
 
 use strict;
@@ -17,15 +17,17 @@ my $dbh;
 my $DaysRefreshed;
 
 my %Jobs = (
-	$FreshPorts::Config::MovedFileFlag    => 'process_moved.sh',
-	$FreshPorts::Config::UpdatingFileFlag => 'process_updating.sh',
-	$FreshPorts::Config::VuXMLFileFlag    => 'process_vuxml.sh'
+	$FreshPorts::Config::MovedFileFlag            => 'process_moved.sh',
+	$FreshPorts::Config::UpdatingFileFlag         => 'process_updating.sh',
+	$FreshPorts::Config::VuXMLFileFlag            => 'process_vuxml.sh',
+	$FreshPorts::Config::WWWENPortsCategoriesFlag => 'process_www_en_ports_categories.sh'
 	);
 
 while (my ($flag, $script) = each %Jobs) {
 	if (-f $flag) {
-		Sys::Syslog::syslog('notice', "$flag exists.  must run $script");
-		`$FreshPorts::Config::scriptpath/$script`
+		Sys::Syslog::syslog('notice', "$flag exists.  About to run $script");
+		`$FreshPorts::Config::scriptpath/$script`;
+		Sys::Syslog::syslog('notice', "Finished running $script");
 	} else {
 		Sys::Syslog::syslog('notice', "flag not set.  no work for $script");
 	}

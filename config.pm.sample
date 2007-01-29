@@ -1,7 +1,7 @@
 #
-# $Id: config.pm.sample,v 1.14 2006-12-17 12:04:00 dan Exp $
+# $Id: config.pm.sample,v 1.15 2007-01-29 00:17:34 dan Exp $
 #
-# Copyright (c) 2001-2006 DVL Software
+# Copyright (c) 2001-2007 DVL Software
 #
 
 package FreshPorts::Config;
@@ -65,13 +65,14 @@ $FreshPorts::Config::email_client			= 'localhost';
 
 $FreshPorts::Config::SystemOwnerEmail		= 'dan@langille.org';
 
-$FreshPorts::Config::JobWaiting				= $FreshPorts::Config::BaseDir . '/dynamic/job_waiting';
-$FreshPorts::Config::MovedFileFlag			= $FreshPorts::Config::BaseDir . '/dynamic/refresh_moved';
-$FreshPorts::Config::UpdatingFileFlag		= $FreshPorts::Config::BaseDir . '/dynamic/refresh_updating';
-$FreshPorts::Config::VuXMLFileFlag			= $FreshPorts::Config::BaseDir . '/dynamic/vuxml';
-$FreshPorts::Config::RefreshCachFileFlag	= $FreshPorts::Config::BaseDir . '/dynamic/cache_needs_refresh';
+$FreshPorts::Config::JobWaiting					= $FreshPorts::Config::BaseDir . '/dynamic/job_waiting';
+$FreshPorts::Config::MovedFileFlag				= $FreshPorts::Config::BaseDir . '/dynamic/refresh_moved';
+$FreshPorts::Config::UpdatingFileFlag			= $FreshPorts::Config::BaseDir . '/dynamic/refresh_updating';
+$FreshPorts::Config::VuXMLFileFlag				= $FreshPorts::Config::BaseDir . '/dynamic/vuxml';
+$FreshPorts::Config::RefreshCachFileFlag		= $FreshPorts::Config::BaseDir . '/dynamic/cache_needs_refresh';
+$FreshPorts::Config::WWWENPortsCategoriesFlag	= $FreshPorts::Config::BaseDir . '/dynamic/www.en.ports.categories';
 
-$FreshPorts::Config::PortsFreezeFile    	= $FreshPorts::Config::BaseDir . '/dynamic/PortsFreezeIsInEffect';
+$FreshPorts::Config::PortsFreezeFile	    	= $FreshPorts::Config::BaseDir . '/dynamic/PortsFreezeIsInEffect';
 
 #
 # for ports caching

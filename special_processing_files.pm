@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: special_processing_files.pm,v 1.2 2006-12-17 12:04:03 dan Exp $
+# $Id: special_processing_files.pm,v 1.3 2007-01-29 00:17:35 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -56,6 +56,14 @@ sub Eat($;$;$;$) {
 		# Processing is simple and does not involve the database.
 		#
 	}
+
+ 	if ($File eq 'www/en/ports/categories') {
+		print "applying special processing to $File";
+		Sys::Syslog::syslog('notice', "applying special processing to $File");
+		`/usr/bin/touch $FreshPorts::Config::WWWENPortsCategoriesFlag`;
+		`/usr/bin/touch $FreshPorts::Config::JobWaiting`;
+	}
+
 }
 
 1;
