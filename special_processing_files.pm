@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: special_processing_files.pm,v 1.3 2007-01-29 00:17:35 dan Exp $
+# $Id: special_processing_files.pm,v 1.4 2007-01-31 18:56:25 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -27,28 +27,28 @@ sub Eat($;$;$;$) {
 	my @row;
 
 	if ($File eq 'ports/MOVED') {
-		print "applying special processing to $File";
+		print "applying special processing to $File\n";
 		Sys::Syslog::syslog('notice', "applying special processing to $File");
 		`/usr/bin/touch $FreshPorts::Config::MovedFileFlag`;
 		`/usr/bin/touch $FreshPorts::Config::JobWaiting`;
 	}
 
 	if ($File eq 'ports/UPDATING') {
-		print "applying special processing to $File";
+		print "applying special processing to $File\n";
 		Sys::Syslog::syslog('notice', "applying special processing to $File");
 		`/usr/bin/touch $FreshPorts::Config::UpdatingFileFlag`;
 		`/usr/bin/touch $FreshPorts::Config::JobWaiting`;
 	}
 
  	if ($File eq 'ports/security/vuxml/vuln.xml') {
-		print "applying special processing to $File";
+		print "applying special processing to $File\n";
 		Sys::Syslog::syslog('notice', "applying special processing to $File");
 		`/usr/bin/touch $FreshPorts::Config::VuXMLFileFlag`;
 		`/usr/bin/touch $FreshPorts::Config::JobWaiting`;
 	}
 
  	if ($File eq 'CVSROOT/approvers') {
-		print "applying special processing to $File";
+		print "applying special processing to $File\n";
 		Sys::Syslog::syslog('notice', "applying special processing to $File");
 		`/bin/sh process_CVSROOT_approvers.sh`;
 		#
@@ -58,10 +58,11 @@ sub Eat($;$;$;$) {
 	}
 
  	if ($File eq 'www/en/ports/categories') {
-		print "applying special processing to $File";
-		Sys::Syslog::syslog('notice', "applying special processing to $File");
+		print "applying special processing to $File\n";
+		Sys::Syslog::syslog('notice', "applying special processing to $File by creating $FreshPorts::Config::WWWENPortsCategoriesFlag");
 		`/usr/bin/touch $FreshPorts::Config::WWWENPortsCategoriesFlag`;
-		`/usr/bin/touch $FreshPorts::Config::JobWaiting`;
+ 		`/usr/bin/touch $FreshPorts::Config::JobWaiting`;
+		`/usr/bin/touch $FreshPorts::Config::WWWENPortsCategoriesFlag`;
 	}
 
 }
