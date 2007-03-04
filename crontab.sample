@@ -1,5 +1,5 @@
 #
-# $Id: crontab.sample,v 1.10 2007-03-04 13:47:07 dan Exp $
+# $Id: crontab.sample,v 1.11 2007-03-04 13:52:06 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -50,6 +50,6 @@ DIR=/usr/websites/WEBSITE-NAME/scripts
 
 10	0	*		*	*	cd $DIR && ./archive-messages.sh >> /dev/null
 
-10	0	*		*	*	cd $DIR && ./perl ports_tree_file_count.pl
+10	0	*		*	*	cd $DIR && perl ports_tree_file_count.pl
 
 17	0	*		*	*	cd $DIR && sh ./vacuum.sh 2>&1 > /dev/null
