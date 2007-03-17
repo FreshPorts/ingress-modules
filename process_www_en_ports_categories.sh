@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $Id: process_www_en_ports_categories.sh,v 1.1 2007-01-29 00:17:35 dan Exp $
+# $Id: process_www_en_ports_categories.sh,v 1.2 2007-03-17 13:52:22 dan Exp $
 #
 # Copyright (c) 2003-2007 DVL Software Limited
 #
@@ -33,11 +33,20 @@ then
 	exit 1
 fi
 
+if [ "${FRESHPORTS_FREEBSD_CVS_URL}x" = 'x' ]
+then
+	echo "please set FRESHPORTS_FREEBSD_CVS_URL in config.sh"
+	exit 1
+fi
+
 CATEGORIES="${SPOOLINGDIR}/categories"
 
 if [ -r ${WWWENPORTSCATEGORIES} ]
 then
-	fetch -q -o ${CATEGORIES} "http://www.freebsd.org/cgi/cvsweb.cgi/~checkout~/www/en/ports/categories?rev=HEAD&content-type=text/plain"
+#	fetch -q -o ${CATEGORIES} "http://www.freebsd.org/cgi/cvsweb.cgi/~checkout~/www/en/ports/categories?rev=HEAD&content-type=text/plain"
+	echo about to fetch: \
+	fetch -q -o ${CATEGORIES} "${FRESHPORTS_FREEBSD_CVS_URL}/~checkout~/www/en/ports/categories?rev=HEAD&content-type=text/plain"
+	fetch -q -o ${CATEGORIES} "${FRESHPORTS_FREEBSD_CVS_URL}/~checkout~/www/en/ports/categories?rev=HEAD&content-type=text/plain"
 	if [ $? = 0 ]
 	then
 		/usr/bin/perl categories_update_descriptions.pl ${CATEGORIES}
