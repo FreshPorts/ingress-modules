@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $Id: fetch-cvs-file.sh,v 1.10 2006-12-17 17:56:21 dan Exp $
+# $Id: fetch-cvs-file.sh,v 1.11 2007-03-17 13:12:07 dan Exp $
 #
 # Copyright (c) 1999-2001 DVL Software
 #
@@ -8,7 +8,7 @@
 #
 =======
 #
-# $Id: fetch-cvs-file.sh,v 1.10 2006-12-17 17:56:21 dan Exp $
+# $Id: fetch-cvs-file.sh,v 1.11 2007-03-17 13:12:07 dan Exp $
 #
 # Copyright (c) 2000-2004 DVL Software
 #
@@ -39,6 +39,6 @@ else
 	echo "* * * about to fetch '$URL/$SRCDIR/$FILE?rev=$REVISION$SUFFIX&cache_busting_value=$time'"
 	echo "* * * fetching into $FETCHFILE"
 
-	/usr/bin/fetch -A -o $FETCHFILE "$URL/$SRCDIR/$FILE?rev=$REVISION$SUFFIX&cache_busting_value=$time"
+	/usr/bin/fetch -A -o $FETCHFILE "$URL/~checkout~/$SRCDIR/$FILE?rev=$REVISION$SUFFIX&cache_busting_value=$time"
 	exit $?
 fi
