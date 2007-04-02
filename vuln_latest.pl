@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: vuln_latest.pl,v 1.7 2006-12-29 01:00:58 dan Exp $
+# $Id: vuln_latest.pl,v 1.8 2007-04-02 20:11:19 dan Exp $
 #
 # Copyright (c) 2006 DVL Software
 #
@@ -18,6 +18,8 @@ require config;
 sub CreateVulnHTML($) {
 
 	my $dbh = shift;
+	
+	my $ReportInterval = '14 days';
 
 	umask(02);
 	# create the output file name gradually, ensuring the directories exist
@@ -74,6 +76,19 @@ ORDER BY coalesce(V.date_modified, V.date_entry, V.date_discovery) desc, lower(n
 			     '<TD nowrap ALIGN="right">' . $row->{date_formatted} . '</TD></TR>' . "\n";
 		}
 		print FILE '</TABLE>' . "\n";
+		
+		my $query = "
+  SELECT count(*) as count
+    FROM commit_log_ports_vuxml CLPV, vuxml V
+   WHERE CLPV.vuxml_id = V.id
+     AND coalesce(V.date_modified, V.date_entry, V.date_discovery) > (current_date - interval '" . $ReportInterval . "')::date";
+
+		$sth = $dbh->prepare($query);
+
+		$sth->execute ||
+			FreshPorts::Utilities::ReportError('warning', "Could not execute SQL statement\n--$query--\n... maybe invalid?", 1);
+		$row = $sth->fetchrow_hashref();
+		print FILE '<p align="center">' . $row->{count} . ' vulnerabilities reported in the past ' . $ReportInterval . '</p>';
 
 		$sth->finish();
 
