@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: announcements.pm,v 1.2 2006-12-17 12:03:59 dan Exp $
+# $Id: announcements.pm,v 1.3 2007-04-06 23:07:32 dan Exp $
 #
 # Copyright (c) 2001-2004 DVL Software
 #
@@ -32,7 +32,7 @@ sub Get {
 	my $Announce = '';
 
 	# we are inserting
-	$sql = "select * from AnnouncementsGet() as text";
+	$sql = "select * from AnnouncementsGetPlain() as text";
 
 #	print "sql is $sql\n";
 
