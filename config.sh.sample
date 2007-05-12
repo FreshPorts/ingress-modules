@@ -1,10 +1,10 @@
 #!/bin/sh
 #
-# $Id: config.sh.sample,v 1.5 2007-03-17 13:51:25 dan Exp $
+# $Id: config.sh.sample,v 1.6 2007-05-12 01:40:07 dan Exp $
 #
 
 # this must always be defined and functional.
-FRESHPORTS_FREEBSD_CVS_URL="http://people.freebsd.org/~danger/cgi/cvsweb.cgi"
+FRESHPORTS_FREEBSD_CVS_URL="http://www.freebsd.org/cgi/cvsweb.cgi"
 
 FETCH="/usr/bin/fetch"
 FETCH_OPTIONS="-qo"
