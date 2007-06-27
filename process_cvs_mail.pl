@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: process_cvs_mail.pl,v 1.10 2006-12-17 12:04:02 dan Exp $
+# $Id: process_cvs_mail.pl,v 1.11 2007-06-27 02:40:54 dan Exp $
 #
 # Copyright (c) 2001-2003  DVL Software
 #
@@ -67,7 +67,7 @@ sub GetData {
 
 	my $MessageID = &GetMessage_Id($message);
 	if (!defined($MessageID)) {
-		FreshPorts::Utilities::ReportError('err', "No message ID found for this commit message (" . $Message_Subject . ").\n\nIs this a corrupted commit or email?", 1)
+		FreshPorts::Utilities::ReportErrorEmailNoPrint('err', "No message ID found for this commit message (" . $Message_Subject . ").\n\nIs this a corrupted commit or email?", 1)
 	}
 
 
@@ -339,7 +339,7 @@ sub GetFiles {
 		}
 
 		if (defined($TrackDuplicates{$path})) {
-			FreshPorts::Utilities::ReportError('err', "Duplicate file name ('$path') found in commit message (" . GetMessage_Id($message) . ").\n\nIs this a corrupted commit or email?", 1)
+			FreshPorts::Utilities::ReportErrorEmailNoPrint('err', "Duplicate file name ('$path') found in commit message (" . GetMessage_Id($message) . ").\n\nIs this a corrupted commit or email?", 0)
 		} else {
 			$TrackDuplicates{$path} = 1;
 		}
@@ -390,7 +390,7 @@ sub GetFilesImported {
 		my $changes2 = '0';
 
 		if (defined($TrackDuplicates{$path})) {
-			FreshPorts::Utilities::ReportError('err', "Duplicate file name ('$path') found in commit message (" . GetMessage_Id($message) . ").\n\nIs this a corrupted commit or email?", 1)
+			FreshPorts::Utilities::ReportErrorEmailNoPrint('err', "Duplicate file name ('$path') found in commit message (" . GetMessage_Id($message) . ").\n\nIs this a corrupted commit or email?", 0)
 		} else {
 			$TrackDuplicates{$path} = 1;
 		}
