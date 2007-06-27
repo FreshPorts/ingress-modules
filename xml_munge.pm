@@ -1,5 +1,5 @@
 #
-# $Id: xml_munge.pm,v 1.2 2006-12-17 12:04:05 dan Exp $
+# $Id: xml_munge.pm,v 1.3 2007-06-27 02:39:46 dan Exp $
 #
 # Copyright (c) 2001-2006 DVL Software
 #
@@ -366,8 +366,9 @@ sub handle_update_end {
 		FreshPorts::NonPorts::RecordPortsTreeButNonPortCommits(commit_log_id(), \@Files, $self->{dbh})
 	}
 
+
 	if ($ErrorFound) {
-		$self->{dbh}->rollback();		
+		$self->{dbh}->rollback();
 		print "recording sanity test failure\n";
 		$Msg = FreshPorts::CommitterOptIn::GetErrors();
 		my $SanityTestFailure = FreshPorts::SanityTestFailures->new( $self->{dbh} );
