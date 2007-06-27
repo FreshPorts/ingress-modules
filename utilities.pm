@@ -1,6 +1,6 @@
 #
 #
-# $Id: utilities.pm,v 1.14 2007-03-17 13:49:42 dan Exp $
+# $Id: utilities.pm,v 1.15 2007-06-27 02:40:26 dan Exp $
 #
 # Copyright (c) 2001-2006 DVL Software
 #
@@ -128,7 +128,7 @@ sub ReportError($;$;$) {
 
 	my $email   = $die;
 
-	_ReportErrorHelper($level, $message, $email, $die);
+	_ReportErrorHelper($level, $message, $email, $die, 1);
 }
 
 sub ReportErrorEmail($;$;$;$) {
@@ -137,19 +137,31 @@ sub ReportErrorEmail($;$;$;$) {
 	my $email   = shift;
 	my $die		= shift;
 
-	_ReportErrorHelper($level, $message, $email, $die);
+	_ReportErrorHelper($level, $message, $email, $die, 1);
 }
 
-sub _ReportErrorHelper($;$;$;$) {
+sub ReportErrorEmailNoPrint($;$;$;$) {
 	my $level	= shift;
 	my $message	= shift;
 	my $email   = shift;
 	my $die		= shift;
 
+	_ReportErrorHelper($level, $message, $email, $die, 0);
+}
+
+sub _ReportErrorHelper($;$;$;$;$) {
+	my $level	= shift;
+	my $message	= shift;
+	my $email   = shift;
+	my $die		= shift;
+	my $print   = shift;
+
 	my $suffix = $FreshPorts::Config::scriptpath;
 
 	Sys::Syslog::syslog($level, $message . " ($suffix)");
-	print $message . "\n";
+	if ($print) {
+		print $message . "\n";
+	}
 
 	if ($email) {
 		SendEmailNotice($FreshPorts::Config::SystemOwnerEmail, $message);
