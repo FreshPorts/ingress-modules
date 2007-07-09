@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: process_cvs_mail.pl,v 1.11 2007-06-27 02:40:54 dan Exp $
+# $Id: process_cvs_mail.pl,v 1.12 2007-07-09 21:40:47 dan Exp $
 #
 # Copyright (c) 2001-2003  DVL Software
 #
@@ -95,6 +95,8 @@ sub GetData {
 						'DATE', [ &GetMessage_Date($message)
 						],
 						'TIME', [ &GetMessage_Time($message)
+						],
+						'REPOSITORY', [ {}, 0, &GetFreeBSDRepository($message)
 						],
 						&GetMessage_To($message)
 					],
@@ -209,6 +211,35 @@ sub GetPeople {
 
 	return @people;
 }
+
+
+sub GetFreeBSDRepository {
+	my ($message) = @_;
+	my ($FreeBSDRepository) = ''; # blank!
+
+	#
+	# The cvs-all email contains a line which identifies the repository
+	# into which this file is being committed.  This is because src, ports,
+	# docs, etc, each has their own CVSROOT.  Yet, when we go to CVSWEB,
+	# those seperate directories are altered to CVSROOT-src, CVSROOT-ports, etc.
+	# This function grabs the repo name and saves it for later use in amending
+	# file path names for CVSROOT/
+	#
+
+	my (@lines) = split("\n", $message);
+
+	for (@lines) {
+		my ($line) = $_;
+
+		if ($line =~ /^\s*FreeBSD \w+? repository/i) {
+			$FreeBSDRepository = (split(" ", $line, 3))[1];
+			last;
+		}
+	}
+
+	return $FreeBSDRepository;
+}
+
 
 sub GetObtainedFrom {
 	my ($message) = @_;

@@ -1,5 +1,5 @@
 #
-# $Id: xml_munge.pm,v 1.3 2007-06-27 02:39:46 dan Exp $
+# $Id: xml_munge.pm,v 1.4 2007-07-09 21:40:47 dan Exp $
 #
 # Copyright (c) 2001-2006 DVL Software
 #
@@ -232,6 +232,8 @@ sub SetupParser($) {
 	$p->register(">UPDATES>UPDATE>MESSAGE>TO:Email",			"attr"  => \$Updates{MessageTo});
 	$p->register(">UPDATES>UPDATE>MESSAGE>TO",					"end"   => \&handle_messageto_end);
 
+	$p->register(">UPDATES>UPDATE>MESSAGE>REPOSITORY",			"char"  => \$Updates{repository});
+
 	$p->register(">UPDATES>UPDATE>MESSAGE",						"end"   => \&handle_message_end);
 
 	$p->register(">UPDATES>UPDATE>FILES>FILE:Path",				"attr"  => \$Updates{FilePath});
@@ -311,7 +313,7 @@ sub handle_update_end {
 	FreshPorts::CommitterOptIn::RecordCommitMessageSubject($Updates{MessageSubject});
 
 	if (scalar(@Files) == 0) {
-		FreshPorts::Utilities::ReportError('Err', "No files found in commit '$Updates{MessageId}'.  Has some done a cvs import instead of addport?", 1)
+		FreshPorts::Utilities::ReportError('Err', "No files found in commit '$Updates{MessageId}'.  Has someone done a cvs import instead of addport?", 1)
 	}
 
 	%CommitLogPorts = FreshPorts::VerifyPort::SaveChangesToPortsTree(commit_log_id(), \@Files, $self->{dbh});
@@ -398,6 +400,7 @@ sub handle_update_end {
 	undef $Updates{timesecond};
 	undef $Updates{timezone};
 	undef $Updates{log};
+	undef $Updates{respository};
 
 	undef $Updates{messageyear};
 	undef $Updates{messagemonth};
@@ -431,6 +434,30 @@ sub FileActionValid($) {
 }
 
 
+sub ConvertFilePath($) {
+	my $FilePath = shift;
+
+	#
+	# some files are not what they appear
+	# in particular CVSROOT needs to be altered.
+	# FreeBSD actually uses several repositories.
+	# Each has a CVSROOT.  To differentiate, we append
+	# the repo name to the CVSROOT directory, if there is a repo name.
+	#
+
+	my $FilePathNew = $FilePath;
+
+	if ($FilePath =~ /^CVSROOT\/(.*)/) {
+		if ($Updates{repository}) {
+			$FilePathNew = 'CVSROOT-' . $Updates{repository} . '/' . $1;
+		}
+	}
+
+	print "ConvertFilePath: '$FilePath' => '$FilePathNew'\n";
+
+	return $FilePathNew;
+}
+
 sub handle_file_end {
 	my $FileAction		= $Updates{FileAction};
 	my $FilePath		= $Updates{FilePath};
@@ -445,6 +472,10 @@ sub handle_file_end {
 	my $filename		= $FilePath;
 	my $revisionname	= $FileRevision;
 	my $commit_log_element;
+	
+	# before we do anything, convert the FileName appropriately
+	#
+	$FilePath = ConvertFilePath($FilePath);
 
 
 	print "File = [$FileAction : $FilePath";
@@ -555,7 +586,7 @@ sub handle_file_end {
 	if ($NewRevision) {
 		SystemBranchElementInsert($SystemBranchID, $element_id, $revisionname, $self->{dbh});
 	}
-
+	
 	#
 	# accumulate a list of files which will be updated later
 	#
@@ -632,6 +663,7 @@ sub handle_message_end {
 	print "Committer      = [$Updates{committerAll}]\n";
 	print "Date           = [" . sprintf "%04u/%02u/%02u %02u:%02u:%02u %s", $Updates{dateyear}, $Updates{datemonth}, $Updates{dateday}, $Updates{timehour}, $Updates{timeminute}, $Updates{timesecond}, $Updates{timezone} . "]\n";
 	print "Log            = [$Updates{log}]\n";
+	print "Repository     = [$Updates{repository}]\n";
 
 	print "MessageId      = [$Updates{MessageId}]\n";
 
