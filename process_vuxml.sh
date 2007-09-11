@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $Id: process_vuxml.sh,v 1.3 2007-09-11 14:17:37 dan Exp $
+# $Id: process_vuxml.sh,v 1.4 2007-09-11 14:46:06 dan Exp $
 #
 # Copyright (c) 2003-2005 DVL Software Limited
 #
@@ -34,7 +34,7 @@ fi
 
 if [ -f ${VUXMLMUTEX} ]
 then
-	logger -t "FreshPorts ${0}"  'vuxml processing is already underway'
+	logger -t "FreshPorts ${0}"  "${VUXMLMUTEX} is set.  vuxml processing is already underway"
 	exit 0
 fi
 
@@ -42,10 +42,15 @@ if [ -r ${VUXMLFLAGFILE} ]
 then
 	touch ${VUXMLMUTEX}
 	rm ${VUXMLFLAGFILE}
+	logger -t "FreshPorts ${0}"  "vuxml processing begins"
 	/usr/bin/perl ./process_vuxml.pl -w < ${PORTSDIR}/security/vuxml/vuln.xml > ${DIRLOG}/vuxml.log
+	logger -t "FreshPorts ${0}"  "vuxml ident begins"
 	/usr/bin/perl ./vuxml_ident.pl        ${PORTSDIR}/security/vuxml/vuln.xml > ${BASEDIR}/dynamic/vuxml_revision
+	logger -t "FreshPorts ${0}"  "vuxml latest begins"
 	/usr/bin/perl ./vuln_latest.pl
 	rm ${VUXMLMUTEX}
+	logger -t "FreshPorts ${0}"  "vuxml finishes"
 else
-	logger -t "FreshPorts ${0}"  "${VUXMLMUTEX} not set: no processing to do"
+	logger -t "FreshPorts ${0}"  "${VUXMLFLAGFILE} not set: no processing to do"
 fi
+logger -t "FreshPorts ${0}"  "vuxml terminates"
