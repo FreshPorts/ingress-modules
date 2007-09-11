@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $Id: process_vuxml.sh,v 1.2 2006-12-17 12:04:02 dan Exp $
+# $Id: process_vuxml.sh,v 1.3 2007-09-11 14:17:37 dan Exp $
 #
 # Copyright (c) 2003-2005 DVL Software Limited
 #
@@ -26,15 +26,15 @@ then
 	exit 0
 fi
 
-if [ "${VUXMLFLAGFILE}x" = 'x' -o "${PORTSDIR}x" = 'x' -o "${VUXMLMUTEX}x" = 'x' ]
+if [ "${VUXMLFLAGFILE}x" = 'x' -o "${PORTSDIR}x" = 'x' -o "${VUXMLMUTEX}x" = 'x' -o "${DIRLOG}x" = 'x' ]
 then
-	echo "please set VUXMLFLAGFILE, VUXMLFLAGFILE, and PORTSDIR in config.sh"
+	logger -t "FreshPorts ${0}" "please set VUXMLFLAGFILE, VUXMLFLAGFILE, PORTSDIR, and DIRLOG in config.sh"
 	exit 1
 fi
 
 if [ -f ${VUXMLMUTEX} ]
 then
-	echo 'vuxml processing is already underway'
+	logger -t "FreshPorts ${0}"  'vuxml processing is already underway'
 	exit 0
 fi
 
@@ -42,8 +42,10 @@ if [ -r ${VUXMLFLAGFILE} ]
 then
 	touch ${VUXMLMUTEX}
 	rm ${VUXMLFLAGFILE}
-	/usr/bin/perl ./process_vuxml.pl -w < ${PORTSDIR}/security/vuxml/vuln.xml
+	/usr/bin/perl ./process_vuxml.pl -w < ${PORTSDIR}/security/vuxml/vuln.xml > ${DIRLOG}/vuxml.log
 	/usr/bin/perl ./vuxml_ident.pl        ${PORTSDIR}/security/vuxml/vuln.xml > ${BASEDIR}/dynamic/vuxml_revision
 	/usr/bin/perl ./vuln_latest.pl
 	rm ${VUXMLMUTEX}
+else
+	logger -t "FreshPorts ${0}"  "${VUXMLMUTEX} not set: no processing to do"
 fi
