@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: vuln_latest.pl,v 1.8 2007-04-02 20:11:19 dan Exp $
+# $Id: vuln_latest.pl,v 1.9 2007-09-11 16:45:24 dan Exp $
 #
 # Copyright (c) 2006 DVL Software
 #
@@ -77,7 +77,7 @@ ORDER BY coalesce(V.date_modified, V.date_entry, V.date_discovery) desc, lower(n
 		}
 		print FILE '</TABLE>' . "\n";
 		
-		my $query = "
+		$query = "
   SELECT count(*) as count
     FROM commit_log_ports_vuxml CLPV, vuxml V
    WHERE CLPV.vuxml_id = V.id
