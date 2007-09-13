@@ -1,6 +1,6 @@
 #
 #
-# $Id: utilities.pm,v 1.15 2007-06-27 02:40:26 dan Exp $
+# $Id: utilities.pm,v 1.16 2007-09-13 13:01:41 dan Exp $
 #
 # Copyright (c) 2001-2006 DVL Software
 #
@@ -68,7 +68,7 @@ sub FetchFileURL($;$;$;$;$;$) {
 
 	my $result = 0;
 
-	my $FetchAttempts = 5;
+	my $FetchAttempts = $FreshPorts::Config::Fetch_Retry_Limit;
 
 	while ($FetchAttempts) {
 		my $command = "sh $FreshPorts::Config::scriptpath/fetch-cvs-file.sh $URL $DESTDIR $SRCDIR $FILE $REVISION $SUFFIX 2>&1";
@@ -89,7 +89,7 @@ sub FetchFileURL($;$;$;$;$;$) {
 
 			Sys::Syslog::syslog('warning', "sleeping after fetch failed for ($DESTDIR $SRCDIR $FILE)");
 			print "fetch failed, sleeping...\n";
-			sleep 10;
+			sleep $FreshPorts::Config::Fetch_Sleep_Time;
 			$FetchAttempts--;
 
 		} else {

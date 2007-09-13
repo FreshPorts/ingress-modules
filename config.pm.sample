@@ -1,5 +1,5 @@
 #
-# $Id: config.pm.sample,v 1.16 2007-02-12 02:01:14 dan Exp $
+# $Id: config.pm.sample,v 1.17 2007-09-13 13:01:42 dan Exp $
 #
 # Copyright (c) 2001-2007 DVL Software
 #
@@ -98,5 +98,12 @@ $FreshPorts::Config::Debug_FetchBeforeSavingPort = 0;
 #print "\$FreshPorts::Config::scriptpath    '$FreshPorts::Config::scriptpath'\n";
 #print "\$FreshPorts::Config::path_to_tree  '$FreshPorts::Config::path_to_tree'\n";
 #print "\$FreshPorts::Config::path_to_ports '$FreshPorts::Config::path_to_ports'\n";
+
+# number of times to retry a failed fetch from cvsweb
+$FreshPorts::Config::Fetch_Retry_Limit = 10;
+
+# sleep this number of seconds between retries
+$FreshPorts::Config::Fetch_Sleep_Time  = 120;
+
 
 1;
