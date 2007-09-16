@@ -1,6 +1,6 @@
 #
 #
-# $Id: utilities.pm,v 1.16 2007-09-13 13:01:41 dan Exp $
+# $Id: utilities.pm,v 1.17 2007-09-16 01:29:56 dan Exp $
 #
 # Copyright (c) 2001-2006 DVL Software
 #
@@ -74,9 +74,9 @@ sub FetchFileURL($;$;$;$;$;$) {
 		my $command = "sh $FreshPorts::Config::scriptpath/fetch-cvs-file.sh $URL $DESTDIR $SRCDIR $FILE $REVISION $SUFFIX 2>&1";
 		print "about to fetch = '$command'";
 		my $FetchResults = `$command`;
-		$result = $?;
-#		print "fetch result = $result\n";
-		if (($result >> 8)) {
+		my $code = $?;
+		print "fetch result = $code\n";
+		if (($code >> 8)) {
 			#
 			# This might be a nice place to retry a fetch, or send an email
 			#
