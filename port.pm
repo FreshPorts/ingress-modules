@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.41 2006-12-17 12:04:01 dan Exp $
+# $Id: port.pm,v 1.42 2007-09-16 01:30:43 dan Exp $
 #
 #
 # Copyright (c) 2001-2005 DVL Software
@@ -1016,13 +1016,20 @@ sub RemovePortsPrefix($) {
 sub LooksLikeAMakefile($) {
 	my $Makefile = shift;
 	my $Result   = 1;
+	
+	my $Command = "file -b $Makefile";
 
-	my $filetype = `file -b $Makefile`;
+	my $filetype = `$Command`;
 	chomp($filetype);
 
-	print "$filetype\n";
+	print "\n$Command gives:\n";
+	print "$filetype\n\n";
 
-	if (index($filetype, 'HTML', 0) != -1) {
+	# look for HTML at the start of the file output
+	my $index = index($filetype, 'HTML', 0);
+	print "index result " . $index . "\n";
+
+	if ($index == 0) {
 		print "nope, that's HTML, not a Makefile as far as I'm concerned....\n";
 		$Result = 0;
 	}
