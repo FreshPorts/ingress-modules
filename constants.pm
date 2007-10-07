@@ -1,5 +1,5 @@
 #
-# $Id: constants.pm,v 1.8 2006-12-17 12:04:00 dan Exp $
+# $Id: constants.pm,v 1.9 2007-10-07 19:49:07 dan Exp $
 #
 # Copyright (c) 2001-2006 DVL Software
 #
@@ -68,5 +68,20 @@ $FreshPorts::Constants::Notify_ports_updating			= 'notify_ports_updating';		# /u
 $FreshPorts::Constants::Notify_port_updated				= 'notify_port_updated';		# a port has been updated
 $FreshPorts::Constants::Notify_vuxml					= 'notify_vuxml';				# vuxml has been updated
 $FreshPorts::Constants::Notify_cvsroot_approvers		= 'notify_cvsroot_approvers';	# CVSROOT/approvers has been updated
+
+#
+# some special files
+#
+$FreshPorts::Constants::CVSROOT_Approvers				= 'CVSROOT/approvers';       # what we see in the commit msg
+$FreshPorts::Constants::CVSROOT_Ports_Approvers			= 'CVSROOT-ports/approvers'; # what we need to fetch from cvsweb
+$FreshPorts::Constants::Categories						= 'www/en/ports/categories';
+$FreshPorts::Constants::VUXML							= 'ports/security/vuxml/vuln.xml';
+$FreshPorts::Constants::PORTS_UPDATING					= 'ports/UPDATING';
+$FreshPorts::Constants::PORTS_MOVED						= 'ports/MOVED';
+
+
+
+
+
 
 1;
