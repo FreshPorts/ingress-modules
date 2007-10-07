@@ -1,6 +1,6 @@
 #
 #
-# $Id: utilities.pm,v 1.17 2007-09-16 01:29:56 dan Exp $
+# $Id: utilities.pm,v 1.18 2007-10-07 19:57:56 dan Exp $
 #
 # Copyright (c) 2001-2006 DVL Software
 #
@@ -72,7 +72,7 @@ sub FetchFileURL($;$;$;$;$;$) {
 
 	while ($FetchAttempts) {
 		my $command = "sh $FreshPorts::Config::scriptpath/fetch-cvs-file.sh $URL $DESTDIR $SRCDIR $FILE $REVISION $SUFFIX 2>&1";
-		print "about to fetch = '$command'";
+		print "about to fetch = '$command'\n";
 		my $FetchResults = `$command`;
 		my $code = $?;
 		print "fetch result = $code\n";
