@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $Id: process_www_en_ports_categories.sh,v 1.2 2007-03-17 13:52:22 dan Exp $
+# $Id: process_www_en_ports_categories.sh,v 1.3 2007-10-07 19:03:43 dan Exp $
 #
 # Copyright (c) 2003-2007 DVL Software Limited
 #
@@ -43,7 +43,6 @@ CATEGORIES="${SPOOLINGDIR}/categories"
 
 if [ -r ${WWWENPORTSCATEGORIES} ]
 then
-#	fetch -q -o ${CATEGORIES} "http://www.freebsd.org/cgi/cvsweb.cgi/~checkout~/www/en/ports/categories?rev=HEAD&content-type=text/plain"
 	echo about to fetch: \
 	fetch -q -o ${CATEGORIES} "${FRESHPORTS_FREEBSD_CVS_URL}/~checkout~/www/en/ports/categories?rev=HEAD&content-type=text/plain"
 	fetch -q -o ${CATEGORIES} "${FRESHPORTS_FREEBSD_CVS_URL}/~checkout~/www/en/ports/categories?rev=HEAD&content-type=text/plain"
