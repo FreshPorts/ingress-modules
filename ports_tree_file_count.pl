@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: ports_tree_file_count.pl,v 1.1 2007-02-12 02:01:14 dan Exp $
+# $Id: ports_tree_file_count.pl,v 1.2 2007-10-11 18:15:33 dan Exp $
 #
 # Copyright (c) 1999-2007 DVL Software
 #
@@ -11,6 +11,6 @@ use config;
 
 my $Command="/usr/bin/find $FreshPorts::Config::path_to_ports | /usr/bin/wc -l > $FreshPorts::Config::PortsTreeCount";
 
-print $Command;
+# print $Command;
 
 `$Command`;
