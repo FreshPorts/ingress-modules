@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.42 2007-09-16 01:30:43 dan Exp $
+# $Id: port.pm,v 1.43 2007-10-11 18:13:34 dan Exp $
 #
 #
 # Copyright (c) 2001-2005 DVL Software
@@ -899,7 +899,7 @@ sub RefreshFromFiles($;$) {
 	my $result = 0;
 	my $error;
 
-	my $FetchAttempts = 5;
+	my $FetchAttempts = $FreshPorts::Config::Fetch_Retry_Limit;
 
 	#
 	# fetch the files needed
@@ -919,7 +919,7 @@ sub RefreshFromFiles($;$) {
 					# sleep, then try again
 					Sys::Syslog::syslog('warning', "sleeping after fetch failed for ($this->{id}, $this->{category}, $this->{name}, $needs_refresh), result = $result");
 					print "fetch failed, sleeping...\n";
-					sleep 10;
+					sleep $FreshPorts::Config::Fetch_Sleep_Time;
 					$FetchAttempts--;
 				}
 			}

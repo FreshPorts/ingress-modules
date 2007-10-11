@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: fetch-refresh-ports.pl,v 1.7 2002-02-02 03:06:29 dan Exp $
+# $Id: fetch-refresh-ports.pl,v 1.8 2007-10-11 18:14:03 dan Exp $
 #
 # Copyright (c) 2001 DVL Software
 #
@@ -68,7 +68,7 @@ foreach $porttorefresh (@PORTS) {
 
 	$port->{id} = $port_id;
 	if ($port->FetchByID()) {
-		my $FetchAttempts = 5;
+		my $FetchAttempts = $FreshPorts::Config::Fetch_Retry_Limit;
 
 		while ($FetchAttempts) {
 			if (!$port->FetchFilesNeedingRefresh()) {
@@ -81,7 +81,7 @@ foreach $porttorefresh (@PORTS) {
 				# sleep, then try again
 				Sys::Syslog::syslog('warning', "sleeping after fetch failed for ($port_id, $category_name, $port_name, $needs_refresh)");
 				print "fetch failed, sleeping...\n";
-				sleep 10;
+				sleep $FreshPorts::Config::Fetch_Sleep_Time;
 				$FetchAttempts--;
 			}
 		}
