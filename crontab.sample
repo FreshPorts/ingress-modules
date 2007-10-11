@@ -1,5 +1,5 @@
 #
-# $Id: crontab.sample,v 1.14 2007-08-26 02:43:33 dan Exp $
+# $Id: crontab.sample,v 1.15 2007-10-11 20:13:50 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -39,6 +39,8 @@ DIRLOG=/usr/websites/WEBSITE-NAME/scripts-log
 0		*	*	*	*	cd $DIR && perl hourly_stats.pl   2>&1 > /dev/null
 0		0	*	*	*	cd $DIR && perl daily_stats.pl    2>&1 > /dev/null
 
+0               0       *       *       *       cd $DIR && perl test-master-port.pl      2>&1 > /dev/null
+0               0       *       *       *       cd $DIR && sh   test-master-port.sh      2>&1 > /dev/null
 3		0	*	*	*	cd $DIR && sh daily_rendering_times.sh 1
 # 2>&1 > /dev/null
 
