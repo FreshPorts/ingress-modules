@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $Id: patch-ports-infrastructure.sh,v 1.3 2007-08-26 02:40:57 dan Exp $
+# $Id: patch-ports-infrastructure.sh,v 1.4 2007-10-11 19:26:48 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -14,6 +14,6 @@ fi
 . config.sh
 
 cd ${PORTSDIR}/Mk
-patch < ${SCRIPTDIR}/patches/bsd.port.mk.master-slave-patch
-patch < ${SCRIPTDIR}/patches/bsd.port.mk.bill-fenner-inst-files-patch
-patch < ${SCRIPTDIR}/patches/patch.bsd.port.subdir.mk
+patch -N < ${SCRIPTDIR}/patches/bsd.port.mk.master-slave-patch
+patch -N < ${SCRIPTDIR}/patches/bsd.port.mk.bill-fenner-inst-files-patch
+patch -N < ${SCRIPTDIR}/patches/patch.bsd.port.subdir.mk
