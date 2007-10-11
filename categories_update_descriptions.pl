@@ -1,5 +1,5 @@
 #
-# $Id: categories_update_descriptions.pl,v 1.2 2007-01-31 21:43:06 dan Exp $
+# $Id: categories_update_descriptions.pl,v 1.3 2007-10-11 18:14:38 dan Exp $
 #
 # Copyright (c) 2007  DVL Software
 #
@@ -56,7 +56,7 @@ sub update_each_category
       $category->{description} = $value->{description};
       $category->save();
     } else {
-      FreshPorts::Utilities::ReportError('err', "Could not find category " . $value->{category}, 0);
+      FreshPorts::Utilities::ReportError('err', "Category found in file, not found in database: " . $value->{category}, 0);
     }
   }
 }
