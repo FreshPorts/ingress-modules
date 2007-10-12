@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: test-master-port.pl,v 1.1 2007-10-11 18:57:27 dan Exp $
+# $Id: test-master-port.pl,v 1.2 2007-10-12 09:11:04 dan Exp $
 #
 # Copyright (c) 2001-2007 DVL Software
 #
@@ -38,8 +38,8 @@ sub CheckMasterPorts($) {
 		FreshPorts::Utilities::ReportError('warning', "Could not execute sql", 1);
 	}
 	$row = $sth->fetchrow_hashref();
-	if ($row->{'master_port'} ne 'bacula-server') {
-		FreshPorts::Utilities::ReportErrorEmail('ERR', "The master port for bacula-client is not bacula-server", 1, 0);
+	if ($row->{'master_port'} ne 'sysutils/bacula-server') {
+		FreshPorts::Utilities::ReportErrorEmail('ERR', "The master port for bacula-client is not sysutils/bacula-server", 1, 0);
 	}
 }
 
