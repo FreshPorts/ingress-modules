@@ -1,0 +1,32 @@
+#!/bin/sh
+#
+# $Id: cvsup-local-tree,v 1.1 2007-10-15 18:52:51 dan Exp $
+#
+# Copyright (c) 2007 DVL Software Limited
+#
+
+# $DIR should be set externally
+if [ "${DIR}X" = "X" ]
+then
+	echo DIR was not set
+fi
+
+cd ${DIR}
+
+if [ ! -f config.sh ]
+then
+	echo config.sh was not found
+	exit 1
+fi
+
+. config.sh
+
+/usr/local/bin/cvsup -b ${PORTSDIR}/.. -h ${FREEBSDCVSUPHOST} ${DIR}/ports-supfile
+cd ${PORTSDIR}
+make fetchindex PORTSDIR=${PORTSDIR}
+
+# patch the local files now...
+# we should, one day, patch these files on the fly
+#
+cd ${DIR}
+./patch-ports-infrastructure.sh
