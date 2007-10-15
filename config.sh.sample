@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $Id: config.sh.sample,v 1.7 2007-09-11 14:21:00 dan Exp $
+# $Id: config.sh.sample,v 1.8 2007-10-15 18:17:22 dan Exp $
 #
 
 # this must always be defined and functional.
@@ -68,3 +68,6 @@ then
 else
 	OFFLINE=0;
 fi
+
+# define your local cvsup host here
+FREEBSDCVSUPHOST="cvsup.unixathome.org"
