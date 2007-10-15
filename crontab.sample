@@ -1,5 +1,5 @@
 #
-# $Id: crontab.sample,v 1.15 2007-10-11 20:13:50 dan Exp $
+# $Id: crontab.sample,v 1.16 2007-10-15 18:54:11 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -30,7 +30,7 @@ DIRLOG=/usr/websites/WEBSITE-NAME/scripts-log
 0	0	*		*	*	nice -15 sh -c '(cd ${DIR} && /bin/sh ./searchlog.sh 2>&1 | mail -s "freshports searchlog" dan@langille.org)'
 0	0	*		*	*	nice -15 sh -c '(cd ${DIR} && /bin/sh ./newusers.sh  2>&1 | mail -s "FreshPorts users"     dan@langille.org)'
 
-58	5	*		*	*	{ /usr/local/bin/cvsup -b ${HOME} -h cvsup ${DIR}/ports-supfile && cd ~/ports && export PORTSDIR=~/ports && make fetchindex && cd ${DIR} && sh patch-ports-infrastructure.sh; } > /dev/null 2>&1
+43  18  *       *   *   ${DIR}/cvsup-local-tree
 
 53  1   *     *  Sun { cd ${DIR}/Verify && perl most-watched.pl > ../../dynamic/watch-list-counts.txt ; }
 
