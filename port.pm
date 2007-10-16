@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.43 2007-10-11 18:13:34 dan Exp $
+# $Id: port.pm,v 1.44 2007-10-16 18:54:41 dan Exp $
 #
 #
 # Copyright (c) 2001-2005 DVL Software
@@ -532,6 +532,8 @@ sub _ExtractValuesFromMakefile {
 		$builddepends	= freshports_ConvertPortPathToStandardLocation(FreshPorts::Utilities::trim_multiple_to_single(FreshPorts::Utilities::trim($builddepends)));
 		$rundepends		= freshports_ConvertPortPathToStandardLocation(FreshPorts::Utilities::trim_multiple_to_single(FreshPorts::Utilities::trim($rundepends)));
 		$libdepends		= freshports_ConvertPortPathToStandardLocation(FreshPorts::Utilities::trim_multiple_to_single(FreshPorts::Utilities::trim($libdepends)));
+		
+		$master_port =~ s|$FreshPorts::Config::path_to_ports/||;
 
 		print " portname     = '$this->{name}'\n";
 		print " packagename  = '$portname'\n";
