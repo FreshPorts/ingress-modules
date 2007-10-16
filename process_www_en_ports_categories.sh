@@ -1,18 +1,11 @@
 #!/bin/sh
 #
-# $Id: process_www_en_ports_categories.sh,v 1.3 2007-10-07 19:03:43 dan Exp $
+# $Id: process_www_en_ports_categories.sh,v 1.4 2007-10-16 19:01:41 dan Exp $
 #
 # Copyright (c) 2003-2007 DVL Software Limited
 #
-# Check to see if the switch is set, and if so, load the
-# /usr/ports/MOVED file into the database
-#
-#  3-59/7  *   *   *   *  cd $DIR && ./process_moved.sh >> /dev/null
-#
-# where $DIR is the directory in which this file exists.
-#
-# file switch, set by commit processing script
-# That file 
+
+logger -t FreshPorts $0 has been invoked
 
 if [ ! -f config.sh ]
 then
@@ -24,6 +17,7 @@ fi
 
 if [ $OFFLINE = 1 ]
 then
+	logger -t FreshPorts system is OFFLINE ... exiting
 	exit 0
 fi
 
@@ -33,25 +27,12 @@ then
 	exit 1
 fi
 
-if [ "${FRESHPORTS_FREEBSD_CVS_URL}x" = 'x' ]
-then
-	echo "please set FRESHPORTS_FREEBSD_CVS_URL in config.sh"
-	exit 1
-fi
-
 CATEGORIES="${SPOOLINGDIR}/categories"
 
 if [ -r ${WWWENPORTSCATEGORIES} ]
 then
-	echo about to fetch: \
-	fetch -q -o ${CATEGORIES} "${FRESHPORTS_FREEBSD_CVS_URL}/~checkout~/www/en/ports/categories?rev=HEAD&content-type=text/plain"
-	fetch -q -o ${CATEGORIES} "${FRESHPORTS_FREEBSD_CVS_URL}/~checkout~/www/en/ports/categories?rev=HEAD&content-type=text/plain"
-	if [ $? = 0 ]
-	then
-		/usr/bin/perl categories_update_descriptions.pl ${CATEGORIES}
-	else
-		logger -t FreshPorts $0 could not fetch the categories file
-	fi
+	logger -t FreshPorts invoking categories_update_descriptions.pl with ${CATEGORIES}
+	/usr/bin/perl categories_update_descriptions.pl ${CATEGORIES}
 
 	# regardless of any errors, we should remove this as we don't want to keep doing this
 	rm ${WWWENPORTSCATEGORIES}
