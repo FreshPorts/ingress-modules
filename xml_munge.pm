@@ -1,5 +1,5 @@
 #
-# $Id: xml_munge.pm,v 1.4 2007-07-09 21:40:47 dan Exp $
+# $Id: xml_munge.pm,v 1.5 2007-10-16 18:55:51 dan Exp $
 #
 # Copyright (c) 2001-2006 DVL Software
 #
@@ -465,6 +465,10 @@ sub handle_file_end {
 	my $fileaction;		# the value obtained from the hash array
 						# and which will be stored into the database.
 
+	# before we do anything, convert the FileName appropriately
+	#
+	$FilePath = ConvertFilePath($FilePath);
+
 	my $ElementAdded	= 0;
 	my $NewRevision		= 0;
 	my $element;
@@ -473,10 +477,6 @@ sub handle_file_end {
 	my $revisionname	= $FileRevision;
 	my $commit_log_element;
 	
-	# before we do anything, convert the FileName appropriately
-	#
-	$FilePath = ConvertFilePath($FilePath);
-
 
 	print "File = [$FileAction : $FilePath";
 
@@ -663,7 +663,11 @@ sub handle_message_end {
 	print "Committer      = [$Updates{committerAll}]\n";
 	print "Date           = [" . sprintf "%04u/%02u/%02u %02u:%02u:%02u %s", $Updates{dateyear}, $Updates{datemonth}, $Updates{dateday}, $Updates{timehour}, $Updates{timeminute}, $Updates{timesecond}, $Updates{timezone} . "]\n";
 	print "Log            = [$Updates{log}]\n";
-	print "Repository     = [$Updates{repository}]\n";
+	if (defined($Updates{repository})) {
+		print "Repository     = [$Updates{repository}]\n";
+	} else {
+		print "Repository     = not defined, perhaps an older commit.\n";
+	}
 
 	print "MessageId      = [$Updates{MessageId}]\n";
 
