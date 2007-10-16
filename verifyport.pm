@@ -1,5 +1,5 @@
 #
-# $Id: verifyport.pm,v 1.44 2006-12-17 12:04:04 dan Exp $
+# $Id: verifyport.pm,v 1.45 2007-10-16 18:58:21 dan Exp $
 #
 # Copyright (c) 2001-2006 DVL Software
 #
@@ -317,6 +317,7 @@ sub FetchAllFiles($;$) {
 
 	print "fetching all files from this commit.\n";
 
+	LOOP:
 	foreach $value (@{$Files}) {
 		($action, $filename, $revision, $commit_log_element_id, $element_id) = @$value;
 
@@ -350,6 +351,7 @@ sub FetchAllFiles($;$) {
 			$FetchOK = FreshPorts::Utilities::FetchFile($DESTDIR, $SRCDIR, $FILE, $REVISION);
 			if (!$FetchOK) {
 				FreshPorts::Utilities::ReportError('warning', "Sorry, but we couldn't fetch all the files", 0);
+				last LOOP;
 			}
 		} else {
 			print "file was removed.  not fetching $SRCDIR/$FILE/?revision=$REVISION\n";
