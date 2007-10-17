@@ -1,5 +1,5 @@
 #
-# $Id: observer_commits.pm,v 1.2 2006-12-17 12:04:01 dan Exp $
+# $Id: observer_commits.pm,v 1.3 2007-10-17 18:21:14 dan Exp $
 #
 # Copyright (c) 2004-2006 DVL Software
 #
@@ -14,7 +14,7 @@ use special_processing_files;
 my %PortsCacheRemove;
 
 sub new {
-	my $this		= {};
+	my $this			= {};
 	my $class		= shift;
 
 	$this->{dbh}	= shift;
@@ -29,7 +29,6 @@ sub new {
 sub _initialize {
 	my $this = shift;
 
-	$this->{patching_needed}      = 0;
 	$this->{cache_refresh_needed} = 0;
 }
 
@@ -59,11 +58,6 @@ sub update {
 	if ($action eq $FreshPorts::Messages::FileUpdate) {
 		print "Observer has noticed that commit '" . $object->id() . "' contains file $params{FilePath} as revision $params{FileRevision}\n";
 		FreshPorts::SpecialProcessingFiles::Eat($class->{dbh}, $params{FileAction}, $params{FilePath}, $params{FileRevision});
-
-		if ($params{FilePath} eq 'ports/Mk/bsd.port.mk') {
-			Sys::Syslog::syslog('notice', "We'll need to patch because of $params{FilePath}");
-			$class->{patching_needed} = 1;
-		}
 	}
 
 	if ($action eq $FreshPorts::Messages::PortsRefreshed) {
@@ -85,11 +79,6 @@ sub update {
 	if ($action eq $FreshPorts::Messages::PortsFreezeCheck) {
 		print "Observer has noticed that we must do a ports freeze check.\n";
 	}
-
-	if ($action eq $FreshPorts::Messages::FilesFetched && $class->{patching_needed}) {
-		`$FreshPorts::Config::scriptpath/patch-ports-infrastructure.sh`
-	}
-
 
 	if ($action eq $FreshPorts::Messages::UpdateEnds) {
 		print "Observer has noticed that the update for $params{message_id} has finished.\n";
