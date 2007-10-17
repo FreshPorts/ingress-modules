@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: special_processing_files.pm,v 1.5 2007-10-16 19:02:21 dan Exp $
+# $Id: special_processing_files.pm,v 1.6 2007-10-17 18:22:45 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -18,6 +18,8 @@ sub Eat($;$;$;$) {
 	my $Action   = shift;
 	my $File     = shift;
 	my $Revision = shift;
+	
+	my %Patches = ($FreshPorts::Constants::BSD_PORT_MK => 'patches/bsd.port.mk.master-slave-patch');
 	
 	my $ErrorCode = 0;
 
@@ -92,6 +94,13 @@ sub Eat($;$;$;$) {
 			Sys::Syslog::syslog('notice', "special processing to $File will not proceed becaused of fetch failures.");
 			$ErrorCode = 1;
 		}
+	}
+	
+	# 
+	if (defined($Patches{$File})) {
+		print "applying special processing to $File\n";
+		Sys::Syslog::syslog('notice', "applying special processing to $File by applying patch $Patches{$File}");
+		`/usr/bin/patch -N $Patches{$File}`
 	}
 	
 	return $ErrorCode;
