@@ -5,10 +5,10 @@
 MASTER='sysutils/bacula-server'
 
 cd ${PORTSDIR}/sysutils/bacula-client
-COMMAND="make -V MASTERPORT PORTSDIR=${PORTSDIR} LOCALBASE=/nonexistentlocal X11BASE=/nonexistentx"
-MASTERPORT=`${COMMAND}`
+COMMAND="make -V MASTER_PORT PORTSDIR=${PORTSDIR} LOCALBASE=/nonexistentlocal X11BASE=/nonexistentx"
+MASTER_PORT=`${COMMAND}`
 
-if [ "${MASTERPORT}X" != "${MASTER}X" ]
+if [ "${MASTER_PORT}X" != "${MASTER}X" ]
 then
-	echo "make -V MASTERPORT on sysutils/bacula-client does not give '${MASTER}'" | mail -s "FAILED: MASTERPORT" ${ADMINEMAIL}
+	echo "make -V MASTER_PORT on sysutils/bacula-client does not give '${MASTER}'" | mail -s "FAILED: MASTER_PORT" ${ADMINEMAIL}
 fi
