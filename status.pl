@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: status.pl,v 1.2 2006-12-17 12:04:03 dan Exp $
+# $Id: status.pl,v 1.3 2007-10-18 17:44:41 dan Exp $
 #
 # Copyright (c) 2001-2006 DVL Software
 #
@@ -32,7 +32,7 @@ sub SendNotice($) {
 	FreshPorts::email::SendMail($From, $To, '', $Subject, $Body, $ExtraHeaders);
 }
 
-my $base="$ENV{HOME}/FreshPorts";
+my $base=$FreshPorts::Config::QueueBaseDir;
 
 my %queues = ('incoming' => '*.txt', 'retry' => '*.txt', 'recent' => '*.xml');
 my %queue_names = ('incoming' => 'incoming', 'retry' => 'retry', 'recent' => 'processed');

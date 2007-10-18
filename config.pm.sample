@@ -1,5 +1,5 @@
 #
-# $Id: config.pm.sample,v 1.17 2007-09-13 13:01:42 dan Exp $
+# $Id: config.pm.sample,v 1.18 2007-10-18 17:44:41 dan Exp $
 #
 # Copyright (c) 2001-2007 DVL Software
 #
@@ -25,6 +25,8 @@ $FreshPorts::Config::BaseDir			= "/usr/websites/WEBSITE_URL";
 $FreshPorts::Config::scriptpath			= $FreshPorts::Config::BaseDir . '/scripts';
 
 $FreshPorts::Config::mkdir_pkg			= 0;
+
+$FreshPorts::Config::QueueBaseDir       = "$ENV{HOME}/FreshPorts";
 
 #
 # where on disk is the ports tree?
