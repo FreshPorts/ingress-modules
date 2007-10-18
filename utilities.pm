@@ -1,6 +1,6 @@
 #
 #
-# $Id: utilities.pm,v 1.18 2007-10-07 19:57:56 dan Exp $
+# $Id: utilities.pm,v 1.19 2007-10-18 18:11:06 dan Exp $
 #
 # Copyright (c) 2001-2006 DVL Software
 #
@@ -235,5 +235,7 @@ sub TmpFileName($) {
 
 	return $TmpFileName;
 }
+
+FreshPorts::Utilities::InitSyslog();
 
 1;
