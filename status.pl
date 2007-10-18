@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: status.pl,v 1.3 2007-10-18 17:44:41 dan Exp $
+# $Id: status.pl,v 1.4 2007-10-18 17:52:39 dan Exp $
 #
 # Copyright (c) 2001-2006 DVL Software
 #
@@ -64,5 +64,6 @@ foreach my $site (@FreshPorts::Status::sites) {
 }
 
 if ($send_report) {
+	Sys::Syslog::syslog('notice', $msg);
 	SendNotice($msg);
 }
