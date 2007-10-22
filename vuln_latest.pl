@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: vuln_latest.pl,v 1.10 2007-10-22 01:32:34 dan Exp $
+# $Id: vuln_latest.pl,v 1.11 2007-10-22 01:34:03 dan Exp $
 #
 # Copyright (c) 2006 DVL Software
 #
@@ -89,7 +89,11 @@ ORDER BY coalesce(V.date_modified, V.date_entry, V.date_discovery) desc, lower(n
 		$sth->execute ||
 			FreshPorts::Utilities::ReportError('warning', "Could not execute SQL statement\n--$query--\n... maybe invalid?", 1);
 		$row = $sth->fetchrow_hashref();
-		print FILE '<p align="center">' . $row->{vulns} . ' vulnerabilities affecting ' . $row->{ports} . ' ports have been reported in the past ' . $ReportInterval . '</p>';
+		if ($row->{vulns}) {
+			print FILE '<p align="center">' . $row->{vulns} . ' vulnerabilities affecting ' . $row->{ports} . ' ports have been reported in the past ' . $ReportInterval . '</p>';
+		} else {
+			print FILE '<p align="center">No vulnerabilities have been reported in the past ' . $ReportInterval . '</p>';
+		}
 
 		$sth->finish();
 
