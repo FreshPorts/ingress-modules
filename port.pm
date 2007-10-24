@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.45 2007-10-17 18:27:12 dan Exp $
+# $Id: port.pm,v 1.46 2007-10-24 13:16:15 dan Exp $
 #
 #
 # Copyright (c) 2001-2005 DVL Software
@@ -488,9 +488,10 @@ sub _ExtractValuesFromMakefile {
 
 	my $mastersites = '';
 	if ($result == 0) {
-		print "trying to get master sites\n";
+		my $TmpFile = FreshPorts::Utilities::TmpFileName("$this->{category}.$this->{name}.make-mastersites-error");
+		print "trying to get master sites.  Errors will be in '$TmpFile'\n";
 		my $mastersitescommand = "make master-sites-all -f $Makefile PORTSDIR=$FreshPorts::Config::path_to_ports " . 
-		                         "LOCALBASE=/nonexistentlocal X11BASE=/nonexistentx";
+		                         "LOCALBASE=/nonexistentlocal X11BASE=/nonexistentx 2>$TmpFile";
 		print "'$mastersitescommand'\n";
 		$mastersites = `$mastersitescommand`;
 		# save this for later reference
@@ -500,10 +501,27 @@ sub _ExtractValuesFromMakefile {
 
 		# we'll need this for error reporting
 		if ($result != 0) {
+			print 'size is ' . -s $TmpFile;
+			print "\n";
+
+			if (-s $TmpFile > 0) {
+				print "getting error message from temp file\n";
+				$ErrorMessage = "Error message is: " . `cat $TmpFile`;
+			}
+
+			if ($mastersites ne '') {
+				# save the results for error reporting
+				$ErrorMessage .= "Make results are : " . $mastersites;
+			}
+
+			$ErrorMessage = "This command (FreshPorts code 2):\n\n$mastersitescommand\n\nproduced this error:\n\n$ErrorMessage";
 			# save the results for error reporting
-			FreshPorts::CommitterOptIn::RecordErrorDetails("$this->{category}/$this->{name}", "\n\n" . "This command (FreshPorts code 2):\n\n$makecommand\n\nproduced this error:\n\n$mastersites");
-			$ErrorMessage = $mastersites;
+			FreshPorts::CommitterOptIn::RecordErrorDetails("$this->{category}/$this->{name}", $ErrorMessage);
 		}
+
+		# remove that error collection file
+		unlink($TmpFile);
+
 	}
 
 	print "\$result='$result'\n";
