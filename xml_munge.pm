@@ -1,5 +1,5 @@
 #
-# $Id: xml_munge.pm,v 1.5 2007-10-16 18:55:51 dan Exp $
+# $Id: xml_munge.pm,v 1.6 2007-11-09 02:38:39 dan Exp $
 #
 # Copyright (c) 2001-2006 DVL Software
 #
@@ -467,7 +467,7 @@ sub handle_file_end {
 
 	# before we do anything, convert the FileName appropriately
 	#
-	$FilePath = ConvertFilePath($FilePath);
+#	$FilePath = ConvertFilePath($FilePath);
 
 	my $ElementAdded	= 0;
 	my $NewRevision		= 0;
