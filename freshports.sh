@@ -8,9 +8,15 @@
 
 # let the daemons, cronjobs etc know we are offline
 #
-echo $1
 
 CONFIGDIR="${SCRIPTDIR}/../configuration"
+
+if [ "$1" = "stop" -o "$1" = "start" ]
+then
+	# correct parm
+else
+	echo "usage: $0 {start|stop}"
+fi
 
 if [ "$1" = "stop" ]
 then
