@@ -18,6 +18,7 @@ then
 	rm -f ${CONFIGDIR}/vhosts.conf
 	ln -s ${CONFIGDIR}/vhosts.conf.offline ${CONFIGDIR}/vhosts.conf
 	sudo apachectl graceful
+	sudo svc -d /var/service/fp-listen
 fi
 
 if [ "$1" = "start" ]
@@ -26,6 +27,7 @@ then
 	rm -f ${CONFIGDIR}/vhosts.conf
 	ln -s ${CONFIGDIR}/vhosts.conf.online ${CONFIGDIR}/vhosts.conf
 	sudo apachectl graceful
+	sudo svc -u /var/service/fp-listen
 fi
 #
 #
