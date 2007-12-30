@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: refresh-unrefreshed-ports.pl,v 1.21 2006-12-17 12:04:02 dan Exp $
+# $Id: refresh-unrefreshed-ports.pl,v 1.22 2007-12-30 18:37:00 dan Exp $
 #
 # Copyright (c) 1999-2004 DVL Software
 #
@@ -35,6 +35,7 @@ FreshPorts::Utilities::InitSyslog();
 #
 my $SystemStatus = FreshPorts::SystemStatus->new();
 if (!$SystemStatus->Online()) {
+	Sys::Syslog::syslog('warning', "not looking for refresh status: system is offline");
 	exit 0;
 }
 
