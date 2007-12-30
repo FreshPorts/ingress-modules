@@ -1,6 +1,17 @@
 #!/bin/sh
 
+if [ ! -f config.sh ]
+then
+	echo "config.sh not found..."
+	exit 1
+fi
+
 . config.sh
+
+if [ $OFFLINE = 1 ]
+then
+	exit 0
+fi
 
 MASTER='sysutils/bacula-server'
 
