@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: test-master-port.pl,v 1.2 2007-10-12 09:11:04 dan Exp $
+# $Id: test-master-port.pl,v 1.3 2007-12-30 18:41:59 dan Exp $
 #
 # Copyright (c) 2001-2007 DVL Software
 #
@@ -15,6 +15,7 @@ require Sys::Syslog;
 use db_utils;
 use database;
 use utilities;
+use system_status;
 
 use DBI;
 
@@ -49,6 +50,16 @@ sub CheckMasterPorts($) {
 
 sub main {
 	my $dbh;
+
+	#
+	# see if the system is online.
+	# If not, exit.
+	#
+	my $SystemStatus = FreshPorts::SystemStatus->new();
+	if (!$SystemStatus->Online()) {
+		Sys::Syslog::syslog('warning', "not testing master port status: system is offline");
+		exit 0;
+	}
 
 	$dbh = FreshPorts::Database::GetDBHandle();
 	if ($dbh->{Active}) {
