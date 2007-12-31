@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: special_processing_files.pm,v 1.7 2007-10-17 18:26:14 dan Exp $
+# $Id: special_processing_files.pm,v 1.8 2007-12-31 02:17:19 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -57,7 +57,7 @@ sub Eat($;$;$;$) {
 		`/usr/bin/touch $FreshPorts::Config::JobWaiting`;
 	}
 
- 	if ($File eq $FreshPorts::Constants::CVSROOT_Approvers) {
+ 	if ($File eq $FreshPorts::Constants::CVSROOT_Ports_Approvers) {
  		# fetch this file.  It's not in the ports tree
 		print "applying special processing to $File\n";
 		Sys::Syslog::syslog('notice', "applying special processing to $File");
