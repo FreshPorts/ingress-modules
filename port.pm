@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.46 2007-10-24 13:16:15 dan Exp $
+# $Id: port.pm,v 1.47 2008-01-18 23:58:41 dan Exp $
 #
 #
 # Copyright (c) 2001-2005 DVL Software
@@ -65,9 +65,10 @@ sub _initialize {
 	$this->{is_interactive}		= '';
 	$this->{only_for_archs}		= '';
 	$this->{not_for_archs}		= '';
+	$this->{status}				= '';
+	$this->{showconfig}			= '';
 
 	$this->{categories}			= '';
-	$this->{status}				= '';
 	$this->{element_pathname}   = '';
 
 
@@ -111,10 +112,11 @@ sub _GetValuesFromRow {
 	$this->{is_interactive}		= $row->{is_interactive};
 	$this->{only_for_archs}		= $row->{only_for_archs};
 	$this->{not_for_archs}		= $row->{not_for_archs};
+	$this->{status}				= $row->{status};
+	$this->{showconfig}			= $row->{showconfig};
 
 	$this->{categories}			= $row->{categories};
 	$this->{last_commit_id}		= $row->{last_commit_id};
-	$this->{status}				= $row->{status};
 	$this->{element_pathname}   = $row->{element_pathname};
 }
 
@@ -202,6 +204,7 @@ update ports
        is_interactive    = " . $dbh->quote($this->{is_interactive})		. ", 
        only_for_archs    = " . $only_for_archs_alt                      . ",
        not_for_archs     = " . $not_for_archs_alt                       . ",
+       showconfig        = " . $dbh->quote($this->{showconfig})         . ",
        categories        = " . $dbh->quote($this->{categories});
 
 		# we don't always have this value, so we don't change it....
@@ -266,10 +269,9 @@ sub FetchByID {
 	$dbh = $this->{dbh};
 
 	$sql = "
-   select ports.*, 
+   select ports.*,
           categories.name as category, 
           element.name    as name, 
-          element.status,
           element_pathname(element.id, FALSE) as element_pathname
      from ports, categories, element 
     where ports.id          = $this->{id} 
@@ -326,7 +328,6 @@ sub FetchByPartialPathName {
    select ports.*,
           categories.name as category,
           element.name    as name,
-          element.status,
           element_pathname(element.id, FALSE) as element_pathname
      from ports, categories, element
     where ports.element_id  = $this->{element_id}
@@ -524,8 +525,46 @@ sub _ExtractValuesFromMakefile {
 
 	}
 
+	my $showconfig = '';
+	if ($result == 0) {
+		my $TmpFile = FreshPorts::Utilities::TmpFileName("$this->{category}.$this->{name}.showconfig");
+		print "trying to get showconfig.  Errors will be in '$TmpFile'\n";
+		my $showconfigcommand = "make showconfig -f $Makefile PORTSDIR=$FreshPorts::Config::path_to_ports " . 
+		                         "LOCALBASE=/nonexistentlocal X11BASE=/nonexistentx 2>$TmpFile";
+		print "'$showconfigcommand'\n";
+		$showconfig = `$showconfigcommand`;
+		# save this for later reference
+		$result = $?;
+
+		chomp($showconfig);	# remove that trailing whitespace.
+
+		# we'll need this for error reporting
+		if ($result != 0) {
+			print 'size is ' . -s $TmpFile;
+			print "\n";
+
+			if (-s $TmpFile > 0) {
+				print "getting error message from temp file\n";
+				$ErrorMessage = "Error message is: " . `cat $TmpFile`;
+			}
+
+			if ($showconfig ne '') {
+				# save the results for error reporting
+				$ErrorMessage .= "Make results are : " . $showconfig;
+			}
+
+			$ErrorMessage = "This command (FreshPorts code 2):\n\n$showconfigcommand\n\nproduced this error:\n\n$ErrorMessage";
+			# save the results for error reporting
+			FreshPorts::CommitterOptIn::RecordErrorDetails("$this->{category}/$this->{name}", $ErrorMessage);
+		}
+
+		# remove that error collection file
+		unlink($TmpFile);
+
+	}
+
 	print "\$result='$result'\n";
-	print "\$mastersites='$mastersites'\n";
+	print "\$showconfig='$showconfig'\n";
 
 	# remove previously created directory
 	if ($FreshPorts::Config::mkdir_pkg) {
@@ -614,6 +653,7 @@ sub _ExtractValuesFromMakefile {
 		print "30 \$only_for_archs   = '$only_for_archs'\n";
 		print "31 \$not_for_archs    = '$not_for_archs'\n";
 		print "32 \$categories       = '$categories'\n";
+		print "33 \$showconfig       = '$showconfig'\n";
 
 		print "\n ---------------------------------------- \n";
 
@@ -664,6 +704,7 @@ sub _ExtractValuesFromMakefile {
 		$this->{is_interactive}		= $is_interactive;
 		$this->{only_for_archs}		= $only_for_archs;
 		$this->{not_for_archs}		= $not_for_archs;
+		$this->{showconfig} 		= $showconfig;
 		$this->{categories}			= $categories;
 		# convert all whitespace to a single space
 		# This arose from 200609130717.k8D7HpNc057638@repoman.freebsd.org
@@ -777,7 +818,9 @@ sub _FetchFilesNeedingRefresh {
 
 
 		# remove previously created directory
-		rmdir "pkg";
+		if ($FreshPorts::Config::mkdir_pkg) {
+			rmdir "pkg";
+		}
 
 		#
 		# we need to check this return value.  if it fails, we need to know
