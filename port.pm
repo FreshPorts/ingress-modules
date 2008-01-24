@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.47 2008-01-18 23:58:41 dan Exp $
+# $Id: port.pm,v 1.48 2008-01-24 16:51:38 dan Exp $
 #
 #
 # Copyright (c) 2001-2005 DVL Software
@@ -530,7 +530,7 @@ sub _ExtractValuesFromMakefile {
 		my $TmpFile = FreshPorts::Utilities::TmpFileName("$this->{category}.$this->{name}.showconfig");
 		print "trying to get showconfig.  Errors will be in '$TmpFile'\n";
 		my $showconfigcommand = "make showconfig -f $Makefile PORTSDIR=$FreshPorts::Config::path_to_ports " . 
-		                         "LOCALBASE=/nonexistentlocal X11BASE=/nonexistentx 2>$TmpFile";
+		                         "OPTIONSFILE=/nonexistent 2>$TmpFile";
 		print "'$showconfigcommand'\n";
 		$showconfig = `$showconfigcommand`;
 		# save this for later reference
