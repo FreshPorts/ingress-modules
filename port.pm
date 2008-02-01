@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.48 2008-01-24 16:51:38 dan Exp $
+# $Id: port.pm,v 1.49 2008-02-01 02:02:53 dan Exp $
 #
 #
 # Copyright (c) 2001-2005 DVL Software
@@ -156,12 +156,6 @@ sub save {
 	if ($this->{id}) {
 		# we are updating
 
-		if (!defined($this->{expiration_date}) || $this->{expiration_date} eq '') {
-			$expiration_date_alt = 'NULL';
-		} else {
-			$expiration_date_alt   = $dbh->quote($this->{expiration_date});
-		}
-
 		if (!defined($this->{is_interactive}) || $this->{is_interactive} eq '' || 
 			$this->{is_interactive} ne 'yes') {
 			$is_interactive_alt = 'false';
@@ -169,43 +163,45 @@ sub save {
 			$is_interactive_alt = 'true';
 		}
 
-		$not_for_archs_alt  = $this->_NULLIfEmpty($this->{not_for_archs});
-		$only_for_archs_alt = $this->_NULLIfEmpty($this->{only_for_archs});
+		# NOTE: _NULLIfEmpty invokes db_escape
+		$expiration_date_alt = $this->_NULLIfEmpty($this->{expiration_date});
+		$not_for_archs_alt   = $this->_NULLIfEmpty($this->{not_for_archs});
+		$only_for_archs_alt  = $this->_NULLIfEmpty($this->{only_for_archs});
 
 
 # correct this sql to update all fields...
 
 		$sql = "
 update ports  
-   set short_description = " . $dbh->quote($this->{short_description})	. ", 
-       long_description  = " . $dbh->quote($this->{long_description})	. ", 
-       version           = " . $dbh->quote($this->{version})			. ", 
-       revision          = " . $dbh->quote($this->{revision})			. ", 
-       maintainer        = " . $dbh->quote($this->{maintainer})			. ", 
-       homepage          = " . $dbh->quote($this->{homepage})			. ", 
-       master_sites      = " . $dbh->quote($this->{master_sites})		. ", 
-       extract_suffix    = " . $dbh->quote($this->{package_exists})		. ", 
-       depends_build     = " . $dbh->quote($this->{depends_build})		. ", 
-       depends_run       = " . $dbh->quote($this->{depends_run})		. ", 
-       depends_lib       = " . $dbh->quote($this->{depends_lib})		. ", 
-       forbidden         = " . $dbh->quote($this->{forbidden})			. ", 
-       broken            = " . $dbh->quote($this->{broken})				. ", 
-       deprecated        = " . $dbh->quote($this->{deprecated})			. ", 
-       ignore            = " . $dbh->quote($this->{ignore})				. ", 
-       master_port       = " . $dbh->quote($this->{master_port})		. ",
-       latest_link       = " . $dbh->quote($this->{latest_link})		. ", 
-       no_latest_link    = " . $dbh->quote($this->{no_latest_link})		. ", 
-       no_package        = " . $dbh->quote($this->{no_package})			. ", 
-       package_name      = " . $dbh->quote($this->{package_name})		. ", 
-       portepoch         = " . $dbh->quote($this->{portepoch})			. ", 
-       restricted        = " . $dbh->quote($this->{restricted})			. ", 
-       no_cdrom          = " . $dbh->quote($this->{no_cdrom})			. ", 
-       expiration_date   = " . $expiration_date_alt				    	. ", 
-       is_interactive    = " . $dbh->quote($this->{is_interactive})		. ", 
-       only_for_archs    = " . $only_for_archs_alt                      . ",
-       not_for_archs     = " . $not_for_archs_alt                       . ",
-       showconfig        = " . $dbh->quote($this->{showconfig})         . ",
-       categories        = " . $dbh->quote($this->{categories});
+   set short_description = " . FreshPorts::Utilities::db_escape($dbh->quote($this->{short_description})) . ", 
+       long_description  = " . FreshPorts::Utilities::db_escape($dbh->quote($this->{long_description}))	 . ", 
+       version           = " . $dbh->quote($this->{version})											 . ", 
+       revision          = " . $dbh->quote($this->{revision})			    							 . ", 
+       maintainer        = " . FreshPorts::Utilities::db_escape($dbh->quote($this->{maintainer}))		 . ", 
+       homepage          = " . $this->_NULLIfEmpty($this->{homepage})                                    . ", 
+       master_sites      = " . FreshPorts::Utilities::db_escape($dbh->quote($this->{master_sites}))		 . ", 
+       extract_suffix    = " . $dbh->quote($this->{package_exists})                      				 . ", 
+       depends_build     = " . FreshPorts::Utilities::db_escape($dbh->quote($this->{depends_build}))	 . ", 
+       depends_run       = " . FreshPorts::Utilities::db_escape($dbh->quote($this->{depends_run}))		 . ", 
+       depends_lib       = " . FreshPorts::Utilities::db_escape($dbh->quote($this->{depends_lib}))		 . ", 
+       forbidden         = " . FreshPorts::Utilities::db_escape($dbh->quote($this->{forbidden}))		 . ", 
+       broken            = " . FreshPorts::Utilities::db_escape($dbh->quote($this->{broken}))			 . ", 
+       deprecated        = " . FreshPorts::Utilities::db_escape($dbh->quote($this->{deprecated}))		 . ", 
+       ignore            = " . FreshPorts::Utilities::db_escape($dbh->quote($this->{ignore}))			 . ", 
+       master_port       = " . FreshPorts::Utilities::db_escape($dbh->quote($this->{master_port}))		 . ",
+       latest_link       = " . FreshPorts::Utilities::db_escape($dbh->quote($this->{latest_link}))		 . ", 
+       no_latest_link    = " . FreshPorts::Utilities::db_escape($dbh->quote($this->{no_latest_link}))	 . ", 
+       no_package        = " . FreshPorts::Utilities::db_escape($dbh->quote($this->{no_package}))		 . ", 
+       package_name      = " . FreshPorts::Utilities::db_escape($dbh->quote($this->{package_name}))		 . ", 
+       portepoch         = " . FreshPorts::Utilities::db_escape($dbh->quote($this->{portepoch}))		 . ", 
+       restricted        = " . FreshPorts::Utilities::db_escape($dbh->quote($this->{restricted}))		 . ", 
+       no_cdrom          = " . FreshPorts::Utilities::db_escape($dbh->quote($this->{no_cdrom}))			 . ", 
+       expiration_date   = " . $expiration_date_alt				   									 	 . ", 
+       is_interactive    = " . FreshPorts::Utilities::db_escape($dbh->quote($this->{is_interactive})) 	 . ", 
+       only_for_archs    = " . $only_for_archs_alt                                                       . ",
+       not_for_archs     = " . $not_for_archs_alt                                                        . ",
+       showconfig        = " . $this->_NULLIfEmpty($this->{showconfig})                                  . ",
+       categories        = " . FreshPorts::Utilities::db_escape($dbh->quote($this->{categories}));
 
 		# we don't always have this value, so we don't change it....
 		if (defined($this->{last_commit_id})) {
@@ -623,6 +619,7 @@ sub _ExtractValuesFromMakefile {
 		my $longdescription = '';
 		my $homepage        = '';
 		if (defined($RealDescrPath) && -f $RealDescrPath) {
+			print "invoking _GetDescrAndHomePage()\n";
 			($longdescription, $homepage) = _GetDescrAndHomePage($RealDescrPath);
 		}
 
@@ -955,6 +952,7 @@ sub RefreshFromFiles($;$) {
 	my $needs_refresh	= shift;
 	my $fetch_files		= shift;
 
+	print "into RefreshFromFiles()\n";
 	if (!defined($needs_refresh)) {
 		FreshPorts::Utilities::ReportError('warning', "needs_refresh has no value", 1);
 	}
@@ -1140,11 +1138,10 @@ sub _NULLIfEmpty {
 	if (!defined($value) || $value eq '') {
 		$result = 'NULL';
 	} else {
-		$result = $this->{dbh}->quote($value);
+		$result = FreshPorts::Utilities::db_escape($this->{dbh}->quote($value));
 	}
 
 	return $result;
-
 }
 
 
