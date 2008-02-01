@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.49 2008-02-01 02:02:53 dan Exp $
+# $Id: port.pm,v 1.50 2008-02-01 14:31:09 dan Exp $
 #
 #
 # Copyright (c) 2001-2005 DVL Software
@@ -163,10 +163,10 @@ sub save {
 			$is_interactive_alt = 'true';
 		}
 
-		# NOTE: _NULLIfEmpty invokes db_escape
-		$expiration_date_alt = $this->_NULLIfEmpty($this->{expiration_date});
-		$not_for_archs_alt   = $this->_NULLIfEmpty($this->{not_for_archs});
-		$only_for_archs_alt  = $this->_NULLIfEmpty($this->{only_for_archs});
+		# NOTE: NULLIfEmpty invokes db_escape
+		$expiration_date_alt = FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{expiration_date});
+		$not_for_archs_alt   = FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{not_for_archs});
+		$only_for_archs_alt  = FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{only_for_archs});
 
 
 # correct this sql to update all fields...
@@ -178,7 +178,7 @@ update ports
        version           = " . $dbh->quote($this->{version})											 . ", 
        revision          = " . $dbh->quote($this->{revision})			    							 . ", 
        maintainer        = " . FreshPorts::Utilities::db_escape($dbh->quote($this->{maintainer}))		 . ", 
-       homepage          = " . $this->_NULLIfEmpty($this->{homepage})                                    . ", 
+       homepage          = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{homepage})               . ", 
        master_sites      = " . FreshPorts::Utilities::db_escape($dbh->quote($this->{master_sites}))		 . ", 
        extract_suffix    = " . $dbh->quote($this->{package_exists})                      				 . ", 
        depends_build     = " . FreshPorts::Utilities::db_escape($dbh->quote($this->{depends_build}))	 . ", 
@@ -200,7 +200,7 @@ update ports
        is_interactive    = " . FreshPorts::Utilities::db_escape($dbh->quote($this->{is_interactive})) 	 . ", 
        only_for_archs    = " . $only_for_archs_alt                                                       . ",
        not_for_archs     = " . $not_for_archs_alt                                                        . ",
-       showconfig        = " . $this->_NULLIfEmpty($this->{showconfig})                                  . ",
+       showconfig        = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{showconfig})             . ",
        categories        = " . FreshPorts::Utilities::db_escape($dbh->quote($this->{categories}));
 
 		# we don't always have this value, so we don't change it....
@@ -1128,22 +1128,6 @@ sub SetDeleted {
 
 	return $OldStatus;
 }
-
-sub _NULLIfEmpty {
-	my $this   = shift;
-	my $value  = shift;
-
-	my $result = undef;
-
-	if (!defined($value) || $value eq '') {
-		$result = 'NULL';
-	} else {
-		$result = FreshPorts::Utilities::db_escape($this->{dbh}->quote($value));
-	}
-
-	return $result;
-}
-
 
 sub IsValidDate {
 	return 1;
