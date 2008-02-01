@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: commit_log.pm,v 1.3 2006-12-17 12:03:59 dan Exp $
+# $Id: commit_log.pm,v 1.4 2008-02-01 02:02:28 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -55,15 +55,15 @@ sub save {
 
 	$sql = "insert into commit_log (id, message_id, message_date, message_subject, date_added, commit_date, 
 											committer, description, system_id, encoding_losses) values ( \
-				$this->{id}, \
-				$this->{message_id}, \ 
-				$this->{message_date}, \ 
-				$this->{message_subject}, \ 
-				$this->{date_added}, \ 
-				$this->{commit_date}, \ 
-				$this->{committer}, \ 
-				$this->{description}, \ 
-				$this->{system_id}, \
+				$this->{id},
+				" . FreshPorts::Utilities::db_escape($this->{message_id})      . ",
+				" . FreshPorts::Utilities::db_escape($this->{message_date})    . ",
+				" . FreshPorts::Utilities::db_escape($this->{message_subject}) . ",
+				$this->{date_added},
+				" . FreshPorts::Utilities::db_escape($this->{commit_date})     . ",
+				" . FreshPorts::Utilities::db_escape($this->{committer})       . ",
+				" . FreshPorts::Utilities::db_escape($this->{description})     . ",
+				$this->{system_id},
 				$this->{encoding_losses}::boolean)";
 
 	print "sql is $sql\n";
