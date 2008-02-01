@@ -1,6 +1,6 @@
 #
 #
-# $Id: utilities.pm,v 1.20 2008-02-01 02:01:15 dan Exp $
+# $Id: utilities.pm,v 1.21 2008-02-01 14:30:42 dan Exp $
 #
 # Copyright (c) 2001-2006 DVL Software
 #
@@ -242,6 +242,25 @@ sub db_escape($) {
 
 	return 'E' . $str;
 }
+
+
+sub NULLIfEmpty {
+	my $dbh   = shift;
+	my $value = shift;
+
+	my $result = undef;
+
+	if (!defined($value) || $value eq '') {
+		$result = 'NULL';
+	} else {
+		$result = db_escape($dbh->quote($value));
+	}
+
+	return $result;
+}
+
+
+
 
 FreshPorts::Utilities::InitSyslog();
 
