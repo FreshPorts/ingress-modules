@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: process_updating.pl,v 1.2 2006-12-17 12:04:02 dan Exp $
+# $Id: process_updating.pl,v 1.3 2008-02-01 14:31:31 dan Exp $
 #
 # Copyright (c) 2004-2006 DVL Software
 #
@@ -161,10 +161,10 @@ sub parsefile ($) {
 
 sub AddUpdating($;$;$;$;$) {
 	my $dbh     = shift;
-	my $Date    = $dbh->quote(shift);
-	my $Affects = $dbh->quote(shift);
-	my $Author  = $dbh->quote(shift);
-	my $Reason  = $dbh->quote(shift);
+	my $Date    = FreshPorts::Utilities::NULLIfEmpty($dbh, shift);
+	my $Affects = FreshPorts::Utilities::NULLIfEmpty($dbh, shift);
+	my $Author  = FreshPorts::Utilities::NULLIfEmpty($dbh, shift);
+	my $Reason  = FreshPorts::Utilities::NULLIfEmpty($dbh, shift);
 
 	my $sth;
 	my $sql;
