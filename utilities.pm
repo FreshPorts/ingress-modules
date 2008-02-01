@@ -1,6 +1,6 @@
 #
 #
-# $Id: utilities.pm,v 1.19 2007-10-18 18:11:06 dan Exp $
+# $Id: utilities.pm,v 1.20 2008-02-01 02:01:15 dan Exp $
 #
 # Copyright (c) 2001-2006 DVL Software
 #
@@ -234,6 +234,13 @@ sub TmpFileName($) {
 	$TmpFileName .= "$RealYear.$RealMonth.$mday.$hour.$min.$sec.$$";
 
 	return $TmpFileName;
+}
+
+sub db_escape($) {
+	# see http://www.postgresql.org/docs/8.2/static/sql-syntax-lexical.html
+	my $str = shift;
+
+	return 'E' . $str;
 }
 
 FreshPorts::Utilities::InitSyslog();
