@@ -1,5 +1,5 @@
 #
-# $Id: verifyport.pm,v 1.45 2007-10-16 18:58:21 dan Exp $
+# $Id: verifyport.pm,v 1.46 2008-02-01 02:01:53 dan Exp $
 #
 # Copyright (c) 2001-2006 DVL Software
 #
@@ -109,7 +109,7 @@ sub _CompileListOfPorts($;$;$) {
 
 					$port = $ListOfPorts{"$category_name/$port_name"};
 					if (!$port) {
-						print "* * * we'll have to load/create that port!\n";
+						print "* * * not found in existing cache.  we'll have to load/create that port!\n";
 						$port = FreshPorts::Port->new($dbh);
 
 						# this is all that's needed to retrieve a port which exists
@@ -124,6 +124,7 @@ sub _CompileListOfPorts($;$;$) {
 						# for now, all we want is a complete list of ports.
 						#
 						if (!defined($port->{id})) {
+							print "port not retrieved with $port->{partialpathname}.  This must be a new port\n";
 							#
 							# these are the values needed to create a new port
 							#
@@ -226,7 +227,7 @@ sub SaveChangesToPortsTree($;$;$) {
 				print "/usr/bin/fetch $FreshPorts::Config::FreshPortsURL$portname"
 			}
 
-			print "', category_id='";
+			print "category_id='";
 			if (defined($port->{category_id})) {
 				print $port->{category_id};
 			}
