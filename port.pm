@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.50 2008-02-01 14:31:09 dan Exp $
+# $Id: port.pm,v 1.51 2008-04-19 23:48:21 dan Exp $
 #
 #
 # Copyright (c) 2001-2005 DVL Software
@@ -110,6 +110,7 @@ sub _GetValuesFromRow {
 	$this->{no_cdrom}			= $row->{no_cdrom};
 	$this->{expiration_date}	= $row->{expiration_date};
 	$this->{is_interactive}		= $row->{is_interactive};
+	
 	$this->{only_for_archs}		= $row->{only_for_archs};
 	$this->{not_for_archs}		= $row->{not_for_archs};
 	$this->{status}				= $row->{status};
@@ -156,20 +157,12 @@ sub save {
 	if ($this->{id}) {
 		# we are updating
 
-		if (!defined($this->{is_interactive}) || $this->{is_interactive} eq '' || 
-			$this->{is_interactive} ne 'yes') {
-			$is_interactive_alt = 'false';
-		} else {
-			$is_interactive_alt = 'true';
-		}
-
 		# NOTE: NULLIfEmpty invokes db_escape
+		$is_interactive_alt  = FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{is_interactive});
 		$expiration_date_alt = FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{expiration_date});
 		$not_for_archs_alt   = FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{not_for_archs});
 		$only_for_archs_alt  = FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{only_for_archs});
 
-
-# correct this sql to update all fields...
 
 		$sql = "
 update ports  
@@ -197,7 +190,7 @@ update ports
        restricted        = " . FreshPorts::Utilities::db_escape($dbh->quote($this->{restricted}))		 . ", 
        no_cdrom          = " . FreshPorts::Utilities::db_escape($dbh->quote($this->{no_cdrom}))			 . ", 
        expiration_date   = " . $expiration_date_alt				   									 	 . ", 
-       is_interactive    = " . FreshPorts::Utilities::db_escape($dbh->quote($this->{is_interactive})) 	 . ", 
+       is_interactive    = " . $is_interactive_alt                                                       . ", 
        only_for_archs    = " . $only_for_archs_alt                                                       . ",
        not_for_archs     = " . $not_for_archs_alt                                                        . ",
        showconfig        = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{showconfig})             . ",
