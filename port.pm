@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.51 2008-04-19 23:48:21 dan Exp $
+# $Id: port.pm,v 1.52 2008-06-06 18:13:41 dan Exp $
 #
 #
 # Copyright (c) 2001-2005 DVL Software
@@ -153,6 +153,8 @@ sub save {
 	my $is_interactive_alt;
 	my $not_for_archs_alt;
 	my $only_for_archs_alt;
+	my $restricted_alt;
+	my $no_cdrom_alt;
 
 	if ($this->{id}) {
 		# we are updating
@@ -162,6 +164,8 @@ sub save {
 		$expiration_date_alt = FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{expiration_date});
 		$not_for_archs_alt   = FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{not_for_archs});
 		$only_for_archs_alt  = FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{only_for_archs});
+		$restricted_alt      = FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{restricted_alt});
+		$no_cdrom_alt        = FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{no_cdrom});
 
 
 		$sql = "
@@ -187,8 +191,8 @@ update ports
        no_package        = " . FreshPorts::Utilities::db_escape($dbh->quote($this->{no_package}))		 . ", 
        package_name      = " . FreshPorts::Utilities::db_escape($dbh->quote($this->{package_name}))		 . ", 
        portepoch         = " . FreshPorts::Utilities::db_escape($dbh->quote($this->{portepoch}))		 . ", 
-       restricted        = " . FreshPorts::Utilities::db_escape($dbh->quote($this->{restricted}))		 . ", 
-       no_cdrom          = " . FreshPorts::Utilities::db_escape($dbh->quote($this->{no_cdrom}))			 . ", 
+       restricted        = " . $restricted_alt                                                           . ", 
+       no_cdrom          = " . $no_cdrom_alt                                                             . ", 
        expiration_date   = " . $expiration_date_alt				   									 	 . ", 
        is_interactive    = " . $is_interactive_alt                                                       . ", 
        only_for_archs    = " . $only_for_archs_alt                                                       . ",
