@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.52 2008-06-06 18:13:41 dan Exp $
+# $Id: port.pm,v 1.53 2008-08-10 21:13:07 dan Exp $
 #
 #
 # Copyright (c) 2001-2005 DVL Software
@@ -160,6 +160,7 @@ sub save {
 		# we are updating
 
 		# NOTE: NULLIfEmpty invokes db_escape
+		# these items were escaped here because I thought it was a problem not assigning them to a variable.
 		$is_interactive_alt  = FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{is_interactive});
 		$expiration_date_alt = FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{expiration_date});
 		$not_for_archs_alt   = FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{not_for_archs});
@@ -172,33 +173,34 @@ sub save {
 update ports  
    set short_description = " . FreshPorts::Utilities::db_escape($dbh->quote($this->{short_description})) . ", 
        long_description  = " . FreshPorts::Utilities::db_escape($dbh->quote($this->{long_description}))	 . ", 
-       version           = " . $dbh->quote($this->{version})											 . ", 
-       revision          = " . $dbh->quote($this->{revision})			    							 . ", 
-       maintainer        = " . FreshPorts::Utilities::db_escape($dbh->quote($this->{maintainer}))		 . ", 
+       version           = " . $dbh->quote($this->{version})                                             . ", 
+       revision          = " . $dbh->quote($this->{revision})                                            . ", 
+       maintainer        = " . FreshPorts::Utilities::db_escape($dbh->quote($this->{maintainer}))        . ", 
        homepage          = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{homepage})               . ", 
-       master_sites      = " . FreshPorts::Utilities::db_escape($dbh->quote($this->{master_sites}))		 . ", 
-       extract_suffix    = " . $dbh->quote($this->{package_exists})                      				 . ", 
-       depends_build     = " . FreshPorts::Utilities::db_escape($dbh->quote($this->{depends_build}))	 . ", 
-       depends_run       = " . FreshPorts::Utilities::db_escape($dbh->quote($this->{depends_run}))		 . ", 
-       depends_lib       = " . FreshPorts::Utilities::db_escape($dbh->quote($this->{depends_lib}))		 . ", 
-       forbidden         = " . FreshPorts::Utilities::db_escape($dbh->quote($this->{forbidden}))		 . ", 
-       broken            = " . FreshPorts::Utilities::db_escape($dbh->quote($this->{broken}))			 . ", 
-       deprecated        = " . FreshPorts::Utilities::db_escape($dbh->quote($this->{deprecated}))		 . ", 
-       ignore            = " . FreshPorts::Utilities::db_escape($dbh->quote($this->{ignore}))			 . ", 
-       master_port       = " . FreshPorts::Utilities::db_escape($dbh->quote($this->{master_port}))		 . ",
-       latest_link       = " . FreshPorts::Utilities::db_escape($dbh->quote($this->{latest_link}))		 . ", 
-       no_latest_link    = " . FreshPorts::Utilities::db_escape($dbh->quote($this->{no_latest_link}))	 . ", 
-       no_package        = " . FreshPorts::Utilities::db_escape($dbh->quote($this->{no_package}))		 . ", 
-       package_name      = " . FreshPorts::Utilities::db_escape($dbh->quote($this->{package_name}))		 . ", 
-       portepoch         = " . FreshPorts::Utilities::db_escape($dbh->quote($this->{portepoch}))		 . ", 
+       master_sites      = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{master_sites})           . ", 
+       extract_suffix    = " . $dbh->quote($this->{package_exists})                                      . ", 
+       depends_build     = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{depends_build})          . ", 
+       depends_run       = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{depends_run})            . ", 
+       depends_lib       = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{depends_lib})            . ", 
+       forbidden         = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{forbidden})              . ", 
+       broken            = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{broken})                 . ", 
+       deprecated        = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{deprecated})             . ", 
+       ignore            = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{ignore})                 . ", 
+       master_port       = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{master_port})            . ",
+       latest_link       = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{latest_link})            . ", 
+       no_latest_link    = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{no_latest_link})         . ", 
+       no_package        = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{no_package})             . ", 
+       package_name      = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{package_name})           . ", 
+       portepoch         = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{portepoch})              . ", 
        restricted        = " . $restricted_alt                                                           . ", 
-       no_cdrom          = " . $no_cdrom_alt                                                             . ", 
-       expiration_date   = " . $expiration_date_alt				   									 	 . ", 
+       no_cdrom          = " . $no_cdrom_alt                                                             . ",  
+       expiration_date   = " . $expiration_date_alt                                                      . ", 
        is_interactive    = " . $is_interactive_alt                                                       . ", 
        only_for_archs    = " . $only_for_archs_alt                                                       . ",
        not_for_archs     = " . $not_for_archs_alt                                                        . ",
        showconfig        = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{showconfig})             . ",
-       categories        = " . FreshPorts::Utilities::db_escape($dbh->quote($this->{categories}));
+       categories        = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{categories});
+
 
 		# we don't always have this value, so we don't change it....
 		if (defined($this->{last_commit_id})) {
