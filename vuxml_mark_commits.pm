@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: vuxml_mark_commits.pm,v 1.2 2006-12-17 12:04:04 dan Exp $
+# $Id: vuxml_mark_commits.pm,v 1.3 2008-08-28 02:45:58 dan Exp $
 #
 # Copyright (c) 1999-2006 DVL Software
 #
@@ -14,6 +14,7 @@ use constants;
 use email;
 use ports_vulnerable;
 use caching;
+use POSIX qw(uname);
 
 sub new {
 	my $this		= {};
@@ -427,12 +428,15 @@ SELECT C.name AS category,
     return $i;
 }
 
-my ($FreeBSDVersion) = `uname -r` =~ /(\d+).*/;
+
+my @var = uname();
+
+my ($FreeBSDVersion) = $var[2]  =~ /(\d+)/;
 
 if ($FreeBSDVersion eq 4) {
   $FreshPorts::vuxml_mark_commits::PKGVERSION = '/usr/local/sbin/pkg_version';
 } else {
-  if ($FreeBSDVersion eq 6) {
+  if ($FreeBSDVersion eq 6 || $FreeBSDVersion eq 7) {
     $FreshPorts::vuxml_mark_commits::PKGVERSION = '/usr/sbin/pkg_version';
   } else {
     die('cannot determine correct pkg_version for ' . `uname -a`);
