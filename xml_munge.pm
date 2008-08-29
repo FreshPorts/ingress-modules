@@ -1,5 +1,5 @@
 #
-# $Id: xml_munge.pm,v 1.6 2007-11-09 02:38:39 dan Exp $
+# $Id: xml_munge.pm,v 1.7 2008-08-29 13:07:31 dan Exp $
 #
 # Copyright (c) 2001-2006 DVL Software
 #
@@ -726,7 +726,7 @@ sub SaveUpdateToDB {
 
 	print "load_xml_into_db.pl::SaveUpdateToDB --- start\n";
 
-	my $message_id = $self->{dbh}->quote(id());
+	my $message_id = id();
 
 	my $existing_commit_id = GetExistingMessageID($message_id, $self->{dbh});
 
@@ -748,27 +748,25 @@ sub SaveUpdateToDB {
 		}
 	}
 
-	$message_date       = $self->{dbh}->quote(
-							sprintf "%04u/%02u/%02u %02u:%02u:%02u %s", 
+	$message_date       = sprintf "%04u/%02u/%02u %02u:%02u:%02u %s", 
 							$Updates{messageyear}, $Updates{messagemonth},  $Updates{messageday}, 
 							$Updates{messagehour}, $Updates{messageminute}, $Updates{messagesecond}, 
-							$Updates{messagezone});
+							$Updates{messagezone};
 
-	my $message_subject = $self->{dbh}->quote($Updates{MessageSubject});
+	my $message_subject = $Updates{MessageSubject};
 
 	my $date_added      = "now()";
 	if (defined($Updates{DateAdded})) {
 		$date_added = $Updates{DateAdded};
 	}
 
-	my $commit_date     = $self->{dbh}->quote(
-							sprintf "%04u/%02u/%02u %02u:%02u:%02u %s", 
+	my $commit_date     = sprintf "%04u/%02u/%02u %02u:%02u:%02u %s", 
 							$Updates{dateyear}, $Updates{datemonth}, $Updates{dateday}, 
 							$Updates{timehour}, $Updates{timeminute}, $Updates{timesecond}, 
-							$Updates{timezone});
+							$Updates{timezone};
 
-	my $committer       = $self->{dbh}->quote($Updates{committer});
-	my $description     = $self->{dbh}->quote($Updates{log});
+	my $committer       = $Updates{committer};
+	my $description     = $Updates{log};
    
 	$commit_log->{message_id}		= $message_id;
 	$commit_log->{message_date}		= $message_date;
@@ -806,7 +804,7 @@ sub GetExistingMessageID($;$) {
 	my $sql;
 	my @row;
    
-	$sql = "select id from commit_log where message_id = $message_id";
+	$sql = "select id from commit_log where message_id = " . $dbh->quote($message_id);
 
 	print "GetExistingMessageID => sql='$sql'\n";
    

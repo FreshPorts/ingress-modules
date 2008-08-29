@@ -1,6 +1,6 @@
 #
 #
-# $Id: utilities.pm,v 1.21 2008-02-01 14:30:42 dan Exp $
+# $Id: utilities.pm,v 1.22 2008-08-29 13:07:31 dan Exp $
 #
 # Copyright (c) 2001-2006 DVL Software
 #
@@ -236,13 +236,6 @@ sub TmpFileName($) {
 	return $TmpFileName;
 }
 
-sub db_escape($) {
-	# see http://www.postgresql.org/docs/8.2/static/sql-syntax-lexical.html
-	my $str = shift;
-
-	return 'E' . $str;
-}
-
 
 sub NULLIfEmpty {
 	my $dbh   = shift;
@@ -253,7 +246,7 @@ sub NULLIfEmpty {
 	if (!defined($value) || $value eq '') {
 		$result = 'NULL';
 	} else {
-		$result = db_escape($dbh->quote($value));
+		$result = $dbh->quote($value);
 	}
 
 	return $result;

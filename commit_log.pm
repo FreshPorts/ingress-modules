@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: commit_log.pm,v 1.4 2008-02-01 02:02:28 dan Exp $
+# $Id: commit_log.pm,v 1.5 2008-08-29 13:07:31 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -56,13 +56,13 @@ sub save {
 	$sql = "insert into commit_log (id, message_id, message_date, message_subject, date_added, commit_date, 
 											committer, description, system_id, encoding_losses) values ( \
 				$this->{id},
-				" . FreshPorts::Utilities::db_escape($this->{message_id})      . ",
-				" . FreshPorts::Utilities::db_escape($this->{message_date})    . ",
-				" . FreshPorts::Utilities::db_escape($this->{message_subject}) . ",
-				$this->{date_added},
-				" . FreshPorts::Utilities::db_escape($this->{commit_date})     . ",
-				" . FreshPorts::Utilities::db_escape($this->{committer})       . ",
-				" . FreshPorts::Utilities::db_escape($this->{description})     . ",
+				" . $dbh->quote($this->{message_id})      . ",
+				" . $dbh->quote($this->{message_date})    . ",
+				" . $dbh->quote($this->{message_subject}) . ",
+				" . $dbh->quote($this->{date_added})      . ",
+				" . $dbh->quote($this->{commit_date})     . ",
+				" . $dbh->quote($this->{committer})       . ",
+				" . $dbh->quote($this->{description})     . ",
 				$this->{system_id},
 				$this->{encoding_losses}::boolean)";
 

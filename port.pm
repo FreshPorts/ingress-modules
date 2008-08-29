@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.53 2008-08-10 21:13:07 dan Exp $
+# $Id: port.pm,v 1.54 2008-08-29 13:07:31 dan Exp $
 #
 #
 # Copyright (c) 2001-2005 DVL Software
@@ -159,7 +159,7 @@ sub save {
 	if ($this->{id}) {
 		# we are updating
 
-		# NOTE: NULLIfEmpty invokes db_escape
+		# NOTE: NULLIfEmpty invokes dbh->quote()
 		# these items were escaped here because I thought it was a problem not assigning them to a variable.
 		$is_interactive_alt  = FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{is_interactive});
 		$expiration_date_alt = FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{expiration_date});
@@ -171,11 +171,11 @@ sub save {
 
 		$sql = "
 update ports  
-   set short_description = " . FreshPorts::Utilities::db_escape($dbh->quote($this->{short_description})) . ", 
-       long_description  = " . FreshPorts::Utilities::db_escape($dbh->quote($this->{long_description}))	 . ", 
+   set short_description = " . $dbh->quote($this->{short_description})                                   . ",
+       long_description  = " . $dbh->quote($this->{long_description})                                    . ", 
        version           = " . $dbh->quote($this->{version})                                             . ", 
        revision          = " . $dbh->quote($this->{revision})                                            . ", 
-       maintainer        = " . FreshPorts::Utilities::db_escape($dbh->quote($this->{maintainer}))        . ", 
+       maintainer        = " . $dbh->quote($this->{maintainer})                                          . ", 
        homepage          = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{homepage})               . ", 
        master_sites      = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{master_sites})           . ", 
        extract_suffix    = " . $dbh->quote($this->{package_exists})                                      . ", 
