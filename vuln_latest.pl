@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: vuln_latest.pl,v 1.11 2007-10-22 01:34:03 dan Exp $
+# $Id: vuln_latest.pl,v 1.12 2008-09-04 14:33:09 dan Exp $
 #
 # Copyright (c) 2006 DVL Software
 #
@@ -82,7 +82,7 @@ ORDER BY coalesce(V.date_modified, V.date_entry, V.date_discovery) desc, lower(n
          count(DISTINCT V.id)         AS vulns
     FROM commit_log_ports_vuxml CLPV, vuxml V
    WHERE CLPV.vuxml_id = V.id
-     AND greatest(V.date_modified, V.date_entry, V.date_discovery) >= (current_date - interval '" . $ReportInterval . "')::date";
+     AND greatest(V.date_modified, V.date_entry, V.date_discovery)::date >= (current_date - interval '" . $ReportInterval . "')::date";
 
 		$sth = $dbh->prepare($query);
 
