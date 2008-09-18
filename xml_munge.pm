@@ -1,5 +1,5 @@
 #
-# $Id: xml_munge.pm,v 1.7 2008-08-29 13:07:31 dan Exp $
+# $Id: xml_munge.pm,v 1.8 2008-09-18 04:28:55 dan Exp $
 #
 # Copyright (c) 2001-2006 DVL Software
 #
@@ -593,7 +593,7 @@ sub handle_file_end {
 
 	push @Files, [$FileAction, $FilePath, $FileRevision, $commit_log_element->{id}, $element_id];
 
-	$self->notify_observers($FreshPorts::Messages::FileUpdate, (FileAction => $FileAction, FilePath => $FilePath, FileRevision => $FileRevision) );
+	$self->notify_observers($FreshPorts::Messages::FileUpdate, (FileAction => $FileAction, FilePath => $FilePath, FileRevision => $FileRevision, Repository => $Updates{repository}) );
 	
 
 	undef $Updates{FileAction};
@@ -737,7 +737,7 @@ sub SaveUpdateToDB {
 			FreshPorts::Utilities::ReportError('warning', "message $message_id being removed", 0);
 
 			# delete that message
-			$sql = "delete from commit_log where message_id = $message_id";
+			$sql = 'delete from commit_log where message_id = ' .  $self->{dbh}->quote($message_id);
 			$sth = $self->{dbh}->prepare($sql);
 			if (!$sth->execute) {
 				FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql $self->{dbh}->err", 1);
@@ -971,6 +971,16 @@ sub id {
 	# impelemented only for observable class
 
 	return $Updates{MessageId};
+}
+
+sub repo {
+	# what repo are we updating?
+	# this is important for CVSROOT.  Each commit will refer to CVSROOT, yet the actual file being updated will be in CVSROOT-ports
+	if (defined($Updates{repository})) {
+		return $Updates{repository};
+	} else {
+		return '';
+	}
 }
 
 sub commit_log_id {

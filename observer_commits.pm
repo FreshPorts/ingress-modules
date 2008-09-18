@@ -1,5 +1,5 @@
 #
-# $Id: observer_commits.pm,v 1.3 2007-10-17 18:21:14 dan Exp $
+# $Id: observer_commits.pm,v 1.4 2008-09-18 04:28:55 dan Exp $
 #
 # Copyright (c) 2004-2006 DVL Software
 #
@@ -14,7 +14,7 @@ use special_processing_files;
 my %PortsCacheRemove;
 
 sub new {
-	my $this			= {};
+	my $this		= {};
 	my $class		= shift;
 
 	$this->{dbh}	= shift;
@@ -56,8 +56,8 @@ sub update {
 	# is being fetched.
 	#
 	if ($action eq $FreshPorts::Messages::FileUpdate) {
-		print "Observer has noticed that commit '" . $object->id() . "' contains file $params{FilePath} as revision $params{FileRevision}\n";
-		FreshPorts::SpecialProcessingFiles::Eat($class->{dbh}, $params{FileAction}, $params{FilePath}, $params{FileRevision});
+		print "Observer has noticed that commit '" . $object->id() . "' contains file $params{FilePath} as revision $params{FileRevision} in repository $params{Repository}\n";
+		FreshPorts::SpecialProcessingFiles::Eat($class->{dbh}, $params{FileAction}, $params{FilePath}, $params{FileRevision}, $params{Repository});
 	}
 
 	if ($action eq $FreshPorts::Messages::PortsRefreshed) {

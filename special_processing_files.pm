@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: special_processing_files.pm,v 1.8 2007-12-31 02:17:19 dan Exp $
+# $Id: special_processing_files.pm,v 1.9 2008-09-18 04:28:55 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -13,11 +13,12 @@ use utilities;
 use config;
 use File::Basename;
 
-sub Eat($;$;$;$) {
-	my $dbh      = shift;
-	my $Action   = shift;
-	my $File     = shift;
-	my $Revision = shift;
+sub Eat($;$;$;$;$) {
+	my $dbh        = shift;
+	my $Action     = shift;
+	my $File       = shift;
+	my $Revision   = shift;
+	my $Repository = shift;
 	
 	my $ErrorCode = 0;
 
@@ -57,12 +58,12 @@ sub Eat($;$;$;$) {
 		`/usr/bin/touch $FreshPorts::Config::JobWaiting`;
 	}
 
- 	if ($File eq $FreshPorts::Constants::CVSROOT_Ports_Approvers) {
- 		# fetch this file.  It's not in the ports tree
+ 	if ($File eq $FreshPorts::Constants::CVSROOT_Approvers && $Repository eq $FreshPorts::Constants::Repository_Ports) {
+ 		# must fetch this file.  It's not in the ports tree.
 		print "applying special processing to $File\n";
 		Sys::Syslog::syslog('notice', "applying special processing to $File");
  		my $DESTDIR = $FreshPorts::Config::TMP;
- 		my $SRCDIR  = dirname($FreshPorts::Constants::CVSROOT_Ports_Approvers);
+ 		my $SRCDIR  = dirname ($FreshPorts::Constants::CVSROOT_Ports_Approvers);
  		my $FILE    = basename($FreshPorts::Constants::CVSROOT_Ports_Approvers);
  		if (FreshPorts::Utilities::FetchFile($DESTDIR, $SRCDIR, $FILE, $Revision)) {
  			print "$DESTDIR/$FILE is our friend\n";
