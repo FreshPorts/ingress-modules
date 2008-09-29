@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: caching.pm,v 1.3 2007-08-15 11:54:02 dan Exp $
+# $Id: caching.pm,v 1.4 2008-09-29 06:11:39 dan Exp $
 #
 # Copyright (c) 2001-2006 DVL Software
 #
@@ -52,6 +52,27 @@ sub RemovePortFromCache($;$) {
 	}
 }
 
+sub RemoveFileFromCache($;$) {
+	my $this      = shift;
+	my $file_name = shift;
+
+	my $CachingFile = $FreshPorts::Config::CachingRoot . '/cache/ports/' . $file_name . '.*.html';
+	
+	print "checking cache for '$CachingFile'\n";
+	my @CacheEntries = glob($CachingFile);
+	if (scalar @CacheEntries) {
+		print "cache items exists.  removing them\n";
+		
+		foreach my $file (@CacheEntries) {
+			if (!unlink($file)) {
+				print "!!!unable to delete $file\n";
+			}
+		}
+	} else {
+		print "nothing in the cache to remove\n"
+	}
+}
+
 sub RemovePortsFromCache($) {
 	my $this = shift;
 	#
@@ -62,7 +83,6 @@ sub RemovePortsFromCache($) {
 	my $CommitLogPortsRef	= shift;
 	my %CommitLogPorts		= %{$CommitLogPortsRef};
 
-	my $port;
 	my $error;
 	my $ErrorFound = 0;
 
@@ -76,7 +96,35 @@ sub RemovePortsFromCache($) {
 		}
 		print "\n# # # # Finished: Removing ports from the cache # # # #\n\n";
 	} else {
-		print "This commit had nothing that needs to be removed from the cache\n";
+		print "This commit had no ports that need to be removed from the cache\n";
+	}
+
+	return $ErrorFound;
+}
+
+sub RemoveFilesFromCache($) {
+	my $this = shift;
+	#
+	# given the files touched by this commit
+	# remove each one from the cache
+	#
+
+	my $FilesRef	= shift;
+	my %Files		= %{$FilesRef};
+
+	my $error;
+	my $ErrorFound = 0;
+
+	if (scalar %Files) {
+		print "# # # # Removing files from the cache # # # #\n\n";
+		while (my ($candidate, ) = each %Files) {
+			print "$candidate\n";
+
+			$this->RemoveFileFromCache($candidate);
+		}
+		print "\n# # # # Finished: Removing files from the cache # # # #\n\n";
+	} else {
+		print "This commit had no files that need to be removed from the cache\n";
 	}
 
 	return $ErrorFound;

@@ -1,5 +1,5 @@
 #
-# $Id: xml_munge.pm,v 1.8 2008-09-18 04:28:55 dan Exp $
+# $Id: xml_munge.pm,v 1.9 2008-09-29 06:11:39 dan Exp $
 #
 # Copyright (c) 2001-2006 DVL Software
 #
@@ -386,7 +386,7 @@ sub handle_update_end {
 	
 	$self->{dbh}->commit();
 	$self->notify_observers($FreshPorts::Messages::UpdateEnds, 
-			(message_id => $Updates{MessageId}, CommitLogPorts => \%CommitLogPorts) );
+			(message_id => $Updates{MessageId}, CommitLogPorts => \%CommitLogPorts, Files => \@Files));
 
 	# we don't clear these values until the end of the update
 	undef $Updates{os};

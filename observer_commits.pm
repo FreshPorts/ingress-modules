@@ -1,5 +1,5 @@
 #
-# $Id: observer_commits.pm,v 1.4 2008-09-18 04:28:55 dan Exp $
+# $Id: observer_commits.pm,v 1.5 2008-09-29 06:11:39 dan Exp $
 #
 # Copyright (c) 2004-2006 DVL Software
 #
@@ -12,6 +12,7 @@ package FreshPorts::ObserverCommits;
 use special_processing_files;
 
 my %PortsCacheRemove;
+my %FilesCacheRemove;
 
 sub new {
 	my $this		= {};
@@ -83,7 +84,7 @@ sub update {
 	if ($action eq $FreshPorts::Messages::UpdateEnds) {
 		print "Observer has noticed that the update for $params{message_id} has finished.\n";
 
-		print "Observer will clear the following items from cache after the commit:\n";
+		print "Observer will clear the following ports from cache after the commit:\n";
 		
 		my %CommitLogPorts = %{$params{CommitLogPorts}};
 
@@ -95,6 +96,18 @@ sub update {
 			
 			$PortsCacheRemove{"$port->{category}/$port->{name}"}	= "$port->{category}/$port->{name}";
 		}
+
+		print "Observer will clear the following files from cache after the commit:\n";
+		my @Files = @{$params{Files}};
+		foreach $value (@Files) {
+			my ($action, $filename, $revision, $commit_log_element_id, $element_id) = @$value;
+			my ($subtree, $category_name, $port_name, $extra) = split/\//,$filename, 4;
+			# look for special files outside a port, such as LEGAL, GIDs, UIDs
+			if ($subtree eq $FreshPorts::Config::ports_prefix && defined($category_name) && !defined($port_name)) {
+				$FilesCacheRemove{"$category_name"}	= "$category_name";
+				print "$category_name\n";
+			}
+		}
 		print "*** end of items to be cleared\n"
 	}
 
@@ -104,6 +117,7 @@ sub update {
 		use caching;
 		$Caching = FreshPorts::Caching->new($class->{dbh});
 		$Caching->RemovePortsFromCache(\%PortsCacheRemove);
+		$Caching->RemoveFilesFromCache(\%FilesCacheRemove);
 	}
 
 }
