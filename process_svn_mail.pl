@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: process_svn_mail.pl,v 1.2 2008-12-17 03:05:31 dan Exp $
+# $Id: process_svn_mail.pl,v 1.3 2008-12-17 03:14:24 dan Exp $
 #
 # Copyright (c) 2001-2003  DVL Software
 #
@@ -11,6 +11,8 @@
 use strict;
 use Date::Parse;
 use XML::Writer;
+use constants;
+use utilities;
 
 &main;
 exit;
