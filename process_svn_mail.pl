@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: process_svn_mail.pl,v 1.1 2008-10-11 01:28:34 dan Exp $
+# $Id: process_svn_mail.pl,v 1.2 2008-12-17 03:05:31 dan Exp $
 #
 # Copyright (c) 2001-2003  DVL Software
 #
@@ -11,8 +11,6 @@
 use strict;
 use Date::Parse;
 use XML::Writer;
-use constants;
-use utilities;
 
 &main;
 exit;
@@ -347,9 +345,12 @@ sub GetFiles {
 		}
 		next unless $found == 1;
 		$path = $line;
-		$path =~ s/^\s+(head\/|stable\/\d+\/)//;
+		next if($path =~ /\s+-\s+/); # skip messages about file origin
+		$path =~ s/^\s+(head\/|stable\/\d+\/|vendor\/)//;
 
-		last if (length($line) == 0 || ($line =~ /^(Added|Deleted|Modified): /));
+		# stop on either action change, empty string or minimalist signature 
+		last if (length($line) == 0 || ($line =~ /^(Added|Deleted|Modified): /) 
+			|| ($line =~ /^_+$/));
 		push @files, 'FILE', [ { Action => $action, Revision => $revision, Path => $path } ];
 	}
 
@@ -427,6 +428,9 @@ sub GetOS_Branch {
 		elsif (m@\s+stable/(\d+)@) {
 			$branch = "RELENG_$1";
 		}
+		elsif (m@\s+vendor/@) {
+			$branch = "VENDOR";
+		}
 		else {
 			$branch = "UNKNOWN";
 		}
@@ -463,7 +467,7 @@ sub GetLog {
 		# XXX: Let's stick with this simple QP parser 
 		$line =~ s/=([0-9A-Fa-f][0-9A-Fa-f])/chr hex $1/ge;
 		$line =~ s/=[\n\r]+$//;
-		print $line;
+#		print $line;
 
 		# Check to see if we've gone too far
 		for (@log_endings) {
