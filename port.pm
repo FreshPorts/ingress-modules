@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.54 2008-08-29 13:07:31 dan Exp $
+# $Id: port.pm,v 1.55 2009-05-15 02:07:34 dan Exp $
 #
 #
 # Copyright (c) 2001-2005 DVL Software
@@ -165,7 +165,7 @@ sub save {
 		$expiration_date_alt = FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{expiration_date});
 		$not_for_archs_alt   = FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{not_for_archs});
 		$only_for_archs_alt  = FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{only_for_archs});
-		$restricted_alt      = FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{restricted_alt});
+		$restricted_alt      = FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{restricted});
 		$no_cdrom_alt        = FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{no_cdrom});
 
 
