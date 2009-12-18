@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: category.pm,v 1.9 2006-12-17 12:03:59 dan Exp $
+# $Id: category.pm,v 1.10 2009-12-18 17:22:04 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -204,7 +204,7 @@ sub _description_read {
 
 	my $makecommand = "make -V COMMENT " .
 	               "DISTDIR=$FreshPorts::Constants::DISTDIR " .
-	               "PORTSDIR=$FreshPorts::Config::path_to_ports LOCALBASE=/nonexistentlocal X11BASE=/nonexistentx 2>$TmpFile";
+	               "PORTSDIR=$FreshPorts::Config::path_to_ports LOCALBASE=/nonexistentlocal 2>$TmpFile";
 	
 	print "makecommand = $makecommand\n";
 

@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.55 2009-05-15 02:07:34 dan Exp $
+# $Id: port.pm,v 1.56 2009-12-18 17:22:04 dan Exp $
 #
 #
 # Copyright (c) 2001-2005 DVL Software
@@ -435,7 +435,7 @@ sub _ExtractValuesFromMakefile {
 		" -V RESTRICTED -V NO_CDROM -V EXPIRATION_DATE -V IS_INTERACTIVE " . 
 		" -V ONLY_FOR_ARCHS -V NOT_FOR_ARCHS -f $Makefile " .
 		" DISTDIR=$FreshPorts::Constants::DISTDIR " .
-		" PORTSDIR=$FreshPorts::Config::path_to_ports LOCALBASE=/nonexistentlocal X11BASE=/nonexistentx 2>$TmpFile";
+		" PORTSDIR=$FreshPorts::Config::path_to_ports LOCALBASE=/nonexistentlocal 2>$TmpFile";
 
 	print "makecommand = $makecommand\n";
 
@@ -487,7 +487,7 @@ sub _ExtractValuesFromMakefile {
 		my $TmpFile = FreshPorts::Utilities::TmpFileName("$this->{category}.$this->{name}.make-mastersites-error");
 		print "trying to get master sites.  Errors will be in '$TmpFile'\n";
 		my $mastersitescommand = "make master-sites-all -f $Makefile PORTSDIR=$FreshPorts::Config::path_to_ports " . 
-		                         "LOCALBASE=/nonexistentlocal X11BASE=/nonexistentx 2>$TmpFile";
+		                         "LOCALBASE=/nonexistentlocal 2>$TmpFile";
 		print "'$mastersitescommand'\n";
 		$mastersites = `$mastersitescommand`;
 		# save this for later reference
@@ -799,7 +799,7 @@ sub _FetchFilesNeedingRefresh {
 		}
 
 		my $makecommand = "make -V DESCR -f $DESTDIR/$FILE PORTSDIR=$FreshPorts::Config::path_to_ports " .
-		                  "LOCALBASE=/nonexistentlocal X11BASE=/nonexistentx 2>$TmpFile";
+		                  "LOCALBASE=/nonexistentlocal 2>$TmpFile";
 
 		print "makecommand = $makecommand\n";
 		my $MakeResults = `$makecommand`;
