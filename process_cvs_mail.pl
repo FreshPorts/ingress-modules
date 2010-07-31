@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: process_cvs_mail.pl,v 1.12 2007-07-09 21:40:47 dan Exp $
+# $Id: process_cvs_mail.pl,v 1.13 2010-07-31 15:44:24 dan Exp $
 #
 # Copyright (c) 2001-2003  DVL Software
 #
@@ -355,6 +355,21 @@ sub GetFiles {
 
 		my ($revision, $changes1, $changes2, $path, $action) = split(" ", $line);
 
+		# sometimes changes1 and change2 are empty in the data.  In which case, we need to
+		# move what is in Changes, into path...
+		# 
+		if (($changes1 ne '') && !defined($path)) {
+			$path     = $changes1;
+
+			if (defined($changes2)) {
+				$action = $changes2;
+			}
+
+			$changes1 = '0';
+			$changes2 = '0';
+			# now... if $changes2 is set, that's probably the action field...
+		}
+
 		if (!defined($action)) {
 			$action = $FreshPorts::Constants::MODIFY;
 		} else {
@@ -368,7 +383,7 @@ sub GetFiles {
 				}
 			}
 		}
-
+		
 		if (defined($TrackDuplicates{$path})) {
 			FreshPorts::Utilities::ReportErrorEmailNoPrint('err', "Duplicate file name ('$path') found in commit message (" . GetMessage_Id($message) . ").\n\nIs this a corrupted commit or email?", 0)
 		} else {
