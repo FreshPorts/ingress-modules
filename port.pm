@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.56 2009-12-18 17:22:04 dan Exp $
+# $Id: port.pm,v 1.57 2010-09-16 15:42:30 dan Exp $
 #
 #
 # Copyright (c) 2001-2005 DVL Software
@@ -67,6 +67,7 @@ sub _initialize {
 	$this->{not_for_archs}		= '';
 	$this->{status}				= '';
 	$this->{showconfig}			= '';
+	$this->{license}			= '';
 
 	$this->{categories}			= '';
 	$this->{element_pathname}   = '';
@@ -115,6 +116,7 @@ sub _GetValuesFromRow {
 	$this->{not_for_archs}		= $row->{not_for_archs};
 	$this->{status}				= $row->{status};
 	$this->{showconfig}			= $row->{showconfig};
+	$this->{license}			= $row->{license};
 
 	$this->{categories}			= $row->{categories};
 	$this->{last_commit_id}		= $row->{last_commit_id};
@@ -155,6 +157,7 @@ sub save {
 	my $only_for_archs_alt;
 	my $restricted_alt;
 	my $no_cdrom_alt;
+	my $license_alt;
 
 	if ($this->{id}) {
 		# we are updating
@@ -167,6 +170,7 @@ sub save {
 		$only_for_archs_alt  = FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{only_for_archs});
 		$restricted_alt      = FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{restricted});
 		$no_cdrom_alt        = FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{no_cdrom});
+		$license_alt         = FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{lisense});
 
 
 		$sql = "
@@ -199,6 +203,7 @@ update ports
        only_for_archs    = " . $only_for_archs_alt                                                       . ",
        not_for_archs     = " . $not_for_archs_alt                                                        . ",
        showconfig        = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{showconfig})             . ",
+       license           = " . $license_alt                                                              . ",
        categories        = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{categories});
 
 
@@ -433,7 +438,7 @@ sub _ExtractValuesFromMakefile {
 		" -V BUILD_DEPENDS -V RUN_DEPENDS -V LIB_DEPENDS -V FORBIDDEN -V BROKEN -V DEPRECATED -V IGNORE ".
 		" -V MASTER_PORT -V LATEST_LINK -V NO_LATEST_LINK -V NO_PACKAGE -V PKGNAMEPREFIX -V PKGNAMESUFFIX -V PORTEPOCH " .
 		" -V RESTRICTED -V NO_CDROM -V EXPIRATION_DATE -V IS_INTERACTIVE " . 
-		" -V ONLY_FOR_ARCHS -V NOT_FOR_ARCHS -f $Makefile " .
+		" -V ONLY_FOR_ARCHS -V NOT_FOR_ARCHS -V LICENSE -f $Makefile " .
 		" DISTDIR=$FreshPorts::Constants::DISTDIR " .
 		" PORTSDIR=$FreshPorts::Config::path_to_ports LOCALBASE=/nonexistentlocal 2>$TmpFile";
 
@@ -577,7 +582,7 @@ sub _ExtractValuesFromMakefile {
 		 my $rundepends, my $libdepends, my $forbidden, my $broken, my $deprecated, my $ignore,
 		 my $master_port, my $latest_link, my $no_latest_link, my $no_package, my $pkgnameprefix, my $pkgnamesuffix, my $portepoch,
 		 my $restricted, my $no_cdrom, my $expiration_date, 
-		 my $is_interactive, my $only_for_archs, my $not_for_archs) = split(/\n/s, $MakeResults);
+		 my $is_interactive, my $only_for_archs, my $not_for_archs, my $license) = split(/\n/s, $MakeResults);
 
 		my $package_name = $pkgnameprefix . $portname . $pkgnamesuffix;
 
@@ -650,6 +655,7 @@ sub _ExtractValuesFromMakefile {
 		print "31 \$not_for_archs    = '$not_for_archs'\n";
 		print "32 \$categories       = '$categories'\n";
 		print "33 \$showconfig       = '$showconfig'\n";
+		print "34 \$license          = '$license'\n";
 
 		print "\n ---------------------------------------- \n";
 
@@ -701,6 +707,7 @@ sub _ExtractValuesFromMakefile {
 		$this->{only_for_archs}		= $only_for_archs;
 		$this->{not_for_archs}		= $not_for_archs;
 		$this->{showconfig} 		= $showconfig;
+		$this->{license} 		= $license;
 		$this->{categories}			= $categories;
 		# convert all whitespace to a single space
 		# This arose from 200609130717.k8D7HpNc057638@repoman.freebsd.org
