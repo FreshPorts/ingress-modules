@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.57 2010-09-16 15:42:30 dan Exp $
+# $Id: port.pm,v 1.58 2010-10-05 12:37:45 dan Exp $
 #
 #
 # Copyright (c) 2001-2005 DVL Software
@@ -170,7 +170,7 @@ sub save {
 		$only_for_archs_alt  = FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{only_for_archs});
 		$restricted_alt      = FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{restricted});
 		$no_cdrom_alt        = FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{no_cdrom});
-		$license_alt         = FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{lisense});
+		$license_alt         = FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{license});
 
 
 		$sql = "
