@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.58 2010-10-05 12:37:45 dan Exp $
+# $Id: port.pm,v 1.59 2011-02-06 14:54:09 dan Exp $
 #
 #
 # Copyright (c) 2001-2005 DVL Software
@@ -12,11 +12,15 @@ require config;
 require element;
 require utilities;
 require committer_opt_in;
+require port_dependencies;
 
 use Cwd;
 use strict;
 use config;
 use constants;
+
+# for Ade's special code in update_depends_helper
+use List::MoreUtils qw(uniq);
 
 sub freshports_ConvertPortPathToStandardLocation($) {
 	my $pathname = shift;
@@ -251,8 +255,10 @@ update ports
 		if (!$sth->execute) {
 			FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql ... maybe invalid? " . $dbh->errstr, 1);
 		}
-
+		
 	}
+
+	$this->update_depends();
 
 	# after savings, return the ID
 	return $this->{id};
@@ -586,10 +592,32 @@ sub _ExtractValuesFromMakefile {
 
 		my $package_name = $pkgnameprefix . $portname . $pkgnamesuffix;
 
-		$builddepends	= freshports_ConvertPortPathToStandardLocation(FreshPorts::Utilities::trim_multiple_to_single(FreshPorts::Utilities::trim($builddepends)));
-		$rundepends		= freshports_ConvertPortPathToStandardLocation(FreshPorts::Utilities::trim_multiple_to_single(FreshPorts::Utilities::trim($rundepends)));
-		$libdepends		= freshports_ConvertPortPathToStandardLocation(FreshPorts::Utilities::trim_multiple_to_single(FreshPorts::Utilities::trim($libdepends)));
-		
+		# some ports contains :patch in their depends information.  
+		# 		
+		# freshports.org=# select name, category from ports_active where depends_run like '%:patch%' or depends_build like '%:patch%' or depends_lib like '%:patch%';
+		#        name        |   category
+		# -------------------+--------------
+		#  py-omniorb        | devel
+		#  ruby-gdbm         | databases
+		#  ruby-iconv        | converters
+		#  ruby-rd-mode.el   | textproc
+		#  ruby-sdl          | devel
+		#  ruby-tk           | x11-toolkits
+		#  omniNotify        | devel
+		#  pg_filedump       | databases
+		#  boinc-astropulse  | astro
+		#  cduce             | lang
+		#  gauche-gdbm       | databases
+		#  kon2              | chinese
+		#  p5-B-Hooks-Parser | devel
+		# (13 rows)
+		# 
+		# freshports.org=#
+                    		
+		$builddepends	= $this->depends_stripper(freshports_ConvertPortPathToStandardLocation(FreshPorts::Utilities::trim_multiple_to_single(FreshPorts::Utilities::trim($builddepends))));
+		$rundepends		= $this->depends_stripper(freshports_ConvertPortPathToStandardLocation(FreshPorts::Utilities::trim_multiple_to_single(FreshPorts::Utilities::trim($rundepends))));
+		$libdepends		= $this->depends_stripper(freshports_ConvertPortPathToStandardLocation(FreshPorts::Utilities::trim_multiple_to_single(FreshPorts::Utilities::trim($libdepends))));
+
 		$master_port =~ s|$FreshPorts::Config::path_to_ports/||;
 
 		print " portname     = '$this->{name}'\n";
@@ -1137,6 +1165,88 @@ sub SetDeleted {
 
 sub IsValidDate {
 	return 1;
+}
+
+sub update_depends {
+	# for each of the depends in this port, update the ports_dependencies relationships
+	my $this = shift;
+
+  my $port_dependencies = FreshPorts::PortDependencies->new( $this->{dbh} );
+  
+  print 'about to delete port_dependencies for id ' . $this->{id} . "\n";
+  $port_dependencies->{port_id} = $this->{id};
+  $port_dependencies->delete();
+
+  $this->update_depends_helper( $this->{depends_build}, 'B' );
+  $this->update_depends_helper( $this->{depends_run},   'R' );
+  $this->update_depends_helper( $this->{depends_lib},   'L' );
+}
+
+sub update_depends_helper {
+	# for this depends, put it into the db
+	my $this = shift;
+
+	my $depends      = shift;
+	my $depends_type = shift;
+
+	my $dependent;
+	
+	print "depends with this: $depends\n";
+
+  # this magic courtesy of Ade Lovett
+  my @depends_list = uniq( map { s/^.*\/usr\/ports\///;$_ } split(/ /, $depends) );
+  print "The " . $depends_type . " depends are: ";
+  print join(' - ', @depends_list) . "\n";
+   
+  my $port_dependencies = FreshPorts::PortDependencies->new( $this->{dbh} );
+
+  foreach $dependent (@depends_list) {
+    print 'adding in ' . $dependent . "\n";
+    $port_dependencies->{port_name}           = $this->{category} . '/' . $this->{name};
+    $port_dependencies->{port_name_dependant} = $dependent;
+    $port_dependencies->{depends_type}        = $depends_type;
+    $port_dependencies->insert();
+  }
+}
+
+sub depends_stripper {
+  my $this    = shift;
+  my $depends = shift;
+
+  my $newdepends = '';
+
+  # if it not defined, return an empty string  
+  if ( !defined($depends) )
+  {
+    return $newdepends;
+  }
+
+  print "1depends: $depends\n";
+  
+  foreach my $dep (split(/\s+/, $depends))
+  {
+    my ($d, $ddir) = split(/:/, $dep);
+    if (!defined($ddir) || $depends eq 'DEPENDS')
+    {
+      $ddir = $d;
+    }
+
+    if ($newdepends)
+    {
+      $newdepends .= " ";
+    }
+
+    my $absdir = Cwd::abs_path($ddir);
+    if ( $absdir ne $ddir )
+    {
+      print "converted '$ddir' to '$absdir'\n";
+    }
+
+    $newdepends .= "$d:$absdir";
+  }
+
+  print "2depends: $newdepends\n";
+  return $newdepends;
 }
 
 
