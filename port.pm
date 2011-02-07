@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.59 2011-02-06 14:54:09 dan Exp $
+# $Id: port.pm,v 1.60 2011-02-07 00:37:18 dan Exp $
 #
 #
 # Copyright (c) 2001-2005 DVL Software
@@ -1177,9 +1177,9 @@ sub update_depends {
   $port_dependencies->{port_id} = $this->{id};
   $port_dependencies->delete();
 
-  $this->update_depends_helper( $this->{depends_build}, 'B' );
-  $this->update_depends_helper( $this->{depends_run},   'R' );
-  $this->update_depends_helper( $this->{depends_lib},   'L' );
+  $this->update_depends_helper( $this->depends_stripper( $this->{depends_build} ), 'B' );
+  $this->update_depends_helper( $this->depends_stripper( $this->{depends_run}   ), 'R' );
+  $this->update_depends_helper( $this->depends_stripper( $this->{depends_lib}   ), 'L' );
 }
 
 sub update_depends_helper {
