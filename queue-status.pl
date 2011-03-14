@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: queue-status.pl,v 1.1 2010-10-02 02:33:59 dan Exp $
+# $Id: queue-status.pl,v 1.2 2011-03-14 14:28:43 dan Exp $
 #
 # Copyright (c) 2001-2006 DVL Software
 #
@@ -38,7 +38,7 @@ foreach my $site (@FreshPorts::Status::sites) {
 		if ($pattern ne '') {
 			$Command .= " -name \"$pattern\"";
 		}
-		$Command .= ' | wc -l';
+		$Command .= ' -maxdepth 1 | wc -l';
 	
 		my $Count = `$Command`;
 		chomp $Count;
