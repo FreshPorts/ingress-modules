@@ -1,5 +1,5 @@
 #
-# $Id: xml_munge.pm,v 1.9 2008-09-29 06:11:39 dan Exp $
+# $Id: xml_munge.pm,v 1.10 2011-08-15 16:29:26 dan Exp $
 #
 # Copyright (c) 2001-2006 DVL Software
 #
@@ -333,6 +333,7 @@ sub handle_update_end {
 			print "There was a problem fetching, so I won't be telling the Observer that files have been fetched\n";
 		}
 	} else {
+		$FetchOK = 1;
 		print "We are not fetching before refreshing\n";
 	}
 
