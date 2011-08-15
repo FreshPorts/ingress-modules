@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $Id: freebsd-cvs.sh,v 1.8 2006-12-17 12:04:00 dan Exp $
+# $Id: freebsd-cvs.sh,v 1.9 2011-08-15 16:31:56 dan Exp $
 #
 # Copyright (c) 1999-2003 DVL Software
 #
@@ -39,7 +39,7 @@ FILE=`basename ${PATHNAME}`
 #
 # convert the raw file to XML
 #
-/usr/bin/perl ${SCRIPTDIR}/process_cvs_mail.pl < ${PATHNAME} >    \
+/usr/bin/perl ${SCRIPTDIR}/process_mail.pl < ${PATHNAME} >    \
        ${XML}/${FILE}.xml 2>${XML}/${FILE}.errors
 RESULT=$?
 
