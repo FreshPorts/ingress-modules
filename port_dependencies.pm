@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port_dependencies.pm,v 1.1 2011-02-06 14:54:43 dan Exp $
+# $Id: port_dependencies.pm,v 1.2 2011-08-15 16:32:47 dan Exp $
 #
 # Copyright (c) 2001-2011 DVL Software
 #
@@ -36,17 +36,27 @@ sub insert {
 	my $sql;
 	
 	my $quoted_port_name           = $dbh->quote($this->{port_name});
-	my $quoted_port_name_dependant = $dbh->quote($this->{port_name_dependant});
+	my $quoted_port_name_dependent = $dbh->quote($this->{port_name_dependent});
 	my $quoted_dependency_type     = $dbh->quote($this->{depends_type});
 
 	# we are inserting
-	$sql = "SELECT PortsDependenciesAdd( $quoted_port_name, $quoted_port_name_dependant, $quoted_dependency_type )";
+	$sql = "SELECT PortsDependenciesAdd( $quoted_port_name, $quoted_port_name_dependent, $quoted_dependency_type ) as result";
 
 	print "sql is $sql\n";
 
 	$sth = $this->{dbh}->prepare($sql);
-	if (!$sth->execute) {
-		FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql ... maybe invalid? ". $dbh->errstr, 1);
+  if ($sth->execute)
+  {
+    my $row = $sth->fetchrow_hashref();
+    my $result = $row->{result};
+    print "result is $result\n";
+    return $result;
+  }
+  else
+  {
+    FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql ... maybe invalid? ". $dbh->errstr, 0);
+    print "that failed\n";
+    return 0;
 	}
 }
 

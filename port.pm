@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.60 2011-02-07 00:37:18 dan Exp $
+# $Id: port.pm,v 1.61 2011-08-15 16:32:47 dan Exp $
 #
 #
 # Copyright (c) 2001-2005 DVL Software
@@ -1182,6 +1182,19 @@ sub update_depends {
   $this->update_depends_helper( $this->depends_stripper( $this->{depends_lib}   ), 'L' );
 }
 
+sub depends_type_long {
+  my $this = shift;
+  my $depends_type = shift;  
+
+  my %depends = (
+    'B' => 'BUILD_DEPENDS',
+    'R' => 'RUN_DEPENDS',
+    'L' => 'LIB_DEPENDS'
+  );
+
+  return $depends{$depends_type};
+}
+
 sub update_depends_helper {
 	# for this depends, put it into the db
 	my $this = shift;
@@ -1191,11 +1204,16 @@ sub update_depends_helper {
 
 	my $dependent;
 	
-	print "depends with this: $depends\n";
+	print "depends with this: '$depends'\n";
+	if ( $depends eq '' )
+	{
+	  print "no depends to look for; returning\n";
+	  return;
+	}
 
   # this magic courtesy of Ade Lovett
   my @depends_list = uniq( map { s/^.*\/usr\/ports\///;$_ } split(/ /, $depends) );
-  print "The " . $depends_type . " depends are: ";
+  print "The '" . $depends_type . "' depends are: ";
   print join(' - ', @depends_list) . "\n";
    
   my $port_dependencies = FreshPorts::PortDependencies->new( $this->{dbh} );
@@ -1203,9 +1221,17 @@ sub update_depends_helper {
   foreach $dependent (@depends_list) {
     print 'adding in ' . $dependent . "\n";
     $port_dependencies->{port_name}           = $this->{category} . '/' . $this->{name};
-    $port_dependencies->{port_name_dependant} = $dependent;
+    $port_dependencies->{port_name_dependent} = $dependent;
     $port_dependencies->{depends_type}        = $depends_type;
-    $port_dependencies->insert();
+    if ( $port_dependencies->insert() )
+    {
+      # it worked
+    }
+    else
+    {
+  		FreshPorts::CommitterOptIn::RecordErrorDetails("$this->{category}/$this->{name}", "A port specified in the " . $this->depends_type_long( $depends_type ) . " of " . $this->{category}/$this->{name} . " does not exist: '" . $dependent . "'");
+      FreshPorts::Utilities::ReportErrorEmail('warning', "A port specified in the " . $this->depends_type_long( $depends_type ) . " does not exist: '" . $dependent . "'", 1, 0);
+    }
   }
 }
 
@@ -1218,6 +1244,7 @@ sub depends_stripper {
   # if it not defined, return an empty string  
   if ( !defined($depends) )
   {
+    print "no depends found\n";
     return $newdepends;
   }
 
