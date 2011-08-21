@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: process_mail.pl,v 1.3 2011-08-21 19:36:15 dan Exp $
+# $Id: process_mail.pl,v 1.4 2011-08-21 21:16:40 dan Exp $
 #
 # Copyright (c) 2001-2003  DVL Software
 #
@@ -66,6 +66,7 @@ sub main {
 		if ($ListId =~ /CVS commit messages for the ports tree/i ||
 		    $ListId =~ /CVS commit messages for the doc and www trees/i ||
 		    $ListId =~ /\*\*OBSOLETE\*\* CVS commit messages for the entire tree/i ||
+		    $ListId =~ /\*\*OBSOLETE\*\* CVS commit messages for the src tree/i ||
 		    $ListId =~ /CVS commit messages for the projects tree/i) {
 			$found = 1;
 #			print "we should invoke the CVS scripts here\n";
