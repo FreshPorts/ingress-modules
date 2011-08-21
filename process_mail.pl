@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: process_mail.pl,v 1.1 2011-08-15 16:31:56 dan Exp $
+# $Id: process_mail.pl,v 1.2 2011-08-21 15:11:25 dan Exp $
 #
 # Copyright (c) 2001-2003  DVL Software
 #
@@ -63,8 +63,9 @@ sub main {
 	}
 
 	if ($MessageId =~ /\@repoman.freebsd.org/i) {
-		if ($ListId =~/CVS commit messages for the ports tree/i ||
-		    $ListId =~ /CVS commit messages for the doc and www trees/i) {
+		if ($ListId =~ /CVS commit messages for the ports tree/i ||
+		    $ListId =~ /CVS commit messages for the doc and www trees/i ||
+		    $ListId =~ /CVS commit messages for the projects tree/i) {
 			$found = 1;
 #			print "we should invoke the CVS scripts here\n";
 			eval "use process_cvs_mail";
