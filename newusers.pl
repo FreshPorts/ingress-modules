@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: newusers.pl,v 1.4 2006-12-17 12:04:01 dan Exp $
+# $Id: newusers.pl,v 1.5 2011-08-22 01:39:35 dan Exp $
 #
 # Copyright (c) 2001-2006 DVL Software
 #
@@ -53,7 +53,7 @@ if (($#ARGV+1) == 2) {
    if (!$dbh) {
       print " connect failed\n";
    }
-   my $sql = "select id, name, email, firstlogin \
+   my $sql = "select id, name, email, ip_address, firstlogin \
               from users \
               where date_trunc('day', firstlogin) = '$StartDate'
               order by id";
@@ -67,7 +67,7 @@ if (($#ARGV+1) == 2) {
    my $msgbody = '';
 
    while (my @row=$sth->fetchrow_array) {
-      $msgbody .= $row[0] . " : " . $row[1] . " : " . $row[2] . " : " . $row[3] . "\n";
+      $msgbody .= $row[0] . " : " . $row[1] . " : " . $row[2] . " : " . $row[3] . " : " . $row[4] . "\n";
    }
 
    print "msgbody = \n" . $msgbody;
