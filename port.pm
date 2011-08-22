@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.61 2011-08-15 16:32:47 dan Exp $
+# $Id: port.pm,v 1.62 2011-08-22 18:21:12 dan Exp $
 #
 #
 # Copyright (c) 2001-2005 DVL Software
@@ -1229,7 +1229,7 @@ sub update_depends_helper {
     }
     else
     {
-  		FreshPorts::CommitterOptIn::RecordErrorDetails("$this->{category}/$this->{name}", "A port specified in the " . $this->depends_type_long( $depends_type ) . " of " . $this->{category}/$this->{name} . " does not exist: '" . $dependent . "'");
+      FreshPorts::CommitterOptIn::RecordErrorDetails("$this->{category}/$this->{name}", "A port specified in the " . $this->depends_type_long( $depends_type ) . " of " . $this->{category} . '/' . $this->{name} . " does not exist: '" . $dependent . "'");
       FreshPorts::Utilities::ReportErrorEmail('warning', "A port specified in the " . $this->depends_type_long( $depends_type ) . " does not exist: '" . $dependent . "'", 1, 0);
     }
   }
