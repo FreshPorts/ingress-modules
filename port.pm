@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.62 2011-08-22 18:21:12 dan Exp $
+# $Id: port.pm,v 1.63 2011-09-10 00:44:49 dan Exp $
 #
 #
 # Copyright (c) 2001-2005 DVL Software
@@ -165,6 +165,7 @@ sub save {
 
 	if ($this->{id}) {
 		# we are updating
+		
 
 		# NOTE: NULLIfEmpty invokes dbh->quote()
 		# these items were escaped here because I thought it was a problem not assigning them to a variable.
@@ -763,7 +764,10 @@ sub _Validate {
 	print "_Validating....\n";
 
 	if (!IsValidDate($this->{expiration_date})) {
-		$ErrorMsg .= " EXPIRATION_DATE contains '" . $this->{expiration_date} . "', which is not a valid date."
+		$ErrorMsg .= " EXPIRATION_DATE contains '" . $this->{expiration_date} . "', which is not a valid date.";
+
+		# allow the data to save...
+	  $this->{expiration_date} = '';
 	}
 
 	if ($ErrorMsg ne '') {
