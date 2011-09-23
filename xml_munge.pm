@@ -1,5 +1,5 @@
 #
-# $Id: xml_munge.pm,v 1.10 2011-08-15 16:29:26 dan Exp $
+# $Id: xml_munge.pm,v 1.11 2011-09-23 11:29:47 dan Exp $
 #
 # Copyright (c) 2001-2006 DVL Software
 #
@@ -313,7 +313,7 @@ sub handle_update_end {
 	FreshPorts::CommitterOptIn::RecordCommitMessageSubject($Updates{MessageSubject});
 
 	if (scalar(@Files) == 0) {
-		FreshPorts::Utilities::ReportError('Err', "No files found in commit '$Updates{MessageId}'.  Has someone done a cvs import instead of addport?", 1)
+		FreshPorts::Utilities::ReportError('Err', "No files found in commit '$Updates{MessageId}'.  Has someone done a cvs import instead of addport?", 0)
 	}
 
 	%CommitLogPorts = FreshPorts::VerifyPort::SaveChangesToPortsTree(commit_log_id(), \@Files, $self->{dbh});
