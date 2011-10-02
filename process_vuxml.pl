@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: process_vuxml.pl,v 1.2 2006-12-17 12:04:02 dan Exp $
+# $Id: process_vuxml.pl,v 1.3 2011-10-02 17:29:20 dan Exp $
 #
 # Copyright (c) 2001-2004 DVL Software
 #
@@ -36,7 +36,13 @@ sub EmptyVuXML($) {
 	$sql = "DELETE FROM vuxml";
 	$sth = $dbh->prepare($sql);
 	if (!$sth->execute())  {
-		FreshPorts::Utilities::ReportError('warning', "Could not execute sql", 1);
+		FreshPorts::Utilities::ReportError('warning', "Could not execute sql: " . $sql, 1);
+	}
+
+	$sql = "DELETE FROM ports_vulnerable";
+	$sth = $dbh->prepare($sql);
+	if (!$sth->execute())  {
+		FreshPorts::Utilities::ReportError('warning', "Could not execute sql: " . $sql, 1);
 	}
 }
 
