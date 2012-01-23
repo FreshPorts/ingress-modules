@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: status.pl,v 1.5 2007-10-18 18:07:36 dan Exp $
+# $Id: status.pl,v 1.6 2012-01-23 16:52:53 dan Exp $
 #
 # Copyright (c) 2001-2006 DVL Software
 #
@@ -44,7 +44,7 @@ my $msg         = '';
 foreach my $site (@FreshPorts::Status::sites) {
 	$msg .= "SITE: $site\n";
 	while (my ($queue, $pattern) = each %queues) {
-		my $Command = "find $base/$site/msgs/FreeBSD/$queue/";
+		my $Command = "find $base/$site/msgs/FreeBSD/$queue/ -maxdepth 1";
 		if ($pattern ne '') {
 			$Command .= " -name \"$pattern\"";
 		}
