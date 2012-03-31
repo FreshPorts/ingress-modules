@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: ports_vulnerable.pm,v 1.2 2006-12-17 12:04:01 dan Exp $
+# $Id: ports_vulnerable.pm,v 1.3 2012-03-31 20:38:04 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -27,6 +27,11 @@ sub _initialize {
 }
 
 sub AdjustVulnerabilityCountForPort($) {
+	# TODO not sure how we'd calculate this on the fly.
+	# The edge case: a vuln affects a port.  vuxml is updated, port is no longer affected.
+	# Processing that vuln again will no longer affect that port, so the count will be outdated.  Conclusion: we need to start keeping track of vuln->port relationships.  At present,
+	# it's vuln->commit
+	
 	my $this    = shift;
 	my $port_id = shift;
 
