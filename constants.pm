@@ -1,5 +1,5 @@
 #
-# $Id: constants.pm,v 1.11 2008-09-18 04:28:55 dan Exp $
+# $Id: constants.pm,v 1.12 2012-03-31 20:35:27 dan Exp $
 #
 # Copyright (c) 2001-2006 DVL Software
 #
@@ -46,8 +46,7 @@ $FreshPorts::Constants::FILE_MAKEFILE				= "Makefile";
 	"Tools"			=> 4,
 	"Templates"		=> 5,
 	"Makefile"		=> 6,
-	"pkg"			=> 7,
-	"Makefile.inc"	=> 8,
+	"Makefile.inc"	=> 7,
 );
 
 $FreshPorts::Constants::UsualPortsTreeLocation			= '/usr';
