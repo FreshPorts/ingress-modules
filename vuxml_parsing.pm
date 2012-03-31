@@ -27,7 +27,7 @@
 # SUCH DAMAGE.
 
 #
-# @(#) $Id: vuxml_parsing.pm,v 1.2 2006-12-17 12:04:05 dan Exp $
+# @(#) $Id: vuxml_parsing.pm,v 1.3 2012-03-31 20:40:22 dan Exp $
 #
 # Parse the Vulnerabilities and Exposures (vuxml) database extracting
 # the entries for loading into a RDBMS.
@@ -324,7 +324,9 @@ sub update_database
 	if (defined $self->cancelled()) {
 		# we do not insert cancelled vuln
 		$FullInsert = 0;
-	    my $vuxml = FreshPorts::vuxml->new( $self->{db_handle} );
+	  my $vuxml = FreshPorts::vuxml->new( $self->{db_handle} );
+
+	  # this will wipe the vuln and any references to it, including the commit_log_ports_vuxml table  
 		$vuxml->DeleteByVID($self->vid());
 	}
 
@@ -1213,6 +1215,9 @@ sub handle_end ($$)
 
     # End of the vuln element -- push the data out to the database.
     if ( $element eq 'vuln' ) {
+        # TODO this is where we could check the database to see if this vuln is identical to an existing vuln...
+        # store a hash, compare, and process only if changed...
+        # and then you'd have to figure out a way to process only the changed vulns...
         $VuXML->update_database();
     }
     return;
