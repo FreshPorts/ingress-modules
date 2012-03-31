@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: vuxml_mark_commits.pm,v 1.4 2009-12-20 12:01:43 dan Exp $
+# $Id: vuxml_mark_commits.pm,v 1.5 2012-03-31 20:39:17 dan Exp $
 #
 # Copyright (c) 1999-2006 DVL Software
 #
@@ -266,6 +266,7 @@ sub ProcessEachRangeRecord() {
 	my @AffectedCommits = ();
 	my %Ports;
 
+	# XXX this function would need to be changed to return only unprocessed ranges...
 
 	$sql = "select * from vuxml_ranges();";
 
