@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.63 2011-09-10 00:44:49 dan Exp $
+# $Id: port.pm,v 1.64 2012-03-31 20:37:26 dan Exp $
 #
 #
 # Copyright (c) 2001-2005 DVL Software
@@ -614,10 +614,10 @@ sub _ExtractValuesFromMakefile {
 		# (13 rows)
 		# 
 		# freshports.org=#
-                    		
-		$builddepends	= $this->depends_stripper(freshports_ConvertPortPathToStandardLocation(FreshPorts::Utilities::trim_multiple_to_single(FreshPorts::Utilities::trim($builddepends))));
-		$rundepends		= $this->depends_stripper(freshports_ConvertPortPathToStandardLocation(FreshPorts::Utilities::trim_multiple_to_single(FreshPorts::Utilities::trim($rundepends))));
-		$libdepends		= $this->depends_stripper(freshports_ConvertPortPathToStandardLocation(FreshPorts::Utilities::trim_multiple_to_single(FreshPorts::Utilities::trim($libdepends))));
+
+		$builddepends = $this->depends_stripper(freshports_ConvertPortPathToStandardLocation(FreshPorts::Utilities::trim_multiple_to_single(FreshPorts::Utilities::trim($builddepends))));
+		$rundepends   = $this->depends_stripper(freshports_ConvertPortPathToStandardLocation(FreshPorts::Utilities::trim_multiple_to_single(FreshPorts::Utilities::trim($rundepends))));
+		$libdepends   = $this->depends_stripper(freshports_ConvertPortPathToStandardLocation(FreshPorts::Utilities::trim_multiple_to_single(FreshPorts::Utilities::trim($libdepends))));
 
 		$master_port =~ s|$FreshPorts::Config::path_to_ports/||;
 

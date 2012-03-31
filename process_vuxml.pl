@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: process_vuxml.pl,v 1.3 2011-10-02 17:29:20 dan Exp $
+# $Id: process_vuxml.pl,v 1.4 2012-03-31 20:38:38 dan Exp $
 #
 # Copyright (c) 2001-2004 DVL Software
 #
@@ -84,7 +84,7 @@ sub main {
 
 
 # hmmm, this might be a good way to debug...
-# issue a rollback after each attempt...
+  # issue a rollback after each attempt...
 #
 #		$dbh->rollback();
 		$dbh->commit();
