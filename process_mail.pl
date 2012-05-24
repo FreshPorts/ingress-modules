@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: process_mail.pl,v 1.4 2011-08-21 21:16:40 dan Exp $
+# $Id: process_mail.pl,v 1.5 2012-05-24 13:09:17 dan Exp $
 #
 # Copyright (c) 2001-2003  DVL Software
 #
@@ -55,7 +55,8 @@ sub main {
 
 	my $found = 0;	
 	if ($MessageId =~ /\@svn.freebsd.org/i) {
-		if ($ListId =~ /SVN commit messages for the entire src tree/i) {
+		if ($ListId =~ /SVN commit messages for the entire src tree/i ||
+		    $ListId =~ /SVN commit messages for the entire doc trees/i) {
 			$found = 1;
 #			print "we should invoke the SVN scripts here\n";
 			eval "use process_svn_mail";
