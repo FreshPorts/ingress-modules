@@ -1,5 +1,5 @@
 #
-# $Id: verifyport.pm,v 1.46 2008-02-01 02:01:53 dan Exp $
+# $Id: verifyport.pm,v 1.47 2012-05-25 13:07:40 dan Exp $
 #
 # Copyright (c) 2001-2006 DVL Software
 #
@@ -108,57 +108,71 @@ sub _CompileListOfPorts($;$;$) {
 					print "checking for port='$category_name/$port_name'\n";
 
 					$port = $ListOfPorts{"$category_name/$port_name"};
-					if (!$port) {
-						print "* * * not found in existing cache.  we'll have to load/create that port!\n";
-						$port = FreshPorts::Port->new($dbh);
+					
+					# we won't create a new port based on "cat/port", because that could be a file in the category's directory.
+					# instead, we want to ensure that "cat/port" refers to a directory, versus a file.
+					# such a situation exists if $extra has some value.
+					# see 201205251025.q4PAPOvV092118@repoman.freebsd.org where 'deskutils/svn.log' was accidently added
+					# in a previous commit, and then removed.  The previous code would add svn.log as a port, and then
+					# add it as an element and a port.  See _RecordPortsAndElements() where svn.log would be listed in 
+					# both CommitLogPorts and Files.
+					#
+					if (defined($extra)) {
+						if (!$port) {
+							print "* * * not found in existing cache.  we'll have to load/create that port!\n";
+							$port = FreshPorts::Port->new($dbh);
 
-						# this is all that's needed to retrieve a port which exists
-						$port->{partialpathname} = "$category_name/$port_name";
+							# this is all that's needed to retrieve a port which exists
+							$port->{partialpathname} = "$category_name/$port_name";
 
+							$port->FetchByPartialPathName();
+							#
+							# the above fetch may have failed.
+							# in which case, $port->{id} will not be defined
+							# we will take advantage of that later.
+							# for now, all we want is a complete list of ports.
+							#
+							if (!defined($port->{id})) {
+								print "port not retrieved with $port->{partialpathname}.  This must be a new port\n";
+								#
+								# these are the values needed to create a new port
+								#
+								$port->{category_id}	= $category->{id};
+								$port->{name}			= $port_name;
+								$port->{category}		= $category_name;
 
-						$port->FetchByPartialPathName();
-						#
-						# the above fetch may have failed.
-						# in which case, $port->{id} will not be defined
-						# we will take advantage of that later.
-						# for now, all we want is a complete list of ports.
-						#
-						if (!defined($port->{id})) {
-							print "port not retrieved with $port->{partialpathname}.  This must be a new port\n";
-							#
-							# these are the values needed to create a new port
-							#
-							$port->{category_id}	= $category->{id};
-							$port->{name}			= $port_name;
-							$port->{category}		= $category_name;
+								#
+								# we are creating a new port (probably), so we make it active.
+								# we need this set for later use.
+								#
+								$port->SetActive();
+							}
 
-							#
-							# we are creating a new port (probably), so we make it active.
-							# we need this set for later use.
-							#
-							$port->SetActive();
+							print "SETTING CATEGORY = $port->{category_id}\n";
+							$ListOfPorts{"$category_name/$port_name"} = $port;
+						} else {
+							print "found that port $category_name/$port_name in the cache\n";
 						}
 
-						print "SETTING CATEGORY = $port->{category_id}\n";
-						$ListOfPorts{"$category_name/$port_name"} = $port;
-					} else {
-						print "found that port $category_name/$port_name in the cache\n";
+						#
+						# $port now contains the port for this file.
+						# let's adjust the needs_refresh value.
+						#
+						#
+						# if we just deleted the Makefile for this port, there's no sense in refreshing the port.
+						# because it's been deleted.
+						#
+						if ($extra eq $FreshPorts::Constants::FILE_MAKEFILE && $action eq $FreshPorts::Constants::REMOVE ) {
+							#
+							# we are deleted (local value, never actually saved to db)
+							#
+							$port->{deleted} = 1;
+							print "THIS PORT HAS BEEN DELETED\n";
+						}
 					}
-
-					#
-					# $port now contains the port for this file.
-					# let's adjust the needs_refresh value.
-					#
-					#
-					# if we just deleted the Makefile for this port, there's no sense in refreshing the port.
-					# because it's been deleted.
-					#
-					if ($extra eq $FreshPorts::Constants::FILE_MAKEFILE && $action eq $FreshPorts::Constants::REMOVE ) {
-						#
-						# we are deleted (local value, never actually saved to db)
-						#
-						$port->{deleted} = 1;
-						print "THIS PORT HAS BEEN DELETED\n";
+					else
+					{
+					  print "\$extra is not defined, therefore, this is not considered a port.\n";
 					}
 				}
 			} else {
