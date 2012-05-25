@@ -1,5 +1,5 @@
 #
-# $Id: xml_munge.pm,v 1.11 2011-09-23 11:29:47 dan Exp $
+# $Id: xml_munge.pm,v 1.12 2012-05-25 12:54:57 dan Exp $
 #
 # Copyright (c) 2001-2006 DVL Software
 #
@@ -591,7 +591,12 @@ sub handle_file_end {
 	#
 	# accumulate a list of files which will be updated later
 	#
-
+	print 'pushing the following onto @Files' . "\n";
+	print "FileAction='$FileAction'\n";
+	print "FilePath='$FilePath'\n";
+	print "FileRevision='$FileRevision'\n";
+	print "commit_log_element->{id}='" . $commit_log_element->{id} . "'\n";
+	print "element_id='$element_id'\n";
 	push @Files, [$FileAction, $FilePath, $FileRevision, $commit_log_element->{id}, $element_id];
 
 	$self->notify_observers($FreshPorts::Messages::FileUpdate, (FileAction => $FileAction, FilePath => $FilePath, FileRevision => $FileRevision, Repository => $Updates{repository}) );
