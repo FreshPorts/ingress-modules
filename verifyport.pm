@@ -1,5 +1,5 @@
 #
-# $Id: verifyport.pm,v 1.47 2012-05-25 13:07:40 dan Exp $
+# $Id: verifyport.pm,v 1.48 2012-05-25 13:53:18 dan Exp $
 #
 # Copyright (c) 2001-2006 DVL Software
 #
@@ -430,26 +430,33 @@ sub _RecordPortFilesTouchedByThatCommit($;$;$;$) {
 
 		# is this file is in the ports tree?
 		# e.g. ports/LEGAL won't get through here because $port_name will not be defined.
-		if ($subtree eq $FreshPorts::Config::ports_prefix && defined($category_name) && defined($port_name)) {
-			print "yes, this file is in the ports tree\n";
+		if (defined($extra))
+		{
+			if ($subtree eq $FreshPorts::Config::ports_prefix && defined($category_name) && defined($port_name)) {
+				print "yes, this file is in the ports tree\n";
 
-			if (!defined($FreshPorts::Constants::IgnoredItems{$category_name}) && !defined($FreshPorts::Constants::IgnoredItems{$port_name})) {
-				# find the port for this filename....
-				$port = $Ports{"$category_name/$port_name"};
-				if (!$port) {
-					FreshPorts::Utilities::ReportError('warning', "could not find port '$category_name/$port_name' in hash.", 1);
+				if (!defined($FreshPorts::Constants::IgnoredItems{$category_name}) && !defined($FreshPorts::Constants::IgnoredItems{$port_name})) {
+					# find the port for this filename....
+					$port = $Ports{"$category_name/$port_name"};
+					if (!$port) {
+						FreshPorts::Utilities::ReportError('warning', "could not find port '$category_name/$port_name' in hash.", 1);
+					}
+
+					#
+					# record which files go with what port...
+					#
+					$commit_log_port_elements->{commit_log_id}			= $commit_log_id;
+					$commit_log_port_elements->{port_id}				= $port->{id};
+					$commit_log_port_elements->{commit_log_element_id}	= $commit_log_element_id;
+					$commit_log_port_elements->save();
+				} else {
+					print "... but is on the list of IgnoredItems!\n\n";
 				}
-
-				#
-				# record which files go with what port...
-				#
-				$commit_log_port_elements->{commit_log_id}			= $commit_log_id;
-				$commit_log_port_elements->{port_id}				= $port->{id};
-				$commit_log_port_elements->{commit_log_element_id}	= $commit_log_element_id;
-				$commit_log_port_elements->save();
-			} else {
-				print "... but is on the list of IgnoredItems!\n\n";
 			}
+		}
+		else
+		{
+			print "ignoring that item because it is not part of a port\n";
 		}
 	}
 }
