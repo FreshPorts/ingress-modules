@@ -1,5 +1,5 @@
 #
-# $Id: xml_munge.pm,v 1.12 2012-05-25 12:54:57 dan Exp $
+# $Id: xml_munge.pm,v 1.13 2012-05-27 15:35:52 dan Exp $
 #
 # Copyright (c) 2001-2006 DVL Software
 #
@@ -469,6 +469,15 @@ sub handle_file_end {
 	# before we do anything, convert the FileName appropriately
 	#
 #	$FilePath = ConvertFilePath($FilePath);
+
+	# sometimes, we see . in pathnames.
+	# e.g 201205262318.q4QNI7EZ020858@repoman.freebsd.org
+	#     201205262318.q4QNI7EZ020858@repoman.freebsd.org
+	#     201205262324.q4QNOLJF021342@repoman.freebsd.org
+	# e,g ports/./devel/kdevelop-kde4/Makefile
+	# this step reduces those pathnames to something we can use
+	
+	$FilePath =~ s#/./#/#;
 
 	my $ElementAdded	= 0;
 	my $NewRevision		= 0;
