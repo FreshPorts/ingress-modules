@@ -1,5 +1,5 @@
 #
-# $Id: xml_munge.pm,v 1.13 2012-05-27 15:35:52 dan Exp $
+# $Id: xml_munge.pm,v 1.14 2012-05-27 16:02:49 dan Exp $
 #
 # Copyright (c) 2001-2006 DVL Software
 #
@@ -477,7 +477,7 @@ sub handle_file_end {
 	# e,g ports/./devel/kdevelop-kde4/Makefile
 	# this step reduces those pathnames to something we can use
 	
-	$FilePath =~ s#/./#/#;
+	$FilePath =~ s#/\./#/#;
 
 	my $ElementAdded	= 0;
 	my $NewRevision		= 0;
