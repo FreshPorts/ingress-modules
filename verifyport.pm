@@ -1,5 +1,5 @@
 #
-# $Id: verifyport.pm,v 1.48 2012-05-25 13:53:18 dan Exp $
+# $Id: verifyport.pm,v 1.49 2012-05-27 15:34:23 dan Exp $
 #
 # Copyright (c) 2001-2006 DVL Software
 #
@@ -220,6 +220,8 @@ sub SaveChangesToPortsTree($;$;$) {
 	# We'll deal with that as we go along.
 	#
 	%ListOfPorts = _CompileListOfPorts($commit_log_id, $Files, $dbh);
+	
+	print "into SaveChangesToPortsTree()\n";
 
 	#
 	# only do this stuff if we actually have any ports to update...
@@ -260,6 +262,7 @@ sub SaveChangesToPortsTree($;$;$) {
 			# value, which is used later in the loading process
 			#
 			if ($CreatingNewPort) {
+				print "just created that port.  Now loading it back in....\n";
 				$port->FetchByID();
 			}
 
@@ -530,14 +533,18 @@ sub _RecordPortsAndElements($;$;$;$) {
 
 	# we have recorded all non-ports.  Now we record the ports
 	# We do this assignment here because a reset didn't work
+	print "saving to commit_log_ports_elements\n";
+
 	%CommitLogPorts = %{$CommitLogPortsRef};
 	while (my ($portname, $commit_log_ports) = each %CommitLogPorts) {
 		$port = $commit_log_ports->{port};
+	    print $port->{category} . '/' . $port->{name} . "\n";
 		$commit_log_ports_elements->{commit_log_id}	= $commit_log_id;
 		$commit_log_ports_elements->{element_id}	= $port->{element_id};
 		$commit_log_ports_elements->save();
 	}
 	
+	print "done _RecordPortsAndElements\n";
 }
 
 sub RefreshAllPortsTouchedByCommit($;$;$) {
