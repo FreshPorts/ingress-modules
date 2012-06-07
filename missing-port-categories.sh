@@ -5,6 +5,22 @@ QUERYCOUNT='select count(id)'
 QUERYROWS='select id, category_id, name, category'
 DB='/usr/local/bin/psql freshports.org'
 
+
+if [ ! -f config.sh ]
+then
+	echo "config.sh not found..."
+	exit 1
+fi
+
+. config.sh
+
+if [ $OFFLINE = 1 ]
+then
+	exit 0
+fi
+
+
+
 ROWCOUNT=`${DB} -q --pset t -c "${QUERYCOUNT} ${QUERYBASE}"`
 if [ ${ROWCOUNT} -ne 0 ]
 then
