@@ -1,5 +1,5 @@
 #
-# $Id: xml_munge.pm,v 1.14 2012-05-27 16:02:49 dan Exp $
+# $Id: xml_munge.pm,v 1.15 2012-06-26 12:26:56 dan Exp $
 #
 # Copyright (c) 2001-2006 DVL Software
 #
@@ -370,7 +370,10 @@ sub handle_update_end {
 	}
 
 
-	if ($ErrorFound) {
+	# we used to just look for errors found in the above code.
+	# but now, many underlying functions can record errors.
+	# So we introduced the GetErrorCount() function.
+	if ($ErrorFound || FreshPorts::CommitterOptIn::GetErrorCount()) {
 		$self->{dbh}->rollback();
 		print "recording sanity test failure\n";
 		$Msg = FreshPorts::CommitterOptIn::GetErrors();
