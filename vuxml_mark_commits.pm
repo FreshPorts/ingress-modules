@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: vuxml_mark_commits.pm,v 1.5 2012-03-31 20:39:17 dan Exp $
+# $Id: vuxml_mark_commits.pm,v 1.6 2012-06-26 12:26:26 dan Exp $
 #
 # Copyright (c) 1999-2006 DVL Software
 #
@@ -278,6 +278,8 @@ sub ProcessEachRangeRecord() {
 
     while ($range = $sth->fetchrow_hashref()) {
 		$i++;
+		# This is effectively the exit of the loop... once we find a new package,
+		# we mark the commits
         if (!defined($LastPackage) || $LastPackage ne $range->{'package_name'}) {
 			if (defined($LastPackage)) {
 				$this->MarkTheseCommits(\@AffectedCommits);
@@ -336,8 +338,11 @@ sub ProcessEachRangeRecord() {
         }
     }
 
+    # whatever you do as you exit this loop, you must
+    # also do in the 'found new package'-loop above
 	$this->MarkTheseCommits(\@AffectedCommits);
-
+	
+	# when all else is done, we do this for all the ports.
 	$this->CalculateVulnerabilityCount(\%Ports);
 
     return $i;
