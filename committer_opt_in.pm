@@ -1,6 +1,6 @@
 #
 #
-# $Id: committer_opt_in.pm,v 1.2 2006-12-17 12:04:00 dan Exp $
+# $Id: committer_opt_in.pm,v 1.3 2012-06-26 12:24:51 dan Exp $
 #
 # Copyright (c) 2001-2006 DVL Software
 #
@@ -73,6 +73,10 @@ sub GetErrors {
 	}
 
 	return $Msg;
+}
+
+sub GetErrorCount {
+    return scalar(%PortList);
 }
 
 sub NotifyCommitter {
