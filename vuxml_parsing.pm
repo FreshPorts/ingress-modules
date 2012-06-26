@@ -27,7 +27,7 @@
 # SUCH DAMAGE.
 
 #
-# @(#) $Id: vuxml_parsing.pm,v 1.3 2012-03-31 20:40:22 dan Exp $
+# @(#) $Id: vuxml_parsing.pm,v 1.4 2012-06-26 12:27:26 dan Exp $
 #
 # Parse the Vulnerabilities and Exposures (vuxml) database extracting
 # the entries for loading into a RDBMS.
@@ -1288,52 +1288,52 @@ sub handle_end_description ()
 
 sub handle_end_url ()
 {
-    $VuXML->references_push( URL, $VuXML->{text_buffer} );
+    $VuXML->references_push( URL, $VuXML->{text_buffer} // '' );
 }
 
 sub handle_end_mlist ()
 {
-    $VuXML->references_push( MLIST, $VuXML->{text_buffer} );
+    $VuXML->references_push( MLIST, $VuXML->{text_buffer} // '' );
 }
 
 sub handle_end_cvename ()
 {
-    $VuXML->references_push( CVENAME, $VuXML->{text_buffer} );
+    $VuXML->references_push( CVENAME, $VuXML->{text_buffer} // '' );
 }
 
 sub handle_end_bid ()
 {
-    $VuXML->references_push( BID, $VuXML->{text_buffer} );
+    $VuXML->references_push( BID, $VuXML->{text_buffer} // '' );
 }
 
 sub handle_end_certsa ()
 {
-    $VuXML->references_push( CERTSA, $VuXML->{text_buffer} );
+    $VuXML->references_push( CERTSA, $VuXML->{text_buffer} // '' );
 }
 
 sub handle_end_certvu ()
 {
-    $VuXML->references_push( CERTVU, $VuXML->{text_buffer} );
+    $VuXML->references_push( CERTVU, $VuXML->{text_buffer} // '' );
 }
 
 sub handle_end_uscertsa ()
 {
-    $VuXML->references_push( USCERTSA, $VuXML->{text_buffer} );
+    $VuXML->references_push( USCERTSA, $VuXML->{text_buffer} // '' );
 }
 
 sub handle_end_uscertta ()
 {
-    $VuXML->references_push( USCERTTA, $VuXML->{text_buffer} );
+    $VuXML->references_push( USCERTTA, $VuXML->{text_buffer} // '' );
 }
 
 sub handle_end_freebsdsa ()
 {
-    $VuXML->references_push( FREEBSDSA, $VuXML->{text_buffer} );
+    $VuXML->references_push( FREEBSDSA, $VuXML->{text_buffer} // '' );
 }
 
 sub handle_end_freebsdpr ()
 {
-    $VuXML->references_push( FREEBSDPR, $VuXML->{text_buffer} );
+    $VuXML->references_push( FREEBSDPR, $VuXML->{text_buffer} // '' );
 }
 
 sub handle_end_discovery ()
