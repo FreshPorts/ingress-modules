@@ -1,5 +1,5 @@
 #
-# $Id: verifyport.pm,v 1.49 2012-05-27 15:34:23 dan Exp $
+# $Id: verifyport.pm,v 1.50 2012-06-26 12:25:21 dan Exp $
 #
 # Copyright (c) 2001-2006 DVL Software
 #
@@ -293,7 +293,7 @@ sub SaveChangesToPortsTree($;$;$) {
 			$commit_log_ports->{port}	= $port;
 			$CommitLogPorts{$portname}	= $commit_log_ports;
 
-			print "size of %CommitLogPorts = '" . scalar(keys %CommitLogPorts) . "' $portname\n";
+			print "size of %CommitLogPorts for " . $portname . " is '" . scalar(keys %CommitLogPorts) . "'\n";
 		}
 
 		_RecordPortFilesTouchedByThatCommit($commit_log_id, $Files, \%ListOfPorts, $dbh);
