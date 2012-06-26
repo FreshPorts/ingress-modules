@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $Id: process_vuxml.sh,v 1.4 2007-09-11 14:46:06 dan Exp $
+# $Id: process_vuxml.sh,v 1.5 2012-06-26 12:23:23 dan Exp $
 #
 # Copyright (c) 2003-2005 DVL Software Limited
 #
@@ -28,7 +28,7 @@ fi
 
 if [ "${VUXMLFLAGFILE}x" = 'x' -o "${PORTSDIR}x" = 'x' -o "${VUXMLMUTEX}x" = 'x' -o "${DIRLOG}x" = 'x' ]
 then
-	logger -t "FreshPorts ${0}" "please set VUXMLFLAGFILE, VUXMLFLAGFILE, PORTSDIR, and DIRLOG in config.sh"
+	logger -t "FreshPorts ${0}" "please set all of VUXMLFLAGFILE, PORTSDIR, VUXMLMUTEX, and DIRLOG in config.sh"
 	exit 1
 fi
 
