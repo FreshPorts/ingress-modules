@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.64 2012-03-31 20:37:26 dan Exp $
+# $Id: port.pm,v 1.65 2012-06-26 12:22:47 dan Exp $
 #
 #
 # Copyright (c) 2001-2005 DVL Software
@@ -771,9 +771,7 @@ sub _Validate {
 	}
 
 	if ($ErrorMsg ne '') {
-		FreshPorts::CommitterOptIn::RecordErrorDetails(
-			"$this->{category}/$this->{name}",
-			$ErrorMsg);
+		FreshPorts::CommitterOptIn::RecordErrorDetails("$this->{category}/$this->{name}", $ErrorMsg);
 		$result = -1;		
 	}
 
@@ -1233,8 +1231,7 @@ sub update_depends_helper {
     }
     else
     {
-      FreshPorts::CommitterOptIn::RecordErrorDetails("$this->{category}/$this->{name}", "A port specified in the " . $this->depends_type_long( $depends_type ) . " of " . $this->{category} . '/' . $this->{name} . " does not exist: '" . $dependent . "'");
-      FreshPorts::Utilities::ReportErrorEmail('warning', "A port specified in the " . $this->depends_type_long( $depends_type ) . " does not exist: '" . $dependent . "'", 1, 0);
+      FreshPorts::CommitterOptIn::RecordErrorDetails("$this->{category}/$this->{name}", "NOTE: this particular sanity test is very experimental\nA port specified in the " . $this->depends_type_long( $depends_type ) . " of " . $this->{category} . '/' . $this->{name} . " does not exist: '" . $dependent . "'\n\n");
     }
   }
 }
@@ -1246,7 +1243,7 @@ sub depends_stripper {
   my $newdepends = '';
 
   # if it not defined, return an empty string  
-  if ( !defined($depends) )
+  if ( !defined($depends) || $depends eq '')
   {
     print "no depends found\n";
     return $newdepends;
@@ -1256,6 +1253,7 @@ sub depends_stripper {
   
   foreach my $dep (split(/\s+/, $depends))
   {
+    print "Now splitting: '$dep'\n";
     my ($d, $ddir) = split(/:/, $dep);
     if (!defined($ddir) || $depends eq 'DEPENDS')
     {
@@ -1268,12 +1266,21 @@ sub depends_stripper {
     }
 
     my $absdir = Cwd::abs_path($ddir);
-    if ( $absdir ne $ddir )
+    if (defined($absdir))
     {
-      print "converted '$ddir' to '$absdir'\n";
-    }
+      if ( $absdir ne $ddir )
+      {
+        print "converted '$ddir' to '$absdir'\n";
+      }
 
-    $newdepends .= "$d:$absdir";
+      $newdepends .= "$d:$absdir";
+    }
+    else
+    {
+      # this should be a sanity test failure?
+      print "Oh.  Umm.  No, that does not translate into a valid dependency.  Skipping....\n";
+      FreshPorts::CommitterOptIn::RecordErrorDetails("$this->{category}/$this->{name}", "I could not translate the following into a dependency: '$dep'");
+    }
   }
 
   print "2depends: $newdepends\n";
