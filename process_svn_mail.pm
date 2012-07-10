@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: process_svn_mail.pm,v 1.1 2011-08-15 16:31:56 dan Exp $
+# $Id: process_svn_mail.pm,v 1.2 2012-07-10 19:06:45 dan Exp $
 #
 # Copyright (c) 2001-2003  DVL Software
 #
@@ -13,6 +13,7 @@ use Date::Parse;
 use XML::Writer;
 use constants;
 use utilities;
+use process_mail;
 
 #####
 # GetMessage - Get the actual email from STDIN
@@ -37,7 +38,11 @@ sub GetData {
 	my $Message_Subject;
 	my $Log;
 	my $EncodingLosses = 'false';
-
+	
+	# FreeBSD uses multiple repos.  One for each of doc, src, and ports.  We store all commits in one database.
+	# so we prefix each pathname with the repo prefix.
+	my $RepoPrefix;
+	
 	$Message_Subject = &GetMessage_Subject($message);
 
 #print "subject: '$Message_Subject'\n";
@@ -55,6 +60,8 @@ sub GetData {
 		FreshPorts::Utilities::ReportErrorEmailNoPrint('err', "No message ID found for this commit message (" . $Message_Subject . ").\n\nIs this a corrupted commit or email?", 1)
 	}
 
+	# this is prefixed to all pathnames in this commit	
+	$RepoPrefix = &GetOS_RepoPrefix($message);
 
 	@Data =	[	'UPDATES', [ { Version => '1.3.2.1' },
 				'UPDATE', [ {},
@@ -63,8 +70,9 @@ sub GetData {
 					'TIME', [ &GetTime($message)
 					],
 					'OS', [ {
-						Id	    => &GetOS_Id,
-						Branch	=> &GetOS_Branch($message) }
+						Id	    => &GetOS_Id($message),
+						Branch	=> &GetOS_Branch($message),
+						Repo    => $RepoPrefix }
 					],
 					'LOG', [ {},
 						0,
@@ -86,7 +94,7 @@ sub GetData {
 						&GetMessage_To($message)
 					],
 					'FILES', [ {},
-						&GetFiles($message)
+						&GetFiles($message, $RepoPrefix)
 					]
 				]
 			 ]
@@ -302,7 +310,8 @@ sub IsDirectoryProvided($) {
 }
  
 sub GetFiles {
-	my ($message) = shift;
+	my ($message)    = shift;
+	my ($RepoPrefix) = shift;
 	my (@files);
 	my ($revision, $action, $path);
 	my (@lines) = split("\n", $message);
@@ -335,13 +344,17 @@ sub GetFiles {
 		next unless $found == 1;
 		$path = $line;
 		next if($path =~ /\s+-\s+/); # skip messages about file origin
+		
+		# this removes head/, stable/ or vendor/ from the path
+		# we may need to revist this if ports start commiting on non-head
 		$path =~ s/^\s+(head\/|stable\/\d+\/|vendor\/)//;
 
 		# stop on either action change, empty string or minimalist signature 
 		last if (length($line) == 0 || ($line =~ /^(Added|Deleted|Modified|Directory Properties):/) 
 			|| ($line =~ /^_+$/));
 #print "path='$path'\n";
-		push @files, 'FILE', [ { Action => $action, Revision => $revision, Path => $path } ];
+		push @files, 'FILE', [ { Action => $action, Revision => $revision, Path => $RepoPrefix . '/' . $path } ];
+#		push @files, 'FILE', [ { Action => $action, Revision => $revision, Path => $path } ];
 	}
 
 	if (scalar(@files) == 0) {
@@ -399,7 +412,7 @@ sub GetFilesImported {
 }
 
 sub GetOS_Id {
-	my ($message) = shift;
+	my ($message) = @_;
 
 	return 'FreeBSD';
 }
@@ -428,6 +441,35 @@ sub GetOS_Branch {
 	}
 
 	return $branch;
+}
+
+sub GetOS_RepoPrefix {
+#
+# Scan the message looking for a List Id.  Convert that to a repo prefix
+# which will be prefixed to each filename in this commit.
+#
+
+	my ($message) = @_;
+	
+	my $myRepo   = '';
+	my $myListId = FreshPorts::ProcessMail::myGetList_Id($message);
+
+	my %KnownRepos = (
+		"SVN commit messages for the entire src tree"  => "src",
+		"SVN commit messages for the entire doc trees" => "doc",
+		"FreeBSD ports head commit mailing list"       => "ports"
+	);
+	
+	while (my ($ListId, $repo) = each %KnownRepos)
+	{
+		if ($myListId =~ /$ListId/i)
+		{
+			$myRepo = $repo;
+			last;
+		}
+	}
+	
+	return $myRepo;
 }
 
 sub GetLog {
@@ -691,5 +733,6 @@ sub GetMessage_Subject {
 
 	return $Subject;
 }
+
 
 1;

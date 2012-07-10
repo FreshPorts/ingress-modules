@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: process_mail.pl,v 1.5 2012-05-24 13:09:17 dan Exp $
+# $Id: process_mail.pl,v 1.6 2012-07-10 19:06:45 dan Exp $
 #
 # Copyright (c) 2001-2003  DVL Software
 #
@@ -12,6 +12,7 @@ use strict;
 use XML::Writer;
 use constants;
 use utilities;
+use process_mail;
 
 &main;
 exit;
@@ -21,9 +22,9 @@ exit;
 #####
 sub main {
 	# Get the message
-	my ($message) = &myGetMessage;
+	my ($message) = FreshPorts::ProcessMail::myGetMessage;
 	
-	my $Message_Subject = &myGetMessage_Subject($message);
+	my $Message_Subject = FreshPorts::ProcessMail::myGetMessage_Subject($message);
 
 
 	
@@ -32,7 +33,7 @@ sub main {
 	#  201108100855.p7A8tkQt033487@svn.freebsd.org     (SVN commit)
 	#  201108101456.p7AEuU2o048428@repoman.freebsd.org (CVS commit)
 	
-	my $MessageId = &myGetMessage_Id($message);
+	my $MessageId = FreshPorts::ProcessMail::myGetMessage_Id($message);
 	if (!defined($MessageId)) {
 		FreshPorts::Utilities::ReportErrorEmailNoPrint('err', "No Message-Id found for this commit message (" . $Message_Subject . ").\n\nIs this a corrupted commit or email?", 1)
 	}
@@ -44,7 +45,7 @@ sub main {
 	#  List-Id: CVS commit messages for the doc and www trees
 	#  List-Id: "SVN commit messages for the entire src tree
 
-	my $ListId = &myGetList_Id($message);
+	my $ListId = FreshPorts::ProcessMail::myGetList_Id($message);
 	if (!defined($ListId)) {
 		FreshPorts::Utilities::ReportErrorEmailNoPrint('err', "No List-Id found for this commit message (" . $Message_Subject . ").\n\nIs this a corrupted commit or email?", 1)
 	}
@@ -54,9 +55,10 @@ sub main {
 #	print 'Subject: '    . $Message_Subject . "\n";
 
 	my $found = 0;	
-	if ($MessageId =~ /\@svn.freebsd.org/i) {
-		if ($ListId =~ /SVN commit messages for the entire src tree/i ||
-		    $ListId =~ /SVN commit messages for the entire doc trees/i) {
+	if ($MessageId =~ /\@svn.freebsd.org/i || $MessageId =~ /\@svn.chruetertee.ch/i) {
+		if ($ListId =~ /SVN commit messages for the entire src tree/i  ||
+		    $ListId =~ /SVN commit messages for the entire doc trees/i ||
+		    $ListId =~ /FreeBSD ports head commit mailing list/i) {
 			$found = 1;
 #			print "we should invoke the SVN scripts here\n";
 			eval "use process_svn_mail";
@@ -90,94 +92,3 @@ sub main {
 	exit;
 }
 
-#####
-# myGetMessage - Get the actual email from STDIN
-#####
-sub myGetMessage {
-	my ($message);
-
-	while (<>) {
-		$message .= $_;
-	}
-
-	return $message;
-}
-
-
-sub myGetMessage_Id {
-	my ($message) = @_;
-	my ($Id);
-
-	my (@lines) = split("\n", $message);
-
-	for (@lines) {
-		my ($line) = $_;
-
-		if ($line =~ /^Message-Id:/i) {
-			$line =~ /\<(.*?)\>/g;
-			$Id = $1;
-			last;
-		} 
-	}
-
-	return $Id;
-}
-
-sub myGetList_Id {
-	my ($message) = @_;
-	my ($Id);
-
-	my (@lines) = split("\n", $message);
-
-	for (@lines) {
-		my ($line) = $_;
-
-		if ($line =~ /^List-Id:/i) {
-			$line =~ /: (.*)/i;
-			$Id = $1;
-			last;
-		} 
-	}
-
-	return $Id;
-}
-
-sub myGetMessage_Subject {
-#
-# This obtains the subject from the raw email.
-# It assumes the email has this format or similar:
-# Subject: cvs commit: CVSROOT modules ports/math Makefile ports/math/py-mpz
-#          Makefile distinfo pkg-comment pkg-descr pkg-plist
-#          ports/math/py-mpz/files setup.py
-#
-# 123456789
-# This assumes 9 spaces there...
-#
-
-	my ($message) = @_;
-	my ($Subject);
-
-	my ($FoundSubject) = 0;
-
-	my (@lines) = split("\n", $message);
-
-	for (@lines) {
-		my ($line) = $_;
-
-		if ($FoundSubject) {
-			if ($line =~ /^         /) {
-				$Subject .= ' ' . (split/         /, $line, 2)[1];
-				next;
-			} else {
-				last;
-			}
-		} else {
-			if ($line =~ /^Subject:/i) {
-				$Subject = (split/: /, $line, 2)[1];
-				$FoundSubject = 1;
-			}
-		}
-	}
-
-	return $Subject;
-}
