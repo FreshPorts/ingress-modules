@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: process_svn_mail.pm,v 1.2 2012-07-10 19:06:45 dan Exp $
+# $Id: process_svn_mail.pm,v 1.3 2012-07-11 02:06:33 dan Exp $
 #
 # Copyright (c) 2001-2003  DVL Software
 #
@@ -354,7 +354,6 @@ sub GetFiles {
 			|| ($line =~ /^_+$/));
 #print "path='$path'\n";
 		push @files, 'FILE', [ { Action => $action, Revision => $revision, Path => $RepoPrefix . '/' . $path } ];
-#		push @files, 'FILE', [ { Action => $action, Revision => $revision, Path => $path } ];
 	}
 
 	if (scalar(@files) == 0) {
@@ -451,8 +450,8 @@ sub GetOS_RepoPrefix {
 
 	my ($message) = @_;
 	
-	my $myRepo   = '';
-	my $myListId = FreshPorts::ProcessMail::myGetList_Id($message);
+	my $myRepoPrefix = '';
+	my $myListId     = FreshPorts::ProcessMail::myGetList_Id($message);
 
 	my %KnownRepos = (
 		"SVN commit messages for the entire src tree"  => "src",
@@ -464,12 +463,12 @@ sub GetOS_RepoPrefix {
 	{
 		if ($myListId =~ /$ListId/i)
 		{
-			$myRepo = $repo;
+			$myRepoPrefix = $repo;
 			last;
 		}
 	}
 	
-	return $myRepo;
+	return $myRepoPrefix;
 }
 
 sub GetLog {
