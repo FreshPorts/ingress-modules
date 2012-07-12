@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: process_mail.pl,v 1.6 2012-07-10 19:06:45 dan Exp $
+# $Id: process_mail.pl,v 1.7 2012-07-12 19:26:10 dan Exp $
 #
 # Copyright (c) 2001-2003  DVL Software
 #
@@ -58,7 +58,7 @@ sub main {
 	if ($MessageId =~ /\@svn.freebsd.org/i || $MessageId =~ /\@svn.chruetertee.ch/i) {
 		if ($ListId =~ /SVN commit messages for the entire src tree/i  ||
 		    $ListId =~ /SVN commit messages for the entire doc trees/i ||
-		    $ListId =~ /FreeBSD ports head commit mailing list/i) {
+		    $ListId =~ /SVN commit messages for the ports tree for head/i) {
 			$found = 1;
 #			print "we should invoke the SVN scripts here\n";
 			eval "use process_svn_mail";
