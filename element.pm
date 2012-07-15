@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: element.pm,v 1.11 2006-12-17 12:04:00 dan Exp $
+# $Id: element.pm,v 1.12 2012-07-15 02:59:03 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -80,10 +80,21 @@ sub save {
 	if ($this->{id}) {
 		# we are updating
 
+		my $parentID;
+
+		if ($this->{parent_id} eq '')
+		{
+			$parentID = 'null';
+		}
+		else
+		{
+			$parentID = $this->{parent_id}
+		}
+
 		$sql = "
 update element  
    set name                = " . $dbh->quote($this->{name}) . ", 
-       parent_id           = $this->{parent_id}, 
+       parent_id           = $parentID,
        directory_file_flag = " . $dbh->quote($this->{directory_file_flag}) . ", 
        status              = " . $dbh->quote($this->{status}) . " 
  where id                  = $this->{id}";
