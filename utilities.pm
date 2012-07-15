@@ -1,6 +1,6 @@
 #
 #
-# $Id: utilities.pm,v 1.22 2008-08-29 13:07:31 dan Exp $
+# $Id: utilities.pm,v 1.23 2012-07-15 20:04:12 dan Exp $
 #
 # Copyright (c) 2001-2006 DVL Software
 #
@@ -47,7 +47,7 @@ sub FetchFile($;$;$;$;) {
 	my $FILE		= shift;
 	my $REVISION	= shift;
 
-	return FetchFileURL($FreshPorts::Config::CVS_Repository, $DESTDIR, $SRCDIR, $FILE, $REVISION, "''");
+	return FetchFileURL($FreshPorts::Config::SVN_Repository, $DESTDIR, $SRCDIR, $FILE, $REVISION, "''");
 }
 
 sub FetchFileURL($;$;$;$;$;$) {
@@ -71,7 +71,7 @@ sub FetchFileURL($;$;$;$;$;$) {
 	my $FetchAttempts = $FreshPorts::Config::Fetch_Retry_Limit;
 
 	while ($FetchAttempts) {
-		my $command = "sh $FreshPorts::Config::scriptpath/fetch-cvs-file.sh $URL $DESTDIR $SRCDIR $FILE $REVISION $SUFFIX 2>&1";
+		my $command = "sh $FreshPorts::Config::scriptpath/fetch-svn-file.sh $URL $DESTDIR $SRCDIR $FILE $REVISION $SUFFIX 2>&1";
 		print "about to fetch = '$command'\n";
 		my $FetchResults = `$command`;
 		my $code = $?;
