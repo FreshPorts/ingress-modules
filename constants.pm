@@ -1,5 +1,5 @@
 #
-# $Id: constants.pm,v 1.12 2012-03-31 20:35:27 dan Exp $
+# $Id: constants.pm,v 1.13 2012-07-15 20:37:16 dan Exp $
 #
 # Copyright (c) 2001-2006 DVL Software
 #
@@ -47,6 +47,7 @@ $FreshPorts::Constants::FILE_MAKEFILE				= "Makefile";
 	"Templates"		=> 5,
 	"Makefile"		=> 6,
 	"Makefile.inc"	=> 7,
+	"CVSROOT"       => 8,
 );
 
 $FreshPorts::Constants::UsualPortsTreeLocation			= '/usr';
