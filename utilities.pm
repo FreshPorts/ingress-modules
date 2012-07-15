@@ -1,6 +1,6 @@
 #
 #
-# $Id: utilities.pm,v 1.24 2012-07-15 21:39:07 dan Exp $
+# $Id: utilities.pm,v 1.25 2012-07-15 22:58:23 dan Exp $
 #
 # Copyright (c) 2001-2006 DVL Software
 #
@@ -65,8 +65,16 @@ sub FetchFileURL($;$;$;$;$;$) {
 	my $SUFFIX      = shift;
 	
 	my $REPO        = 'ports';
+
+print "before '$SRCDIR'\n";
+	$SRCDIR =~ s!^/?ports/!!;
 	
-	$SRCDIR =~s!^/?ports/!!;
+	# special case, that I couldn't handle in a regex
+	if ($SRCDIR eq $FreshPorts::Config::ports_prefix)
+	{
+		$SRCDIR = "''";
+	}
+print "after '$SRCDIR'\n";
 
 #	print "FetchFileURL '$URL' '$DESTDIR' '$SRCDIR' '$FILE' '$REVISION' '$SUFFIX'\n";
 
