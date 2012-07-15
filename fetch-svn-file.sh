@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $Id: fetch-svn-file.sh,v 1.1 2012-07-15 20:03:48 dan Exp $
+# $Id: fetch-svn-file.sh,v 1.2 2012-07-15 21:56:36 dan Exp $
 #
 # Copyright (c) 1999-2001 DVL Software
 #
@@ -8,21 +8,22 @@
 #
 =======
 #
-# $Id: fetch-svn-file.sh,v 1.1 2012-07-15 20:03:48 dan Exp $
+# $Id: fetch-svn-file.sh,v 1.2 2012-07-15 21:56:36 dan Exp $
 #
 # Copyright (c) 2000-2004 DVL Software
 #
 echo "num of params = $#"
-if  [ $# -ne 6 ];
-	then echo $0 : usage $0 URL DESTDIR SRCDIR FILE REVISION SUFFIX 1>&2
+if  [ $# -ne 7 ];
+	then echo error invoking script $0 : usage $0 URL DESTDIR SRCDIR FILE REVISION SUFFIX 1>&2
 	exit 1
 else
 	URL=$1
-	DESTDIR=$2
-	SRCDIR=$3
-	FILE=$4
-	REVISION=$5
-	SUFFIX=$6
+	REPO=$2
+	DESTDIR=$3
+	SRCDIR=$4
+	FILE=$5
+	REVISION=$6
+	SUFFIX=$7
 
 	mkdir -p ${DESTDIR}
 	if [ $? -ne 0 ]
@@ -36,11 +37,11 @@ else
 	#
 	time=`/bin/date +"%s"`
 
-	echo "* * * about to fetch '$URL/$SRCDIR/!svn/bc/$REVISION/head/$FILE&cache_busting_value=$time'"
-	echo "* * * fetching into $FETCHFILE"
+	echo "* * * * *  about to fetch '$URL/$REPO/!svn/bc/$REVISION/head/$SRCDIR/$FILE?cache_busting_value=$time'"
+	echo "* * * * *  fetching into $FETCHFILE"
 
     # fetch "http://svn.freebsd.org/ports/!svn/bc/300899/head/Makefile"
     # NOTE: SUFFIX is being ignored.  We always assume HEAD
-	/usr/bin/fetch -A -o $FETCHFILE "$URL/$SRCDIR/!svn/bc/$REVISION/head/$FILE?cache_busting_value=$time"
+	/usr/bin/fetch -A -o $FETCHFILE "$URL/$REPO/!svn/bc/$REVISION/head/$SRCDIR/$FILE?cache_busting_value=$time"
 	exit $?
 fi
