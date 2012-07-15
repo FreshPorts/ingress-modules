@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: process_svn_mail.pm,v 1.3 2012-07-11 02:06:33 dan Exp $
+# $Id: process_svn_mail.pm,v 1.4 2012-07-15 18:21:56 dan Exp $
 #
 # Copyright (c) 2001-2003  DVL Software
 #
@@ -352,6 +352,13 @@ sub GetFiles {
 		# stop on either action change, empty string or minimalist signature 
 		last if (length($line) == 0 || ($line =~ /^(Added|Deleted|Modified|Directory Properties):/) 
 			|| ($line =~ /^_+$/));
+
+		# remove that annoying trailing: (contents, props changed)			
+		$path =~ s/\s*\(contents, props changed\)\s*$//;
+		 
+		# remove that annoying trailing: (props changed)			
+		$path =~ s/\s*\(props changed\)\s*$//;
+		 
 #print "path='$path'\n";
 		push @files, 'FILE', [ { Action => $action, Revision => $revision, Path => $RepoPrefix . '/' . $path } ];
 	}
@@ -454,9 +461,9 @@ sub GetOS_RepoPrefix {
 	my $myListId     = FreshPorts::ProcessMail::myGetList_Id($message);
 
 	my %KnownRepos = (
-		"SVN commit messages for the entire src tree"  => "src",
-		"SVN commit messages for the entire doc trees" => "doc",
-		"FreeBSD ports head commit mailing list"       => "ports"
+		"SVN commit messages for the entire src tree"     => "src",
+		"SVN commit messages for the entire doc trees"    => "doc",
+		"SVN commit messages for the ports tree for head" => "ports"
 	);
 	
 	while (my ($ListId, $repo) = each %KnownRepos)
