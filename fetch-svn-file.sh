@@ -1,14 +1,13 @@
 #!/bin/sh
 #
-# $Id: fetch-svn-file.sh,v 1.2 2012-07-15 21:56:36 dan Exp $
+# $Id: fetch-svn-file.sh,v 1.3 2012-07-16 12:04:25 dan Exp $
 #
 # Copyright (c) 1999-2001 DVL Software
 #
 # This script used to fetch files from the cvs repo into our own tree.
 #
-=======
 #
-# $Id: fetch-svn-file.sh,v 1.2 2012-07-15 21:56:36 dan Exp $
+# $Id: fetch-svn-file.sh,v 1.3 2012-07-16 12:04:25 dan Exp $
 #
 # Copyright (c) 2000-2004 DVL Software
 #
