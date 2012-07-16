@@ -1,5 +1,5 @@
 #
-# $Id: verifyport.pm,v 1.50 2012-06-26 12:25:21 dan Exp $
+# $Id: verifyport.pm,v 1.51 2012-07-16 12:05:27 dan Exp $
 #
 # Copyright (c) 2001-2006 DVL Software
 #
@@ -346,6 +346,17 @@ sub FetchAllFiles($;$) {
 			print "outside ports tree: ignoring $filename\n";
 			next;
 		}
+		
+		#
+		# do not fetch directories
+		# THIS MAKES USE OF THE FACT that SVN puts added directories into
+		# the commit message with a trailing /
+		# if that process discontinues, we'll have to find another way to do this.
+		#
+		if ($filename =~ m|^*/$|) {
+			print "this is a directory.  Will not fetch $filename\n";
+			next;
+		}
 
 		my $directory = File::Basename::dirname ($filename);
 		my $FILE      = File::Basename::basename($filename);
@@ -363,7 +374,7 @@ sub FetchAllFiles($;$) {
 			# fetch this file into the ports tree
 			#
 
-			print "fetching \$DESTDIR = [$DESTDIR], \$SRCDIR = [$SRCDIR], \$FILE = [$FILE] \$REVISION = [$REVISION]\n";
+			print "fetching \$DESTDIR = [$DESTDIR], \$SRCDIR = [$SRCDIR], \$FILE = [$FILE (was $filename)] \$REVISION = [$REVISION]\n";
 
 			
 			$FetchOK = FreshPorts::Utilities::FetchFile($DESTDIR, $SRCDIR, $FILE, $REVISION);
