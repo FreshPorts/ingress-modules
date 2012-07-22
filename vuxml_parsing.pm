@@ -27,7 +27,7 @@
 # SUCH DAMAGE.
 
 #
-# @(#) $Id: vuxml_parsing.pm,v 1.4 2012-06-26 12:27:26 dan Exp $
+# @(#) $Id: vuxml_parsing.pm,v 1.5 2012-07-22 12:00:27 dan Exp $
 #
 # Parse the Vulnerabilities and Exposures (vuxml) database extracting
 # the entries for loading into a RDBMS.
@@ -49,6 +49,8 @@ use strict;
 use Carp;
 use XML::Parser;
 use DBI;
+
+use Digest::SHA qw(sha256_hex);
 
 use base qw( Class::Observable );
 
@@ -190,6 +192,14 @@ sub new
     return $self;
 }
 
+sub database_updated
+{
+    my __PACKAGE__ $self = shift;
+    print "checking database_updated\n";
+
+    return $self->{database_updated};
+}
+
 # Print out parsed data -- mostly for debugging purposes
 sub print_self
 {
@@ -197,7 +207,12 @@ sub print_self
 
     print "vid:           ", $self->vid(), "\n";
     if ( defined $self->cancelled() ) {
-        print "cancelled -- superseded by: ", $self->cancelled(), "\n";
+        print "cancelled";
+        if ($self->cancelled())
+        {
+            print " -- superseded by: '", $self->cancelled(), "'";
+        }
+        print "\n";
     } else {
         print "topic:         ", $self->topic(), "\n";
 
@@ -260,9 +275,10 @@ sub _initialise
 {
     my __PACKAGE__ $self = shift;
 
-    $self->{save_text}   = undef;    # save input until this closing tag seen
-    $self->{text_buffer} = undef;
-    $self->{parsed_data} = {};
+    $self->{save_text}        = undef;    # save input until this closing tag seen
+    $self->{text_buffer}      = undef;
+    $self->{parsed_data}      = {};
+    $self->{database_updated} = 0;
     %{ $self->{parsed_data} } = (
         vid            => undef,     # Vulnerability ID (Scalar)
         cancelled      => undef,     # VID of superseding Vuln
@@ -274,6 +290,7 @@ sub _initialise
         date_discovery => undef,     # When discovered,
         date_entry     => undef,     # When entered into VuXML
         date_modified  => undef,     # Last time entry modified
+        checksum       => undef,
         @_                           # Miscellaneous additions?
     );
     return $self;
@@ -282,7 +299,11 @@ sub _initialise
 sub parse_xml
 {
     my __PACKAGE__ $self = shift;
+    
+    my $checksum = shift;
 
+    $self->{checksum} = $checksum;
+         
     $self->{xml_parser}->parse( $self->{input} );
 
     return $self;
@@ -295,7 +316,7 @@ sub update_database
     # Not interested in cancelled records
 
     $self->print_self();    # For debugging purposes
-
+    
     # Only commit stuff related to FreeBSD.  Assume it's FreeBSD
     # related if no explicit <system> tag is given.
 
@@ -324,40 +345,38 @@ sub update_database
 	if (defined $self->cancelled()) {
 		# we do not insert cancelled vuln
 		$FullInsert = 0;
-	  my $vuxml = FreshPorts::vuxml->new( $self->{db_handle} );
+		my $vuxml = FreshPorts::vuxml->new( $self->{db_handle} );
 
-	  # this will wipe the vuln and any references to it, including the commit_log_ports_vuxml table  
+		# this will wipe the vuln and any references to it, including the commit_log_ports_vuxml table  
 		$vuxml->DeleteByVID($self->vid());
 	}
 
+    print "Shall we update?\n";
 	if ($self->{update_in_place} && !defined $self->cancelled()) {
 	    my $vuxml = FreshPorts::vuxml->new( $self->{db_handle} );
 
 		my $vuxml_id = $vuxml->FetchByVID($self->vid());
 		if (defined($vuxml_id)) {
+            print "updating in place\n";
 			$FullInsert = 0;
 
-			if ($self->vuxml_differs($vuxml)) {
-				print "The vuxml entry is being updated with fresh data.\n";
-				$self->update_database_vuxml($vuxml);
-
-				$MarkCommits = 1;
-			}
-
-
-			if ($MarkCommits) {
-				# do something here.
-			}
-
+			print "The vuxml entry is being updated with fresh data.\n";
+			$self->update_database_vuxml($vuxml);
+			$self->{database_updated} = 1;
 		} else {
 			print "Could not find vuln = '" . $self->vid() . "'.  A full insert will be done.\n";
 		}
 	}
+	else
+	{
+	    print "no.  We are not updating\n";
+    }
 
     if ($FullInsert) {
         my $vuxml_id = $self->update_database_vuxml(undef);
         $self->update_database_vuxml_affected  ($vuxml_id);
         $self->update_database_vuxml_references($vuxml_id);
+		$self->{database_updated} = 1;
     }
 
 
@@ -391,6 +410,7 @@ sub RecentlyAdded {
 }
 
 
+# now deprecated, we don't use this any more.  can be deleted.
 sub vuxml_differs
 {
     my __PACKAGE__ $self = shift;
@@ -414,6 +434,8 @@ sub update_database_vuxml
     use vuxml;
 
 	my $vuxml_id;
+	
+	print "into update_database_vuxml\n";
 
     my $vuxml = FreshPorts::vuxml->new( $self->{db_handle} );
 
@@ -428,6 +450,7 @@ sub update_database_vuxml
     $vuxml->{date_discovery} = $self->date_discovery();
     $vuxml->{date_entry}     = $self->date_entry();
     $vuxml->{date_modified}  = $self->date_modified();
+    $vuxml->{checksum}       = $self->{checksum};
 
     $vuxml_id = $vuxml->save();
 
