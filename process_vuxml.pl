@@ -1,95 +1,134 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 #
-# $Id: process_vuxml.pl,v 1.4 2012-03-31 20:38:38 dan Exp $
+# $Id: process_vuxml.pl,v 1.5 2012-07-22 12:06:56 dan Exp $
 #
-# Copyright (c) 2001-2004 DVL Software
+# Copyright (c) 2001-2012 DVL Software
 #
-# Parse vuln.xml and load into vuxml table
+# much of this file is based on contributions from Matthew Seamon
 #
 
-#we make a great deal of use of a global variable Updates.  We should fix that up.
+# @{#} $Id: process_vuxml.pl,v 1.5 2012-07-22 12:06:56 dan Exp $
+#
+# Split up the vuln.xml file into sections for individual
+# vulnerabilities.  Save into files using the vid guid field as name.
+# Calculate SHA256 checksum for the XML snippet and write out to an
+# index file.
+
+#use 5.10.1;
 use strict;
+use warnings;
+use Digest::SHA qw(sha256_hex);
+use autodie qw(:default);
 
-require Sys::Syslog;
-
-use db_utils;
 use database;
-use utilities;
+use vuxml;
 use vuxml_parsing;
 use vuxml_mark_commits;
 
-use DBI;
+#use feature qw(switch);
 
-FreshPorts::Utilities::InitSyslog();
+$0 =~ s@.*/@@;
 
+# Reads vuln.xml on stdin
 
-&main;
-exit;
+my $start = time;
 
-sub EmptyVuXML($) {
-	my $dbh = shift;
+MAIN:
+{
+    my %vulns;
+    my @vulns;
 
-	my $sth;
-	my $sql;
+    # slurp vuln.xml whole.
+    local $/;
 
-	# quote everything going to the database
-	$sql = "DELETE FROM vuxml";
-	$sth = $dbh->prepare($sql);
-	if (!$sth->execute())  {
-		FreshPorts::Utilities::ReportError('warning', "Could not execute sql: " . $sql, 1);
-	}
+    @vulns = split /\n+(?=\s+<vuln vid="([^"]+)")/, <>;
 
-	$sql = "DELETE FROM ports_vulnerable";
-	$sth = $dbh->prepare($sql);
-	if (!$sth->execute())  {
-		FreshPorts::Utilities::ReportError('warning', "Could not execute sql: " . $sql, 1);
-	}
-}
+    # Discard the boilerplate at the top of the file.
+    shift(@vulns);
 
-#####
-# Main Processing Routine
-##### 
+    # Discard the boilerplate at the end of the file.
+    $vulns[-1] =~ s@\n</vuxml>.*\Z@@s;
 
-sub main {
+    %vulns = @vulns;
+    
 	my $dbh;
-	my $WipeExistingVuXMLEntries = 0;
-
-	if (($#ARGV+1) >= 1) {
-		if ($ARGV[0] eq '-w') {
-			$WipeExistingVuXMLEntries = 1;
-			print "Existing VuXML entries will be deleted\n";
-		}
-	}
-
-	print "dbname = $FreshPorts::Config::dbname\n";
-
 	$dbh = FreshPorts::Database::GetDBHandle();
 	if ($dbh->{Active}) {
+        my $vuxml = FreshPorts::vuxml->new( $dbh );
+          
+        eval {
+            for my $v ( sort keys %vulns ) {
 
-		if ($WipeExistingVuXMLEntries) {
-			EmptyVuXML($dbh);
-		}
+                # Make sure xml snippet is terminated with a newline
+                $vulns{$v} =~ s/\n*\Z/\n/s;
 
-		my $v = FreshPorts::vuxml_parsing->new(Stream        => *STDIN, 
-                                               DBHandle      => $dbh,
-                                               UpdateInPlace => !$WipeExistingVuXMLEntries);
-		$v->parse_xml();
+#               print $vulns{$v};
 
-		if ($WipeExistingVuXMLEntries) {
-			my $CommitMarker = FreshPorts::vuxml_mark_commits->new($dbh);
-			my $i = $CommitMarker->ProcessEachRangeRecord();
-			$CommitMarker->ClearCachedEntries();
-		}
-		
+                my $csum = sha256_hex( $vulns{$v} );
 
+                # fetch the checksum from the database
+                my $checksum = $vuxml->FetchChecksumByVID($v);
 
-# hmmm, this might be a good way to debug...
-  # issue a rollback after each attempt...
-#
-#		$dbh->rollback();
+                my $updateRequired = 1;
+                if (defined($checksum))
+                {
+                    if ($csum eq $checksum && 1)
+                    {
+                        $updateRequired = 0;
+                    }
+                    print "$v = '$csum' '$checksum'\n";
+                }
+                else
+                {
+                    print "$v = '$csum' not found\n";
+                }
+                if ($updateRequired)
+                {
+                    open(HANDLE, '<', \$vulns{$v});
+            		my $p = FreshPorts::vuxml_parsing->new(Stream        => *HANDLE,
+                                                           DBHandle      => $dbh,
+                                                           UpdateInPlace => 1);
+                                                           
+            		$p->parse_xml($csum);
+
+                    close HANDLE;
+                    # process $vulns{$v} via vuxml_processing
+                    
+                    if ($p->database_updated())
+                    {
+                        print "yes, the database was updated\n";
+                    }
+                    else
+                    {
+                        print "no, the database was NOT updated\n";
+                        next;
+                    }
+
+                    print 'invoking vuxml_mark_commits with ' . $v . "\n";
+        			my $CommitMarker = FreshPorts::vuxml_mark_commits->new(DBHandle => $dbh,
+                                                                           vid      => $v);
+		        	my $i = $CommitMarker->ProcessEachRangeRecord();
+        			$CommitMarker->ClearCachedEntries($v);
+                }
+            }
+        };
+        if ($@) {
+        	die "$0: $@\n";
+        }
+        print "committing\n";
 		$dbh->commit();
 
 		$dbh->disconnect();
-	}
+    }
 }
 
+system();
+
+my $end = time();
+
+print "Total time: " . ($end - $start) . " seconds\n";
+
+
+#
+# That's All Folks!
+#
