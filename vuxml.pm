@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: vuxml.pm,v 1.2 2006-12-17 12:04:04 dan Exp $
+# $Id: vuxml.pm,v 1.3 2012-07-22 12:03:53 dan Exp $
 #
 # Copyright (c) 2004 DVL Software
 #
@@ -11,6 +11,8 @@ use strict;
 use utilities;
 use constants;
 use vuxml_package;
+use database;
+use db_utils;
 
 my @Packages;
 
@@ -42,6 +44,7 @@ sub _GetValuesFromRow {
 	$this->{date_entry}     = $row->{date_entry};
 	$this->{date_modified}  = $row->{date_modified};
 	$this->{status}         = $row->{status};
+	$this->{checksum}       = $row->{checksum};
 }
 
 sub empty {
@@ -55,6 +58,7 @@ sub empty {
 	$this->{date_entry}     = undef;
 	$this->{date_modified}  = undef;
 	$this->{status}         = undef;
+	$this->{checksum}       = undef;
 }
 sub save {
 	my $this = shift;
@@ -68,7 +72,7 @@ sub save {
 		$this->{id} = FreshPorts::Database::GetNextValue($FreshPorts::Constants::vuxml_seq, $dbh);
 
 		$sql = "insert into vuxml(id, vid, topic, description, date_discovery, 
-                               date_entry, date_modified, status) values (
+                               date_entry, date_modified, status, checksum) values (
 				$this->{id},
 				" . $dbh->quote($this->{vid})            . ",
 				" . $dbh->quote($this->{topic})          . ",
@@ -76,7 +80,8 @@ sub save {
 				" . $dbh->quote($this->{date_discovery}) . ",
 				" . $dbh->quote($this->{date_entry})     . ",
 				" . $dbh->quote($this->{date_modified})  . ",
-                'A')";
+                'A',
+                " . $dbh->quote($this->{checksum})       . ")";
 	} else {
 		$sql = "UPDATE vuxml SET
 				vid            = " . $dbh->quote($this->{vid})            . ",
@@ -85,11 +90,12 @@ sub save {
 				date_discovery = " . $dbh->quote($this->{date_discovery}) . ",
 				date_entry     = " . $dbh->quote($this->{date_entry})     . ",
 				date_modified  = " . $dbh->quote($this->{date_modified})  . ",
-                status         = " . $dbh->quote($this->{status})         . "
+                status         = " . $dbh->quote($this->{status})         . ",
+                checksum       = " . $dbh->quote($this->{checksum})       . "
                 WHERE id       = $this->{id}";
 	}
 
-#	print "sql is $sql\n";
+	print "sql is $sql\n";
 
 	$sth = $this->{dbh}->prepare($sql);
 	if (!$sth->execute) {
@@ -160,12 +166,46 @@ sub FetchByVID {
 	# no sense setting values if we didn't get anything...
 	if ($row) {
 		$this->_GetValuesFromRow($row);
-		$this->FetchPackages($this->{vid});
 	} else {
 		undef $this->{vid};
 	}
 
 	return $this->{vid};
+}
+
+sub FetchChecksumByVID {
+	my $this = shift;
+	my $VID  = shift;
+
+	my $dbh;
+	my $sql;
+	my $sth;
+	my $row;
+
+	$dbh = $this->{dbh};
+
+	$sql = "SELECT vuxml.checksum
+              FROM vuxml
+             WHERE vuxml.vid = '$VID'";
+
+#	print "sql = '$sql'\n";
+
+	$sth = $dbh->prepare($sql);
+	if (!$sth->execute) {
+		FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql", 1);
+	}
+
+	$row = $sth->fetchrow_hashref();
+	$sth->finish();
+
+	# no sense setting values if we didn't get anything...
+	if ($row) {
+		$this->{checksum} = $row->{checksum};
+	} else {
+		undef $this->{checksum};
+	}
+
+	return $this->{checksum};
 }
 
 sub DeleteByVID {
@@ -223,6 +263,7 @@ sub print {
 	print "date_entry     = '" . $this->{date_entry}     . "'\n";
 	print "date_modified  = '" . $this->{date_modified}  . "'\n";
 	print "status         = '" . $this->{status}         . "'\n";
+	print "checksum       = '" . $this->{checksum}       . "'\n";
 
 	foreach my $package (@{$this->{packages}}) {
 		$package->print();
