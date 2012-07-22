@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: vuxml_mark_commits.pm,v 1.6 2012-06-26 12:26:26 dan Exp $
+# $Id: vuxml_mark_commits.pm,v 1.7 2012-07-22 12:02:19 dan Exp $
 #
 # Copyright (c) 1999-2006 DVL Software
 #
@@ -15,15 +15,30 @@ use email;
 use ports_vulnerable;
 use caching;
 use POSIX qw(uname);
+use Carp;
 
 sub new {
 	my $this		= {};
 	my $class		= shift;
+	
+	my %args   = ref( $_[0] ) eq 'HASH' ? %{ shift() } : @_;
+	
+    if ( defined $args{DBHandle} ) {
+        croak "new(): Argument is not a DB handle: DBHandle => $args{DBHandle}"
+          unless ( $args{DBHandle}->isa("DBI::db") );
+        $this->{dbh} = $args{DBHandle};
+    }
 
-	$this->{dbh}	= shift;
+    # are we processing just one vid?
+    if ( defined $args{vid} ) {
+        $this->{vid} = $args{vid};
+        print "vuxml_mark_commits has been restricted to a single vid: '" . $this->{vid} . "\n";
+    }
+
 	bless $this;
 
 	$this->_initialize();
+
 	return $this
 }
 
@@ -113,6 +128,24 @@ sub MarkOneCommit($) {
 		die "Could not execute SQL $sql ... maybe invalid?";
 }
 
+sub ClearCommitsForOneVuln($) {
+	my $this        = shift;
+    my $VID         = shift;
+
+	my $Commit;
+	my $dbh = $this->{dbh};
+    my $sth;
+    my $sql;
+
+	$sql = 'select commit_log_ports_vuxml_purge(' . $dbh->quote($VID) . ')';
+
+#	print "sql is $sql\n";
+
+	$sth = $dbh->prepare($sql);
+	$sth->execute ||
+		die "Could not execute SQL $sql ... maybe invalid?";
+}
+
 sub MarkTheseCommits($) {
 	my $this    = shift;
     my $Commits = shift;
@@ -131,13 +164,17 @@ sub MarkTheseCommits($) {
 
 #	print "but first, let's display them all\n";
 	for $Commit ( @{$Commits} ) {
-
+	
 #		print "==================\n";
 #		for my $value (keys %$Commit) {
 #			print "$value=$Commit->{$value}\n";
 #		}
 #
 #		print "that was VULN => $Commit->{vid}\n";
+
+	    # delete any references to this particular vuln
+	    # from the database
+	    $this->ClearCommitsForOneVuln($Commit->{vid});
 
 		#
 		# when marking multiple commits
@@ -150,7 +187,7 @@ sub MarkTheseCommits($) {
 INSERT INTO commit_log_ports_vuxml(commit_log_id, port_id, vuxml_id)
 SELECT commit_log_id,
        port_id,
-       " . $Commit->{vid} . " as vuxml_id
+       " . $dbh->quote($Commit->{vid}) . " as vuxml_id
   FROM commit_log_ports
  WHERE port_id       = "  . $Commit->{port_id}                    . "
    AND port_version  = '" . $Commit->{port_version}               . "'
@@ -216,15 +253,21 @@ sub TestVersionValues($;$;$) {
 	                );
 
 	my $command = "$FreshPorts::vuxml_mark_commits::PKGVERSION -t $Version1 $Version2";
+#	print $command . "\n";
 	my $result  = `$command`;
 
 	chomp $result;
+	# chomp stopped chomping after we started feeding the vuxml in one at a time.
+	$result =~ s/\s+$//;
+	
+#	print "result is '$result'\n";
 
 	my $ValidResults = $Operators{$Operator};
 #	while ( my ($op, $index) = each %$ValidResults) {
 #		print "valid match for '$Operator' is '$op'\n"
 #	}
-			
+
+	
 	if (defined($ValidResults->{$result})) {
 		$TestResult = 1;
 	} else {
@@ -266,9 +309,14 @@ sub ProcessEachRangeRecord() {
 	my @AffectedCommits = ();
 	my %Ports;
 
-	# XXX this function would need to be changed to return only unprocessed ranges...
-
-	$sql = "select * from vuxml_ranges();";
+	if (defined($this->{vid}))
+	{
+	  $sql = "select * from vuxml_ranges('" . $this->{vid} . "');";
+    }
+    else
+    {
+      $sql = "select * from vuxml_ranges();";
+    }
 
 	print "sql is $sql\n";
 
@@ -335,6 +383,10 @@ sub ProcessEachRangeRecord() {
 				print "We have found " . scalar(@AffectedCommits) . " affected commits\n";
 
 			}
+			else
+			{
+			  print "not affected\n";
+            }
         }
     }
 
@@ -400,8 +452,9 @@ sub RecordVulnerabilitiesForThisPortVersion($;$;$;$;$;$) {
     return $i;
 }
 
-sub ClearCachedEntries() {
+sub ClearCachedEntries($) {
 	my $this = shift;
+    my $VID  = shift;
 
 	my $dbh  = $this->{dbh};
 	my $sth;
@@ -414,7 +467,9 @@ SELECT C.name AS category,
        E.name AS port
  FROM element E, categories C, ports P 
     JOIN (SELECT DISTINCT port_id
-            FROM commit_log_ports_vuxml) as tmp on P.id = tmp.port_id
+            FROM commit_log_ports_vuxml CLPV, vuxml V
+           WHERE CLPV.vuxml_id = V.id
+             AND V.vid = ' . $dbh->quote($VID) . ') as tmp on P.id = tmp.port_id
            WHERE E.id = P.element_id
              AND C.id = P.category_id
         ORDER BY 1, 2';
