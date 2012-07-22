@@ -1,13 +1,13 @@
 #!/bin/sh
 #
-# $Id: fetch-svn-file.sh,v 1.3 2012-07-16 12:04:25 dan Exp $
+# $Id: fetch-svn-file.sh,v 1.4 2012-07-22 12:05:51 dan Exp $
 #
 # Copyright (c) 1999-2001 DVL Software
 #
 # This script used to fetch files from the cvs repo into our own tree.
 #
 #
-# $Id: fetch-svn-file.sh,v 1.3 2012-07-16 12:04:25 dan Exp $
+# $Id: fetch-svn-file.sh,v 1.4 2012-07-22 12:05:51 dan Exp $
 #
 # Copyright (c) 2000-2004 DVL Software
 #
@@ -36,11 +36,10 @@ else
 	#
 	time=`/bin/date +"%s"`
 
-	echo "* * * * *  about to fetch '$URL/$REPO/!svn/bc/$REVISION/head/$SRCDIR/$FILE?cache_busting_value=$time'"
+	# let's try using svn cat here..
+    echo "svn cat ${URL}/${REPO}/head/${SRCDIR}/${FILE}@${REVISION} > ${FETCHFILE}"
 	echo "* * * * *  fetching into $FETCHFILE"
 
-    # fetch "http://svn.freebsd.org/ports/!svn/bc/300899/head/Makefile"
-    # NOTE: SUFFIX is being ignored.  We always assume HEAD
-	/usr/bin/fetch -A -o $FETCHFILE "$URL/$REPO/!svn/bc/$REVISION/head/$SRCDIR/$FILE?cache_busting_value=$time"
+    svn cat ${URL}/${REPO}/head/${SRCDIR}/${FILE}@${REVISION} > ${FETCHFILE}
 	exit $?
 fi
