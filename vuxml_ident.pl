@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w 
 #
-# $Id: vuxml_ident.pl,v 1.2 2006-12-17 12:04:04 dan Exp $
+# $Id: vuxml_ident.pl,v 1.3 2012-07-22 12:02:46 dan Exp $
 #
 # Copyright (c) 2005 DVL Software
 #
@@ -24,7 +24,7 @@ sub vuln_ident($) {
 		|| die("ERROR: Cound not ident $VUXML: $!\n");
 
 	while (<VUXML>) {
-		next unless m#^\s+\$FreeBSD: .*ports/security/vuxml/vuln.xml,v (\d+\.\d+) (\d\d\d\d/\d\d/\d\d) (\d\d:\d\d:\d\d) (\S+) (\S+) .*$#;
+		next unless m#^\s+\$FreeBSD: head/security/vuxml/vuln.xml (\d+) (\d\d\d\d\-\d\d\-\d\d) (\d\d:\d\d:\d\d\S+) (\S+) .*$#;
 		$ident{Revision}  = $1;
 		$ident{Date}      = $2;
 		$ident{Time}      = $3;
