@@ -1,5 +1,5 @@
 #
-# $Id: verifyport.pm,v 1.51 2012-07-16 12:05:27 dan Exp $
+# $Id: verifyport.pm,v 1.52 2012-07-22 12:04:24 dan Exp $
 #
 # Copyright (c) 2001-2006 DVL Software
 #
@@ -694,7 +694,7 @@ sub MarkVulnerableCommits($;$;$) {
 	my $error;
 	my $ErrorFound = 0;
 
-	my $MarkCommits = FreshPorts::vuxml_mark_commits->new($dbh);
+	my $MarkCommits = FreshPorts::vuxml_mark_commits->new(DBHandle => $dbh);
 
 	#
 	# mark each and every port we are told about, if vulnerable
