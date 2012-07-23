@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: process_svn_mail.pm,v 1.4 2012-07-15 18:21:56 dan Exp $
+# $Id: process_svn_mail.pm,v 1.5 2012-07-23 13:17:44 dan Exp $
 #
 # Copyright (c) 2001-2003  DVL Software
 #
@@ -358,6 +358,9 @@ sub GetFiles {
 		 
 		# remove that annoying trailing: (props changed)			
 		$path =~ s/\s*\(props changed\)\s*$//;
+
+		# trim any leading/trailing whitespace
+		$path = FreshPorts::Utilities::trim($path);
 		 
 #print "path='$path'\n";
 		push @files, 'FILE', [ { Action => $action, Revision => $revision, Path => $RepoPrefix . '/' . $path } ];
