@@ -1,5 +1,5 @@
 #
-# $Id: verifyport.pm,v 1.52 2012-07-22 12:04:24 dan Exp $
+# $Id: verifyport.pm,v 1.53 2012-07-23 13:18:24 dan Exp $
 #
 # Copyright (c) 2001-2006 DVL Software
 #
@@ -338,6 +338,8 @@ sub FetchAllFiles($;$) {
 	LOOP:
 	foreach $value (@{$Files}) {
 		($action, $filename, $revision, $commit_log_element_id, $element_id) = @$value;
+		
+		print "looking at files: ($action, $filename, $revision, $commit_log_element_id, $element_id)\n";
 
 		#
 		# fetch only files in the ports tree
@@ -353,7 +355,7 @@ sub FetchAllFiles($;$) {
 		# the commit message with a trailing /
 		# if that process discontinues, we'll have to find another way to do this.
 		#
-		if ($filename =~ m|^*/$|) {
+		if ($filename =~ m|^.*/$|) {
 			print "this is a directory.  Will not fetch $filename\n";
 			next;
 		}
