@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $Id: process_vuxml.sh,v 1.6 2012-07-22 12:05:21 dan Exp $
+# $Id: process_vuxml.sh,v 1.7 2012-07-24 15:56:40 dan Exp $
 #
 # Copyright (c) 2003-2005 DVL Software Limited
 #
@@ -46,9 +46,9 @@ then
 	rm ${VUXMLFLAGFILE}
 	logger -t "FreshPorts ${0}"  "vuxml processing begins"
 	echo `date` "FreshPorts ${0}"  "vuxml processing begins"                  >> ${LOGFILE}
-	/usr/bin/perl ./process_vuxml.pl -w < ${PORTSDIR}/security/vuxml/vuln.xml >> ${LOGFILE}
+	/usr/bin/perl ./process_vuxml.pl < ${PORTSDIR}/security/vuxml/vuln.xml >> ${LOGFILE}
 	logger -t "FreshPorts ${0}"  "vuxml ident begins"
-	/usr/bin/perl ./vuxml_ident.pl        ${PORTSDIR}/security/vuxml/vuln.xml > ${BASEDIR}/dynamic/vuxml_revision
+	/usr/bin/perl ./vuxml_ident.pl     ${PORTSDIR}/security/vuxml/vuln.xml > ${BASEDIR}/dynamic/vuxml_revision
 	logger -t "FreshPorts ${0}"  "vuxml latest begins"
 	/usr/bin/perl ./vuln_latest.pl
 	rm ${VUXMLMUTEX}
