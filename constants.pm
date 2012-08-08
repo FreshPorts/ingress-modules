@@ -1,5 +1,5 @@
 #
-# $Id: constants.pm,v 1.13 2012-07-15 20:37:16 dan Exp $
+# $Id: constants.pm,v 1.14 2012-08-08 19:11:20 dan Exp $
 #
 # Copyright (c) 2001-2006 DVL Software
 #
@@ -50,7 +50,7 @@ $FreshPorts::Constants::FILE_MAKEFILE				= "Makefile";
 	"CVSROOT"       => 8,
 );
 
-$FreshPorts::Constants::UsualPortsTreeLocation			= '/usr';
+$FreshPorts::Constants::UsualPortsTreeLocation			= '/usr/ports';
 $FreshPorts::Constants::DISTDIR							= '/usr/ports/distfiles';
 
 $FreshPorts::Constants::HEAD							= 'HEAD';

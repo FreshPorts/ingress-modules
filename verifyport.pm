@@ -1,5 +1,5 @@
 #
-# $Id: verifyport.pm,v 1.53 2012-07-23 13:18:24 dan Exp $
+# $Id: verifyport.pm,v 1.54 2012-08-08 19:11:21 dan Exp $
 #
 # Copyright (c) 2001-2006 DVL Software
 #
@@ -356,14 +356,35 @@ sub FetchAllFiles($;$) {
 		# if that process discontinues, we'll have to find another way to do this.
 		#
 		if ($filename =~ m|^.*/$|) {
-			print "this is a directory.  Will not fetch $filename\n";
-			next;
+#			print "this is a directory.  Will not fetch $filename\n";
+#			next;
 		}
+		
+		# there, the filename will be of the form: ports/www/libmicrohttpd/distinfo
+		# we need to convert this to www/libmicrohttpd/distinfo
+		# we use ports/www/libmicrohttpd/distinfo in the database
+		# but the repo uses www/libmicrohttpd/distinfo and so does our ports tree on disk
+		#
+		#
 
 		my $directory = File::Basename::dirname ($filename);
 		my $FILE      = File::Basename::basename($filename);
 
-		my $DESTDIR   = "$FreshPorts::Config::path_to_tree/$directory";
+		# this is the step which removes the prefix from the directory
+		$directory =~ s|$FreshPorts::Config::ports_prefix/||g;
+		
+		
+		if ($filename =~ m|^.*/$|) {
+			# this 'file' is actually a directory
+			# thus, complete directory by appending file
+			$directory .= '/' . $FILE;
+			print "this is a directory.  Will fetch $directory\n";
+			$FILE = '';
+		}
+		
+
+		# now we set up the repository location for this file..
+		my $DESTDIR   = "$FreshPorts::Config::path_to_ports/$directory";
 		my $SRCDIR    = $directory;
 		my $REVISION  = $revision;
 	

@@ -1,6 +1,6 @@
 #
 #
-# $Id: utilities.pm,v 1.25 2012-07-15 22:58:23 dan Exp $
+# $Id: utilities.pm,v 1.26 2012-08-08 19:11:20 dan Exp $
 #
 # Copyright (c) 2001-2006 DVL Software
 #
@@ -75,6 +75,11 @@ print "before '$SRCDIR'\n";
 		$SRCDIR = "''";
 	}
 print "after '$SRCDIR'\n";
+
+	if ($FILE eq '')
+	{
+		$FILE = "''";
+	}
 
 #	print "FetchFileURL '$URL' '$DESTDIR' '$SRCDIR' '$FILE' '$REVISION' '$SUFFIX'\n";
 

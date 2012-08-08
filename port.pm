@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.65 2012-06-26 12:22:47 dan Exp $
+# $Id: port.pm,v 1.66 2012-08-08 19:11:20 dan Exp $
 #
 #
 # Copyright (c) 2001-2005 DVL Software
@@ -29,7 +29,9 @@ sub freshports_ConvertPortPathToStandardLocation($) {
 	# replace it with /usr.  Why? so we refer to the 
 	# real ports tree and not the one we are using
 
-	$pathname =~ s/$FreshPorts::Config::path_to_tree/$FreshPorts::Constants::UsualPortsTreeLocation/g;
+	print "freshports_ConvertPortPathToStandardLocation() is converting '$pathname' ";
+	$pathname =~ s/$FreshPorts::Config::path_to_ports/$FreshPorts::Constants::UsualPortsTreeLocation/g;
+	print " to '$pathname'\n";
 
 	return $pathname;
 }
@@ -736,7 +738,7 @@ sub _ExtractValuesFromMakefile {
 		$this->{only_for_archs}		= $only_for_archs;
 		$this->{not_for_archs}		= $not_for_archs;
 		$this->{showconfig} 		= $showconfig;
-		$this->{license} 		= $license;
+		$this->{license}            = $license;
 		$this->{categories}			= $categories;
 		# convert all whitespace to a single space
 		# This arose from 200609130717.k8D7HpNc057638@repoman.freebsd.org
@@ -770,6 +772,27 @@ sub _Validate {
 	  $this->{expiration_date} = '';
 	}
 
+	# verify that CATEGORIES contains the primary category
+	# make sure that $this->{categories} contains $this->{category}
+	my $CATEGORIES = "www mail editors";
+	my $category = "editor";
+	
+	my @categories = split(/ /, $this->{categories});
+	
+	my $primaryCategoryFound = 0;
+	for (@categories) {
+	   my ($category) = $_;
+	      if ($this->{category} eq $category)
+	      {
+	        $primaryCategoryFound = 1;
+            last;
+	      }
+	}
+	
+	if (!$primaryCategoryFound) {
+	  $ErrorMsg = "\nThe CATEGORIES value ('" . $this->{categories} . "') does not contain the primary category ('" . $this->{category} . "')";
+	}
+	                 
 	if ($ErrorMsg ne '') {
 		FreshPorts::CommitterOptIn::RecordErrorDetails("$this->{category}/$this->{name}", $ErrorMsg);
 		$result = -1;		
@@ -1279,7 +1302,7 @@ sub depends_stripper {
     {
       # this should be a sanity test failure?
       print "Oh.  Umm.  No, that does not translate into a valid dependency.  Skipping....\n";
-      FreshPorts::CommitterOptIn::RecordErrorDetails("$this->{category}/$this->{name}", "I could not translate the following into a dependency: '$dep'");
+      FreshPorts::CommitterOptIn::RecordErrorDetails("$this->{category}/$this->{name}", "\nI could not translate the following into a dependency: '$dep'");
     }
   }
 

@@ -1,16 +1,11 @@
 #!/bin/sh
 #
-# $Id: fetch-svn-file.sh,v 1.4 2012-07-22 12:05:51 dan Exp $
+# $Id: fetch-svn-file.sh,v 1.5 2012-08-08 19:11:20 dan Exp $
 #
-# Copyright (c) 1999-2001 DVL Software
+# Copyright (c) 1999-2012 DVL Software
 #
-# This script used to fetch files from the cvs repo into our own tree.
-#
-#
-# $Id: fetch-svn-file.sh,v 1.4 2012-07-22 12:05:51 dan Exp $
-#
-# Copyright (c) 2000-2004 DVL Software
-#
+# This script used to fetch files from the svn repo into our own tree.
+
 echo "num of params = $#"
 if  [ $# -ne 7 ];
 	then echo error invoking script $0 : usage $0 URL DESTDIR SRCDIR FILE REVISION SUFFIX 1>&2
@@ -36,10 +31,9 @@ else
 	#
 	time=`/bin/date +"%s"`
 
-	# let's try using svn cat here..
-    echo "svn cat ${URL}/${REPO}/head/${SRCDIR}/${FILE}@${REVISION} > ${FETCHFILE}"
-	echo "* * * * *  fetching into $FETCHFILE"
-
-    svn cat ${URL}/${REPO}/head/${SRCDIR}/${FILE}@${REVISION} > ${FETCHFILE}
+    # we may not need this cd...
+    cd ${DESTDIR}
+    echo "svn up -r ${REVISION} ${FILE}"
+    svn up -r ${REVISION} ${FILE}
 	exit $?
 fi
