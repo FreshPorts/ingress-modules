@@ -1,5 +1,5 @@
 #
-# $Id: config.pm.sample,v 1.18 2007-10-18 17:44:41 dan Exp $
+# $Id: config.pm.sample,v 1.19 2012-08-08 19:14:05 dan Exp $
 #
 # Copyright (c) 2001-2007 DVL Software
 #
@@ -85,9 +85,19 @@ $FreshPorts::Config::PortsTreeCount	    		= $FreshPorts::Config::BaseDir . '/dyn
 $FreshPorts::Config::CachingRoot            = $FreshPorts::Config::BaseDir . '/dynamic/caching';
 
 #
+# tmp place for putting files needed by some special processing
+#
+$FreshPorts::Config::TMP	= $FreshPorts::Config::BaseDir . '/dynamic/caching/tmp';
+
+#
 # For fetching files from CVS
 #
 $FreshPorts::Config::CVS_Repository			= "http://www.freebsd.org/cgi/cvsweb.cgi";
+
+#
+# For fetching files from SVN
+#
+$FreshPorts::Config::SVN_Repository			= "http://svn.freebsd.org";
 
 #
 # various debugging settings
@@ -106,6 +116,5 @@ $FreshPorts::Config::Fetch_Retry_Limit = 10;
 
 # sleep this number of seconds between retries
 $FreshPorts::Config::Fetch_Sleep_Time  = 120;
-
 
 1;
