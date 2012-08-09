@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: process_svn_mail.pm,v 1.5 2012-07-23 13:17:44 dan Exp $
+# $Id: process_svn_mail.pm,v 1.6 2012-08-09 13:11:10 dan Exp $
 #
 # Copyright (c) 2001-2003  DVL Software
 #
@@ -89,7 +89,9 @@ sub GetData {
 						],
 						'TIME', [ &GetMessage_Time($message)
 						],
-						'REPOSITORY', [ {}, 0, &GetFreeBSDRepository($message)
+						'REPOSITORY', [ {}, 0, $RepoPrefix
+						],
+						'REVISION', [ {}, 0, &GetRevision($message)
 						],
 						&GetMessage_To($message)
 					],
@@ -209,16 +211,6 @@ sub GetPeople {
 }
 
 
-sub GetFreeBSDRepository {
-	my ($message) = @_;
-	my ($FreeBSDRepository) = 'src'; # blank!
-
-	# It's only src that in svn at the moment
-
-	return $FreeBSDRepository;
-}
-
-
 sub GetObtainedFrom {
 	my ($message) = @_;
 	my ($ObtainedFrom);
@@ -236,6 +228,25 @@ sub GetObtainedFrom {
 
 	return $ObtainedFrom;
 }
+
+sub GetRevision {
+	my ($message) = @_;
+	my ($Revision);
+
+	my (@lines) = split("\n", $message);
+		
+	for (@lines) {          
+		my ($line) = $_;
+	   
+		if ($line =~ /^New Revision:/i) {
+			$Revision = (split(" ", $line, 3))[2];
+			last;
+		}
+	}
+
+	return $Revision;
+}
+
 
 sub GetApprover {
 	my ($message) = @_;
