@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: commit_log.pm,v 1.5 2008-08-29 13:07:31 dan Exp $
+# $Id: commit_log.pm,v 1.6 2012-08-15 11:49:10 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -41,6 +41,7 @@ sub _GetValuesFromRow {
 	$this->{description}		= $row->{description};
 	$this->{encoding_losses}	= $row->{encoding_losses};
 	$this->{system_id}			= $row->{system_id};
+	$this->{revision}			= $row->{revision};
 }
 
 sub save {
@@ -54,7 +55,7 @@ sub save {
 	$this->{id} = FreshPorts::Database::GetNextValue($FreshPorts::Constants::commit_log_seq, $dbh);
 
 	$sql = "insert into commit_log (id, message_id, message_date, message_subject, date_added, commit_date, 
-											committer, description, system_id, encoding_losses) values ( \
+											committer, description, system_id, svn_revision, encoding_losses) values ( \
 				$this->{id},
 				" . $dbh->quote($this->{message_id})      . ",
 				" . $dbh->quote($this->{message_date})    . ",
@@ -64,6 +65,7 @@ sub save {
 				" . $dbh->quote($this->{committer})       . ",
 				" . $dbh->quote($this->{description})     . ",
 				$this->{system_id},
+				" . $dbh->quote($this->{revision})        . ",
 				$this->{encoding_losses}::boolean)";
 
 	print "sql is $sql\n";

@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: refresh-each-port.pl,v 1.3 2006-12-17 12:04:02 dan Exp $
+# $Id: refresh-each-port.pl,v 1.4 2012-08-15 11:49:10 dan Exp $
 #
 # Copyright (c) 1999-2004 DVL Software
 #
@@ -58,7 +58,7 @@ foreach $porttorefresh (@PORTS) {
 	if ($port->FetchByID()) {
 
 		# needs_refresh = 0, and fetch_files = 0
-		$result = $port->RefreshFromFiles(0, 0);
+		$result = $port->RefreshFromFiles(0, 0, '');
 		print "has been refreshed ($result)\n";
 
 		if ($result == 0) {

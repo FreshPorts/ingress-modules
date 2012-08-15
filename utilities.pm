@@ -1,6 +1,6 @@
 #
 #
-# $Id: utilities.pm,v 1.26 2012-08-08 19:11:20 dan Exp $
+# $Id: utilities.pm,v 1.27 2012-08-15 11:49:10 dan Exp $
 #
 # Copyright (c) 2001-2006 DVL Software
 #
@@ -88,7 +88,7 @@ print "after '$SRCDIR'\n";
 	my $FetchAttempts = $FreshPorts::Config::Fetch_Retry_Limit;
 
 	while ($FetchAttempts) {
-		my $command = "sh $FreshPorts::Config::scriptpath/fetch-svn-file.sh $URL $REPO $DESTDIR $SRCDIR $FILE $REVISION $SUFFIX 2>&1";
+		my $command = "sh $FreshPorts::Config::scriptpath/svn-up-file.sh  SVNDIR SVNITEM REVISION $DESTDIR $SRCDIR $FILE $REVISION $SUFFIX";
 		print "about to fetch = '$command'\n";
 		my $FetchResults = `$command`;
 		my $code = $?;
@@ -111,6 +111,7 @@ print "after '$SRCDIR'\n";
 
 		} else {
 			# fetch worked
+			print "That fetch worked: '$FetchResults'\n";
 			last;
 		}
     }
@@ -118,6 +119,75 @@ print "after '$SRCDIR'\n";
 	#
 	# if we succeeded in our fetch..
 	if ($FetchAttempts) {
+		$result = 1;
+	}
+
+	return $result;
+}
+
+sub svnUpFile($;$;$) {
+	#
+	# fetch a file
+	# into the given path
+	# returns 1 if fetched.
+	# zero otherwise.
+	#
+	my $SVNDIR		= shift;
+	my $SVNITEM		= shift;
+	my $REVISION	= shift;
+	
+	$SVNITEM =~ s!^/?ports/!!;
+	
+	# special case, that I couldn't handle in a regex
+	if ($SVNITEM eq $FreshPorts::Config::ports_prefix)
+	{
+		$SVNITEM = "''";
+	}
+print "after '$SVNITEM'\n";
+
+	if ($SVNITEM eq '')
+	{
+		$SVNITEM = "''";
+	}
+
+#	print "svnUpFile '$SVNDIR' '$SVNITEM' '$REVISION'\n";
+
+	my $result = 0;
+
+	my $numAttempts = $FreshPorts::Config::Fetch_Retry_Limit;
+
+	while ($numAttempts) {
+		my $command = "sh $FreshPorts::Config::scriptpath/svn-up-file.sh $SVNDIR $SVNITEM $REVISION";
+		print "about to svn up = '$command'\n";
+		my $svnUpResults = `$command`;
+		my $code = $?;
+		print "svn up result = $code\n";
+		if (($code >> 8)) {
+			#
+			# This might be a nice place to retry a fetch, or send an email
+			#
+			print "that svn up failed.  What do to?\n";
+			print "\n\n" . $svnUpResults . "\n\n";
+
+			# and we're outta here
+			# fetch failed
+			# sleep, then try again
+
+			Sys::Syslog::syslog('warning', "sleeping after svn up failed for ($SVNDIR $SVNITEM $REVISION)");
+			print "fetch failed, sleeping...\n";
+			sleep $FreshPorts::Config::Fetch_Sleep_Time;
+			$numAttempts--;
+
+		} else {
+			# fetch worked
+			print "That fetch worked: '$svnUpResults'\n";
+			last;
+		}
+    }
+
+	#
+	# if we succeeded in our fetch..
+	if ($numAttempts) {
 		$result = 1;
 	}
 

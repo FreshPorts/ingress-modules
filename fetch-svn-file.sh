@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $Id: fetch-svn-file.sh,v 1.5 2012-08-08 19:11:20 dan Exp $
+# $Id: fetch-svn-file.sh,v 1.6 2012-08-15 11:49:10 dan Exp $
 #
 # Copyright (c) 1999-2012 DVL Software
 #
@@ -33,7 +33,7 @@ else
 
     # we may not need this cd...
     cd ${DESTDIR}
-    echo "svn up -r ${REVISION} ${FILE}"
-    svn up -r ${REVISION} ${FILE}
+    echo "svn up -r ${REVISION} ${FETCHFILE}"
+    svn up -r ${REVISION} ${FETCHFILE}
 	exit $?
 fi

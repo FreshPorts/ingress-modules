@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: refresh-unrefreshed-ports.pl,v 1.22 2007-12-30 18:37:00 dan Exp $
+# $Id: refresh-unrefreshed-ports.pl,v 1.23 2012-08-15 11:49:10 dan Exp $
 #
 # Copyright (c) 1999-2004 DVL Software
 #
@@ -60,7 +60,8 @@ $dbh = FreshPorts::Database::GetDBHandle();
 #
 
 $sql = "select ports.id, categories.name as category, element.name as port, commit_log_ports.needs_refresh, 
-			   commit_log_ports.commit_log_id, to_char(commit_log.commit_date - SystemTimeAdjust(), 'YYYY-MM-DD') as commit_date
+			   commit_log_ports.commit_log_id, to_char(commit_log.commit_date - SystemTimeAdjust(), 'YYYY-MM-DD') as commit_date,
+			   coalesce(commit_log.svn_revision, '')
         from ports, categories, element, commit_log_ports, commit_log
         where ports.category_id              = categories.id 
           and ports.element_id               = element.id
@@ -84,6 +85,7 @@ while (@row=$sth->fetchrow_array) {
 	$Port{needs_refresh} = $row[3];
 	$Port{commit_log_id} = $row[4];
 	$Port{commit_date}   = $row[5];
+	$Port{svn_revison}   = $row[6];
 
 	#
 	# by enclosing the has in { }
@@ -110,8 +112,9 @@ foreach $porttorefresh (@PORTS) {
 	my $needs_refresh = $porttorefresh->{needs_refresh};
 	my $commit_log_id = $porttorefresh->{commit_log_id};
 	my $commit_date   = $porttorefresh->{commit_date};
+	my $svn_revision  = $porttorefresh->{svn_revision};
 
-	print "found $category_name/$port_name $needs_refresh $commit_log_id $commit_date \n";
+	print "found $category_name/$port_name $needs_refresh $commit_log_id $commit_date $svn_revision\n";
 
 	$port->{id} = $port_id;
 	if ($port->FetchByID()) {
@@ -125,7 +128,7 @@ foreach $porttorefresh (@PORTS) {
 				print "that port has been deleted and will not be refreshed\n";
 				$result = 0;
 			} else {
-				$result = $port->RefreshFromFiles($needs_refresh, $fetch_before_refresh);
+				$result = $port->RefreshFromFiles($needs_refresh, $fetch_before_refresh, $svn_revision);
 				print "refresh attempt done ($result)\n";
 			}
 		} else {

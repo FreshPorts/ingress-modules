@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.66 2012-08-08 19:11:20 dan Exp $
+# $Id: port.pm,v 1.67 2012-08-15 11:49:10 dan Exp $
 #
 #
 # Copyright (c) 2001-2005 DVL Software
@@ -807,35 +807,33 @@ sub _FetchFilesNeedingRefresh {
 
 	my $this	= shift;
 	my $result	= 1;
-
+	
 	my $TmpFile = FreshPorts::Utilities::TmpFileName("$this->{category}.$this->{name}.make-error");
 
 	print "into _FetchFilesNeedingRefresh ------------\n";
 
 	# this is where we fetch the files to disk
-	my $DESTDIR	= "$FreshPorts::Config::path_to_ports/$this->{category}/$this->{name}";
+	my $SVNDIR	= "$FreshPorts::Config::path_to_ports";
 
 	#
 	# this is the location in the repository where our main files reside.
 	# in the case of a slave port, it's where the slave Makefile will be.
 	# it is not necessarily where the pkg-descr and pkg-comment will reside.
 	#
-	my $SRCDIR	= "$FreshPorts::Config::ports_prefix/$this->{category}/$this->{name}";
+	my $SVNSUBDIR = "$this->{category}/$this->{name}";
+	my $SVNITEM   = "$SVNSUBDIR/$FreshPorts::Constants::FILE_MAKEFILE";
 
-	my $FILE	= $FreshPorts::Constants::FILE_MAKEFILE;
+	print "\$SVNDIR  = $SVNDIR\n";
+	print "\$SVNITEM = $SVNITEM\n";
 
-	print "\$DESTDIR = $DESTDIR\n";
-	print "\$SRCDIR  = $SRCDIR\n";
-	print "\$FILE    = $FILE\n";
-
-	if (FreshPorts::Utilities::FetchFile($DESTDIR, $SRCDIR, $FILE, $FreshPorts::Constants::HEAD)) {
+	if (FreshPorts::Utilities::svnUpFile($SVNDIR, $SVNITEM, $FreshPorts::Constants::HEAD)) {
 		#
 		# now that we have the Makefile for this port, let's figure out the full name
 		# of the pkg-descr and pkg-comment files.  They may belong to another port.
  		#
 
-		if (!LooksLikeAMakefile("$DESTDIR/$FILE")) {
-			FreshPorts::Utilities::ReportError('warning', "$DESTDIR/$FILE does not look like a makefile", 0);
+		if (!LooksLikeAMakefile("$SVNDIR/$SVNITEM")) {
+			FreshPorts::Utilities::ReportError('warning', "$SVNDIR/$SVNITEM does not look like a makefile", 0);
 			#
 			# lets try returning 1 instead of -1, the fetch may have failed... and given us HTML or rather
 			# more precisely, non-ASCII
@@ -843,10 +841,10 @@ sub _FetchFilesNeedingRefresh {
 			return 1;
 		}
 
-		print "now doing a chdir to $DESTDIR\n";
-		if (!chdir("$DESTDIR")) {
+		print "now doing a chdir to $SVNDIR/$SVNSUBDIR\n";
+		if (!chdir("$SVNDIR/$SVNSUBDIR")) {
 			my $error = $!;
-			FreshPorts::Utilities::ReportError('warning', "error doing a chdir $DESTDIR $error\n", 1);
+			FreshPorts::Utilities::ReportError('warning', "error doing a chdir $SVNDIR $error\n", 1);
 		}
 
 
@@ -858,7 +856,7 @@ sub _FetchFilesNeedingRefresh {
 			mkdir "pkg",0;
 		}
 
-		my $makecommand = "make -V DESCR -f $DESTDIR/$FILE PORTSDIR=$FreshPorts::Config::path_to_ports " .
+		my $makecommand = "make -V DESCR -f $SVNDIR/$SVNITEM PORTSDIR=$FreshPorts::Config::path_to_ports " .
 		                  "LOCALBASE=/nonexistentlocal 2>$TmpFile";
 
 		print "makecommand = $makecommand\n";
@@ -871,8 +869,7 @@ sub _FetchFilesNeedingRefresh {
 		}
 		# remove the error collection file
 		unlink($TmpFile);
-
-
+		
 		# remove previously created directory
 		if ($FreshPorts::Config::mkdir_pkg) {
 			rmdir "pkg";
@@ -937,14 +934,11 @@ sub _FetchFilesNeedingRefresh {
 				# specify any directory prefix.  The Makefile did that.
 				#
 
-				my $directory	= File::Basename::dirname ($DESCR);
-				my $FILE		= File::Basename::basename($DESCR);
-				my $DESTDIR		= $directory;
-				$SRCDIR			= File::Basename::dirname(RemovePortsPrefix($DESCR));
+				$SVNITEM =~ s/$SVNDIR\///;
 
-				print "fetching \$DESTDIR = [$DESTDIR], \$SRCDIR = [$SRCDIR], \$FILE = [$FILE]\n";
+				print "fetching \$SVNDIR = [$SVNDIR], \$SVNITEM = [$SVNITEM], \$REVISION = [$FreshPorts::Constants::HEAD]\n";
 
-				if (FreshPorts::Utilities::FetchFile($DESTDIR, $SRCDIR, $FILE, $FreshPorts::Constants::HEAD)) {
+				if (FreshPorts::Utilities::svnUpFile($SVNDIR, $SVNITEM, $FreshPorts::Constants::HEAD)) {
 					$result = 0;
 				}
 			} else {
@@ -1002,7 +996,7 @@ sub _GetDescrAndHomePage($) {
 }
 
 
-sub RefreshFromFiles($;$) {
+sub RefreshFromFiles($;$;$) {
 #
 # refresh this port based on the make files associated with it and the value of needs_refresh
 # returns 0 for success, 1 for failure
@@ -1010,6 +1004,7 @@ sub RefreshFromFiles($;$) {
 	my $this			= shift;
 	my $needs_refresh	= shift;
 	my $fetch_files		= shift;
+	my $svn_revision	= shift;
 
 	print "into RefreshFromFiles()\n";
 	if (!defined($needs_refresh)) {
@@ -1026,7 +1021,18 @@ sub RefreshFromFiles($;$) {
 	#
 	if ($needs_refresh > 0 && $fetch_files) {
 		while ($FetchAttempts) {
-			$result = $this->_FetchFilesNeedingRefresh();
+		    if (defined($svn_revision) && $svn_revision ne '')
+		    {
+		      # svn up -r $svn_revision
+
+              my $SVNDIR = "$FreshPorts::Config::path_to_ports";
+
+              $result = FreshPorts::Utilities::svnUpFile($SVNDIR, '', $svn_revision);
+            }
+            else
+            {
+               $result = $this->_FetchFilesNeedingRefresh();
+            }
 			if ($result == -1) {
 				$FetchAttempts = 0;
 				$error = 1;

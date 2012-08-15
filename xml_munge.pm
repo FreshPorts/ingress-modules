@@ -1,5 +1,5 @@
 #
-# $Id: xml_munge.pm,v 1.15 2012-06-26 12:26:56 dan Exp $
+# $Id: xml_munge.pm,v 1.16 2012-08-15 11:49:10 dan Exp $
 #
 # Copyright (c) 2001-2006 DVL Software
 #
@@ -233,6 +233,7 @@ sub SetupParser($) {
 	$p->register(">UPDATES>UPDATE>MESSAGE>TO",					"end"   => \&handle_messageto_end);
 
 	$p->register(">UPDATES>UPDATE>MESSAGE>REPOSITORY",			"char"  => \$Updates{repository});
+	$p->register(">UPDATES>UPDATE>MESSAGE>REVISION",			"char"  => \$Updates{revision});
 
 	$p->register(">UPDATES>UPDATE>MESSAGE",						"end"   => \&handle_message_end);
 
@@ -325,8 +326,12 @@ sub handle_update_end {
 
 	print "\n --- end of this update --- \n";
 
-	if ($fetch_before_refresh) {
-		$FetchOK = FreshPorts::VerifyPort::FetchAllFiles(\@Files, $self->{dbh});
+	# we only fetch stuff for the ports repository
+	print "this commit is from the '" . $Updates{repository} . "' repository.\n";
+	
+	if (($Updates{repository} eq $FreshPorts::Config::Repo_PORTS) && $fetch_before_refresh) {
+		print "oh, the script goes to fetch...\n";
+		$FetchOK = FreshPorts::VerifyPort::FetchAllFiles(\@Files, $Updates{revision}, $self->{dbh});
 		if ($FetchOK) {
 			$self->notify_observers($FreshPorts::Messages::FilesFetched);
 		} else {
@@ -342,7 +347,7 @@ sub handle_update_end {
 	
 	if ($FetchOK) {
 		if ($refresh_ports) {
-			$ErrorFound = FreshPorts::VerifyPort::RefreshAllPortsTouchedByCommit(\%CommitLogPorts, 0, $self->{dbh});
+			$ErrorFound = FreshPorts::VerifyPort::RefreshAllPortsTouchedByCommit(\%CommitLogPorts, 0, '', $self->{dbh});
 
 			if (!$ErrorFound) {
 				$ErrorFound = FreshPorts::VerifyPort::RefreshAllSlavePortsOfPortsTouchedByCommit(\%CommitLogPorts, 0, $self->{dbh});
@@ -687,6 +692,12 @@ sub handle_message_end {
 		print "Repository     = not defined, perhaps an older commit.\n";
 	}
 
+	if (defined($Updates{revision})) {
+		print "Repository     = [$Updates{revision}]\n";
+	} else {
+		print "Repository     = not defined, perhaps an older commit.\n";
+	}
+
 	print "MessageId      = [$Updates{MessageId}]\n";
 
 	print "MessageDate    = [" . sprintf "%04u/%02u/%02u %02u:%02u:%02u %s", $Updates{messageyear}, $Updates{messagemonth}, $Updates{messageday}, $Updates{messagehour}, $Updates{messageminute}, $Updates{messagesecond}, $Updates{messagezone} . "]\n";
@@ -785,6 +796,7 @@ sub SaveUpdateToDB {
 
 	my $committer       = $Updates{committer};
 	my $description     = $Updates{log};
+	my $revision        = $Updates{revision};
    
 	$commit_log->{message_id}		= $message_id;
 	$commit_log->{message_date}		= $message_date;
@@ -794,6 +806,7 @@ sub SaveUpdateToDB {
 	$commit_log->{committer}		= $committer;
 	$commit_log->{description}		= $description;
 	$commit_log->{system_id}		= $SystemID;
+	$commit_log->{revision} 		= $revision;
 
 	#
 	# MessageEncodingLosses is new.
@@ -824,7 +837,7 @@ sub GetExistingMessageID($;$) {
    
 	$sql = "select id from commit_log where message_id = " . $dbh->quote($message_id);
 
-	print "GetExistingMessageID => sql='$sql'\n";
+	print "GetExistingMessageID => sql=$sql\n";
    
 	$sth = $dbh->prepare($sql);
 	if (!$sth->execute) {

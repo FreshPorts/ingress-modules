@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: process_svn_mail.pm,v 1.6 2012-08-09 13:11:10 dan Exp $
+# $Id: process_svn_mail.pm,v 1.7 2012-08-15 11:49:10 dan Exp $
 #
 # Copyright (c) 2001-2003  DVL Software
 #
@@ -475,9 +475,9 @@ sub GetOS_RepoPrefix {
 	my $myListId     = FreshPorts::ProcessMail::myGetList_Id($message);
 
 	my %KnownRepos = (
-		"SVN commit messages for the entire src tree"     => "src",
-		"SVN commit messages for the entire doc trees"    => "doc",
-		"SVN commit messages for the ports tree for head" => "ports"
+		"SVN commit messages for the entire src tree"     => $FreshPorts::Config::Repo_SRC,
+		"SVN commit messages for the entire doc trees"    => $FreshPorts::Config::Repo_DOC,
+		"SVN commit messages for the ports tree for head" => $FreshPorts::Config::Repo_PORTS
 	);
 	
 	while (my ($ListId, $repo) = each %KnownRepos)

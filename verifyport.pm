@@ -1,5 +1,5 @@
 #
-# $Id: verifyport.pm,v 1.54 2012-08-08 19:11:21 dan Exp $
+# $Id: verifyport.pm,v 1.55 2012-08-15 11:49:10 dan Exp $
 #
 # Copyright (c) 2001-2006 DVL Software
 #
@@ -311,14 +311,15 @@ sub SaveChangesToPortsTree($;$;$) {
 	return %CommitLogPorts;
 }
 
-sub FetchAllFiles($;$) {
+sub FetchAllFiles($;$;$) {
 	#
 	# fetch all the files associated with this commit
 	# Actually, it's only files within the ports tree.
 	#
 
-	my $Files	= shift;
-	my $dbh		= shift;
+	my $Files        = shift;
+	my $svn_revision = shift;
+	my $dbh          = shift;
 
 	
 	my $action;
@@ -334,6 +335,17 @@ sub FetchAllFiles($;$) {
 	my $FetchOK = 1;
 
 	print "fetching all files from this commit.\n";
+	
+	# this is where we fetch the files to disk
+	my $SVNDIR	= "$FreshPorts::Config::path_to_ports";
+
+	# if we have a revision	
+	if (defined($svn_revision) && $svn_revision ne '')
+	{
+		$FetchOK = FreshPorts::Utilities::svnUpFile($SVNDIR, '', $svn_revision);
+
+		return $FetchOK;
+	}
 
 	LOOP:
 	foreach $value (@{$Files}) {
@@ -367,26 +379,20 @@ sub FetchAllFiles($;$) {
 		#
 		#
 
-		my $directory = File::Basename::dirname ($filename);
-		my $FILE      = File::Basename::basename($filename);
-
 		# this is the step which removes the prefix from the directory
-		$directory =~ s|$FreshPorts::Config::ports_prefix/||g;
+		$filename =~ s|$FreshPorts::Config::ports_prefix/||g;
 		
 		
 		if ($filename =~ m|^.*/$|) {
 			# this 'file' is actually a directory
 			# thus, complete directory by appending file
-			$directory .= '/' . $FILE;
-			print "this is a directory.  Will fetch $directory\n";
-			$FILE = '';
+			print "this is a directory.  Will fetch $filename\n";
 		}
 		
 
 		# now we set up the repository location for this file..
-		my $DESTDIR   = "$FreshPorts::Config::path_to_ports/$directory";
-		my $SRCDIR    = $directory;
-		my $REVISION  = $revision;
+		my $SVNITEM  = $filename;
+		my $REVISION = $revision;
 	
 		#
 		# there is no sense in fetching removed files
@@ -397,16 +403,15 @@ sub FetchAllFiles($;$) {
 			# fetch this file into the ports tree
 			#
 
-			print "fetching \$DESTDIR = [$DESTDIR], \$SRCDIR = [$SRCDIR], \$FILE = [$FILE (was $filename)] \$REVISION = [$REVISION]\n";
+			print "fetching \$SVNDIR = [$SVNDIR], \$SVNITEM = [$SVNITEM (was $filename)] \$REVISION = [$REVISION]\n";
 
-			
-			$FetchOK = FreshPorts::Utilities::FetchFile($DESTDIR, $SRCDIR, $FILE, $REVISION);
+			$FetchOK = FreshPorts::Utilities::svnUpFile($SVNDIR, $SVNITEM, $REVISION);
 			if (!$FetchOK) {
 				FreshPorts::Utilities::ReportError('warning', "Sorry, but we couldn't fetch all the files", 0);
 				last LOOP;
 			}
 		} else {
-			print "file was removed.  not fetching $SRCDIR/$FILE/?revision=$REVISION\n";
+			print "file was removed.  not fetching $SVNITEM revision=$REVISION\n";
 		}
 	}
 
@@ -581,7 +586,7 @@ sub _RecordPortsAndElements($;$;$;$) {
 	print "done _RecordPortsAndElements\n";
 }
 
-sub RefreshAllPortsTouchedByCommit($;$;$) {
+sub RefreshAllPortsTouchedByCommit($;$;$;$) {
 	#
 	# given the ports touched by this commit
 	# refresh each of them
@@ -590,6 +595,7 @@ sub RefreshAllPortsTouchedByCommit($;$;$) {
 	my $CommitLogPortsRef		= shift;
 	my %CommitLogPorts			= %{$CommitLogPortsRef};
 	my $fetch_before_refresh	= shift;
+	my $svn_revision            = shift;
 	my $dbh						= shift;
 
 	my $port;
@@ -610,7 +616,7 @@ sub RefreshAllPortsTouchedByCommit($;$;$) {
 		# If we don't need to refresh it, we don't need to save it.
 		#
 		if ($port->IsActive()) {
-			$error = $port->RefreshFromFiles($commit_log_ports->{needs_refresh}, $fetch_before_refresh);
+			$error = $port->RefreshFromFiles($commit_log_ports->{needs_refresh}, $fetch_before_refresh, $svn_revision);
 		} else {
 			print "This port is deleted: not refreshing.\n";
 			$error = 0;
@@ -686,7 +692,7 @@ sub RefreshAllSlavePortsOfPortsTouchedByCommit($;$;$) {
 		$port->FetchByPartialPathName();
 
 		#  refresh it
-		$port->RefreshFromFiles(1, 0);	# refresh the port, don't fetch the files
+		$port->RefreshFromFiles(1, 0, '');	# refresh the port, don't fetch the files
 
 		#  save it
 		$port->save();
