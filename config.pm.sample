@@ -1,5 +1,5 @@
 #
-# $Id: config.pm.sample,v 1.19 2012-08-08 19:14:05 dan Exp $
+# $Id: config.pm.sample,v 1.20 2012-08-15 13:20:23 dan Exp $
 #
 # Copyright (c) 2001-2007 DVL Software
 #
@@ -116,5 +116,10 @@ $FreshPorts::Config::Fetch_Retry_Limit = 10;
 
 # sleep this number of seconds between retries
 $FreshPorts::Config::Fetch_Sleep_Time  = 120;
+
+# various repo names that we follow
+$FreshPorts::Config::Repo_DOC    = 'doc';
+$FreshPorts::Config::Repo_PORTS  = 'ports';
+$FreshPorts::Config::Repo_SRC    = 'src';
 
 1;
