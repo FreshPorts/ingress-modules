@@ -21,5 +21,5 @@ MASTER_PORT=`${COMMAND}`
 
 if [ "${MASTER_PORT}X" != "${MASTER}X" ]
 then
-	echo "make -V MASTER_PORT on sysutils/bacula-client does not give '${MASTER}'" | mail -s "FAILED: MASTER_PORT" ${ADMINEMAIL}
+	echo "make -V MASTER_PORT on sysutils/bacula-client does not give '${MASTER}'\nInstead, it gives '${MASTER_PORT}'." | mail -s "FAILED: MASTER_PORT" ${ADMINEMAIL}
 fi
