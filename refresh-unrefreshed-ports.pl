@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: refresh-unrefreshed-ports.pl,v 1.23 2012-08-15 11:49:10 dan Exp $
+# $Id: refresh-unrefreshed-ports.pl,v 1.24 2012-09-03 00:25:25 dan Exp $
 #
 # Copyright (c) 1999-2004 DVL Software
 #
@@ -61,7 +61,7 @@ $dbh = FreshPorts::Database::GetDBHandle();
 
 $sql = "select ports.id, categories.name as category, element.name as port, commit_log_ports.needs_refresh, 
 			   commit_log_ports.commit_log_id, to_char(commit_log.commit_date - SystemTimeAdjust(), 'YYYY-MM-DD') as commit_date,
-			   coalesce(commit_log.svn_revision, '')
+			   coalesce(commit_log.svn_revision, '') as svn_revision
         from ports, categories, element, commit_log_ports, commit_log
         where ports.category_id              = categories.id 
           and ports.element_id               = element.id
