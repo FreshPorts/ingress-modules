@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.67 2012-08-15 11:49:10 dan Exp $
+# $Id: port.pm,v 1.68 2012-09-04 00:04:27 dan Exp $
 #
 #
 # Copyright (c) 2001-2005 DVL Software
@@ -1028,6 +1028,15 @@ sub RefreshFromFiles($;$;$) {
               my $SVNDIR = "$FreshPorts::Config::path_to_ports";
 
               $result = FreshPorts::Utilities::svnUpFile($SVNDIR, '', $svn_revision);
+              # match the results of _FetchFilesNeedingRefresh
+              if ($result == 1) 
+              {
+                $result = 0;
+              }
+              else
+              {
+                $result = 1;
+              }
             }
             else
             {
