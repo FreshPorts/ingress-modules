@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: refresh-unrefreshed-ports.pl,v 1.24 2012-09-03 00:25:25 dan Exp $
+# $Id: refresh-unrefreshed-ports.pl,v 1.25 2012-09-04 00:06:23 dan Exp $
 #
 # Copyright (c) 1999-2004 DVL Software
 #
@@ -85,7 +85,7 @@ while (@row=$sth->fetchrow_array) {
 	$Port{needs_refresh} = $row[3];
 	$Port{commit_log_id} = $row[4];
 	$Port{commit_date}   = $row[5];
-	$Port{svn_revison}   = $row[6];
+	$Port{svn_revision}  = $row[6];
 
 	#
 	# by enclosing the has in { }
