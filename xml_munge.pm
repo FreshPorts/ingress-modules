@@ -1,5 +1,5 @@
 #
-# $Id: xml_munge.pm,v 1.16 2012-08-15 11:49:10 dan Exp $
+# $Id: xml_munge.pm,v 1.17 2012-09-25 18:11:23 dan Exp $
 #
 # Copyright (c) 2001-2006 DVL Software
 #
@@ -467,10 +467,43 @@ sub ConvertFilePath($) {
 	return $FilePathNew;
 }
 
+sub GetDB_RepoPrefix($) {
+#
+# Given the repo name, obtain the root prefix for the database path
+#
+
+	my $RepoName = shift;
+	
+	my $myRepoPrefix = '';
+
+	my %KnownRepos = (
+		$FreshPorts::Config::Repo_SRC   => $FreshPorts::Config::DB_Root_Prefix_SRC,
+		$FreshPorts::Config::Repo_DOC   => $FreshPorts::Config::DB_Root_Prefix_DOC,
+		$FreshPorts::Config::Repo_PORTS => $FreshPorts::Config::DB_Root_Prefix_PORTS
+	);
+	
+	while (my ($myRepoName, $DB_RepoPrefix) = each %KnownRepos)
+	{
+		if ($myRepoName eq $RepoName)
+		{
+			$myRepoPrefix = $DB_RepoPrefix;
+			last;
+		}
+	}
+	
+	if ($myRepoPrefix eq '')
+	{
+	   die('unkonwn RepoName: ' . $RepoName);
+	}
+	
+	return $myRepoPrefix;
+}
+
 sub handle_file_end {
 	my $FileAction		= $Updates{FileAction};
 	my $FilePath		= $Updates{FilePath};
 	my $FileRevision	= $Updates{FileRevision};
+	my $DB_Root_Prefix      = GetDB_RepoPrefix($Updates{repository});
 	my $fileaction;		# the value obtained from the hash array
 						# and which will be stored into the database.
 
@@ -491,12 +524,12 @@ sub handle_file_end {
 	my $NewRevision		= 0;
 	my $element;
 	my $element_id;
-	my $filename		= $FilePath;
+	my $filename		= $DB_Root_Prefix . '/' . $FilePath;
 	my $revisionname	= $FileRevision;
 	my $commit_log_element;
 	
 
-	print "File = [$FileAction : $FilePath";
+	print "File = [$FileAction : $filename";
 
 	#
 	# we only get a FileRevision for Modify and Add
@@ -523,6 +556,10 @@ sub handle_file_end {
 
 	# grab the element corresponding to this filename.
 	$element = FreshPorts::Element->new($self->{dbh});
+	
+	# each file is in a repo.
+	# each repo is in the database under a different directory.
+	# therefore, prefix each file with the repo root path
 	$element->{pathname} = $filename;
 	$element_id = $element->FetchByName();
 
@@ -610,13 +647,13 @@ sub handle_file_end {
 	#
 	print 'pushing the following onto @Files' . "\n";
 	print "FileAction='$FileAction'\n";
-	print "FilePath='$FilePath'\n";
+	print "FilePath='$filename'\n";
 	print "FileRevision='$FileRevision'\n";
 	print "commit_log_element->{id}='" . $commit_log_element->{id} . "'\n";
 	print "element_id='$element_id'\n";
-	push @Files, [$FileAction, $FilePath, $FileRevision, $commit_log_element->{id}, $element_id];
+	push @Files, [$FileAction, $filename, $FileRevision, $commit_log_element->{id}, $element_id];
 
-	$self->notify_observers($FreshPorts::Messages::FileUpdate, (FileAction => $FileAction, FilePath => $FilePath, FileRevision => $FileRevision, Repository => $Updates{repository}) );
+	$self->notify_observers($FreshPorts::Messages::FileUpdate, (FileAction => $FileAction, FilePath => $filename, FileRevision => $FileRevision, Repository => $Updates{repository}) );
 	
 
 	undef $Updates{FileAction};
@@ -806,6 +843,7 @@ sub SaveUpdateToDB {
 	$commit_log->{committer}		= $committer;
 	$commit_log->{description}		= $description;
 	$commit_log->{system_id}		= $SystemID;
+	$commit_log->{repo}	 		= $Updates{repository};
 	$commit_log->{revision} 		= $revision;
 
 	#

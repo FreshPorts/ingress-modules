@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: element.pm,v 1.12 2012-07-15 02:59:03 dan Exp $
+# $Id: element.pm,v 1.13 2012-09-25 18:11:23 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -198,7 +198,7 @@ sub FetchByName {
 
 	my $tmp = $dbh->quote("things");
 	$sql = "select Pathname_ID(" . $dbh->quote($this->{pathname}) . ")";
-#	print "sql = '$sql'\n";
+	print "sql = '$sql'\n";
 
 	$sth = $dbh->prepare($sql);
 	if (!$sth->execute) {

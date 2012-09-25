@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.68 2012-09-04 00:04:27 dan Exp $
+# $Id: port.pm,v 1.69 2012-09-25 18:11:23 dan Exp $
 #
 #
 # Copyright (c) 2001-2005 DVL Software
@@ -343,7 +343,7 @@ sub FetchByPartialPathName {
       and ports.category_id = categories.id
       and ports.element_id  = element.id";
 
-#	print "sql = '$sql'\n";
+	print "sql = '$sql'\n";
 
 	$sth = $dbh->prepare($sql);
 	if (!$sth->execute) {
@@ -376,7 +376,7 @@ sub _FetchElementIDByPartialPathName {
  	my $element;
 
 	$element = FreshPorts::Element->new($dbh);
-	$element->{pathname} = "$FreshPorts::Config::ports_prefix/$this->{partialpathname}";
+	$element->{pathname} = $this->{partialpathname};
 	$this->{element_id} = $element->FetchByName();
 
 	return $this->{element_id};

@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: process_svn_mail.pm,v 1.7 2012-08-15 11:49:10 dan Exp $
+# $Id: process_svn_mail.pm,v 1.8 2012-09-25 18:11:23 dan Exp $
 #
 # Copyright (c) 2001-2003  DVL Software
 #
@@ -96,7 +96,7 @@ sub GetData {
 						&GetMessage_To($message)
 					],
 					'FILES', [ {},
-						&GetFiles($message, $RepoPrefix)
+						&GetFiles($message)
 					]
 				]
 			 ]
@@ -356,9 +356,9 @@ sub GetFiles {
 		$path = $line;
 		next if($path =~ /\s+-\s+/); # skip messages about file origin
 		
-		# this removes head/, stable/ or vendor/ from the path
-		# we may need to revist this if ports start commiting on non-head
-		$path =~ s/^\s+(head\/|stable\/\d+\/|vendor\/)//;
+#		# this removes head/, stable/ or vendor/ from the path
+#		# we may need to revist this if ports start commiting on non-head
+#		$path =~ s/^\s+(head\/|stable\/\d+\/|vendor\/)//;
 
 		# stop on either action change, empty string or minimalist signature 
 		last if (length($line) == 0 || ($line =~ /^(Added|Deleted|Modified|Directory Properties):/) 
@@ -374,7 +374,7 @@ sub GetFiles {
 		$path = FreshPorts::Utilities::trim($path);
 		 
 #print "path='$path'\n";
-		push @files, 'FILE', [ { Action => $action, Revision => $revision, Path => $RepoPrefix . '/' . $path } ];
+		push @files, 'FILE', [ { Action => $action, Revision => $revision, Path => $path } ];
 	}
 
 	if (scalar(@files) == 0) {

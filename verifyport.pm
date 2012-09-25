@@ -1,5 +1,5 @@
 #
-# $Id: verifyport.pm,v 1.55 2012-08-15 11:49:10 dan Exp $
+# $Id: verifyport.pm,v 1.56 2012-09-25 18:11:23 dan Exp $
 #
 # Copyright (c) 2001-2006 DVL Software
 #
@@ -47,8 +47,9 @@ sub _CompileListOfPorts($;$;$) {
 
 	foreach $value (@{$Files}) {
 		my ($action, $filename, $revision, $commit_log_element_id, $element_id) = @$value;
-
-		my ($subtree, $category_name, $port_name, $extra) = split/\//,$filename, 4;
+		
+		my ($emptyLeadingSlash, $subtree, $branch, $category_name, $port_name, $extra) = split/\//,$filename, 6;
+		# FILE ==: Modify, /ports/head/ftp/vsftpd/Makefile, 303756, , head, ftp, vsftpd/Makefile, 1935356
 		print "FILE ==: $action, $filename, $revision, $subtree, $category_name, ";
 		if (defined($port_name)) {
 			print "$port_name, ";
@@ -123,7 +124,7 @@ sub _CompileListOfPorts($;$;$) {
 							$port = FreshPorts::Port->new($dbh);
 
 							# this is all that's needed to retrieve a port which exists
-							$port->{partialpathname} = "$category_name/$port_name";
+							$port->{partialpathname} = "/$subtree/$branch/$category_name/$port_name";
 
 							$port->FetchByPartialPathName();
 							#
@@ -688,7 +689,7 @@ sub RefreshAllSlavePortsOfPortsTouchedByCommit($;$;$) {
 		# fetch it
 		my $port = FreshPorts::Port->new($dbh);
 
-		$port->{partialpathname} = $PortName;
+		$port->{partialpathname} = $FreshPorts::Config::Ports_Default_Directory . '/' . $PortName;
 		$port->FetchByPartialPathName();
 
 		#  refresh it
