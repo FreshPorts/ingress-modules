@@ -1,5 +1,5 @@
 #
-# $Id: config.pm.sample,v 1.21 2012-09-25 18:11:23 dan Exp $
+# $Id: config.pm.sample,v 1.22 2012-09-26 19:32:03 dan Exp $
 #
 # Copyright (c) 2001-2007 DVL Software
 #
@@ -123,9 +123,9 @@ $FreshPorts::Config::Repo_PORTS  = 'ports';
 $FreshPorts::Config::Repo_SRC    = 'src';
 
 # the database file name root prefix fore each repo.
-$FreshPorts::Config::DB_Root_Prefix_DOC    = 'doc';
-$FreshPorts::Config::DB_Root_Prefix_PORTS  = 'ports';
-$FreshPorts::Config::DB_Root_Prefix_SRC    = 'base';
+$FreshPorts::Config::DB_Root_Prefix_DOC    = '/doc';
+$FreshPorts::Config::DB_Root_Prefix_PORTS  = '/ports';
+$FreshPorts::Config::DB_Root_Prefix_SRC    = '/base';
 
 $FreshPorts::Config::Ports_Default_Directory = $FreshPorts::Config::DB_Root_Prefix_PORTS . '/head';
 
