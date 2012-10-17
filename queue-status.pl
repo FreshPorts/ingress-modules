@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: queue-status.pl,v 1.2 2011-03-14 14:28:43 dan Exp $
+# $Id: queue-status.pl,v 1.3 2012-10-17 18:10:22 dan Exp $
 #
 # Copyright (c) 2001-2006 DVL Software
 #
@@ -54,7 +54,7 @@ foreach my $site (@FreshPorts::Status::sites) {
 }
 
 if ($send_report) {
-	Sys::Syslog::syslog('notice', 'There is a problem with the FreshPorts queues');
+#	Sys::Syslog::syslog('notice', 'There is a problem with the FreshPorts queues');
 	SendNotice($msg);
 	exit(1)
 } else {
