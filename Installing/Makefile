@@ -1,5 +1,5 @@
 #
-# $Id: Makefile,v 1.4 2011-06-14 17:34:15 dan Exp $
+# $Id: Makefile,v 1.5 2012-10-21 12:15:27 dan Exp $
 #
 # Install the ports needed by FreshPorts
 #
@@ -16,13 +16,14 @@ DISTFILES=      # none
 
 MAINTAINER=	ports@freebsddiary.org
 
-BUILD_DEPENDS=	${LOCALBASE}/bin/psql:${PORTSDIR}/databases/postgresql91-client \
-		${LOCALBASE}/bin/postmaster:${PORTSDIR}/databases/postgresql91-server \
-		${PREFIX}/lib/postgresql/pgcrypto.so:${PORTSDIR}/databases/postgresql-contrib 
+BUILD_DEPENDS=	${LOCALBASE}/bin/psql:${PORTSDIR}/databases/postgresql92-client \
+		${LOCALBASE}/bin/postmaster:${PORTSDIR}/databases/postgresql92-server \
+		${PREFIX}/lib/postgresql/pgcrypto.so:${PORTSDIR}/databases/postgresql92-contrib 
 
 RUN_DEPENDS=	${LOCALBASE}/bin/svstat:${PORTSDIR}/sysutils/daemontools \
 		${SITE_PERL}/XML/Writer.pm:${PORTSDIR}/textproc/p5-XML-Writer \
 		${SITE_PERL}/XML/Node.pm:${PORTSDIR}/textproc/p5-XML-Node \
+		${SITE_PERL}/Date/Parse.pm:${PORTSDIR}/devel/p5-TimeDate \
 		${SITE_PERL}/Mail/Sender.pm:${PORTSDIR}/mail/p5-Mail-Sender \
 		${SITE_PERL}/Date/Calc.pm:${PORTSDIR}/devel/p5-Date-Calc \
 		${SITE_PERL}/mach/Bundle/DBI.pm:${PORTSDIR}/databases/p5-DBI \
@@ -30,7 +31,7 @@ RUN_DEPENDS=	${LOCALBASE}/bin/svstat:${PORTSDIR}/sysutils/daemontools \
 		${LOCALBASE}/bin/procmail:${PORTSDIR}/mail/procmail \
 		${PREFIX}/sbin/httpd:${PORTSDIR}/www/apache22 \
 		${PREFIX}/bin/php:${PORTSDIR}/lang/php5 \
-		${LOCALBASE}/sbin/portsdb:${PORTSDIR}/sysutils/portupgrade \
+		${LOCALBASE}/sbin/portsdb:${PORTSDIR}/ports-mgmt/portupgrade \
 		${LOCALBASE}/sbin/bacula-fd:${PORTSDIR}/sysutils/bacula-client \
 		${LOCALBASE}/bin/mysqladmin:${PORTSDIR}/databases/mysql41-client \
 		${LOCALBASE}/bin/mysql_install_db:${PORTSDIR}/databases/mysql41-server \
