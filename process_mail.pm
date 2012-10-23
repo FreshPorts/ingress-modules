@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: process_mail.pm,v 1.1 2012-07-10 19:06:45 dan Exp $
+# $Id: process_mail.pm,v 1.2 2012-10-23 16:12:27 dan Exp $
 #
 # Copyright (c) 2001-2012  DVL Software
 #
@@ -10,6 +10,7 @@
 package FreshPorts::ProcessMail;
 
 use strict;
+use Email::MIME;
 
 sub myGetList_Id {
 	my ($message) = @_;
@@ -34,15 +35,58 @@ sub myGetList_Id {
 # myGetMessage - Get the actual email from STDIN
 #####
 sub myGetMessage {
-	my ($message);
+    my ($message);
+    my ($encoding);
 
-	while (<>) {
-		$message .= $_;
-	}
+    while (<>) {
+        $message .= $_;
+    }
 
-	return $message;
+    $encoding = myGetMessage_ContentTransferEncoding($message);
+    print $encoding  . "\n";
+
+    if ($encoding eq 'base64')
+    {
+        # we need to extract the body from this message, base64 decode it, and go from there...
+        my $parsed = Email::MIME->new($message);
+        my $content_type = $parsed->content_type;
+        
+        print $content_type . "\n";
+        
+        my @subparts = $parsed->subparts;
+        foreach my $part (@subparts) 
+        {
+        	print $part;
+        }
+
+        $parsed->body_set($parsed->body);
+
+        my $header = $parsed->header_obj;
+        $message = $header->as_string . $parsed->body_str;
+
+    }
+
+    return $message;
 }
 
+sub myGetMessage_ContentTransferEncoding {
+	my ($message) = @_;
+	my ($encoding);
+
+	my (@lines) = split("\n", $message);
+
+	for (@lines) {
+		my ($line) = $_;
+
+		if ($line =~ /^Content-Transfer-Encoding:/i) {
+			$line =~ /^Content-Transfer-Encoding: (.*)/g;
+			$encoding = $1;
+			last;
+		} 
+	}
+
+	return $encoding;
+}
 
 sub myGetMessage_Id {
 	my ($message) = @_;
