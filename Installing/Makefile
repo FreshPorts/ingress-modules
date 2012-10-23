@@ -1,5 +1,5 @@
 #
-# $Id: Makefile,v 1.5 2012-10-21 12:15:27 dan Exp $
+# $Id: Makefile,v 1.6 2012-10-23 16:30:38 dan Exp $
 #
 # Install the ports needed by FreshPorts
 #
@@ -22,6 +22,7 @@ BUILD_DEPENDS=	${LOCALBASE}/bin/psql:${PORTSDIR}/databases/postgresql92-client \
 
 RUN_DEPENDS=	${LOCALBASE}/bin/svstat:${PORTSDIR}/sysutils/daemontools \
 		${SITE_PERL}/XML/Writer.pm:${PORTSDIR}/textproc/p5-XML-Writer \
+		${SITE_PERL}/Email/MIME.pm:${PORTSDIR}/mail/p5-Email-MIME \
 		${SITE_PERL}/XML/Node.pm:${PORTSDIR}/textproc/p5-XML-Node \
 		${SITE_PERL}/Date/Parse.pm:${PORTSDIR}/devel/p5-TimeDate \
 		${SITE_PERL}/Mail/Sender.pm:${PORTSDIR}/mail/p5-Mail-Sender \
