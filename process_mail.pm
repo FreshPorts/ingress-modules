@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: process_mail.pm,v 1.2 2012-10-23 16:12:27 dan Exp $
+# $Id: process_mail.pm,v 1.3 2012-10-23 16:31:04 dan Exp $
 #
 # Copyright (c) 2001-2012  DVL Software
 #
@@ -43,7 +43,7 @@ sub myGetMessage {
     }
 
     $encoding = myGetMessage_ContentTransferEncoding($message);
-    print $encoding  . "\n";
+#    print $encoding  . "\n";
 
     if ($encoding eq 'base64')
     {
@@ -51,14 +51,6 @@ sub myGetMessage {
         my $parsed = Email::MIME->new($message);
         my $content_type = $parsed->content_type;
         
-        print $content_type . "\n";
-        
-        my @subparts = $parsed->subparts;
-        foreach my $part (@subparts) 
-        {
-        	print $part;
-        }
-
         $parsed->body_set($parsed->body);
 
         my $header = $parsed->header_obj;

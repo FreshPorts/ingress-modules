@@ -1,5 +1,5 @@
 #
-# $Id: xml_munge.pm,v 1.17 2012-09-25 18:11:23 dan Exp $
+# $Id: xml_munge.pm,v 1.18 2012-10-23 16:31:04 dan Exp $
 #
 # Copyright (c) 2001-2006 DVL Software
 #
@@ -503,7 +503,7 @@ sub handle_file_end {
 	my $FileAction		= $Updates{FileAction};
 	my $FilePath		= $Updates{FilePath};
 	my $FileRevision	= $Updates{FileRevision};
-	my $DB_Root_Prefix      = GetDB_RepoPrefix($Updates{repository});
+	my $DB_Root_Prefix  = GetDB_RepoPrefix($Updates{repository});
 	my $fileaction;		# the value obtained from the hash array
 						# and which will be stored into the database.
 

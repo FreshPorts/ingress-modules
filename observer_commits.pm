@@ -1,5 +1,5 @@
 #
-# $Id: observer_commits.pm,v 1.5 2008-09-29 06:11:39 dan Exp $
+# $Id: observer_commits.pm,v 1.6 2012-10-23 16:31:04 dan Exp $
 #
 # Copyright (c) 2004-2006 DVL Software
 #
@@ -102,10 +102,18 @@ sub update {
 		foreach $value (@Files) {
 			my ($action, $filename, $revision, $commit_log_element_id, $element_id) = @$value;
 			my ($subtree, $category_name, $port_name, $extra) = split/\//,$filename, 4;
+
 			# look for special files outside a port, such as LEGAL, GIDs, UIDs
-			if ($subtree eq $FreshPorts::Config::ports_prefix && defined($category_name) && !defined($port_name)) {
-				$FilesCacheRemove{"$category_name"}	= "$category_name";
-				print "$category_name\n";
+			if ($subtree eq $FreshPorts::Config::ports_prefix && defined($FreshPorts::Constants::IgnoredItems{$category_name})) {
+				# take a copy of that filename and remove the subtree prefix. Add that to the queue for removal
+				my $FileCacheItem = $filename;
+				$FileCacheItem =~ s|^$FreshPorts::Config::ports_prefix/||g;
+				$FilesCacheRemove{"$FileCacheItem"}	= "$FileCacheItem";
+				print "$FileCacheItem\n";
+			}
+			else
+			{
+				print "we are ignoring $filename for cache clearing\n";
 			}
 		}
 		print "*** end of items to be cleared\n"
