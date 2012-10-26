@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: process_svn_mail.pm,v 1.8 2012-09-25 18:11:23 dan Exp $
+# $Id: process_svn_mail.pm,v 1.9 2012-10-26 15:22:15 dan Exp $
 #
 # Copyright (c) 2001-2003  DVL Software
 #
@@ -356,13 +356,15 @@ sub GetFiles {
 		$path = $line;
 		next if($path =~ /\s+-\s+/); # skip messages about file origin
 		
+		next if($line =~ /^Directory Properties:/);
+		
 #		# this removes head/, stable/ or vendor/ from the path
 #		# we may need to revist this if ports start commiting on non-head
 #		$path =~ s/^\s+(head\/|stable\/\d+\/|vendor\/)//;
 
+#print "still looking at '$line'\n";
 		# stop on either action change, empty string or minimalist signature 
-		last if (length($line) == 0 || ($line =~ /^(Added|Deleted|Modified|Directory Properties):/) 
-			|| ($line =~ /^_+$/));
+		last if (length($line) == 0 || ($line =~ /^_+$/));
 
 		# remove that annoying trailing: (contents, props changed)			
 		$path =~ s/\s*\(contents, props changed\)\s*$//;
