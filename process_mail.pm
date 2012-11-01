@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: process_mail.pm,v 1.3 2012-10-23 16:31:04 dan Exp $
+# $Id: process_mail.pm,v 1.4 2012-11-01 00:54:56 dan Exp $
 #
 # Copyright (c) 2001-2012  DVL Software
 #
@@ -11,6 +11,7 @@ package FreshPorts::ProcessMail;
 
 use strict;
 use Email::MIME;
+use Text::Unidecode;
 
 sub myGetList_Id {
 	my ($message) = @_;
@@ -54,7 +55,8 @@ sub myGetMessage {
         $parsed->body_set($parsed->body);
 
         my $header = $parsed->header_obj;
-        $message = $header->as_string . $parsed->body_str;
+        # we decode to avoid UTF-8 characters... we want only ASCII
+        $message = unidecode($header->as_string . $parsed->body_str);
 
     }
 
