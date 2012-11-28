@@ -1,5 +1,5 @@
 #
-# $Id: constants.pm,v 1.14 2012-08-08 19:11:20 dan Exp $
+# $Id: constants.pm,v 1.15 2012-11-28 17:48:24 dan Exp $
 #
 # Copyright (c) 2001-2006 DVL Software
 #
@@ -75,10 +75,10 @@ $FreshPorts::Constants::Notify_cvsroot_approvers		= 'notify_cvsroot_approvers';	
 $FreshPorts::Constants::CVSROOT_Approvers				= 'CVSROOT/approvers';       # what we see in the commit msg
 $FreshPorts::Constants::CVSROOT_Ports_Approvers			= 'CVSROOT-ports/approvers'; # what we need to fetch from cvsweb
 $FreshPorts::Constants::Categories						= 'www/en/ports/categories';
-$FreshPorts::Constants::VUXML							= 'ports/security/vuxml/vuln.xml';
-$FreshPorts::Constants::PORTS_UPDATING					= 'ports/UPDATING';
-$FreshPorts::Constants::PORTS_MOVED						= 'ports/MOVED';
-$FreshPorts::Constants::BSD_PORT_MK						= 'ports/Mk/bsd.port.mk';
+$FreshPorts::Constants::VUXML							= '/ports/head/security/vuxml/vuln.xml';
+$FreshPorts::Constants::PORTS_UPDATING					= '/ports/head/UPDATING';
+$FreshPorts::Constants::PORTS_MOVED						= '/ports/head/MOVED';
+$FreshPorts::Constants::BSD_PORT_MK						= '/ports/head/Mk/bsd.port.mk';
 
 #
 # Special repositories we watch
