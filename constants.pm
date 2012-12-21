@@ -1,5 +1,5 @@
 #
-# $Id: constants.pm,v 1.15 2012-11-28 17:48:24 dan Exp $
+# $Id: constants.pm,v 1.16 2012-12-21 18:20:53 dan Exp $
 #
 # Copyright (c) 2001-2006 DVL Software
 #
@@ -78,7 +78,6 @@ $FreshPorts::Constants::Categories						= 'www/en/ports/categories';
 $FreshPorts::Constants::VUXML							= '/ports/head/security/vuxml/vuln.xml';
 $FreshPorts::Constants::PORTS_UPDATING					= '/ports/head/UPDATING';
 $FreshPorts::Constants::PORTS_MOVED						= '/ports/head/MOVED';
-$FreshPorts::Constants::BSD_PORT_MK						= '/ports/head/Mk/bsd.port.mk';
 
 #
 # Special repositories we watch
