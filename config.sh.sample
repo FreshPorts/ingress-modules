@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $Id: config.sh.sample,v 1.9 2012-12-29 19:14:54 dan Exp $
+# $Id: config.sh.sample,v 1.10 2012-12-29 19:24:35 dan Exp $
 #
 
 # this must always be defined and functional.
@@ -73,5 +73,5 @@ fi
 FREEBSDCVSUPHOST="cvsup.unixathome.org"
 
 # scripts for the jail
-FRESHPORTS_JAIL_BASE_DIR           = '/wdc/dan/FreshPorts/ports-jail';
-FRESHPORTS_JAIL_MASTER_PORT_SCRIPT = 'make-master-port-test.sh';
+FRESHPORTS_JAIL_BASE_DIR="/wdc/dan/FreshPorts/ports-jail"
+FRESHPORTS_JAIL_MASTER_PORT_SCRIPT="make-master-port-test.sh"
