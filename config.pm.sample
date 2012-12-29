@@ -1,5 +1,5 @@
 #
-# $Id: config.pm.sample,v 1.23 2012-12-29 19:14:54 dan Exp $
+# $Id: config.pm.sample,v 1.24 2012-12-29 21:51:50 dan Exp $
 #
 # Copyright (c) 2001-2007 DVL Software
 #
@@ -132,8 +132,8 @@ $FreshPorts::Config::Ports_Default_Directory = $FreshPorts::Config::DB_Root_Pref
 # scripts for the jail
 $FreshPorts::Config::JailBaseDir = '/wdc/dan/FreshPorts/ports-jail'
 
-$FreshPorts::Config::JailCategoryDescrptionScript = 'make-category-comment.sh';
-$FreshPorts::Config::JailPortScript               = 'make-port.sh';
-$FreshPorts::Config::JailMasterPortScript         = 'make-master-port-test.sh';
+$FreshPorts::Config::JailCategoryDescrptionScript = '/make-category-comment.sh';
+$FreshPorts::Config::JailPortScript               = '/make-port.sh';
+$FreshPorts::Config::JailUser                     = 'dan';
 
 1;
