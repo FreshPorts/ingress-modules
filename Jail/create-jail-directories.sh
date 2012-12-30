@@ -30,3 +30,9 @@ ${PORTSBASE}             ${JAILBASE}/usr/ports        nullfs  ro,nosuid,noexec  
 none                            ${JAILBASE}/dev              devfs   rw                      0       0
 "
 
+
+echo "Put the following in sudoers
+dan      ALL=(ALL) NOPASSWD:/usr/sbin/chroot -u dan ${JAILBASE} /make-port.sh *
+dan      ALL=(ALL) NOPASSWD:/usr/sbin/chroot -u dan ${JAILBASE} /make-category-comment.sh *
+dan      ALL=(ALL) NOPASSWD:/usr/sbin/chroot -u dan ${JAILBASE} /make-master-port-test.sh *
+"
