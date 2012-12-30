@@ -36,3 +36,13 @@ dan      ALL=(ALL) NOPASSWD:/usr/sbin/chroot -u dan ${JAILBASE} /make-port.sh *
 dan      ALL=(ALL) NOPASSWD:/usr/sbin/chroot -u dan ${JAILBASE} /make-category-comment.sh *
 dan      ALL=(ALL) NOPASSWD:/usr/sbin/chroot -u dan ${JAILBASE} /make-master-port-test.sh *
 "
+
+echo "This entry is required in scripts/config.sh:
+
+FRESHPORTS_JAIL_BASE_DIR=\"${JAILBASE}\"
+"
+
+echo "This entry is required in scripts/config.pm
+
+\$FreshPorts::Config::JailBaseDir = '${JAILBASE}';
+"
