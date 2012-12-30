@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: category.pm,v 1.10 2009-12-18 17:22:04 dan Exp $
+# $Id: category.pm,v 1.11 2012-12-30 13:04:23 dan Exp $
 #
 # Copyright (c) 2001-2003 DVL Software
 #
@@ -202,10 +202,11 @@ sub _description_read {
 
 	chdir "$MakefileDirectory";
 
-	my $makecommand = "make -V COMMENT " .
-	               "DISTDIR=$FreshPorts::Constants::DISTDIR " .
-	               "PORTSDIR=$FreshPorts::Config::path_to_ports LOCALBASE=/nonexistentlocal 2>$TmpFile";
+#	my $makecommand = "make -V COMMENT " .
+#	               "DISTDIR=$FreshPorts::Constants::DISTDIR " .
+#	               "PORTSDIR=$FreshPorts::Config::path_to_ports LOCALBASE=/nonexistentlocal 2>$TmpFile";
 	
+	my $makecommand = "/usr/local/bin/sudo /usr/sbin/chroot -u $FreshPorts::Config::JailUser $FreshPorts::Config::JailBaseDir $FreshPorts::Config::JailCategoryDescrptionScript $category 2>$TmpFile";
 	print "makecommand = $makecommand\n";
 
 	my $MakeResults = `$makecommand`;

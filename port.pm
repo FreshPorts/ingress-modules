@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.69 2012-09-25 18:11:23 dan Exp $
+# $Id: port.pm,v 1.70 2012-12-30 13:04:23 dan Exp $
 #
 #
 # Copyright (c) 2001-2005 DVL Software
@@ -442,14 +442,16 @@ sub _ExtractValuesFromMakefile {
 	# IF YOU CHANGE THE MAKE COMMAND, CHANGE THE SPLIT!!!!!!!!!!!!!!!
 	#
 	#
-	$makecommand = "make -V PORTNAME -V PKGNAME -V DESCR -V CATEGORIES -V PORTVERSION -V PORTREVISION " .
-		" -V COMMENT -V COMMENTFILE -V MAINTAINER -V EXTRACT_SUFX " .
-		" -V BUILD_DEPENDS -V RUN_DEPENDS -V LIB_DEPENDS -V FORBIDDEN -V BROKEN -V DEPRECATED -V IGNORE ".
-		" -V MASTER_PORT -V LATEST_LINK -V NO_LATEST_LINK -V NO_PACKAGE -V PKGNAMEPREFIX -V PKGNAMESUFFIX -V PORTEPOCH " .
-		" -V RESTRICTED -V NO_CDROM -V EXPIRATION_DATE -V IS_INTERACTIVE " . 
-		" -V ONLY_FOR_ARCHS -V NOT_FOR_ARCHS -V LICENSE -f $Makefile " .
-		" DISTDIR=$FreshPorts::Constants::DISTDIR " .
-		" PORTSDIR=$FreshPorts::Config::path_to_ports LOCALBASE=/nonexistentlocal 2>$TmpFile";
+#	$makecommand = "make -V PORTNAME -V PKGNAME -V DESCR -V CATEGORIES -V PORTVERSION -V PORTREVISION " .
+#		" -V COMMENT -V COMMENTFILE -V MAINTAINER -V EXTRACT_SUFX " .
+#		" -V BUILD_DEPENDS -V RUN_DEPENDS -V LIB_DEPENDS -V FORBIDDEN -V BROKEN -V DEPRECATED -V IGNORE ".
+#		" -V MASTER_PORT -V LATEST_LINK -V NO_LATEST_LINK -V NO_PACKAGE -V PKGNAMEPREFIX -V PKGNAMESUFFIX -V PORTEPOCH " .
+#		" -V RESTRICTED -V NO_CDROM -V EXPIRATION_DATE -V IS_INTERACTIVE " . 
+#		" -V ONLY_FOR_ARCHS -V NOT_FOR_ARCHS -V LICENSE -f $Makefile " .
+#		" DISTDIR=$FreshPorts::Constants::DISTDIR " .
+#		" PORTSDIR=$FreshPorts::Config::path_to_ports LOCALBASE=/nonexistentlocal 2>$TmpFile";
+		
+    $makecommand = "/usr/local/bin/sudo /usr/sbin/chroot -u $FreshPorts::Config::JailUser $FreshPorts::Config::JailBaseDir $FreshPorts::Config::JailPortScript $this->{category}/$this->{name} 2>$TmpFile";
 
 	print "makecommand = $makecommand\n";
 
@@ -801,7 +803,7 @@ sub _Validate {
 	return $result;
 }
 
-sub _FetchFilesNeedingRefresh {
+sub _FetchFilesNeedingRefresh_DELETE_ME {
 	# returns 0 for success, 1 for failure
 	# a return of -1 indicates an error.
 
@@ -858,7 +860,7 @@ sub _FetchFilesNeedingRefresh {
 
 		my $makecommand = "make -V DESCR -f $SVNDIR/$SVNITEM PORTSDIR=$FreshPorts::Config::path_to_ports " .
 		                  "LOCALBASE=/nonexistentlocal 2>$TmpFile";
-
+		                  
 		print "makecommand = $makecommand\n";
 		my $MakeResults = `$makecommand`;
 		my $Result = $?;
@@ -1040,7 +1042,7 @@ sub RefreshFromFiles($;$;$) {
             }
             else
             {
-               $result = $this->_FetchFilesNeedingRefresh();
+               die('I have no idea what I am doing here in RefreshFromFiles....');
             }
 			if ($result == -1) {
 				$FetchAttempts = 0;
