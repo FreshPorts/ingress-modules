@@ -1,13 +1,13 @@
 #!/usr/bin/perl
 #
-# $Id: process_vuxml.pl,v 1.5 2012-07-22 12:06:56 dan Exp $
+# $Id: process_vuxml.pl,v 1.6 2013-01-16 15:37:57 dan Exp $
 #
 # Copyright (c) 2001-2012 DVL Software
 #
 # much of this file is based on contributions from Matthew Seamon
 #
 
-# @{#} $Id: process_vuxml.pl,v 1.5 2012-07-22 12:06:56 dan Exp $
+# @{#} $Id: process_vuxml.pl,v 1.6 2013-01-16 15:37:57 dan Exp $
 #
 # Split up the vuln.xml file into sections for individual
 # vulnerabilities.  Save into files using the vid guid field as name.
@@ -82,6 +82,7 @@ MAIN:
                 {
                     print "$v = '$csum' not found\n";
                 }
+
                 if ($updateRequired)
                 {
                     open(HANDLE, '<', \$vulns{$v});

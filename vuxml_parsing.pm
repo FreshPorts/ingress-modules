@@ -27,7 +27,7 @@
 # SUCH DAMAGE.
 
 #
-# @(#) $Id: vuxml_parsing.pm,v 1.5 2012-07-22 12:00:27 dan Exp $
+# @(#) $Id: vuxml_parsing.pm,v 1.6 2013-01-16 15:37:57 dan Exp $
 #
 # Parse the Vulnerabilities and Exposures (vuxml) database extracting
 # the entries for loading into a RDBMS.
@@ -180,7 +180,6 @@ sub new
     }
 
     # UpdateInPlace argument should be 0 or 1
-
     if ( defined $args{UpdateInPlace} ) {
         $self->{update_in_place} = $args{UpdateInPlace};
     }
@@ -353,19 +352,13 @@ sub update_database
 
     print "Shall we update?\n";
 	if ($self->{update_in_place} && !defined $self->cancelled()) {
-	    my $vuxml = FreshPorts::vuxml->new( $self->{db_handle} );
+        # updates in place are awkward... it gets complex.
+        # let's just delete and then do a full insert
 
-		my $vuxml_id = $vuxml->FetchByVID($self->vid());
-		if (defined($vuxml_id)) {
-            print "updating in place\n";
-			$FullInsert = 0;
+		my $vuxml = FreshPorts::vuxml->new( $self->{db_handle} );
 
-			print "The vuxml entry is being updated with fresh data.\n";
-			$self->update_database_vuxml($vuxml);
-			$self->{database_updated} = 1;
-		} else {
-			print "Could not find vuln = '" . $self->vid() . "'.  A full insert will be done.\n";
-		}
+		# this will wipe the vuln and any references to it, including the commit_log_ports_vuxml table  
+		$vuxml->DeleteByVID($self->vid());
 	}
 	else
 	{

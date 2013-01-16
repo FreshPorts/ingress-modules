@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: vuxml.pm,v 1.3 2012-07-22 12:03:53 dan Exp $
+# $Id: vuxml.pm,v 1.4 2013-01-16 15:37:57 dan Exp $
 #
 # Copyright (c) 2004 DVL Software
 #
@@ -60,6 +60,7 @@ sub empty {
 	$this->{status}         = undef;
 	$this->{checksum}       = undef;
 }
+
 sub save {
 	my $this = shift;
 
@@ -151,7 +152,7 @@ sub FetchByVID {
 
 	$sql = "SELECT vuxml.*
               FROM vuxml
-             WHERE vuxml.vid = '$VID'";
+             WHERE vuxml.vid = " .  $dbh->quote($VID);
 
 #	print "sql = '$sql'\n";
 
@@ -170,7 +171,7 @@ sub FetchByVID {
 		undef $this->{vid};
 	}
 
-	return $this->{vid};
+	return $this->{id};
 }
 
 sub FetchChecksumByVID {
@@ -186,7 +187,7 @@ sub FetchChecksumByVID {
 
 	$sql = "SELECT vuxml.checksum
               FROM vuxml
-             WHERE vuxml.vid = '$VID'";
+             WHERE vuxml.vid = " .  $dbh->quote($VID);
 
 #	print "sql = '$sql'\n";
 
@@ -221,7 +222,7 @@ sub DeleteByVID {
 
 	$sql = "DELETE
               FROM vuxml
-             WHERE vuxml.vid = '$VID'";
+             WHERE vuxml.vid = " .  $dbh->quote($VID);
 
 #	print "sql = '$sql'\n";
 
@@ -234,6 +235,7 @@ sub DeleteByVID {
 
 	$sth->finish();
 
+	# how many rows did we just delete?
 	return $numrows;
 }
 

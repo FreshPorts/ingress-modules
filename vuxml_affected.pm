@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: vuxml_affected.pm,v 1.2 2006-12-17 12:04:04 dan Exp $
+# $Id: vuxml_affected.pm,v 1.3 2013-01-16 15:37:57 dan Exp $
 #
 # Copyright (c) 2004 DVL Software
 #
@@ -57,12 +57,12 @@ sub save {
 
 		$sql = "insert into vuxml_affected(id, vuxml_id, type) values (
 				$this->{id},
-				$this->{vuxml_id},
+				" . $dbh->quote($this->{vuxml_id}) . ",
 				" . $dbh->quote($this->{type}) . ')';
 	} else {
 		$sql = "
 UPDATE vuxml_affected
-   SET vuxml_id = " . $this->{vuxml_id} . ",
+   SET vuxml_id = " . $dbh->quote($this->{vuxml_id}) . ",
        type     = " . $dbh->quote($this->{type}) . "
  WHERE id       = " . $this->{id};
 	}
