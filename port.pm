@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.70 2012-12-30 13:04:23 dan Exp $
+# $Id: port.pm,v 1.71 2013-03-23 14:14:28 dan Exp $
 #
 #
 # Copyright (c) 2001-2005 DVL Software
@@ -442,15 +442,6 @@ sub _ExtractValuesFromMakefile {
 	# IF YOU CHANGE THE MAKE COMMAND, CHANGE THE SPLIT!!!!!!!!!!!!!!!
 	#
 	#
-#	$makecommand = "make -V PORTNAME -V PKGNAME -V DESCR -V CATEGORIES -V PORTVERSION -V PORTREVISION " .
-#		" -V COMMENT -V COMMENTFILE -V MAINTAINER -V EXTRACT_SUFX " .
-#		" -V BUILD_DEPENDS -V RUN_DEPENDS -V LIB_DEPENDS -V FORBIDDEN -V BROKEN -V DEPRECATED -V IGNORE ".
-#		" -V MASTER_PORT -V LATEST_LINK -V NO_LATEST_LINK -V NO_PACKAGE -V PKGNAMEPREFIX -V PKGNAMESUFFIX -V PORTEPOCH " .
-#		" -V RESTRICTED -V NO_CDROM -V EXPIRATION_DATE -V IS_INTERACTIVE " . 
-#		" -V ONLY_FOR_ARCHS -V NOT_FOR_ARCHS -V LICENSE -f $Makefile " .
-#		" DISTDIR=$FreshPorts::Constants::DISTDIR " .
-#		" PORTSDIR=$FreshPorts::Config::path_to_ports LOCALBASE=/nonexistentlocal 2>$TmpFile";
-		
     $makecommand = "/usr/local/bin/sudo /usr/sbin/chroot -u $FreshPorts::Config::JailUser $FreshPorts::Config::JailBaseDir $FreshPorts::Config::JailPortScript $this->{category}/$this->{name} 2>$TmpFile";
 
 	print "makecommand = $makecommand\n";
@@ -502,8 +493,11 @@ sub _ExtractValuesFromMakefile {
 	if ($result == 0) {
 		my $TmpFile = FreshPorts::Utilities::TmpFileName("$this->{category}.$this->{name}.make-mastersites-error");
 		print "trying to get master sites.  Errors will be in '$TmpFile'\n";
-		my $mastersitescommand = "make master-sites-all -f $Makefile PORTSDIR=$FreshPorts::Config::path_to_ports " . 
-		                         "LOCALBASE=/nonexistentlocal 2>$TmpFile";
+#		my $mastersitescommand = "make master-sites-all -f $Makefile PORTSDIR=$FreshPorts::Config::path_to_ports " . 
+#		                         "LOCALBASE=/nonexistentlocal 2>$TmpFile";
+        my $mastersitescommand = "/usr/local/bin/sudo /usr/sbin/chroot -u $FreshPorts::Config::JailUser $FreshPorts::Config::JailBaseDir $FreshPorts::Config::JailMasterSitesScript $this->{category}/$this->{name} 2>$TmpFile";
+
+
 		print "'$mastersitescommand'\n";
 		$mastersites = `$mastersitescommand`;
 		# save this for later reference
@@ -540,8 +534,10 @@ sub _ExtractValuesFromMakefile {
 	if ($result == 0) {
 		my $TmpFile = FreshPorts::Utilities::TmpFileName("$this->{category}.$this->{name}.showconfig");
 		print "trying to get showconfig.  Errors will be in '$TmpFile'\n";
-		my $showconfigcommand = "make showconfig -f $Makefile PORTSDIR=$FreshPorts::Config::path_to_ports " . 
-		                         "OPTIONSFILE=/nonexistent 2>$TmpFile";
+#		my $showconfigcommand = "make showconfig -f $Makefile PORTSDIR=$FreshPorts::Config::path_to_ports " . 
+#		                         "OPTIONSFILE=/nonexistent 2>$TmpFile";
+        my $showconfigcommand = "/usr/local/bin/sudo /usr/sbin/chroot -u $FreshPorts::Config::JailUser $FreshPorts::Config::JailBaseDir $FreshPorts::Config::JailShowConfigScript $this->{category}/$this->{name} 2>$TmpFile";
+
 		print "'$showconfigcommand'\n";
 		$showconfig = `$showconfigcommand`;
 		# save this for later reference
@@ -767,6 +763,7 @@ sub _Validate {
 
 	print "_Validating....\n";
 
+	print "checking valid date: " . $this->{expiration_date} . "\n";
 	if (!IsValidDate($this->{expiration_date})) {
 		$ErrorMsg .= " EXPIRATION_DATE contains '" . $this->{expiration_date} . "', which is not a valid date.";
 
@@ -776,6 +773,7 @@ sub _Validate {
 
 	# verify that CATEGORIES contains the primary category
 	# make sure that $this->{categories} contains $this->{category}
+	print "checking valid date: " . $this->{categories} . "\n";
 	my $CATEGORIES = "www mail editors";
 	my $category = "editor";
 	
@@ -799,6 +797,8 @@ sub _Validate {
 		FreshPorts::CommitterOptIn::RecordErrorDetails("$this->{category}/$this->{name}", $ErrorMsg);
 		$result = -1;		
 	}
+
+	print "done _Validate\n";
 
 	return $result;
 }
