@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.71 2013-03-23 14:14:28 dan Exp $
+# $Id: port.pm,v 1.72 2013-03-23 20:48:17 dan Exp $
 #
 #
 # Copyright (c) 2001-2005 DVL Software
@@ -247,10 +247,23 @@ update ports
 
 		$this->{id} = FreshPorts::Database::GetNextValue($FreshPorts::Constants::ports_seq, $dbh);
 
-		$sql = "insert into ports (id, element_id, category_id) values ( \
+		$sql = "insert into ports (id, element_id, category_id";
+
+        # really, this should always be supplied, but we are retrofiting this, so be cautious		
+		if (defined($this->{last_commit_id})) {
+		    $sql .= ', last_commit_id';
+		}
+
+        $sql .= ") values ( \
 				$this->{id}, \
 				$this->{element_id}, \ 
-				$this->{category_id})";
+				$this->{category_id}";
+				
+		if (defined($this->{last_commit_id})) {
+			$sql .= ', ' . $this->{last_commit_id};
+		}
+
+        $sql .= ")";
 
 		print "sql is $sql\n";
 
