@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: port.pm,v 1.72 2013-03-23 20:48:17 dan Exp $
+# $Id: port.pm,v 1.73 2013-04-24 12:22:43 dan Exp $
 #
 #
 # Copyright (c) 2001-2005 DVL Software
@@ -665,7 +665,7 @@ sub _ExtractValuesFromMakefile {
 		my $longdescription = '';
 		my $homepage        = '';
 		if (defined($RealDescrPath) && -f $RealDescrPath) {
-			print "invoking _GetDescrAndHomePage()\n";
+			print "invoking _GetDescrAndHomePage() with '$RealDescrPath'\n";
 			($longdescription, $homepage) = _GetDescrAndHomePage($RealDescrPath);
 		}
 
@@ -989,7 +989,8 @@ sub _GetDescrAndHomePage($) {
 	my $url;
 	my $DESCR;
 
-	open (F,$file) || FreshPorts::Utilities::ReportError('warning', "couldn't open $file: $!", 1);
+	# this needs to open relative to the jail root.
+	open (F, $FreshPorts::Config::JailBaseDir . $file) || FreshPorts::Utilities::ReportError('warning', "couldn't open $file: $!", 1);
 	$DESCR = "";
 	
 	while(<F>){
