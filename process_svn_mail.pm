@@ -116,9 +116,11 @@ sub GetData {
 sub WriteXML {
 	my ($data_ref) = shift;
 
+	my $output = '';
 	# Use XML::Writer to create the XML
-	my ($writer) = new XML::Writer( DATA_INDENT => 4,
-					DATA_MODE => 1 );
+	my ($writer) = new XML::Writer( OUTPUT      => $output,
+					DATA_INDENT => 4,
+					DATA_MODE   => 1 );
 
 	# Add the main XML tag
 	$writer->xmlDecl("ISO-8859-1");
