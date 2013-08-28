@@ -32,9 +32,13 @@ none                            ${JAILBASE}/dev              devfs   rw         
 
 
 echo "Put the following in sudoers
-dan      ALL=(ALL) NOPASSWD:/usr/sbin/chroot -u dan ${JAILBASE} /make-port.sh *
-dan      ALL=(ALL) NOPASSWD:/usr/sbin/chroot -u dan ${JAILBASE} /make-category-comment.sh *
-dan      ALL=(ALL) NOPASSWD:/usr/sbin/chroot -u dan ${JAILBASE} /make-master-port-test.sh *
+dan      ALL=(ALL) NOPASSWD:/usr/sbin/chroot -u dan /usr/local/FreshPorts/ports-jail /cat-descr.sh *
+dan      ALL=(ALL) NOPASSWD:/usr/sbin/chroot -u dan /usr/local/FreshPorts/ports-jail /make-category-comment.sh *
+dan      ALL=(ALL) NOPASSWD:/usr/sbin/chroot -u dan /usr/local/FreshPorts/ports-jail /make-master-port-test.sh *
+dan      ALL=(ALL) NOPASSWD:/usr/sbin/chroot -u dan /usr/local/FreshPorts/ports-jail /make-master-sites-all.sh *
+dan      ALL=(ALL) NOPASSWD:/usr/sbin/chroot -u dan /usr/local/FreshPorts/ports-jail /make-port.sh *
+dan      ALL=(ALL) NOPASSWD:/usr/sbin/chroot -u dan /usr/local/FreshPorts/ports-jail /make-showconfig.sh *
+dan      ALL=(ALL) NOPASSWD:/usr/sbin/chroot -u dan /usr/local/FreshPorts/ports-jail /realpath.sh *
 "
 
 echo "This entry is required in scripts/config.sh:
