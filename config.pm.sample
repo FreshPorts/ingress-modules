@@ -16,8 +16,9 @@ $FreshPorts::Config::FreshPortsURL		= 'http://WEBSITE_URL/';
 
 $FreshPorts::Config::TimeAdjust			= '-10800 seconds';
 
-$FreshPorts::Config::dbname				= 'databasename';
-$FreshPorts::Config::user				= 'user';
+$FreshPorts::Config::host			= 'localhost';
+$FreshPorts::Config::dbname			= 'databasename';
+$FreshPorts::Config::user			= 'user';
 $FreshPorts::Config::password			= 'password';
 
 $FreshPorts::Config::BaseDir			= "/usr/websites/WEBSITE_URL";
@@ -26,7 +27,7 @@ $FreshPorts::Config::scriptpath			= $FreshPorts::Config::BaseDir . '/scripts';
 
 $FreshPorts::Config::mkdir_pkg			= 0;
 
-$FreshPorts::Config::QueueBaseDir       = "$ENV{HOME}/FreshPorts";
+$FreshPorts::Config::QueueBaseDir     		= "$ENV{HOME}/FreshPorts";
 
 #
 # where on disk is the ports tree?
@@ -67,17 +68,17 @@ $FreshPorts::Config::email_client			= 'localhost';
 
 $FreshPorts::Config::SystemOwnerEmail		= 'dan@langille.org';
 
-$FreshPorts::Config::JobWaiting					= $FreshPorts::Config::BaseDir . '/dynamic/job_waiting';
-$FreshPorts::Config::MovedFileFlag				= $FreshPorts::Config::BaseDir . '/dynamic/refresh_moved';
-$FreshPorts::Config::UpdatingFileFlag			= $FreshPorts::Config::BaseDir . '/dynamic/refresh_updating';
-$FreshPorts::Config::VuXMLFileFlag				= $FreshPorts::Config::BaseDir . '/dynamic/vuxml';
-$FreshPorts::Config::RefreshCachFileFlag		= $FreshPorts::Config::BaseDir . '/dynamic/cache_needs_refresh';
+$FreshPorts::Config::JobWaiting			= $FreshPorts::Config::BaseDir . '/dynamic/job_waiting';
+$FreshPorts::Config::MovedFileFlag		= $FreshPorts::Config::BaseDir . '/dynamic/refresh_moved';
+$FreshPorts::Config::UpdatingFileFlag		= $FreshPorts::Config::BaseDir . '/dynamic/refresh_updating';
+$FreshPorts::Config::VuXMLFileFlag		= $FreshPorts::Config::BaseDir . '/dynamic/vuxml';
+$FreshPorts::Config::RefreshCachFileFlag	= $FreshPorts::Config::BaseDir . '/dynamic/cache_needs_refresh';
 $FreshPorts::Config::WWWENPortsCategoriesFlag	= $FreshPorts::Config::BaseDir . '/dynamic/www.en.ports.categories';
 
 $FreshPorts::Config::PortsFreezeFile	    	= $FreshPorts::Config::BaseDir . '/dynamic/PortsFreezeIsInEffect';
 
 # number of files in the ports tree
-$FreshPorts::Config::PortsTreeCount	    		= $FreshPorts::Config::BaseDir . '/dynamic/PortsTreeCount';
+$FreshPorts::Config::PortsTreeCount	    	= $FreshPorts::Config::BaseDir . '/dynamic/PortsTreeCount';
 
 #
 # for ports caching
@@ -133,9 +134,12 @@ $FreshPorts::Config::Ports_Default_Directory = $FreshPorts::Config::DB_Root_Pref
 $FreshPorts::Config::JailBaseDir = '/wdc/dan/FreshPorts/ports-jail';
 
 $FreshPorts::Config::JailCategoryDescrptionScript = '/make-category-comment.sh';
-$FreshPorts::Config::JailPortScript               = '/make-port.sh';
-$FreshPorts::Config::JailShowConfigScript         = '/make-showconfig.sh';
+$FreshPorts::Config::JailDescr                    = '/make-descr.sh';
+$FreshPorts::Config::JailDescrAndHomePage         = '/cat-descr.sh';
 $FreshPorts::Config::JailMasterSitesScript        = '/make-master-sites-all.sh';
+$FreshPorts::Config::JailPortScript               = '/make-port.sh';
+$FreshPorts::Config::JailRealPath                 = '/realpath.sh';
+$FreshPorts::Config::JailShowConfigScript         = '/make-showconfig.sh';
 $FreshPorts::Config::JailUser                     = 'dan';
 
 1;

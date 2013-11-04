@@ -15,7 +15,7 @@ use Sys::Syslog;
 require config;
 
 sub GetDBHandle {
-	my $dbh_pg = DBI->connect('DBI:Pg:dbname=' . $FreshPorts::Config::dbname, $FreshPorts::Config::user, $FreshPorts::Config::password);
+	my $dbh_pg = DBI->connect('DBI:Pg:dbname=' . $FreshPorts::Config::dbname . ';host=' . $FreshPorts::Config::host, $FreshPorts::Config::user, $FreshPorts::Config::password);
 	if ($dbh_pg->{Active}) {
 		$dbh_pg->{AutoCommit} = 0;
 
