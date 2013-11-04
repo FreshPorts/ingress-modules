@@ -4,7 +4,9 @@ QUERYBASE='from ports_active PA WHERE NOT EXISTS (SELECT port_id, category_id fr
 QUERYCOUNT='select count(id)'
 QUERYROWS="select id, category_id, name, category, category || '/' || name AS port"
 QUERYORDER="ORDER BY category, name"
-DB='/usr/local/bin/psql freshports.org'
+PSQL=/usr/local/bin/psql
+DB=freshports.org
+HOST='slocum'
 
 
 if [ ! -f config.sh ]
@@ -21,18 +23,11 @@ then
 fi
 
 
-
-ROWCOUNT=`${DB} -q --pset t -c "${QUERYCOUNT} ${QUERYBASE}"`
+ROWCOUNT=`${PSQL} -h ${HOST} -q --pset t -d ${DB} --user www -c "${QUERYCOUNT} ${QUERYBASE}"`
 if [ ${ROWCOUNT} -ne 0 ]
 then
   echo 'This is a list of ports that do not have entries in the ports_categories table'
   echo 'This can be fixed with this query:'
   echo 'begin;  insert into ports_categories select id, category_id from ports_active PA WHERE NOT EXISTS (SELECT * from ports_categories PC where PC.port_id = PA.id and PC.category_id = PA.category_id);'
-  ${DB} -q -c "${QUERYROWS} ${QUERYBASE} ${QUERYORDER}"
+  ${PSQL} -h ${HOST} -q -d ${DB} --user www -c "${QUERYROWS} ${QUERYBASE} ${QUERYORDER}"
 fi
-
-#ROWS=`${DB} -e -c "${QUERYCOUNT}"`
-#for row in ROWS
-#do
-#  echo ${ROWS} | grep row
-#done
