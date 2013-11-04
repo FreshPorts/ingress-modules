@@ -497,7 +497,7 @@ my ($FreeBSDVersion) = $var[2]  =~ /(\d+)/;
 if ($FreeBSDVersion eq 4) {
   $FreshPorts::vuxml_mark_commits::PKGVERSION = '/usr/local/sbin/pkg_version';
 } else {
-  if ($FreeBSDVersion eq 6 || $FreeBSDVersion eq 7 || $FreeBSDVersion eq 8) {
+  if ($FreeBSDVersion eq 6 || $FreeBSDVersion eq 7 || $FreeBSDVersion eq 8 || $FreeBSDVersion eq 9) {
     $FreshPorts::vuxml_mark_commits::PKGVERSION = '/usr/sbin/pkg_version';
   } else {
     die('cannot determine correct pkg_version for ' . `uname -a`);
