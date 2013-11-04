@@ -11,6 +11,7 @@ load_xml_into_db.pl resides.
 The following packages are needed to run these scripts:
 
 # We no longer use File-PathConvert.  We use Cwd instead.
+# And as of 2013.08.28 we started used realpath(1) instead.
 #
 #http://search.cpan.org/search?dist=File-PathConvert
 #http://www.cpan.org/authors/id/R/RB/RBS/File-PathConvert-0.85.tar.gz
