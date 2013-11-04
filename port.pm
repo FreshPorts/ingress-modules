@@ -14,7 +14,6 @@ require utilities;
 require committer_opt_in;
 require port_dependencies;
 
-use Cwd;
 use strict;
 use config;
 use constants;
@@ -455,7 +454,7 @@ sub _ExtractValuesFromMakefile {
 	# IF YOU CHANGE THE MAKE COMMAND, CHANGE THE SPLIT!!!!!!!!!!!!!!!
 	#
 	#
-    $makecommand = "/usr/local/bin/sudo /usr/sbin/chroot -u $FreshPorts::Config::JailUser $FreshPorts::Config::JailBaseDir $FreshPorts::Config::JailPortScript $this->{category}/$this->{name} 2>$TmpFile";
+	$makecommand = "/usr/local/bin/sudo /usr/sbin/chroot -u $FreshPorts::Config::JailUser $FreshPorts::Config::JailBaseDir $FreshPorts::Config::JailPortScript $this->{category}/$this->{name} 2>$TmpFile";
 
 	print "makecommand = $makecommand\n";
 
@@ -504,12 +503,9 @@ sub _ExtractValuesFromMakefile {
 
 	my $mastersites = '';
 	if ($result == 0) {
-		my $TmpFile = FreshPorts::Utilities::TmpFileName("$this->{category}.$this->{name}.make-mastersites-error");
-		print "trying to get master sites.  Errors will be in '$TmpFile'\n";
-#		my $mastersitescommand = "make master-sites-all -f $Makefile PORTSDIR=$FreshPorts::Config::path_to_ports " . 
-#		                         "LOCALBASE=/nonexistentlocal 2>$TmpFile";
-        my $mastersitescommand = "/usr/local/bin/sudo /usr/sbin/chroot -u $FreshPorts::Config::JailUser $FreshPorts::Config::JailBaseDir $FreshPorts::Config::JailMasterSitesScript $this->{category}/$this->{name} 2>$TmpFile";
-
+        	my $TmpFile = FreshPorts::Utilities::TmpFileName("$this->{category}.$this->{name}.make-mastersites-error");
+          	print "trying to get master sites.  Errors will be in '$TmpFile'\n";
+                my $mastersitescommand = "/usr/local/bin/sudo /usr/sbin/chroot -u $FreshPorts::Config::JailUser $FreshPorts::Config::JailBaseDir $FreshPorts::Config::JailMasterSitesScript $this->{category}/$this->{name} 2>$TmpFile";
 
 		print "'$mastersitescommand'\n";
 		$mastersites = `$mastersitescommand`;
@@ -547,9 +543,7 @@ sub _ExtractValuesFromMakefile {
 	if ($result == 0) {
 		my $TmpFile = FreshPorts::Utilities::TmpFileName("$this->{category}.$this->{name}.showconfig");
 		print "trying to get showconfig.  Errors will be in '$TmpFile'\n";
-#		my $showconfigcommand = "make showconfig -f $Makefile PORTSDIR=$FreshPorts::Config::path_to_ports " . 
-#		                         "OPTIONSFILE=/nonexistent 2>$TmpFile";
-        my $showconfigcommand = "/usr/local/bin/sudo /usr/sbin/chroot -u $FreshPorts::Config::JailUser $FreshPorts::Config::JailBaseDir $FreshPorts::Config::JailShowConfigScript $this->{category}/$this->{name} 2>$TmpFile";
+                my $showconfigcommand = "/usr/local/bin/sudo /usr/sbin/chroot -u $FreshPorts::Config::JailUser $FreshPorts::Config::JailBaseDir $FreshPorts::Config::JailShowConfigScript $this->{category}/$this->{name} 2>$TmpFile";
 
 		print "'$showconfigcommand'\n";
 		$showconfig = `$showconfigcommand`;
@@ -597,12 +591,14 @@ sub _ExtractValuesFromMakefile {
 
 	if ($result == 0) {
 
-		(my $portname, my $packagename, my $descrpath, my $categories, my $portversion, my $portrevision, my $shortdescription,
-		 my $CommentFile, my $maintainer, my $extractsuffix, my $builddepends,
-		 my $rundepends, my $libdepends, my $forbidden, my $broken, my $deprecated, my $ignore,
-		 my $master_port, my $latest_link, my $no_latest_link, my $no_package, my $pkgnameprefix, my $pkgnamesuffix, my $portepoch,
-		 my $restricted, my $no_cdrom, my $expiration_date, 
-		 my $is_interactive, my $only_for_archs, my $not_for_archs, my $license) = split(/\n/s, $MakeResults);
+		(my $portname,       my $packagename,    my $descrpath,        my $categories,
+		 my $portversion,    my $portrevision,   my $shortdescription, my $CommentFile,
+		 my $maintainer,     my $extractsuffix,  my $builddepends,     my $rundepends,
+		 my $libdepends,     my $forbidden,      my $broken,           my $deprecated,
+		 my $ignore,         my $master_port,    my $latest_link,      my $no_latest_link,
+		 my $no_package,     my $pkgnameprefix,  my $pkgnamesuffix,    my $portepoch,
+		 my $restricted,     my $no_cdrom,       my $expiration_date,  my $is_interactive,
+		 my $only_for_archs, my $not_for_archs,  my $license) = split(/\n/s, $MakeResults);
 
 		my $package_name = $pkgnameprefix . $portname . $pkgnamesuffix;
 
@@ -652,14 +648,18 @@ sub _ExtractValuesFromMakefile {
 		print " libdepends   = '$libdepends'\n";
 
 		# eliminate multiple // : PR 174
-		# to compensate for bug in File::PathConvert::realpath (which is no longer used; Cwd is used instead)
-		$descrpath   =~ s|//|/|g;
+		# to compensate for bug in File::PathConvert::realpath (which is no longer used; _GetRealPath)
+		$descrpath =~ s|//|/|g;
 
-		my $RealDescrPath	= Cwd::abs_path($descrpath);
+		my $RealDescrPath = $this->_GetRealPath($descrpath);
 
 		if (!defined($shortdescription)) {
-			die("OK, good, we have no short description");
+                  die("OK, good, we have no short description");
 		}
+
+		# eliminate multiple // : PR 174
+		# to compensate for bug in File::PathConvert::realpath (which is no longer used; _GetRealPath))
+		$descrpath =~ s|//|/|g;
 
 		# if it's defined, and it exists....
 		my $longdescription = '';
@@ -871,8 +871,7 @@ sub _FetchFilesNeedingRefresh_DELETE_ME {
 			mkdir "pkg",0;
 		}
 
-		my $makecommand = "make -V DESCR -f $SVNDIR/$SVNITEM PORTSDIR=$FreshPorts::Config::path_to_ports " .
-		                  "LOCALBASE=/nonexistentlocal 2>$TmpFile";
+                my $makecommand = "/usr/local/bin/sudo /usr/sbin/chroot -u $FreshPorts::Config::JailUser $FreshPorts::Config::JailBaseDir $FreshPorts::Config::JailDescr $this->{category}/$this->{name} 2>$TmpFile";
 		                  
 		print "makecommand = $makecommand\n";
 		my $MakeResults = `$makecommand`;
@@ -904,7 +903,7 @@ sub _FetchFilesNeedingRefresh_DELETE_ME {
 			#   make: cannot open /usr/home/dan/ports/misc/cheatah/../sword//usr/home/dan/ports/misc/cheatah/Makefile.
 			# which is what $DESCR will contain.
 			# which means the call to File::PathConvert::realpath below will fail
-			# BUT now we use Cwd, not File::PathConvert
+			# BUT now we use _GetRealPath
 			#
 			# The solution is at http://www.freebsd.org/cgi/cvsweb.cgi/ports/www/mozilla-embedded/Makefile.diff?r1=1.15&r2=1.16&f=h
 			# In summary, like this:
@@ -924,7 +923,7 @@ sub _FetchFilesNeedingRefresh_DELETE_ME {
 
 			# eliminate multiple // : PR 174
 			# to compensate for bug in File::PathConvert::realpath
-			# but now we use Cwd.
+			# but now we use _GetRealPath.
 			$DESCR =~ s|//|/|g;
 			
 			print "raw data DESCR = '$DESCR'\n";
@@ -936,7 +935,7 @@ sub _FetchFilesNeedingRefresh_DELETE_ME {
 			# returns the realpath.  If empty, then COMMENTFILE is 
 			# not used and COMMENT returns the actual comment.
 			#
-			$DESCR = Cwd::abs_path($DESCR);
+			$DESCR = $this->_GetRealPath($DESCR);
 			print "raw data DESCR = '$DESCR'\n";
 
 
@@ -990,6 +989,8 @@ sub _GetDescrAndHomePage($) {
 	my $DESCR;
 
 	# this needs to open relative to the jail root.
+	# to be pure, we shold do this as a script in the jail-root, but we'd have to call two scripts:
+	# one for the homepage, one for te description.
 	open (F, $FreshPorts::Config::JailBaseDir . $file) || FreshPorts::Utilities::ReportError('warning', "couldn't open $file: $!", 1);
 	$DESCR = "";
 	
@@ -1012,12 +1013,44 @@ sub _GetDescrAndHomePage($) {
 }
 
 
+# =================================
+sub _GetRealPath($) {
+	my $this = shift;
+  	my $file = shift;
+
+	# invoke realpath on the supplied filename, from within our chroot
+	my $makecommand = "/usr/local/bin/sudo /usr/sbin/chroot -u $FreshPorts::Config::JailUser $FreshPorts::Config::JailBaseDir $FreshPorts::Config::JailRealPath $file";
+
+        print "about to invoke '$makecommand'\n";
+        
+	my $MakeResults = `$makecommand`;
+        my $errorcode = $?;
+
+	if ($errorcode != 0)
+	{
+          # some error, probably file does not exist
+          $MakeResults = 0;
+        }
+        else
+        {
+          chomp($MakeResults);	# remove that trailing whitespace.
+        }
+
+        print "results are '$MakeResults'\n";
+
+	print "errorcode='$errorcode'\n";
+
+	return $MakeResults;
+}
+
+
+
 sub RefreshFromFiles($;$;$) {
 #
 # refresh this port based on the make files associated with it and the value of needs_refresh
 # returns 0 for success, 1 for failure
 #
-	my $this			= shift;
+	my $this		= shift;
 	my $needs_refresh	= shift;
 	my $fetch_files		= shift;
 	my $svn_revision	= shift;
@@ -1120,49 +1153,6 @@ sub GetNeedsRefreshForNewPort {
 	}
 }
 
-
-sub RemovePortsPrefix($) {
-	#
-	# remove the ports prefix from the pathname
-	# this gives us the path into the CVS repo
-	# example:
-	# input:  /home/dan/ports/devel/hypersrc/Makefile
-	# output: ports/devel/hypersrc/Makefile
-	#
-	# assumes $FreshPorts::Config::path_to_tree is correctly set
-	#
-
-	#
-	# convert to the real path.  e.g. /home/dan to /usr/home/dan
-	#
-
-	my $SuffixPath = shift;
-	print "into RemovePortsPrefix => $SuffixPath\n";
-
-	# eliminate multiple // : PR 174
-	# to compensate for bug in File::PathConvert::realpath
-	# but now we use Cwd.
-	$SuffixPath =~ s|//|/|g;
-
-	$SuffixPath = Cwd::abs_path($SuffixPath);
-
-	# add a trailing slash to the real path!
-	my $Prefix = $FreshPorts::Config::path_to_ports;
-	$Prefix =~ s|//|/|g;
-	$Prefix = Cwd::abs_path($Prefix) . "/";
-
-	print "\$Prefix => $Prefix\n";
-
-	#print "RemovePortsPrefix \$Prefix = $Prefix\n";
-
-	# use regex to remove the prefix
-	$SuffixPath =~ s/$Prefix//;
-	$SuffixPath = $FreshPorts::Config::ports_prefix . '/' . $SuffixPath;
-
-	print "exit RemovePortsPrefix => $SuffixPath\n";
-
-	return $SuffixPath;
-}
 
 sub LooksLikeAMakefile($) {
 	my $Makefile = shift;
@@ -1319,12 +1309,21 @@ sub depends_stripper {
       $newdepends .= " ";
     }
 
-    my $absdir = Cwd::abs_path($ddir);
+    my $absdir = $this->_GetRealPath($ddir);
     if (defined($absdir))
     {
       if ( $absdir ne $ddir )
       {
-        print "converted '$ddir' to '$absdir'\n";
+        if ($absdir == 0)
+        {
+          print "that path does not exist\n";
+          # set things back to what we had, so the error can process correctly
+          $absdir = $ddir;
+        }
+        else
+        {
+          print "converted '$ddir' to '$absdir'\n";
+        }
       }
 
       $newdepends .= "$d:$absdir";
