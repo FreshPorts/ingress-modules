@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: queue-status.pl,v 1.3 2012-10-17 18:10:22 dan Exp $
+# $Id: queue-status.pl,v 1.3 2012/10/17 18:10:22 dan Exp $
 #
 # Copyright (c) 2001-2006 DVL Software
 #
@@ -25,7 +25,7 @@ my $base=$FreshPorts::Config::QueueBaseDir;
 
 my %queues = ('incoming' => '*.txt', 'retry' => '*.txt', 'recent' => '*.xml');
 my %queue_names = ('incoming' => 'incoming', 'retry' => 'retry', 'recent' => 'processed');
-my %report_non_zero = ('retry' => 1);
+my %report_non_zero = ('retry' => 1, 'incoming' => 1);
 
 my $send_report = 0;
 my $msg         = '';
@@ -39,7 +39,7 @@ foreach my $site (@FreshPorts::Status::sites) {
 			$Command .= " -name \"$pattern\"";
 		}
 		$Command .= ' -maxdepth 1 | wc -l';
-	
+
 		my $Count = `$Command`;
 		chomp $Count;
 		$Count = FreshPorts::Utilities::trim($Count);
