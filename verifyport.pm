@@ -91,6 +91,7 @@ sub _CompileListOfPorts($;$;$) {
 						} else {
 							# we need to create this catgory.
 							# remember to grab ports/<category>/pkg/COMMENT
+							# actually, it's in ports/<category>/Makefile as a COMMENT
 							print "creating new category $category_name\n";
 							FreshPorts::Utilities::ReportError('warning', "creating new category $category_name", 0);
 
