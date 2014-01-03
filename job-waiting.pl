@@ -29,6 +29,6 @@ while (my ($flag, $script) = each %Jobs) {
 		`$FreshPorts::Config::scriptpath/$script`;
 		Sys::Syslog::syslog('notice', "Finished running $script");
 	} else {
-		Sys::Syslog::syslog('notice', "flag not set.  no work for $script");
+		Sys::Syslog::syslog('notice', "flag '$flag' not set.  no work for $script");
 	}
 }
