@@ -664,7 +664,7 @@ sub _ExtractValuesFromMakefile {
 		# if it's defined, and it exists....
 		my $longdescription = '';
 		my $homepage        = '';
-		if (defined($RealDescrPath) && -f $RealDescrPath) {
+		if (defined($RealDescrPath)) {
 			print "invoking _GetDescrAndHomePage() with '$RealDescrPath'\n";
 			($longdescription, $homepage) = _GetDescrAndHomePage($RealDescrPath);
 		}
