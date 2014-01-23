@@ -358,7 +358,7 @@ sub GetFiles {
 		$path = $line;
 		next if($path =~ /\s+-\s+/); # skip messages about file origin
 		
-		next if($line =~ /^Directory Properties:/);
+		last if($line =~ /^Directory Properties:/);
 		
 #		# this removes head/, stable/ or vendor/ from the path
 #		# we may need to revist this if ports start commiting on non-head
