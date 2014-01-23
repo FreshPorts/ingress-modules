@@ -37,7 +37,7 @@ sub GetData {
 	my $Log;
 	my $EncodingLosses = 'false';
 
-	$Message_Subject	= &GetMessage_Subject($message);
+	$Message_Subject = &FreshPorts::ProcessMail::myGetMessage_Subject($message);
 
 	$Log = &GetLog($message);
 
@@ -660,46 +660,6 @@ sub GetMessage_To {
 	}
 
 	return @to;
-}
-
-sub GetMessage_Subject {
-#
-# This obtains the subject from the raw email.
-# It assumes the email has this format or similar:
-# Subject: cvs commit: CVSROOT modules ports/math Makefile ports/math/py-mpz
-#          Makefile distinfo pkg-comment pkg-descr pkg-plist
-#          ports/math/py-mpz/files setup.py
-#
-# 123456789
-# This assumes 9 spaces there...
-#
-
-	my ($message) = @_;
-	my ($Subject);
-
-	my ($FoundSubject) = 0;
-
-	my (@lines) = split("\n", $message);
-
-	for (@lines) {
-		my ($line) = $_;
-
-		if ($FoundSubject) {
-			if ($line =~ /^         /) {
-				$Subject .= ' ' . (split/         /, $line, 2)[1];
-				next;
-			} else {
-				last;
-			}
-		} else {
-			if ($line =~ /^Subject:/i) {
-				$Subject = (split/: /, $line, 2)[1];
-				$FoundSubject = 1;
-			}
-		}
-	}
-
-	return $Subject;
 }
 
 1;
