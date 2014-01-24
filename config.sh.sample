@@ -59,6 +59,7 @@ WWWENPORTSCATEGORIES="${BASEDIR}/dynamic/www.en.ports.categories"
 
 CACHE_NEEDS_REFRESH="${BASEDIR}/dynamic/cache_needs_refresh"
 
+PORTSDIR="/usr/local/FreshPorts/PORTS-SVN"
 ADMINEMAIL="ADMIN_EMAIL"
 
 if [ -e 'OFFLINE' ]
