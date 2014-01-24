@@ -835,6 +835,11 @@ sub SaveUpdateToDB {
 	my $description     = $Updates{log};
 	my $revision        = $Updates{revision};
    
+	# sometimes the committer field looks like: scheidell (ports committer)
+	# this takes the stuff before the first blank and we assume that is the committer id.
+	# the rest, we discard, ignore, and toss away.  So sad.
+	($committer, $rest) = split /\s+\W+\s*/, $committer, 2;
+
 	$commit_log->{message_id}		= $message_id;
 	$commit_log->{message_date}		= $message_date;
 	$commit_log->{message_subject}	= $message_subject;
