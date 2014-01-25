@@ -5,6 +5,7 @@
 
 # this must always be defined and functional.
 FRESHPORTS_FREEBSD_CVS_URL="http://www.freebsd.org/cgi/cvsweb.cgi"
+FRESHPORTS_FREEBSD_SVN_URL="http://svn.freebsd.org"
 
 FETCH="/usr/bin/fetch"
 FETCH_OPTIONS="-qo"
