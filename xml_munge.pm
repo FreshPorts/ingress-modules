@@ -894,32 +894,6 @@ sub GetExistingMessageID($;$) {
 	return $row[0];
 }
 
-sub Pathname_ID($;$) {
-	# obtain the element id from the full path-file name
-	my $filename = shift;
-	my $dbh      = shift;
-
-	my $sql;
-	my $sth;
-	my @row;
-
-	my $quoted_filename = $dbh->quote($filename);
-	$sql = "select Pathname_ID($quoted_filename)";
-
-	print "sql = '$sql'\n";
-
-	$sth = $dbh->prepare($sql);
-	if (!$sth->execute) {
-		FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql", 1);
-	}
-
-	@row = $sth->fetchrow_array();
-
-	$sth->finish();
-
-	return $row[0];
-}
-
 sub SystemBranchIDGetOrCreate($;$;$) {   
 	# obtain the system_branch_id for the given version of this system
 	my $system_id	= shift;
