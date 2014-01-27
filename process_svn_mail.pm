@@ -477,26 +477,17 @@ sub GetOS_RepoPrefix {
 #
 
 	my ($message) = @_;
-	
+
 	my $myRepoPrefix = '';
 	my $myListId     = FreshPorts::ProcessMail::myGetList_Id($message);
 
-	my %KnownRepos = (
-		"SVN commit messages for the entire src tree"                => $FreshPorts::Config::Repo_SRC,
-		"SVN commit messages for the entire doc trees"               => $FreshPorts::Config::Repo_DOC,
-		"SVN commit messages for the ports tree for head"            => $FreshPorts::Config::Repo_PORTS,
-		"SVN commit messages for all the branches of the ports tree" => $FreshPorts::Config::Repo_PORTS
-	);
-	
-	while (my ($ListId, $repo) = each %KnownRepos)
-	{
-		if ($myListId =~ /$ListId/i)
-		{
-			$myRepoPrefix = $repo;
-			last;
-		}
-	}
-	
+        my $ListProperties = FreshPorts::Branches::ListProperties($myListId);
+
+        if (defined($ListProperties))
+        {
+    		 $myRepoPrefix = $ListProperties->{'repo'};
+        }
+
 	return $myRepoPrefix;
 }
 

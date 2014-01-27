@@ -1,0 +1,72 @@
+#!/usr/bin/perl
+#
+# Copyright (c) 2014 DVL Software
+#
+
+package FreshPorts::Branches;
+
+require config;
+
+# these are the branches we process
+%FreshPorts::Branches::Branches = (
+  'HEAD',
+  'RELENG_9_1_0'
+);
+
+# these are the mailing lists associated with those branches
+%FreshPorts::Branches::MailingLists = (
+  'SVN commit messages for the entire src tree' => {
+     'process' => 'process_svn_mail',
+     'repo'    => $FreshPorts::Config::Repo_SRC,
+     },
+  'SVN commit messages for the entire doc trees' => {
+     'process' => 'process_svn_mail',
+     'repo'    => $FreshPorts::Config::Repo_DOC,
+     },
+  'SVN commit messages for the ports tree for head' => {
+     'process' => 'process_svn_mail',
+     'repo'    => $FreshPorts::Config::Repo_PORTS,
+     },
+  'SVN commit messages for all the branches of the ports tree' => {
+    'process' => 'process_svn_mail',
+    'repo'    => $FreshPorts::Config::Repo_PORTS,
+     },
+  'CVS commit messages for the ports tree' => {
+     'process' => 'process_cvs_mail',
+     'repo'    => '',
+     },
+  'CVS commit messages for the doc and www trees' => {
+     'process' => 'process_cvs_mail',
+     'repo'    => '',
+     },
+  '\*\*OBSOLETE\*\* CVS commit messages for the entire tree' => {
+     'process' => 'process_cvs_mail',
+     'repo'    => '',
+     },
+  '\*\*OBSOLETE\*\* CVS commit messages for the src tree' => {
+     'process' => 'process_cvs_mail',
+     'repo'    => '',
+     },
+  'CVS commit messages for the projects tree' => {
+     'process' => 'process_cvs_mail',
+     'repo'    => '',
+     },
+);
+
+#
+# given a list id, grab the properties for it
+#
+sub ListProperties($)
+{
+ my $ListId = shift;
+ my $hash;
+
+ # strip off the leading header. 
+ $ListId =~ s/List-Id:\s+//;
+
+ $hash = $FreshPorts::Branches::MailingLists{$ListId};
+     
+ return $hash;
+}
+
+1;

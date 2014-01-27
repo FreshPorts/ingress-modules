@@ -9,6 +9,7 @@
 #
 
 use strict;
+use branches;
 use XML::Writer;
 use constants;
 use utilities;
@@ -26,8 +27,6 @@ sub main {
 	
 	my $Message_Subject = FreshPorts::ProcessMail::myGetMessage_Subject($message);
 
-
-	
 	# the message id uniquely identifies the email, and thus, the commit in question
 	# the message id should be in one of two forms (given that we are processing stuff from just two lists):
 	#  201108100855.p7A8tkQt033487@svn.freebsd.org     (SVN commit)
@@ -54,30 +53,16 @@ sub main {
 #	print 'List-Id: '    . $ListId          . "\n";
 #	print 'Subject: '    . $Message_Subject . "\n";
 
-	my $found = 0;	
-	if ($MessageId =~ /\@svn.freebsd.org/i || $MessageId =~ /\@svn.chruetertee.ch/i) {
-		if ($ListId =~ /SVN commit messages for the entire src tree/i                 ||
-		    $ListId =~ /SVN commit messages for the entire doc trees/i                ||
-		    $ListId =~ /SVN commit messages for the ports tree for head/i             ||
-		    $ListId =~ /SVN commit messages for all the branches of the ports tree/i) {
-			$found = 1;
-#			print "we should invoke the SVN scripts here\n";
-			eval "use process_svn_mail";
-		}
-	}
-
-	if ($MessageId =~ /\@repoman.freebsd.org/i) {
-		if ($ListId =~ /CVS commit messages for the ports tree/i ||
-		    $ListId =~ /CVS commit messages for the doc and www trees/i ||
-		    $ListId =~ /\*\*OBSOLETE\*\* CVS commit messages for the entire tree/i ||
-		    $ListId =~ /\*\*OBSOLETE\*\* CVS commit messages for the src tree/i ||
-		    $ListId =~ /CVS commit messages for the projects tree/i) {
-			$found = 1;
-#			print "we should invoke the CVS scripts here\n";
-			eval "use process_cvs_mail";
-		}
-	}
-	
+	my $found = 0;
+        my $ListProperties = FreshPorts::Branches::ListProperties($ListId);
+        if (defined($ListProperties))
+        {
+            $found = 1;
+            my $process = $ListProperties->{'process'};
+#            require "./$process.pm";
+            eval "use $process";
+        }
+        
 	if (!$found) {
 		FreshPorts::Utilities::ReportErrorEmailNoPrint('err', "This List-Id/Message-Id combination is not known to this script. List-Id='" . 
 			$ListId . "' Message-Id='" . $MessageId . "'\n\nIs this a corrupted commit or email?", 1)
