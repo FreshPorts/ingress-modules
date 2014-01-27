@@ -70,9 +70,9 @@ sub GetData {
 					'TIME', [ &GetTime($message)
 					],
 					'OS', [ {
-						Id	    => &GetOS_Id($message),
-						Branch	=> &GetOS_Branch($message),
-						Repo    => $RepoPrefix }
+						Id     => &GetOS_Id    ($message),
+						Branch => &GetOS_Branch($message),
+						Repo   => $RepoPrefix }
 					],
 					'LOG', [ {},
 						0,
@@ -83,7 +83,7 @@ sub GetData {
 					],
 					'MESSAGE', [ {
 						Id             => $MessageID,
-						Subject		   => $Message_Subject,
+						Subject        => $Message_Subject,
 						EncodingLosses => $EncodingLosses },
 						'DATE', [ &GetMessage_Date($message)
 						],
@@ -455,6 +455,9 @@ sub GetOS_Branch {
 		elsif (m@\s+stable/(\d+)@) {
 			$branch = "RELENG_$1";
 		}
+		elsif (m@\s+branches/(RELENG[_\d]+)/@) {
+			$branch = "$1";
+		}
 		elsif (m@\s+vendor/@) {
 			$branch = "VENDOR";
 		}
@@ -479,9 +482,10 @@ sub GetOS_RepoPrefix {
 	my $myListId     = FreshPorts::ProcessMail::myGetList_Id($message);
 
 	my %KnownRepos = (
-		"SVN commit messages for the entire src tree"     => $FreshPorts::Config::Repo_SRC,
-		"SVN commit messages for the entire doc trees"    => $FreshPorts::Config::Repo_DOC,
-		"SVN commit messages for the ports tree for head" => $FreshPorts::Config::Repo_PORTS
+		"SVN commit messages for the entire src tree"                => $FreshPorts::Config::Repo_SRC,
+		"SVN commit messages for the entire doc trees"               => $FreshPorts::Config::Repo_DOC,
+		"SVN commit messages for the ports tree for head"            => $FreshPorts::Config::Repo_PORTS,
+		"SVN commit messages for all the branches of the ports tree" => $FreshPorts::Config::Repo_PORTS
 	);
 	
 	while (my ($ListId, $repo) = each %KnownRepos)

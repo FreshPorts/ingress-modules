@@ -48,6 +48,13 @@ sub _CompileListOfPorts($;$;$) {
 	foreach $value (@{$Files}) {
 		my ($action, $filename, $revision, $commit_log_element_id, $element_id) = @$value;
 		
+		# filename might look like one of these two:
+		#
+		# /ports/head/ftp/vsftpd/Makefile
+		# /ports/branches/RELENG_9_1_0/games/spellathon/Makefile
+		#
+		# You need to split them differently
+		
 		my ($emptyLeadingSlash, $subtree, $branch, $category_name, $port_name, $extra) = split/\//,$filename, 6;
 		# FILE ==: Modify, /ports/head/ftp/vsftpd/Makefile, 303756, , head, ftp, vsftpd/Makefile, 1935356
 		print "FILE ==: $action, $filename, $revision, $subtree, $category_name, ";
@@ -191,7 +198,8 @@ sub _CompileListOfPorts($;$;$) {
 }
 
 
-sub SaveChangesToPortsTree($;$;$) {
+sub SaveChangesToPortsTree($;$;$;$) {
+	my $repo                = shift;
 	my $commit_log_id	= shift;
 	my $Files			= shift;
 	my $dbh				= shift;

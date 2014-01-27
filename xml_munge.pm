@@ -317,7 +317,7 @@ sub handle_update_end {
 		FreshPorts::Utilities::ReportError('Err', "No files found in commit '$Updates{MessageId}'.  Has someone done a cvs import instead of addport?", 0)
 	}
 
-	%CommitLogPorts = FreshPorts::VerifyPort::SaveChangesToPortsTree(commit_log_id(), \@Files, $self->{dbh});
+	%CommitLogPorts = FreshPorts::VerifyPort::SaveChangesToPortsTree(repo(), commit_log_id(), \@Files, $self->{dbh});
 
 	#
 	# commit what we have now, and that starts a new transaction.

@@ -56,9 +56,10 @@ sub main {
 
 	my $found = 0;	
 	if ($MessageId =~ /\@svn.freebsd.org/i || $MessageId =~ /\@svn.chruetertee.ch/i) {
-		if ($ListId =~ /SVN commit messages for the entire src tree/i  ||
-		    $ListId =~ /SVN commit messages for the entire doc trees/i ||
-		    $ListId =~ /SVN commit messages for the ports tree for head/i) {
+		if ($ListId =~ /SVN commit messages for the entire src tree/i                 ||
+		    $ListId =~ /SVN commit messages for the entire doc trees/i                ||
+		    $ListId =~ /SVN commit messages for the ports tree for head/i             ||
+		    $ListId =~ /SVN commit messages for all the branches of the ports tree/i) {
 			$found = 1;
 #			print "we should invoke the SVN scripts here\n";
 			eval "use process_svn_mail";
