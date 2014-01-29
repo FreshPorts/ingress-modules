@@ -450,7 +450,7 @@ sub GetOS_Branch {
 	for (@lines) {
 		next unless ($_ =~ /^Subject: /i);
 		if (m@\s+head/@) {
-			$branch = "HEAD";
+			$branch = $FreshPorts::Constants::HEAD;
 		}
 		elsif (m@\s+stable/(\d+)@) {
 			$branch = "RELENG_$1";

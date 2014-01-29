@@ -57,7 +57,7 @@ my $fetch_before_refresh	= 1;	# by default, we fetch files from cvs
 									# before refreshing from them
 
 my $SystemID;						# the system id for this update.  Usually 'FreeBSD' => 1
-my $SystemBranchID;					# the system version id for this update.  Usually 'HEAD' => 1
+my $SystemBranchID;					# the system version id for this update.  Usually 'head' => 1
 
 my @Files;							# files affected by this commit
 
