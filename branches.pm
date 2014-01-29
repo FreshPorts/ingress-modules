@@ -15,7 +15,7 @@ require config;
 
 # these are the mailing lists associated with those branches
 %FreshPorts::Branches::MailingLists = (
-  'SVN commit messages for the entire src tree' => {
+  '"SVN commit messages for the entire src tree \(except for &quot;' => {
      'process' => 'process_svn_mail',
      'repo'    => $FreshPorts::Config::Repo_SRC,
      },
