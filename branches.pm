@@ -19,7 +19,7 @@ require config;
      'process' => 'process_svn_mail',
      'repo'    => $FreshPorts::Config::Repo_SRC,
      },
-  'SVN commit messages for the entire doc trees' => {
+  '"SVN commit messages for the entire doc trees \(except for &quot;' => {
      'process' => 'process_svn_mail',
      'repo'    => $FreshPorts::Config::Repo_DOC,
      },
