@@ -9,7 +9,7 @@ require config;
 
 # these are the branches we process
 %FreshPorts::Branches::Branches = (
-  'HEAD',
+  'head',
   'RELENG_9_1_0'
 );
 
@@ -67,6 +67,22 @@ sub ListProperties($)
  $hash = $FreshPorts::Branches::MailingLists{$ListId};
      
  return $hash;
+}
+
+# for a given branch name, return the full path.  Including the CHROOT path.
+sub GetPathToRepoForBranch($)
+{
+  my $CommitBranch = shift;
+  
+  return "$FreshPorts::Config::JailBaseDir/$FreshPorts::Config::SVNBaseDir/PORTS-$CommitBranch";
+}
+
+# for a given branch name, return the chroot'd full path.  Including the CHROOT path.
+sub GetPathToRepoForBranchCHROOT($)
+{
+  my $CommitBranch = shift;
+  
+  return "$FreshPorts::Config::SVNBaseDir/PORTS-$CommitBranch";
 }
 
 1;

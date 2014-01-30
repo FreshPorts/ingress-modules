@@ -2,17 +2,19 @@
 #
 # This extracts the master port for a given port.
 #
-# sudo /usr/sbin/chroot -u USER JAIL /make-master-sites-all.sh sysutils/bacula-client
+# sudo /usr/sbin/chroot -u USER JAIL /make-master-sites-all.sh REPO_PATH PORTDIR
 #
-# where USER    - user as which to execute the commands.  e.g. dan
-#       JAIL    - path to the jail created with the create-jail-directories.sh command. e.g. /usr/jail/FreshPorts
-#       PORTDIR - sysutils/bacula-server
+# where USER      - user as which to execute the commands.  e.g. dan
+#       JAIL      - path to the jail created with the create-jail-directories.sh command. e.g. /usr/jail/FreshPorts
+#       REPO_PATH - path to the SVN repository e.g. /usr/local/PORTS-RELENG_9_1_0
+#       PORTDIR   - sysutils/bacula-server
 #
 
 . ./vars.sh
 
-PORT=$1
+REPO_PATH=$1
+PORT=$2
 
-cd ${PATHTOPORTS}/${PORT}
+cd ${REPO_PATH}/${PORT}
 
-${MAKE} master-sites-all PORTSDIR=${PATHTOPORTS} LOCALBASE=${LOCALBASE} -f ${PATHTOPORTS}/${PORT}/Makefile
+${MAKE} master-sites-all PORTSDIR=${REPO_PATH} LOCALBASE=${LOCALBASE} -f ${REPO_PATH}/${PORT}/Makefile

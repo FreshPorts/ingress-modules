@@ -9,7 +9,8 @@ use strict;
 use lib "$ENV{HOME}/scripts";
 use config;
 
-my $Command="/usr/bin/find $FreshPorts::Config::path_to_ports | /usr/bin/wc -l > $FreshPorts::Config::PortsTreeCount";
+# this is hardcoded to HEAD for now
+my $Command="/usr/bin/find $FreshPorts::Config::path_to_tree/PORTS-$FreshPorts::Constants::HEAD | /usr/bin/wc -l > $FreshPorts::Config::PortsTreeCount";
 
 # print $Command;
 

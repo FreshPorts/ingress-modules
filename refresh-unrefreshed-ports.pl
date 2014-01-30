@@ -128,6 +128,8 @@ foreach $porttorefresh (@PORTS) {
 				print "that port has been deleted and will not be refreshed\n";
 				$result = 0;
 			} else {
+				print "we need to add CommitBranch to this call\n";
+				exit;
 				$result = $port->RefreshFromFiles($needs_refresh, $fetch_before_refresh, $svn_revision);
 				print "refresh attempt done ($result)\n";
 			}

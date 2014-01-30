@@ -35,6 +35,9 @@ sub ReadFile($) {
 	return $content;
 }
 
+#
+# this function is invoked from many places.
+#
 sub FetchFile($;$;$;$;) {
 	#
 	# fetch a file
@@ -42,14 +45,17 @@ sub FetchFile($;$;$;$;) {
 	# returns 1 if fetched.
 	# zero otherwise.
 	#
-	my $DESTDIR		= shift;
-	my $SRCDIR		= shift;
-	my $FILE		= shift;
-	my $REVISION	= shift;
+	my $DESTDIR  = shift;
+	my $SRCDIR   = shift;
+	my $FILE     = shift;
+	my $REVISION = shift;
 
 	return FetchFileURL($FreshPorts::Config::SVN_Repository, $DESTDIR, $SRCDIR, $FILE, $REVISION, "''");
 }
 
+#
+# This function is invoked only from FetchFile
+# 
 sub FetchFileURL($;$;$;$;$;$) {
 	#
 	# fetch a file
@@ -132,9 +138,9 @@ sub svnUpFile($;$;$) {
 	# returns 1 if fetched.
 	# zero otherwise.
 	#
-	my $SVNDIR		= shift;
-	my $SVNITEM		= shift;
-	my $REVISION	= shift;
+	my $SVNDIR   = shift;
+	my $SVNITEM  = shift;
+	my $REVISION = shift;
 	
 	$SVNITEM =~ s!^/?ports/!!;
 	

@@ -21,23 +21,18 @@ $FreshPorts::Config::dbname			= 'databasename';
 $FreshPorts::Config::user			= 'user';
 $FreshPorts::Config::password			= 'password';
 
-$FreshPorts::Config::BaseDir			= "/usr/websites/WEBSITE_URL";
+$FreshPorts::Config::BaseDir			= "/usr/local/FreshPorts";
 
 $FreshPorts::Config::scriptpath			= $FreshPorts::Config::BaseDir . '/scripts';
 
 $FreshPorts::Config::mkdir_pkg			= 0;
 
-$FreshPorts::Config::QueueBaseDir     		= "$ENV{HOME}/FreshPorts";
+$FreshPorts::Config::QueueBaseDir     		= $FreshPorts::Config::BaseDir;
 
 #
 # where on disk is the ports tree?
 #
-$FreshPorts::Config::path_to_tree		= $ENV{HOME};
-
-#
-# path to ports tree. no trailing slash
-#
-$FreshPorts::Config::path_to_ports		= $FreshPorts::Config::path_to_tree . '/ports';
+$FreshPorts::Config::path_to_tree		= $FreshPorts::Config::BaseDir;
 
 #
 # where in the cvs tree are ports?
@@ -60,7 +55,6 @@ $FreshPorts::Config::NotifyAdmin        = 1;	# Notify me
 #
 $FreshPorts::Config::scriptpath				= Cwd::abs_path($FreshPorts::Config::scriptpath);
 $FreshPorts::Config::path_to_tree			= Cwd::abs_path($FreshPorts::Config::path_to_tree);	
-$FreshPorts::Config::path_to_ports			= Cwd::abs_path($FreshPorts::Config::path_to_ports);
 
 $FreshPorts::Config::email_server			= 'localhost';
 $FreshPorts::Config::email_port				= 25;
@@ -110,7 +104,6 @@ $FreshPorts::Config::Debug_FetchBeforeSavingPort = 0;
 #
 #print "\$FreshPorts::Config::scriptpath    '$FreshPorts::Config::scriptpath'\n";
 #print "\$FreshPorts::Config::path_to_tree  '$FreshPorts::Config::path_to_tree'\n";
-#print "\$FreshPorts::Config::path_to_ports '$FreshPorts::Config::path_to_ports'\n";
 
 # number of times to retry a failed fetch from cvsweb
 $FreshPorts::Config::Fetch_Retry_Limit = 10;
@@ -131,7 +124,7 @@ $FreshPorts::Config::DB_Root_Prefix_SRC    = '/base';
 $FreshPorts::Config::Ports_Default_Directory = $FreshPorts::Config::DB_Root_Prefix_PORTS . '/head';
 
 # scripts for the jail
-$FreshPorts::Config::JailBaseDir = '/wdc/dan/FreshPorts/ports-jail';
+$FreshPorts::Config::JailBaseDir = '/usr/local/FreshPorts/ports-jail';
 
 $FreshPorts::Config::JailCategoryDescrptionScript = '/make-category-comment.sh';
 $FreshPorts::Config::JailDescr                    = '/make-descr.sh';

@@ -312,11 +312,11 @@ sub ProcessEachRangeRecord() {
 	if (defined($this->{vid}))
 	{
 	  $sql = "select * from vuxml_ranges('" . $this->{vid} . "');";
-    }
-    else
-    {
-      $sql = "select * from vuxml_ranges();";
-    }
+        }
+        else
+        {
+          $sql = "select * from vuxml_ranges();";
+        }
 
 	print "sql is $sql\n";
 
@@ -325,13 +325,13 @@ sub ProcessEachRangeRecord() {
 		die "Could not execute SQL $sql ... maybe invalid?";
 
     while ($range = $sth->fetchrow_hashref()) {
-		$i++;
-		# This is effectively the exit of the loop... once we find a new package,
-		# we mark the commits
+	$i++;
+	# This is effectively the exit of the loop... once we find a new package,
+	# we mark the commits
         if (!defined($LastPackage) || $LastPackage ne $range->{'package_name'}) {
-			if (defined($LastPackage)) {
-				$this->MarkTheseCommits(\@AffectedCommits);
-			}
+		if (defined($LastPackage)) {
+			$this->MarkTheseCommits(\@AffectedCommits);
+		}
 			
             $LastPackage = $range->{'package_name'};
 
@@ -340,22 +340,22 @@ sub ProcessEachRangeRecord() {
 			@AffectedCommits = ();
         } else {
             print "processing another record for that package\n";
-		}
-		print "*** Working on $range->{'op1'} $range->{'v1'}";
-		if (defined($range->{'op2'})) {
-			print "*** $range->{'op2'} $range->{'v2'}";
-		}
-		print "\n";
+	}
+	print "*** Working on $range->{'op1'} $range->{'v1'}";
+	if (defined($range->{'op2'})) {
+		print "*** $range->{'op2'} $range->{'v2'}";
+	}
+	print "\n";
 
         foreach my $Commit (@Commits) {
-			my $CommitVersion = $this->PackageVersion($Commit->{'port_version'},  $Commit->{'port_revision'}, $Commit->{'port_epoch'});
+		my $CommitVersion = $this->PackageVersion($Commit->{'port_version'},  $Commit->{'port_revision'}, $Commit->{'port_epoch'});
 
-			print "Looking at port='$Commit->{'port_id'}' " . sprintf "%10s", $CommitVersion . ' ';
-			print "$range->{'op1'} " . sprintf "%10s", $range->{'v1'};
-			if (defined($range->{'op2'})) {
-				print " $range->{'op1'} " . sprintf "%10s", $range->{'v1'};
-			}
-			print "\n";
+		print "Looking at port='$Commit->{'port_id'}' " . sprintf "%10s", $CommitVersion . ' ';
+		print "$range->{'op1'} " . sprintf "%10s", $range->{'v1'};
+		if (defined($range->{'op2'})) {
+			print " $range->{'op1'} " . sprintf "%10s", $range->{'v1'};
+		}
+		print "\n";
 
 			if ($this->IsCommitAffected($CommitVersion, $range)) {
 				print "### this version is affected\n";

@@ -21,10 +21,10 @@ sub _initialize {
 # =================================
 
 sub new {
-	my $this		= {};
-	my $class		= shift;
+	my $this    = {};
+	my $class   = shift;
 
-	$this->{dbh}	= shift;
+	$this->{dbh} = shift;
 
 	bless $this;
 	$this->_initialize();
@@ -35,16 +35,17 @@ sub _populate {
 	my $this = shift;
 	my $row  = shift;
 
-	$this->{id} 			= $row->{id};
-	$this->{is_primary}		= $row->{is_primary};
-	$this->{element_id}		= $row->{element_id};
-	$this->{name}			= $row->{name};
-	$this->{description}	= $row->{description};
+	$this->{id}          = $row->{id};
+	$this->{is_primary}  = $row->{is_primary};
+	$this->{element_id}  = $row->{element_id};
+	$this->{name}        = $row->{name};
+	$this->{description} = $row->{description};
 }
 
 
 sub save {
-	my $this = shift;
+	my $this         = shift;
+	my $CommitBranch = shift;
 
 #	print "into FreshPorts::Category::save\n";
 
@@ -74,7 +75,7 @@ sub save {
 	}
 
 	if (!$this->{description}) {
-		$this->{description} = _description_fetch("$this->{name}");
+		$this->{description} = _description_fetch($CommitBranch, $this->{name});
 	}
 
 	my $elementid;
@@ -189,20 +190,20 @@ sub FetchByName {
 # =================================
 
 sub _description_read {
-	my $category	= shift;
+	my $CommitBranch = shift;
+	my $category     = shift;
 
 	my $description = '';
 
-	my $MakefileDirectory = "$FreshPorts::Config::path_to_ports/$category";
 	my $TmpFile = FreshPorts::Utilities::TmpFileName("$category.make-error");
 
 	my $ErrorMessage = '';	# stores the result of the latest make command
-							# in case we need it for error reporting
+	                        # in case we need it for error reporting
 	my $OtherErrors  = '';	# gets the results of the TmpFile used to collect errors.
+	
+	my $SVNDIR_CHROOT = FreshPorts::Branches::GetPathToRepoForBranchCHROOT($CommitBranch);
 
-	chdir "$MakefileDirectory";
-
-	my $makecommand = "/usr/local/bin/sudo /usr/sbin/chroot -u $FreshPorts::Config::JailUser $FreshPorts::Config::JailBaseDir $FreshPorts::Config::JailCategoryDescrptionScript $category 2>$TmpFile";
+	my $makecommand = "/usr/local/bin/sudo /usr/sbin/chroot -u $FreshPorts::Config::JailUser $FreshPorts::Config::JailBaseDir $SVNDIR_CHROOT $FreshPorts::Config::JailCategoryDescrptionScript $category 2>$TmpFile";
 	print "makecommand = $makecommand\n";
 
 	my $MakeResults = `$makecommand`;
@@ -252,11 +253,12 @@ sub _description_read {
 }
 
 sub _description_fetch {
-	my $category	= shift;
+	my $CommitBranch = shift;
+	my $category     = shift;
 
-	my $DESTDIR	= "$FreshPorts::Config::path_to_ports/$category";
-	my $SRCDIR	= "ports/$category";
-	my $FILE	= "Makefile";
+	my $DESTDIR = "$FreshPorts::Config::path_to_ports/$category";
+	my $SRCDIR  = "ports/$category";
+	my $FILE    = "Makefile";
 
 	my $description;
 
@@ -266,7 +268,7 @@ sub _description_fetch {
 	print "FILE   =$FILE\n";
 
 	if (FreshPorts::Utilities::FetchFile($DESTDIR, $SRCDIR, $FILE, $FreshPorts::Constants::HEAD)) {
-		$description = _description_read("$category");
+		$description = _description_read($CommitBranch, $category);
 
 	} else {
 		FreshPorts::Utilities::ReportError('warning', "Could not fetch file for '$DESTDIR' '$SRCDIR' '$FILE'.  Error code = " . ($? >> 8), 0);
@@ -308,19 +310,20 @@ sub FetchAll {
 		$category = FreshPorts::Category->new($dbh);
    	print "found $row->{id} = $row->{name}\n";
 
-		$category->{id} = $row->{id};
-		$category->FetchByID();
-	   $Categories{$row->{name}} = $category;
+	$category->{id} = $row->{id};
+	$category->FetchByID();
+	$Categories{$row->{name}} = $category;
 	}
 
 	return %Categories;
 }
 
+# XXX not sure this is used by anyone
 sub RefreshDescription {
-	my $this = shift;
+	my $this         = shift;
+	my $CommitBranch = shift;
 
-	$this->{description} = FreshPorts::Category::_description_read($this->{name});
+	$this->{description} = FreshPorts::Category::_description_read($CommitBranch, $this->{name});
 }
 
 1;
-

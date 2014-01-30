@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# This returns the return resolved physical path via realpath(3).
+# This returns resolved physical path via realpath(3).
 # We were using Cwd::abs_path, but in a jail we would get results such as /basejail/usr/ports/sysutils/bacula-server
 # which is not ideal at all
 #

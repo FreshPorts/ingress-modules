@@ -2,18 +2,20 @@
 #
 # This extracts information from a port Makefile
 #
-# expected usage: sudo /usr/sbin/chroot -u USER JAIL /make-port.sh PORTDIR
+# expected usage: sudo /usr/sbin/chroot -u USER JAIL /make-port.sh REPO_PATH PORTDIR
 #
-# where USER    - user as which to execute the commands.  e.g. dan
-#       JAIL    - path to the jail created with the create-jail-directories.sh command. e.g. /usr/jail/FreshPorts
-#       PORTDIR - sysutils/bacula-server
+# where USER      - user as which to execute the commands.  e.g. dan
+#       JAIL      - path to the jail created with the create-jail-directories.sh command. e.g. /usr/jail/FreshPorts
+#       REPO_PATH - path to the SVN repository e.g. /usr/local/PORTS-RELENG_9_1_0
+#       PORTDIR   - sysutils/bacula-server
 #
 
 . ./vars.sh
 
-PORT=$1
+REPO_PATH=$1
+PORT=$2
 
-cd ${PATHTOPORTS}/${PORT}
+cd ${REPO_PATH}/${PORT}
 
 ${MAKE} -V PORTNAME    -V PKGNAME        -V DESCR           -V CATEGORIES     -V PORTVERSION    -V PORTREVISION  \
         -V COMMENT     -V COMMENTFILE    -V MAINTAINER      -V EXTRACT_SUFX   -V BUILD_DEPENDS  -V RUN_DEPENDS   \
@@ -21,6 +23,6 @@ ${MAKE} -V PORTNAME    -V PKGNAME        -V DESCR           -V CATEGORIES     -V
         -V LATEST_LINK -V NO_LATEST_LINK -V NO_PACKAGE      -V PKGNAMEPREFIX  -V PKGNAMESUFFIX  -V PORTEPOCH     \
         -V RESTRICTED  -V NO_CDROM       -V EXPIRATION_DATE -V IS_INTERACTIVE -V ONLY_FOR_ARCHS -V NOT_FOR_ARCHS \
         -V LICENSE \
-        -f ${PATHTOPORTS}/${PORT}/Makefile \
-        PORTSDIR=${PATHTOPORTS}            \
-        LOCALBASE=${LOCALBASE}
+        -f ${REPO_PATH}/${PORT}/Makefile \
+        PORTSDIR=${REPO_PATH}
+#        LOCALBASE=${LOCALBASE}

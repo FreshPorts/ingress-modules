@@ -35,6 +35,7 @@ use verifyport;
 use config;
 use constants;
 use commit_log;
+use commit_log_branches;
 use commit_log_element;
 use db_utils;
 use database;
@@ -49,11 +50,11 @@ use XML::Node;
 use DBI;
 
 
-my $commit_log_id			= 0;
-my $debug					= 0;
-my $overwrite				= 0;
-my $refresh_ports			= 1;	# refresh any ports touched by a commit
-my $fetch_before_refresh	= 1;	# by default, we fetch files from cvs 
+my $commit_log_id           = 0;
+my $debug                   = 0;
+my $overwrite               = 0;
+my $refresh_ports           = 1;  # refresh any ports touched by a commit
+my $fetch_before_refresh    = 1;  # by default, we fetch files from cvs 
 									# before refreshing from them
 
 my $SystemID;						# the system id for this update.  Usually 'FreeBSD' => 1
@@ -70,9 +71,9 @@ my $_RollbackNeeded         = 0;	# set by Rollback_Needed()
 # a file can be added to the repository, deleted (removed) from the repository,
 # or modified in the repository.
 #
-my %ValidFileActions = (	$FreshPorts::Constants::ADD		=> "A",
-							$FreshPorts::Constants::REMOVE	=> "R",
-							$FreshPorts::Constants::MODIFY	=> "M");
+my %ValidFileActions = ( $FreshPorts::Constants::ADD    => "A",
+                         $FreshPorts::Constants::REMOVE => "R",
+                         $FreshPorts::Constants::MODIFY => "M");
 
 
 my %Updates;
@@ -284,6 +285,8 @@ sub handle_os_end {
 		if (!defined($SystemBranchID)) {
 			$! = 4;
 			FreshPorts::Utilities::ReportError('warning', "No SystemBranchID found for OS = '$Updates{branch}'", 1);
+		} else {
+			$Updates{branch_id} = $SystemBranchID;
 		}
 	} else {
 		Sys::Syslog::syslog('warning', "Branch was empty.  Probably imported sources.  Ignoring $inputfile");
@@ -317,7 +320,7 @@ sub handle_update_end {
 		FreshPorts::Utilities::ReportError('Err', "No files found in commit '$Updates{MessageId}'.  Has someone done a cvs import instead of addport?", 0)
 	}
 
-	%CommitLogPorts = FreshPorts::VerifyPort::SaveChangesToPortsTree(repo(), commit_log_id(), \@Files, $self->{dbh});
+	%CommitLogPorts = FreshPorts::VerifyPort::SaveChangesToPortsTree($Updates{branch}, commit_log_id(), \@Files, $self->{dbh});
 
 	#
 	# commit what we have now, and that starts a new transaction.
@@ -331,7 +334,7 @@ sub handle_update_end {
 	
 	if (($Updates{repository} eq $FreshPorts::Config::Repo_PORTS) && $fetch_before_refresh) {
 		print "oh, the script goes to fetch...\n";
-		$FetchOK = FreshPorts::VerifyPort::FetchAllFiles(\@Files, $Updates{revision}, $self->{dbh});
+		$FetchOK = FreshPorts::VerifyPort::FetchAllFiles($Updates{branch}, \@Files, $Updates{revision}, $self->{dbh});
 		if ($FetchOK) {
 			$self->notify_observers($FreshPorts::Messages::FilesFetched);
 		} else {
@@ -347,10 +350,10 @@ sub handle_update_end {
 	
 	if ($FetchOK) {
 		if ($refresh_ports) {
-			$ErrorFound = FreshPorts::VerifyPort::RefreshAllPortsTouchedByCommit(\%CommitLogPorts, 0, '', $self->{dbh});
+			$ErrorFound = FreshPorts::VerifyPort::RefreshAllPortsTouchedByCommit($Updates{branch}, \%CommitLogPorts, 0, '', $self->{dbh});
 
 			if (!$ErrorFound) {
-				$ErrorFound = FreshPorts::VerifyPort::RefreshAllSlavePortsOfPortsTouchedByCommit(\%CommitLogPorts, 0, $self->{dbh});
+				$ErrorFound = FreshPorts::VerifyPort::RefreshAllSlavePortsOfPortsTouchedByCommit($Updates{branch}, \%CommitLogPorts, 0, $self->{dbh});
 			}
 
 			if (!$ErrorFound) {
@@ -744,6 +747,13 @@ sub handle_message_end {
 	# use this information to update the database
 	print "into handle_message_end, let's save that message now!\n\n";
 
+	# First thing we must do, is tell the database what Branch to use...
+	my $sql = 'select freshports_branch_set(' . $self->{dbh}->quote($Updates{branch}) . ')';
+	my $sth = $self->{dbh}->prepare($sql);
+	if (!$sth->execute())  {
+		FreshPorts::Utilities::ReportError('warning', "Could not set branch", 1);
+	}
+
 	if (!$debug) {
 		$commit_log_id = SaveUpdateToDB();
 	}
@@ -861,6 +871,12 @@ sub SaveUpdateToDB {
 	}
 
 	$id = $commit_log->save();
+
+	print "saving commit_log <-> branch information\n";	
+	my $commit_log_branches = FreshPorts::Commit_Log_Branches->new($self->{dbh});
+	$commit_log_branches->{commit_log_id} = $id;
+	$commit_log_branches->{branch_id}     = $Updates{branch_id};
+	$commit_log_branches->save();	
 
 	print "we have saved with id = '$id'\n";
 

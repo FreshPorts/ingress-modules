@@ -7,6 +7,7 @@
 package FreshPorts::VerifyPort;
 
 use strict;
+use branches;
 use element;
 use category;
 use port;
@@ -31,12 +32,13 @@ sub InitialiseNewMessage() {
 	# kept in case needed in future
 }
 
-sub _CompileListOfPorts($;$;$) {
-	my $commit_log_id	= shift;
-	my $Files			= shift;
-	my $dbh				= shift;
+sub _CompileListOfPorts($;$;$;$) {
+	my $CommitBranch  = shift; # which branch is this on? head? RELENG_9_1_0
+	my $commit_log_id = shift;
+	my $Files         = shift;
+	my $dbh           = shift;
 
-	my %ListOfPorts;		# returned from this function
+	my %ListOfPorts;	# returned from this function
 	my %CategoriesChecked;	# contains category class objects.
 
 	my $value;
@@ -55,7 +57,18 @@ sub _CompileListOfPorts($;$;$) {
 		#
 		# You need to split them differently
 		
-		my ($emptyLeadingSlash, $subtree, $branch, $category_name, $port_name, $extra) = split/\//,$filename, 6;
+		# define them first
+		my ($emptyLeadingSlash, $subtree, $branches, $branch, $category_name, $port_name, $extra);
+		
+		# depending on which branch we are one, we need to split this path differently
+		if ($CommitBranch eq $FreshPorts::Constants::HEAD)
+		{
+		  ($emptyLeadingSlash, $subtree,            $branch, $category_name, $port_name, $extra) = split/\//,$filename, 6;
+		}
+		else
+		{
+		  ($emptyLeadingSlash, $subtree, $branches, $branch, $category_name, $port_name, $extra) = split/\//,$filename, 7;
+		}
 		# FILE ==: Modify, /ports/head/ftp/vsftpd/Makefile, 303756, , head, ftp, vsftpd/Makefile, 1935356
 		print "FILE ==: $action, $filename, $revision, $subtree, $category_name, ";
 		if (defined($port_name)) {
@@ -132,7 +145,14 @@ sub _CompileListOfPorts($;$;$) {
 							$port = FreshPorts::Port->new($dbh);
 
 							# this is all that's needed to retrieve a port which exists
-							$port->{partialpathname} = "/$subtree/$branch/$category_name/$port_name";
+							if ($CommitBranch eq $FreshPorts::Constants::HEAD)
+							{
+							  $port->{partialpathname} = "/$subtree/$branch/$category_name/$port_name";
+							}
+							else
+							{
+							  $port->{partialpathname} = "/$subtree/branches/$branch/$category_name/$port_name";
+							}
 
 							$port->FetchByPartialPathName();
 							#
@@ -199,10 +219,10 @@ sub _CompileListOfPorts($;$;$) {
 
 
 sub SaveChangesToPortsTree($;$;$;$) {
-	my $repo                = shift;
-	my $commit_log_id	= shift;
-	my $Files			= shift;
-	my $dbh				= shift;
+	my $CommitBranch  = shift;  # e.g. head or RELENG_9_1_0 or RELENG_10
+	my $commit_log_id = shift;
+	my $Files         = shift;
+	my $dbh           = shift;
 
 	my %ListOfPorts;
 	my %CommitLogPorts;	# hash of commit_log_ports objects
@@ -229,7 +249,7 @@ sub SaveChangesToPortsTree($;$;$;$) {
 	# This list of ports may not all be in the database.
 	# We'll deal with that as we go along.
 	#
-	%ListOfPorts = _CompileListOfPorts($commit_log_id, $Files, $dbh);
+	%ListOfPorts = _CompileListOfPorts($CommitBranch, $commit_log_id, $Files, $dbh);
 	
 	print "into SaveChangesToPortsTree()\n";
 
@@ -321,12 +341,13 @@ sub SaveChangesToPortsTree($;$;$;$) {
 	return %CommitLogPorts;
 }
 
-sub FetchAllFiles($;$;$) {
+sub FetchAllFiles($;$;$;$) {
 	#
 	# fetch all the files associated with this commit
 	# Actually, it's only files within the ports tree.
 	#
 
+	my $CommitBranch = shift;
 	my $Files        = shift;
 	my $svn_revision = shift;
 	my $dbh          = shift;
@@ -347,7 +368,7 @@ sub FetchAllFiles($;$;$) {
 	print "fetching all files from this commit.\n";
 	
 	# this is where we fetch the files to disk
-	my $SVNDIR	= "$FreshPorts::Config::path_to_ports";
+	my $SVNDIR = FreshPorts::Branches::GetPathToRepoForBranch($CommitBranch);
 
 	# if we have a revision	
 	if (defined($svn_revision) && $svn_revision ne '')
@@ -389,6 +410,7 @@ sub FetchAllFiles($;$;$) {
 		#
 		#
 
+		# XXX - this needs to cater for branches.
 		# this is the step which removes the prefix from the directory
 		$filename =~ s|$FreshPorts::Config::ports_prefix/||g;
 		
@@ -596,17 +618,18 @@ sub _RecordPortsAndElements($;$;$;$) {
 	print "done _RecordPortsAndElements\n";
 }
 
-sub RefreshAllPortsTouchedByCommit($;$;$;$) {
+sub RefreshAllPortsTouchedByCommit($;$;$;$;$) {
 	#
 	# given the ports touched by this commit
 	# refresh each of them
 	#
 
-	my $CommitLogPortsRef		= shift;
-	my %CommitLogPorts			= %{$CommitLogPortsRef};
-	my $fetch_before_refresh	= shift;
-	my $svn_revision            = shift;
-	my $dbh						= shift;
+	my $CommitBranch         = shift;
+	my $CommitLogPortsRef    = shift;
+	my %CommitLogPorts       = %{$CommitLogPortsRef};
+	my $fetch_before_refresh = shift;
+	my $svn_revision         = shift;
+	my $dbh                  = shift;
 
 	my $port;
 	my $error;
@@ -626,7 +649,7 @@ sub RefreshAllPortsTouchedByCommit($;$;$;$) {
 		# If we don't need to refresh it, we don't need to save it.
 		#
 		if ($port->IsActive()) {
-			$error = $port->RefreshFromFiles($commit_log_ports->{needs_refresh}, $fetch_before_refresh, $svn_revision);
+			$error = $port->RefreshFromFiles($CommitBranch, $commit_log_ports->{needs_refresh}, $fetch_before_refresh, $svn_revision);
 		} else {
 			print "This port is deleted: not refreshing.\n";
 			$error = 0;
@@ -635,7 +658,7 @@ sub RefreshAllPortsTouchedByCommit($;$;$;$) {
 		if (!$error) {
 			if ($port->IsActive()) {
 				# after [perhaps] refreshing from the files, save the results
-				$port->save();
+				$port->save($CommitBranch);
 			} else {
 				print "This port is deleted: not saving.\n";
 			}
@@ -659,15 +682,16 @@ sub RefreshAllPortsTouchedByCommit($;$;$;$) {
 	return $ErrorFound;
 }
 
-sub RefreshAllSlavePortsOfPortsTouchedByCommit($;$;$) {
+sub RefreshAllSlavePortsOfPortsTouchedByCommit($;$;$;$) {
 	#
 	# given the ports touched by this commit,
 	# refresh any slaves
 	#
-	my $CommitLogPortsRef		= shift;
-	my %CommitLogPorts			= %{$CommitLogPortsRef};
-	my $fetch_before_refresh	= shift;
-	my $dbh						= shift;
+	my $CommitBranch         = shift;
+	my $CommitLogPortsRef    = shift;
+	my %CommitLogPorts       = %{$CommitLogPortsRef};
+	my $fetch_before_refresh = shift;
+	my $dbh                  = shift;
 
 
 	my $ErrorFound = 0;
@@ -702,7 +726,7 @@ sub RefreshAllSlavePortsOfPortsTouchedByCommit($;$;$) {
 		$port->FetchByPartialPathName();
 
 		#  refresh it
-		$port->RefreshFromFiles(1, 0, '');	# refresh the port, don't fetch the files
+		$port->RefreshFromFiles($CommitBranch, 1, 0, ''); # refresh the port, don't fetch the files
 
 		#  save it
 		$port->save();

@@ -357,10 +357,11 @@ sub GetFiles {
 		next unless $found == 1;
 		$path = $line;
 		next if($path =~ /\s+-\s+/); # skip messages about file origin
-		
+
+		# we always ignore stuff after these lines		
 		# we always ignore stuff after these lines              
 		last if($line =~ /^Directory Properties:/);
-		last if($line =~ /^Changes in other areas also in this revision::/);		
+		last if($line =~ /^Changes in other areas also in this revision::/);
 		
 #		# this removes head/, stable/ or vendor/ from the path
 #		# we may need to revist this if ports start commiting on non-head
@@ -446,27 +447,23 @@ sub GetOS_Id {
 sub GetOS_Branch {
 	my ($message) = @_;
 	my ($branch);
+	
+	my $Message_Subject = &GetMessage_Subject($message);
 
-	my (@lines) = split("\n", $message);
-
-	for (@lines) {
-		next unless ($_ =~ /^Subject: /i);
-		if (m@\s+head/@) {
-			$branch = $FreshPorts::Constants::HEAD;
-		}
-		elsif (m@\s+stable/(\d+)@) {
-			$branch = "RELENG_$1";
-		}
-		elsif (m@\s+branches/(RELENG[_\d]+)/@) {
-			$branch = "$1";
-		}
-		elsif (m@\s+vendor/@) {
-			$branch = "VENDOR";
-		}
-		else {
-			$branch = "UNKNOWN";
-		}
-		last;
+	if ($Message_Subject =~ m@\s+head/@) {
+		$branch = $FreshPorts::Constants::HEAD;
+	}
+	elsif ($Message_Subject =~ m@\s+stable/(\d+)@) {
+		$branch = "RELENG_$1";
+	}
+	elsif ($Message_Subject =~ m@\s+branches/(RELENG[_\d]+)/@) {
+		$branch = "$1";
+	}
+	elsif ($Message_Subject =~ m@\s+vendor/@) {
+		$branch = "VENDOR";
+	}
+	else {
+		$branch = "UNKNOWN";
 	}
 
 	return $branch;

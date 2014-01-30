@@ -127,7 +127,8 @@ sub parsefile ($) {
 						# suggested by mat@ for parsing
 						# affect ports that look like shell
 						# globs
-						chdir "$FreshPorts::Config::path_to_ports";
+						# XXX which ports tree are we using?  Let's use PORTS-head for now
+						chdir "$FreshPorts::Config::path_to_tree/PORTS-head";
 						push @ports, glob $part;
 					} else {
 						push @ports, $part;

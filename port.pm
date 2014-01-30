@@ -21,15 +21,18 @@ use constants;
 # for Ade's special code in update_depends_helper
 use List::MoreUtils qw(uniq);
 
-sub freshports_ConvertPortPathToStandardLocation($) {
-	my $pathname = shift;
+sub freshports_ConvertPortPathToStandardLocation($;$) {
+	my $CommitBranch = shift;
+	my $pathname     = shift;
 
 	# look for $FreshPorts::Config::path_to_tree and 
 	# replace it with /usr.  Why? so we refer to the 
 	# real ports tree and not the one we are using
+	
+	my $PathToRepo = FreshPorts::Branches::GetPathToRepoForBranch($CommitBranch);
 
 	print "freshports_ConvertPortPathToStandardLocation() is converting '$pathname' ";
-	$pathname =~ s/$FreshPorts::Config::path_to_ports/$FreshPorts::Constants::UsualPortsTreeLocation/g;
+	$pathname =~ s/$PathToRepo/$FreshPorts::Constants::UsualPortsTreeLocation/g;
 	print " to '$pathname'\n";
 
 	return $pathname;
@@ -146,6 +149,8 @@ sub new {
 sub save {
 	my $this = shift;
 
+	my $CommitBranch = shift;
+
 	print "into FreshPorts::Port::save\n";
 
 	#
@@ -237,8 +242,12 @@ update ports
 			$this->{element_id} = $this->_FetchElementIDByPartialPathName();
 		}
 
-		if (!$this->{element_id} || !$this->{category_id}) {
-			FreshPorts::Utilities::ReportError('warning', "Cannot create new port.  Insufficient data", 1);
+		if (!$this->{element_id}) {
+			FreshPorts::Utilities::ReportError('warning', "Cannot create new port.  Insufficient data: no element id", 1);
+		}
+
+		if (!$this->{category_id}) {
+			FreshPorts::Utilities::ReportError('warning', "Cannot create new port.  Insufficient data: no category id", 1);
 		}
 
 		#
@@ -273,7 +282,7 @@ update ports
 		
 	}
 
-	$this->update_depends();
+	$this->update_depends($CommitBranch);
 
 	# after savings, return the ID
 	return $this->{id};
@@ -388,6 +397,8 @@ sub _FetchElementIDByPartialPathName {
  	my $element;
 
 	$element = FreshPorts::Element->new($dbh);
+	
+	print "fetching by _FetchElementIDByPartialPathName: '" . $this->{partialpathname} ."'\n";;
 	$element->{pathname} = $this->{partialpathname};
 	$this->{element_id} = $element->FetchByName();
 
@@ -401,15 +412,18 @@ sub _ExtractValuesFromMakefile {
 	# returns 0 for success, -1 for failure
 	#
 
-	my $this = shift;
+	my $this         = shift;
+	my $CommitBranch = shift;
 
 	my $result;
 	my $makecommand;
 	my $ErrorMessage = '';	# stores the result of the latest make command
-							# in case we need it for error reporting
+	                        # in case we need it for error reporting
 	my $OtherErrors  = '';	# gets the results of the TmpFile used to collect errors.
 
-	my $MakefileDirectory = "$FreshPorts::Config::path_to_ports/$this->{category}/$this->{name}";
+	my $SVNDIR        = FreshPorts::Branches::GetPathToRepoForBranch      ($CommitBranch);
+	my $SVNDIR_CHROOT = FreshPorts::Branches::GetPathToRepoForBranchCHROOT($CommitBranch);
+	my $MakefileDirectory = "$SVNDIR/$this->{category}/$this->{name}";
 
 	my $Makefile = "$MakefileDirectory/$FreshPorts::Constants::FILE_MAKEFILE";
 
@@ -419,7 +433,7 @@ sub _ExtractValuesFromMakefile {
 	} else {
 		# If the Makefile does not exist, suspect a repocopy.
 		# A repocopy is the process of manually moving things around within the cvs repository.
-		# This preserves commit history when a port is being renamed, but it makes life difficult
+		# This preserves commit history when a port is being renamed, but it makes life difficultJailShowConfigScript
 		# for FreshPorts, which only tracks commits.
 		FreshPorts::CommitterOptIn::RecordErrorDetails("$this->{category}/$this->{name}", "I did not find a Makefile for this port, and none was mentioned in the commit.  If a repocopy has been done, please ignore this message.");
 	}
@@ -432,14 +446,6 @@ sub _ExtractValuesFromMakefile {
 		return -1;
 	}
 
-	#
-	# if we don't change the working dir, stuff like descrpath will not
-	# contain /usr/ports/...etc.  It will look more like this:
-	#     /usr/home/dan/walkports/
-	# That's because DESCR is defined as .{CURDIR}/etc more or less
-	#
-	chdir "$MakefileDirectory";
-
 	# we create this directory because it helps us to locate problems
 	#
 	# create this directory to catch errors
@@ -449,12 +455,13 @@ sub _ExtractValuesFromMakefile {
 		mkdir "pkg",0;
 	}
 
+
 	#
 	#
 	# IF YOU CHANGE THE MAKE COMMAND, CHANGE THE SPLIT!!!!!!!!!!!!!!!
 	#
 	#
-	$makecommand = "/usr/local/bin/sudo /usr/sbin/chroot -u $FreshPorts::Config::JailUser $FreshPorts::Config::JailBaseDir $FreshPorts::Config::JailPortScript $this->{category}/$this->{name} 2>$TmpFile";
+	$makecommand = "/usr/local/bin/sudo /usr/sbin/chroot -u $FreshPorts::Config::JailUser $FreshPorts::Config::JailBaseDir $FreshPorts::Config::JailPortScript $SVNDIR_CHROOT $this->{category}/$this->{name} 2>$TmpFile";
 
 	print "makecommand = $makecommand\n";
 
@@ -505,7 +512,7 @@ sub _ExtractValuesFromMakefile {
 	if ($result == 0) {
         	my $TmpFile = FreshPorts::Utilities::TmpFileName("$this->{category}.$this->{name}.make-mastersites-error");
           	print "trying to get master sites.  Errors will be in '$TmpFile'\n";
-                my $mastersitescommand = "/usr/local/bin/sudo /usr/sbin/chroot -u $FreshPorts::Config::JailUser $FreshPorts::Config::JailBaseDir $FreshPorts::Config::JailMasterSitesScript $this->{category}/$this->{name} 2>$TmpFile";
+                my $mastersitescommand = "/usr/local/bin/sudo /usr/sbin/chroot -u $FreshPorts::Config::JailUser $FreshPorts::Config::JailBaseDir $FreshPorts::Config::JailMasterSitesScript $SVNDIR_CHROOT $this->{category}/$this->{name} 2>$TmpFile";
 
 		print "'$mastersitescommand'\n";
 		$mastersites = `$mastersitescommand`;
@@ -543,7 +550,7 @@ sub _ExtractValuesFromMakefile {
 	if ($result == 0) {
 		my $TmpFile = FreshPorts::Utilities::TmpFileName("$this->{category}.$this->{name}.showconfig");
 		print "trying to get showconfig.  Errors will be in '$TmpFile'\n";
-                my $showconfigcommand = "/usr/local/bin/sudo /usr/sbin/chroot -u $FreshPorts::Config::JailUser $FreshPorts::Config::JailBaseDir $FreshPorts::Config::JailShowConfigScript $this->{category}/$this->{name} 2>$TmpFile";
+                my $showconfigcommand = "/usr/local/bin/sudo /usr/sbin/chroot -u $FreshPorts::Config::JailUser $FreshPorts::Config::JailBaseDir $FreshPorts::Config::JailShowConfigScript $SVNDIR_CHROOT $this->{category}/$this->{name} 2>$TmpFile";
 
 		print "'$showconfigcommand'\n";
 		$showconfig = `$showconfigcommand`;
@@ -624,11 +631,11 @@ sub _ExtractValuesFromMakefile {
 		# 
 		# freshports.org=#
 
-		$builddepends = $this->depends_stripper(freshports_ConvertPortPathToStandardLocation(FreshPorts::Utilities::trim_multiple_to_single(FreshPorts::Utilities::trim($builddepends))));
-		$rundepends   = $this->depends_stripper(freshports_ConvertPortPathToStandardLocation(FreshPorts::Utilities::trim_multiple_to_single(FreshPorts::Utilities::trim($rundepends))));
-		$libdepends   = $this->depends_stripper(freshports_ConvertPortPathToStandardLocation(FreshPorts::Utilities::trim_multiple_to_single(FreshPorts::Utilities::trim($libdepends))));
+		$builddepends = $this->depends_stripper(freshports_ConvertPortPathToStandardLocation($CommitBranch, FreshPorts::Utilities::trim_multiple_to_single(FreshPorts::Utilities::trim($builddepends))));
+		$rundepends   = $this->depends_stripper(freshports_ConvertPortPathToStandardLocation($CommitBranch, FreshPorts::Utilities::trim_multiple_to_single(FreshPorts::Utilities::trim($rundepends))));
+		$libdepends   = $this->depends_stripper(freshports_ConvertPortPathToStandardLocation($CommitBranch, FreshPorts::Utilities::trim_multiple_to_single(FreshPorts::Utilities::trim($libdepends))));
 
-		$master_port =~ s|$FreshPorts::Config::path_to_ports/||;
+		$master_port =~ s|$SVNDIR_CHROOT/||;
 
 		print " portname     = '$this->{name}'\n";
 		print " packagename  = '$portname'\n";
@@ -880,12 +887,13 @@ sub _GetRealPath($) {
 
 
 
-sub RefreshFromFiles($;$;$) {
+sub RefreshFromFiles($;$;$;$) {
 #
 # refresh this port based on the make files associated with it and the value of needs_refresh
 # returns 0 for success, 1 for failure
 #
 	my $this		= shift;
+        my $CommitBranch        = shift;
 	my $needs_refresh	= shift;
 	my $fetch_files		= shift;
 	my $svn_revision	= shift;
@@ -904,13 +912,13 @@ sub RefreshFromFiles($;$;$) {
 	# fetch the files needed
 	#
 	if ($needs_refresh > 0 && $fetch_files) {
-		while ($FetchAttempts) {
-		    if (defined($svn_revision) && $svn_revision ne '')
-		    {
-		      # svn up -r $svn_revision
+	  while ($FetchAttempts) {
+	    if (defined($svn_revision) && $svn_revision ne '')
+	    {
+	      # svn up -r $svn_revision
 
-              my $SVNDIR = "$FreshPorts::Config::path_to_ports";
-
+              my $SVNDIR = FreshPorts::Branches::GetPathToRepoForBranch($CommitBranch);
+              
               $result = FreshPorts::Utilities::svnUpFile($SVNDIR, '', $svn_revision);
               # match the results of _FetchFilesNeedingRefresh
               if ($result == 1) 
@@ -949,7 +957,7 @@ sub RefreshFromFiles($;$;$) {
 
 	# if we didn't use up all of our fetch attempts...
 	if ($FetchAttempts) {
-		$error = $this->_ExtractValuesFromMakefile();
+		$error = $this->_ExtractValuesFromMakefile($CommitBranch);
 	}
 
 	if (!$FetchAttempts || $error) {
@@ -1049,8 +1057,10 @@ sub IsValidDate {
 }
 
 sub update_depends {
-	# for each of the depends in this port, update the ports_dependencies relationships
-	my $this = shift;
+  # for each of the depends in this port, update the ports_dependencies relationships
+  my $this = shift;
+
+  my $CommitBranch = shift;
 
   my $port_dependencies = FreshPorts::PortDependencies->new( $this->{dbh} );
   
@@ -1058,9 +1068,9 @@ sub update_depends {
   $port_dependencies->{port_id} = $this->{id};
   $port_dependencies->delete();
 
-  $this->update_depends_helper( $this->depends_stripper( $this->{depends_build} ), 'B' );
-  $this->update_depends_helper( $this->depends_stripper( $this->{depends_run}   ), 'R' );
-  $this->update_depends_helper( $this->depends_stripper( $this->{depends_lib}   ), 'L' );
+  $this->update_depends_helper( $CommitBranch, $this->depends_stripper( $this->{depends_build} ), 'B' );
+  $this->update_depends_helper( $CommitBranch, $this->depends_stripper( $this->{depends_run}   ), 'R' );
+  $this->update_depends_helper( $CommitBranch, $this->depends_stripper( $this->{depends_lib}   ), 'L' );
 }
 
 sub depends_type_long {
@@ -1080,6 +1090,7 @@ sub update_depends_helper {
 	# for this depends, put it into the db
 	my $this = shift;
 
+	my $CommitBranch = shift;
 	my $depends      = shift;
 	my $depends_type = shift;
 
@@ -1092,8 +1103,10 @@ sub update_depends_helper {
 	  return;
 	}
 
+	my $SVNDIR_CHROOT = FreshPorts::Branches::GetPathToRepoForBranchCHROOT($CommitBranch);
+
   # this magic courtesy of Ade Lovett
-  my @depends_list = uniq( map { s/^.*\/usr\/ports\///;$_ } split(/ /, $depends) );
+  my @depends_list = uniq( map { s/^.*$SVNDIR_CHROOT\///;$_ } split(/ /, $depends) );
   print "The '" . $depends_type . "' depends are: ";
   print join(' - ', @depends_list) . "\n";
    

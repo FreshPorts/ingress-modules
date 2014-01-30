@@ -58,6 +58,8 @@ foreach $porttorefresh (@PORTS) {
 	if ($port->FetchByID()) {
 
 		# needs_refresh = 0, and fetch_files = 0
+		print "we need to add CommitBranch to this call\n";
+		exit;
 		$result = $port->RefreshFromFiles(0, 0, '');
 		print "has been refreshed ($result)\n";
 
