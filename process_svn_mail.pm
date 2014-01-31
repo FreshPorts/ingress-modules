@@ -459,6 +459,9 @@ sub GetOS_Branch {
 	elsif ($Message_Subject =~ m@\s+branches/(RELENG[_\d]+)[/]*@) {
 		$branch = "$1";
 	}
+	elsif ($Message_Subject =~ m@\s+branches/(RELEASE[_\d]+)[/]*@) {
+		$branch = "$1";
+	}
 	elsif ($Message_Subject =~ m@\s+vendor/@) {
 		$branch = "VENDOR";
 	}
