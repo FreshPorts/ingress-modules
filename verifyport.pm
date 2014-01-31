@@ -658,7 +658,7 @@ sub RefreshAllPortsTouchedByCommit($;$;$;$;$) {
 		if (!$error) {
 			if ($port->IsActive()) {
 				# after [perhaps] refreshing from the files, save the results
-				$port->save($CommitBranch);
+				$port->save($CommitBranch);  # perhaps we need two types of saves.  One after refresh, one not after refresh.
 			} else {
 				print "This port is deleted: not saving.\n";
 			}
