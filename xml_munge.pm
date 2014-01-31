@@ -382,7 +382,8 @@ sub handle_update_end {
 	# but now, many underlying functions can record errors.
 	# So we introduced the GetErrorCount() function.
 	if ($ErrorFound || FreshPorts::CommitterOptIn::GetErrorCount()) {
-		$self->{dbh}->rollback();
+	    # if we rollback, we lose all the refreshes...
+#		$self->{dbh}->rollback();
 		print "recording sanity test failure\n";
 		$Msg = FreshPorts::CommitterOptIn::GetErrors();
 		my $SanityTestFailure = FreshPorts::SanityTestFailures->new( $self->{dbh} );
@@ -510,10 +511,6 @@ sub handle_file_end {
 	my $fileaction;		# the value obtained from the hash array
 						# and which will be stored into the database.
 
-	# before we do anything, convert the FileName appropriately
-	#
-#	$FilePath = ConvertFilePath($FilePath);
-
 	# sometimes, we see . in pathnames.
 	# e.g 201205262318.q4QNI7EZ020858@repoman.freebsd.org
 	#     201205262318.q4QNI7EZ020858@repoman.freebsd.org
@@ -527,8 +524,8 @@ sub handle_file_end {
 	my $NewRevision		= 0;
 	my $element;
 	my $element_id;
-	my $filename		= $DB_Root_Prefix . '/' . $FilePath;
-	my $revisionname	= $FileRevision;
+	my $filename     = $DB_Root_Prefix . '/' . $FilePath;
+	my $revisionname = $FileRevision;
 	my $commit_log_element;
 	
 
