@@ -450,7 +450,7 @@ sub GetOS_Branch {
 	
 	my $Message_Subject = &GetMessage_Subject($message);
 
-	if ($Message_Subject =~ m@\s+head/@) {
+	if ($Message_Subject =~ m@\s+head/|\s+head$@) {
 		$branch = $FreshPorts::Constants::HEAD;
 	}
 	elsif ($Message_Subject =~ m@\s+stable/(\d+)@) {
