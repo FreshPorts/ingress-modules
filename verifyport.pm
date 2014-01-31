@@ -285,7 +285,7 @@ sub SaveChangesToPortsTree($;$;$;$) {
 
 			$CreatingNewPort = !defined($port->{id});
 
-			$port->save($CommitBranch);
+			$port->savePortTableOnly($CommitBranch);
 
 			#
 			# when creating a new port, we need to get the element_pathname

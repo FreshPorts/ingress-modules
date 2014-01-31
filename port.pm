@@ -146,10 +146,39 @@ sub new {
 	return $this;
 }
 
+# this is the type of save we usually do
 sub save {
+    my $this = shift;
+
+    my $CommitBranch = shift;
+    
+    $this->_save($CommitBranch, 1);
+}
+
+
+#
+# here, we are updating only the last_commit_id or creating a brand new port
+# the usual practice involves refreshing the port from files and then doing
+# a save()
+# Otherwise, we'll find up saving and processing the dependencies, which can contain 'old' values.
+# e.g. gmake:/usr/ports/devel/gmake might be in the field but your current PORTSDIR is /usr/local/PORT-head
+# this will cause a dependency look up to fail
+#
+
+sub savePortTableOnly {
+    my $this = shift;
+
+    my $CommitBranch = shift;
+    
+    $this->_save($CommitBranch, 0);
+}
+
+
+sub _save {
 	my $this = shift;
 
 	my $CommitBranch = shift;
+	my $FullSave     = shift;
 
 	print "into FreshPorts::Port::save\n";
 
@@ -282,7 +311,9 @@ update ports
 		
 	}
 
-	$this->update_depends($CommitBranch);
+    if ($FullSave) {
+        $this->update_depends($CommitBranch);
+    }
 
 	# after savings, return the ID
 	return $this->{id};
