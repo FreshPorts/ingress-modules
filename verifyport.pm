@@ -285,7 +285,7 @@ sub SaveChangesToPortsTree($;$;$;$) {
 
 			$CreatingNewPort = !defined($port->{id});
 
-			$port->save();
+			$port->save($CommitBranch);
 
 			#
 			# when creating a new port, we need to get the element_pathname
@@ -729,7 +729,7 @@ sub RefreshAllSlavePortsOfPortsTouchedByCommit($;$;$;$) {
 		$port->RefreshFromFiles($CommitBranch, 1, 0, ''); # refresh the port, don't fetch the files
 
 		#  save it
-		$port->save();
+		$port->save($CommitBranch);
 
 		print "refreshed " . $port->{category} . '/' . $port->{name} . "\n";
 
