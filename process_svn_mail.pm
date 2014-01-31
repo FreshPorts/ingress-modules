@@ -456,7 +456,7 @@ sub GetOS_Branch {
 	elsif ($Message_Subject =~ m@\s+stable/(\d+)@) {
 		$branch = "RELENG_$1";
 	}
-	elsif ($Message_Subject =~ m@\s+branches/(RELENG[_\d]+)/@) {
+	elsif ($Message_Subject =~ m@\s+branches/(RELENG[_\d]+)[/]*@) {
 		$branch = "$1";
 	}
 	elsif ($Message_Subject =~ m@\s+vendor/@) {
