@@ -970,10 +970,6 @@ sub RefreshFromFiles($;$;$;$) {
 sub GetNeedsRefreshForNewPort {
 	my $this = shift;
 
-	my $needs_refresh	= 0;
-	my $result			= -1;
-	my $fetch_code;
-
 	# return -1 for fail
 	#
 	# When a new port is imported, we need to get the
@@ -1125,7 +1121,7 @@ sub update_depends_helper {
     {
       # we do not report unfound dependencies on branches.  They often haven't hadd a commitin the branch, and hence are not in the FreshPorts database
       if ($CommitBranch eq $FreshPorts::Constants::HEAD) {
-        FreshPorts::CommitterOptIn::RecordErrorDetails("$this->{category}/$this->{name}", "NOTE: this particular sanity test is very experimental\nA port specified in the " . $this->depends_type_long( $depends_type ) . " of " . $this->{category} . '/' . $this->{name} . " does not exist: '" . $dependent . "'\n\n");
+        FreshPorts::CommitterOptIn::RecordErrorDetails("$this->{category}/$this->{name}", "NOTE: this particular sanity test is very experimental\nA port specified in the " . $this->depends_type_long( $depends_type ) . " of " . $this->{category} . '/' . $this->{name} . " does not exist: '" . $dependent . "' on branch '$CommitBranch'.\n\n");
       }
     }
   }
