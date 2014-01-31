@@ -1103,7 +1103,7 @@ sub update_depends_helper {
 	  return;
 	}
 
-	my $SVNDIR_CHROOT = FreshPorts::Branches::GetPathToRepoForBranchCHROOT($CommitBranch);
+  my $SVNDIR_CHROOT = FreshPorts::Branches::GetPathToRepoForBranchCHROOT($CommitBranch);
 
   # this magic courtesy of Ade Lovett
   my @depends_list = uniq( map { s/^.*$SVNDIR_CHROOT\///;$_ } split(/ /, $depends) );
