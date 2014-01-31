@@ -1124,7 +1124,7 @@ sub update_depends_helper {
     else
     {
       # we do not report unfound dependencies on branches.  They often haven't hadd a commitin the branch, and hence are not in the FreshPorts database
-      if ($CommitBranch == $FreshPorts::Constants::HEAD) {
+      if ($CommitBranch eq $FreshPorts::Constants::HEAD) {
         FreshPorts::CommitterOptIn::RecordErrorDetails("$this->{category}/$this->{name}", "NOTE: this particular sanity test is very experimental\nA port specified in the " . $this->depends_type_long( $depends_type ) . " of " . $this->{category} . '/' . $this->{name} . " does not exist: '" . $dependent . "'\n\n");
       }
     }
