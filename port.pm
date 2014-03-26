@@ -471,12 +471,6 @@ sub _ExtractValuesFromMakefile {
 
 	my $TmpFile = FreshPorts::Utilities::TmpFileName("$this->{category}.$this->{name}.make-error");
 
-	if (!LooksLikeAMakefile($Makefile)) {
-		FreshPorts::CommitterOptIn::RecordErrorDetails("$this->{category}/$this->{name}", "The Makefile fetched via cvsweb did not have filetype==ASCII. Such errors are usually temporary.  FreshPorts will try again later.");
-		FreshPorts::Utilities::ReportError('warning', "$Makefile does not look like a makefile", 0);
-		return -1;
-	}
-
 	# we create this directory because it helps us to locate problems
 	#
 	# create this directory to catch errors
@@ -1021,31 +1015,6 @@ sub GetNeedsRefreshForNewPort {
 	} else {
 		return 0
 	}
-}
-
-
-sub LooksLikeAMakefile($) {
-	my $Makefile = shift;
-	my $Result   = 1;
-	
-	my $Command = "file -b $Makefile";
-
-	my $filetype = `$Command`;
-	chomp($filetype);
-
-	print "\n$Command gives:\n";
-	print "$filetype\n\n";
-
-	# look for HTML at the start of the file output
-	my $index = index($filetype, 'HTML', 0);
-	print "index result " . $index . "\n";
-
-	if ($index == 0) {
-		print "nope, that's HTML, not a Makefile as far as I'm concerned....\n";
-		$Result = 0;
-	}
-
-	return $Result;
 }
 
 sub IsActive {
