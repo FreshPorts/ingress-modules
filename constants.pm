@@ -54,6 +54,7 @@ $FreshPorts::Constants::UsualPortsTreeLocation			= '/usr/ports';
 $FreshPorts::Constants::DISTDIR							= '/usr/ports/distfiles';
 
 $FreshPorts::Constants::HEAD							= 'head';
+$FreshPorts::Constants::PORTS 							= 'ports';
 
 $FreshPorts::Constants::ReportIDMaintainerNotification	= 3;
 $FreshPorts::Constants::ReportIDAnnouncements			= 4;

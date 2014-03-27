@@ -59,7 +59,6 @@ sub main {
         {
             $found = 1;
             my $process = $ListProperties->{'process'};
-#            require "./$process.pm";
             eval "use $process";
         }
         

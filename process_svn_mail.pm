@@ -14,6 +14,7 @@ use XML::Writer;
 use constants;
 use utilities;
 use process_mail;
+use branches;
 
 #####
 # GetMessage - Get the actual email from STDIN
@@ -41,14 +42,24 @@ sub GetData {
 	
 	# FreeBSD uses multiple repos.  One for each of doc, src, and ports.  We store all commits in one database.
 	# so we prefix each pathname with the repo prefix.
-	my $RepoPrefix;
-	
+	# this is prefixed to all pathnames in this commit	
+	my $RepoPrefix = &GetOS_RepoPrefix($message);
+	my $Branch     = &GetOS_Branch($message);
+
+	# if this is a port commit, do we have that branch checked out?
+	if ($RepoPrefix eq $FreshPorts::Constants::PORTS && !FreshPorts::Branches::CanWeProcessThisBranch($Branch))
+	{
+		# we will not return from this
+		FreshPorts::Utilities::ReportErrorEmailNoPrint('err', "We do not have a checked out repo for this branch ('" . $Branch . "').\n\n", 1);
+		die("what? no $Branch (using repo $RepoPrefix)\n");
+	}
+
 	$Message_Subject = &GetMessage_Subject($message);
 
 #print "subject: '$Message_Subject'\n";
 
 	$Log = &GetLog($message);
-	
+
 #print "log: '$Log'\n";
 
 	if ($Log eq '') {
@@ -60,9 +71,6 @@ sub GetData {
 		FreshPorts::Utilities::ReportErrorEmailNoPrint('err', "No message ID found for this commit message (" . $Message_Subject . ").\n\nIs this a corrupted commit or email?", 1)
 	}
 
-	# this is prefixed to all pathnames in this commit	
-	$RepoPrefix = &GetOS_RepoPrefix($message);
-
 	@Data =	[	'UPDATES', [ { Version => '1.3.2.1' },
 				'UPDATE', [ {},
 					'DATE', [ &GetDate($message)
@@ -70,8 +78,8 @@ sub GetData {
 					'TIME', [ &GetTime($message)
 					],
 					'OS', [ {
-						Id     => &GetOS_Id    ($message),
-						Branch => &GetOS_Branch($message),
+						Id     => &GetOS_Id($message),
+						Branch => $Branch,
 						Repo   => $RepoPrefix }
 					],
 					'LOG', [ {},
@@ -457,6 +465,9 @@ sub GetOS_Branch {
 		$branch = "RELENG_$1";
 	}
 	elsif ($Message_Subject =~ m@\s+branches/(RELENG[_\d]+)[/]*@) {
+		$branch = "$1";
+	}
+	elsif ($Message_Subject =~ m@\s+branches/(\d{4}Q\d{1})[/]*@) {
 		$branch = "$1";
 	}
 	elsif ($Message_Subject =~ m@\s+branches/(RELEASE[_\d]+)[/]*@) {

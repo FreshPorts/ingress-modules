@@ -7,7 +7,7 @@ package FreshPorts::Branches;
 
 require config;
 
-# these are the branches we process
+# these are the branches we can process... I don't see us using this yet.  See CanWeProcesThisBranch()
 %FreshPorts::Branches::Branches = (
   'head',
   'RELENG_9_1_0'
@@ -77,12 +77,28 @@ sub GetPathToRepoForBranch($)
   return "$FreshPorts::Config::JailBaseDir/$FreshPorts::Config::SVNBaseDir/PORTS-$CommitBranch";
 }
 
-# for a given branch name, return the chroot'd full path.  Including the CHROOT path.
+# for a given branch name, return the chroot'd full path.
 sub GetPathToRepoForBranchCHROOT($)
 {
   my $CommitBranch = shift;
   
   return "$FreshPorts::Config::SVNBaseDir/PORTS-$CommitBranch";
+}
+
+# can we process this branch?
+sub CanWeProcessThisBranch($)
+{
+  my $CommitBranch = shift;
+
+  if (-e GetPathToRepoForBranch($CommitBranch) &&
+      -d GetPathToRepoForBranch($CommitBranch))
+  {
+      return 1;
+  }
+  else
+  {
+      return 0;
+  }
 }
 
 1;
