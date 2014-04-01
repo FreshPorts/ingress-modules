@@ -732,9 +732,9 @@ sub handle_message_end {
 	}
 
 	if (defined($Updates{revision})) {
-		print "Repository     = [$Updates{revision}]\n";
+		print "Revision       = [$Updates{revision}]\n";
 	} else {
-		print "Repository     = not defined, perhaps an older commit.\n";
+		print "Revision       = not defined, perhaps an older commit.\n";
 	}
 
 	print "MessageId      = [$Updates{MessageId}]\n";
