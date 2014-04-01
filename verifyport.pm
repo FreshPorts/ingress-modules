@@ -546,6 +546,8 @@ sub _RecordPortsAndElements($;$;$;$) {
 
 	my %CommitLogPorts		= %{$CommitLogPortsRef};
 
+	my %CommitLogPortElements  = (); # list of all elements touched by this commit; used to avoid duplicates.
+
 	my $portname;					# of the form "$category/$port"
 	my $port;						# of type FreshPorts::Element
 	my $commit_log_ports_elements;	# of type FreshPorts::CommitLogPortsExtra
@@ -590,15 +592,20 @@ sub _RecordPortsAndElements($;$;$;$) {
 			}
 		}
 		
-		if ($ExtraElement) { 
+		if ($ExtraElement) {
 			print "That file is outside any port\n";
 
-			#
-			# record which files go with what port...
-			#
-			$commit_log_ports_elements->{commit_log_id}	= $commit_log_id;
-			$commit_log_ports_elements->{element_id}	= $element_id;
-			$commit_log_ports_elements->save();
+			if ($CommitLogPortElements{$commit_log_id . '||' . $element_id}) {
+				print "That element_id ($element_id) has already been recorded against this commit\n";
+			} else {
+				$CommitLogPortElements{$commit_log_id . '||' . $element_id} = 1;
+				#
+				# record which files go with what port...
+				#
+				$commit_log_ports_elements->{commit_log_id}	= $commit_log_id;
+				$commit_log_ports_elements->{element_id}	= $element_id;
+				$commit_log_ports_elements->save();
+			}
 		}
 	}
 
@@ -610,9 +617,14 @@ sub _RecordPortsAndElements($;$;$;$) {
 	while (my ($portname, $commit_log_ports) = each %CommitLogPorts) {
 		$port = $commit_log_ports->{port};
 	    print $port->{category} . '/' . $port->{name} . "\n";
-		$commit_log_ports_elements->{commit_log_id}	= $commit_log_id;
-		$commit_log_ports_elements->{element_id}	= $port->{element_id};
-		$commit_log_ports_elements->save();
+		if ($CommitLogPortElements{$commit_log_id . '||' . $port->{element_id}}) {
+			print "That element_id ($element_id) has already been recorded against this commit\n";
+		} else {
+			$CommitLogPortElements{$commit_log_id . '||' . $port->{element_id}} = 1;
+			$commit_log_ports_elements->{commit_log_id}	= $commit_log_id;
+			$commit_log_ports_elements->{element_id}	= $port->{element_id};
+			$commit_log_ports_elements->save();
+		}
 	}
 	
 	print "done _RecordPortsAndElements\n";

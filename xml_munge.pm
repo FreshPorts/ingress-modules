@@ -617,7 +617,9 @@ sub handle_file_end {
 	# messages being recieved out of order or because of items
 	# not on file because their creation pre-dates this database.
 	#
-	if (!ElementRevisionExists($element_id, $revisionname, $self->{dbh})) {
+	if (ElementRevisionExists($element_id, $revisionname, $self->{dbh})) {
+		print "That element revision already exists; not adding it\n";
+	} else {
 		ElementRevisionInsert($element_id, $revisionname, $self->{dbh});
 	}
 
