@@ -44,13 +44,20 @@ if [ -r ${VUXMLFLAGFILE} ]
 then
 	touch ${VUXMLMUTEX}
 	rm ${VUXMLFLAGFILE}
-	logger -t "FreshPorts ${0}"  "vuxml processing begins"
+	logger -t   "FreshPorts ${0}"  "vuxml processing begins"
 	echo `date` "FreshPorts ${0}"  "vuxml processing begins"                  >> ${LOGFILE}
-	/usr/bin/perl ./process_vuxml.pl < ${PORTSDIR}/security/vuxml/vuln.xml >> ${LOGFILE}
-	logger -t "FreshPorts ${0}"  "vuxml ident begins"
-	/usr/bin/perl ./vuxml_ident.pl     ${PORTSDIR}/security/vuxml/vuln.xml > ${BASEDIR}/dynamic/vuxml_revision
+	
+	# define the vuln file we are going to operate on
+	VULNFILE="${FRESHPORTS_JAIL_BASE_DIR}/${PORTSDIR}/security/vuxml/vuln.xml"
+	
+	/usr/bin/perl ./process_vuxml.pl < ${VULNFILE} >> ${LOGFILE}
+
+	logger -t "FreshPorts ${0}"  "vuxml ident begins on ${VULNFILE}"
+	/usr/bin/perl ./vuxml_ident.pl     ${VULNFILE} > ${BASEDIR}/dynamic/vuxml_revision
+
 	logger -t "FreshPorts ${0}"  "vuxml latest begins"
 	/usr/bin/perl ./vuln_latest.pl
+
 	rm ${VUXMLMUTEX}
 	echo `date` "FreshPorts ${0}"  "vuxml finishes" >> ${LOGFILE}
 	logger -t "FreshPorts ${0}"  "vuxml finishes"
