@@ -21,6 +21,9 @@ use constants;
 # for Ade's special code in update_depends_helper
 use List::MoreUtils qw(uniq);
 
+# for testing results from file existance
+use Scalar::Util qw(looks_like_number);
+
 sub freshports_ConvertPortPathToStandardLocation($;$) {
 	my $CommitBranch = shift;
 	my $pathname     = shift;
@@ -696,9 +699,17 @@ sub _ExtractValuesFromMakefile {
 		# if it's defined, and it exists....
 		my $longdescription = '';
 		my $homepage        = '';
-		if (defined($RealDescrPath)) {
-			print "invoking _GetDescrAndHomePage() with '$RealDescrPath'\n";
-			($longdescription, $homepage) = _GetDescrAndHomePage($RealDescrPath);
+		if (looks_like_number($RealDescrPath))
+		{
+                  print "Description file does not exist: '$descrpath' (result of make -V DESCR)\n";
+                  FreshPorts::CommitterOptIn::RecordErrorDetails("$this->{category}/$this->{name}", "Description file does not exist: '$descrpath' (result of make -V DESCR)\n");
+	  	}
+		else
+		{
+                   if (defined($RealDescrPath) && $RealDescrPath) {
+                      print "invoking _GetDescrAndHomePage() with '$RealDescrPath'\n";
+                      ($longdescription, $homepage) = $this->_GetDescrAndHomePage($RealDescrPath);
+                   }
 		}
 
 		chomp($longdescription); # get rid of the trailing whitespace.
@@ -850,18 +861,20 @@ sub _Validate {
 
 # =================================
 sub _GetDescrAndHomePage($) {
-
+	my $this = shift;
 	my $file = shift;
 	my $url;
 	my $DESCR;
 
+	$DESCR = "";
+	$url   = "";
 	# this needs to open relative to the jail root.
 	# to be pure, we shold do this as a script in the jail-root, but we'd have to call two scripts:
 	# one for the homepage, one for te description.
-	open (F, $FreshPorts::Config::JailBaseDir . $file) || FreshPorts::Utilities::ReportError('warning', "couldn't open $file: $!", 1);
-	$DESCR = "";
+	if (open (F, $FreshPorts::Config::JailBaseDir . $file))
+	{
 	
-	while(<F>){
+	  while(<F>){
 		$DESCR .= $_;
 		if(/WWW:(.*)/) {
 
@@ -870,10 +883,14 @@ sub _GetDescrAndHomePage($) {
 			$url = $1;
 			$url =~  s/^\s+//g;
 		}
+	   }
+
+	   close F;
+	} else {
+          print "Unable to open '$file' (result of make -V DESCR)\n";
+          FreshPorts::CommitterOptIn::RecordErrorDetails("$this->{category}/$this->{name}", "Unable to open '$file' (result of make -V DESCR)\n");
 	}
-
-	close F;
-
+	
 	my @result = ($DESCR, $url);
 
 	return @result;
