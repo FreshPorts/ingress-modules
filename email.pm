@@ -11,6 +11,10 @@ use Mail::Sender;
 
 use config;
 use utilities;
+use Mozilla::CA;
+IO::Socket::SSL::set_defaults(
+    SSL_ca_file => Mozilla::CA::SSL_ca_file(),
+);
 
 
 sub SendMail($;$;$;$;$;$) {
