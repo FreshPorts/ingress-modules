@@ -35,6 +35,11 @@ $FreshPorts::Config::QueueBaseDir     		= $FreshPorts::Config::BaseDir;
 $FreshPorts::Config::path_to_tree		= $FreshPorts::Config::BaseDir;
 
 #
+# path to ports tree. no trailing slash
+#
+$FreshPorts::Config::path_to_ports		= $FreshPorts::Config::path_to_tree . '/PORTS-SVN';
+
+#
 # where in the cvs tree are ports?
 #
 $FreshPorts::Config::ports_prefix		= 'ports';
@@ -55,6 +60,7 @@ $FreshPorts::Config::NotifyAdmin        = 1;	# Notify me
 #
 $FreshPorts::Config::scriptpath				= Cwd::abs_path($FreshPorts::Config::scriptpath);
 $FreshPorts::Config::path_to_tree			= Cwd::abs_path($FreshPorts::Config::path_to_tree);	
+$FreshPorts::Config::path_to_ports			= Cwd::abs_path($FreshPorts::Config::path_to_ports);
 
 $FreshPorts::Config::email_server			= 'localhost';
 $FreshPorts::Config::email_port				= 25;
@@ -104,6 +110,7 @@ $FreshPorts::Config::Debug_FetchBeforeSavingPort = 0;
 #
 #print "\$FreshPorts::Config::scriptpath    '$FreshPorts::Config::scriptpath'\n";
 #print "\$FreshPorts::Config::path_to_tree  '$FreshPorts::Config::path_to_tree'\n";
+#print "\$FreshPorts::Config::path_to_ports '$FreshPorts::Config::path_to_ports'\n";
 
 # number of times to retry a failed fetch from cvsweb
 $FreshPorts::Config::Fetch_Retry_Limit = 10;
