@@ -60,6 +60,7 @@ WWWENPORTSCATEGORIES="${BASEDIR}/dynamic/www.en.ports.categories"
 
 CACHE_NEEDS_REFRESH="${BASEDIR}/dynamic/cache_needs_refresh"
 
+# note: this works on HEAD only
 PORTSDIR="/usr/local/FreshPorts/PORTS-SVN"
 ADMINEMAIL="ADMIN_EMAIL"
 
@@ -77,3 +78,9 @@ FREEBSDCVSUPHOST="cvsup.unixathome.org"
 FRESHPORTS_JAIL_BASE_DIR="/wdc/dan/FreshPorts/ports-jail"
 FRESHPORTS_JAIL_MASTER_PORT_SCRIPT="/make-master-port-test.sh"
 FRESHPORTS_JAIL_USER="dan"
+
+# for whoever needs it
+PSQL=/usr/local/bin/psql
+DB=freshports.org
+HOST='localhost'
+
