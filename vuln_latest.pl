@@ -55,7 +55,7 @@ sub CreateVulnHTML($) {
          to_char(coalesce(V.date_modified, V.date_entry, V.date_discovery)::date, 'Mon DD') AS date_formatted,
          V.date_modified IS NULL AS new,
          lower(name)
-    FROM commit_log_ports_vuxml CLPV, vuxml V, ports_all PA
+    FROM commit_log_ports_vuxml CLPV, vuxml V, ports_active PA
    WHERE CLPV.vuxml_id = V.id
      AND CLPV.port_id  = PA.id
 ORDER BY coalesce(V.date_modified, V.date_entry, V.date_discovery) desc, lower(name)
