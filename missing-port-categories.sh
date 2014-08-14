@@ -4,10 +4,6 @@ QUERYBASE='from ports_active PA WHERE NOT EXISTS (SELECT port_id, category_id fr
 QUERYCOUNT='select count(id)'
 QUERYROWS="select id, category_id, name, category, category || '/' || name AS port"
 QUERYORDER="ORDER BY category, name"
-PSQL=/usr/local/bin/psql
-DB=freshports.org
-HOST='slocum'
-
 
 if [ ! -f config.sh ]
 then
