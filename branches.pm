@@ -23,7 +23,15 @@ require config;
      'process' => 'process_svn_mail',
      'repo'    => $FreshPorts::Config::Repo_DOC,
      },
+  '"SVN commit messages for the entire doc trees \(except for &quot; user&quot; , &quot; projects&quot; , and &quot; translations&quot; \)" <svn-doc-all.freebsd.org>' => {
+     'process' => 'process_svn_mail',
+     'repo'    => $FreshPorts::Config::Repo_DOC,
+     },
   'SVN commit messages for the ports tree for head' => {
+     'process' => 'process_svn_mail',
+     'repo'    => $FreshPorts::Config::Repo_PORTS,
+     },
+  'SVN commit messages for the ports tree for head <svn-ports-head.freebsd.org>' => {
      'process' => 'process_svn_mail',
      'repo'    => $FreshPorts::Config::Repo_PORTS,
      },
