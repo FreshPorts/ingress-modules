@@ -829,7 +829,7 @@ sub _Validate {
 
 	# verify that CATEGORIES contains the primary category
 	# make sure that $this->{categories} contains $this->{category}
-	print "checking valid date: " . $this->{categories} . "\n";
+	print "categories: " . $this->{categories} . "\n";
 	my $CATEGORIES = "www mail editors";
 	my $category = "editor";
 	
