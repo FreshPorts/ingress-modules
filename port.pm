@@ -24,6 +24,9 @@ use List::MoreUtils qw(uniq);
 # for testing results from file existance
 use Scalar::Util qw(looks_like_number);
 
+# for testing dates, as recommended by "B. Estrade" <estrabd@gmail.com>
+use POSIX qw/strftime/;
+
 sub freshports_ConvertPortPathToStandardLocation($;$) {
 	my $CommitBranch = shift;
 	my $pathname     = shift;
@@ -840,7 +843,8 @@ sub _Validate {
 	print "_Validating....\n";
 
 	print "checking valid date: " . $this->{expiration_date} . "\n";
-	if (!IsValidDate($this->{expiration_date})) {
+	# if field is non-empty, but not a valid date...
+	if ($this->{expiration_date} && !IsValidDate($this->{expiration_date})) {
 		$ErrorMsg .= " EXPIRATION_DATE contains '" . $this->{expiration_date} . "', which is not a valid date.";
 
 		# allow the data to save...
@@ -1085,8 +1089,17 @@ sub SetDeleted {
 	return $OldStatus;
 }
 
-sub IsValidDate {
-	return 1;
+sub IsValidDate($) {
+  my $string = shift;
+
+  # convert from YYYY-MM-DD format into variables
+  my ($year, $mon, $mday) = split /-/, $string;
+
+  # create a string
+  my $test = strftime("%Y-%m-%d", 0, 0, 0, $mday, $mon - 1, $year - 1900);
+  
+  # do we have what we started with?
+  return ($test eq $string) ? $string : undef;
 }
 
 sub update_depends {
