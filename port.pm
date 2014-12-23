@@ -79,11 +79,13 @@ sub _initialize {
 	$this->{status}				= '';
 	$this->{showconfig}			= '';
 	$this->{license}			= '';
+	$this->{fetch_depends}		= '';
+	$this->{extract_depends}	= '';
+	$this->{patch_depends}		= '';
+	$this->{uses}			    = '';
 
 	$this->{categories}			= '';
 	$this->{element_pathname}   = '';
-
-
 }
 
 sub _GetValuesFromRow {
@@ -128,6 +130,10 @@ sub _GetValuesFromRow {
 	$this->{status}				= $row->{status};
 	$this->{showconfig}			= $row->{showconfig};
 	$this->{license}			= $row->{license};
+	$this->{fetch_depends}		= $row->{fetch_depends};
+	$this->{extract_depends}	= $row->{extract_depends};
+	$this->{patch_depends}		= $row->{patch_depends};
+	$this->{uses}			    = $row->{uses};
 
 	$this->{categories}			= $row->{categories};
 	$this->{last_commit_id}		= $row->{last_commit_id};
@@ -215,7 +221,6 @@ sub _save {
 		$no_cdrom_alt        = FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{no_cdrom});
 		$license_alt         = FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{license});
 
-
 		$sql = "
 update ports  
    set short_description = " . $dbh->quote($this->{short_description})                                   . ",
@@ -247,6 +252,10 @@ update ports
        not_for_archs     = " . $not_for_archs_alt                                                        . ",
        showconfig        = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{showconfig})             . ",
        license           = " . $license_alt                                                              . ",
+       fetch_depends     = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{fetch_depends})          . ", 
+       extract_depends   = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{extract_depends})        . ", 
+       patch_depends     = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{patch_depends})          . ", 
+       uses              = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{uses})                   . ", 
        categories        = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{categories});
 
 
@@ -633,7 +642,8 @@ sub _ExtractValuesFromMakefile {
 		 my $ignore,         my $master_port,    my $latest_link,      my $no_latest_link,
 		 my $no_package,     my $pkgnameprefix,  my $pkgnamesuffix,    my $portepoch,
 		 my $restricted,     my $no_cdrom,       my $expiration_date,  my $is_interactive,
-		 my $only_for_archs, my $not_for_archs,  my $license) = split(/\n/s, $MakeResults);
+		 my $only_for_archs, my $not_for_archs,  my $license,          my $fetchdepends, 
+		 my $extractdepends, my $patchdepends,   my $uses) = split(/\n/s, $MakeResults);
 
 		my $package_name = $pkgnameprefix . $portname . $pkgnamesuffix;
 
@@ -659,28 +669,35 @@ sub _ExtractValuesFromMakefile {
 		# 
 		# freshports.org=#
 
-		$builddepends = $this->depends_stripper(freshports_ConvertPortPathToStandardLocation($CommitBranch, FreshPorts::Utilities::trim_multiple_to_single(FreshPorts::Utilities::trim($builddepends))));
-		$rundepends   = $this->depends_stripper(freshports_ConvertPortPathToStandardLocation($CommitBranch, FreshPorts::Utilities::trim_multiple_to_single(FreshPorts::Utilities::trim($rundepends))));
-		$libdepends   = $this->depends_stripper(freshports_ConvertPortPathToStandardLocation($CommitBranch, FreshPorts::Utilities::trim_multiple_to_single(FreshPorts::Utilities::trim($libdepends))));
+		$builddepends   = $this->depends_stripper(freshports_ConvertPortPathToStandardLocation($CommitBranch, FreshPorts::Utilities::trim_multiple_to_single(FreshPorts::Utilities::trim($builddepends))));
+		$rundepends     = $this->depends_stripper(freshports_ConvertPortPathToStandardLocation($CommitBranch, FreshPorts::Utilities::trim_multiple_to_single(FreshPorts::Utilities::trim($rundepends))));
+		$libdepends     = $this->depends_stripper(freshports_ConvertPortPathToStandardLocation($CommitBranch, FreshPorts::Utilities::trim_multiple_to_single(FreshPorts::Utilities::trim($libdepends))));
+		$fetchdepends   = $this->depends_stripper(freshports_ConvertPortPathToStandardLocation($CommitBranch, FreshPorts::Utilities::trim_multiple_to_single(FreshPorts::Utilities::trim($fetchdepends))));
+		$extractdepends = $this->depends_stripper(freshports_ConvertPortPathToStandardLocation($CommitBranch, FreshPorts::Utilities::trim_multiple_to_single(FreshPorts::Utilities::trim($extractdepends))));
+		$patchdepends   = $this->depends_stripper(freshports_ConvertPortPathToStandardLocation($CommitBranch, FreshPorts::Utilities::trim_multiple_to_single(FreshPorts::Utilities::trim($patchdepends))));
 
 		$master_port =~ s|$SVNDIR_CHROOT/||;
 
-		print " portname     = '$this->{name}'\n";
-		print " packagename  = '$portname'\n";
-		print " category     = '$this->{category}'\n";
-		print " packagename  = '$packagename'\n";
-		print " descrpath    = '$descrpath'\n";
-		print " categories   = '$categories'\n";
-		print " portversion  = '$portversion'\n";
-		print " portrevision = '$portrevision'\n";
-		print " comment      = '$shortdescription'\n";
-		print " CommentFile  = '$CommentFile'\n";
-		print " maintainer   = '$maintainer'\n";
-		print " extractsuffix= '$extractsuffix'\n";
-		print " mastersites  = '$mastersites'\n";
-		print " builddepends = '$builddepends'\n";
-		print " rundepends   = '$rundepends'\n";
-		print " libdepends   = '$libdepends'\n";
+		print " portname       = '$this->{name}'\n";
+		print " packagename    = '$portname'\n";
+		print " category       = '$this->{category}'\n";
+		print " packagename    = '$packagename'\n";
+		print " descrpath      = '$descrpath'\n";
+		print " categories     = '$categories'\n";
+		print " portversion    = '$portversion'\n";
+		print " portrevision   = '$portrevision'\n";
+		print " comment        = '$shortdescription'\n";
+		print " CommentFile    = '$CommentFile'\n";
+		print " maintainer     = '$maintainer'\n";
+		print " extractsuffix  = '$extractsuffix'\n";
+		print " mastersites    = '$mastersites'\n";
+		print " builddepends   = '$builddepends'\n";
+		print " rundepends     = '$rundepends'\n";
+		print " libdepends     = '$libdepends'\n";
+		print " fetchdepends   = '$fetchdepends'\n";
+		print " extractdepends = '$extractdepends'\n";
+		print " patchdepends   = '$patchdepends'\n";
+		print " uses           = '$uses'\n";
 
 		# eliminate multiple // : PR 174
 		# to compensate for bug in File::PathConvert::realpath (which is no longer used; _GetRealPath)
@@ -793,7 +810,10 @@ sub _ExtractValuesFromMakefile {
 		$this->{not_for_archs}		= $not_for_archs;
 		$this->{showconfig} 		= $showconfig;
 		$this->{license}            = $license;
-		$this->{categories}			= $categories;
+		$this->{fetch_depends}		= $fetchdepends;
+		$this->{extract_depends}	= $extractdepends;
+		$this->{patch_depends}		= $patchdepends;
+		$this->{uses}	    		= uses$;
 		# convert all whitespace to a single space
 		# This arose from 200609130717.k8D7HpNc057638@repoman.freebsd.org
 		#
@@ -1081,9 +1101,12 @@ sub update_depends {
   $port_dependencies->{port_id} = $this->{id};
   $port_dependencies->delete();
 
-  $this->update_depends_helper( $CommitBranch, $this->depends_stripper( $this->{depends_build} ), 'B' );
-  $this->update_depends_helper( $CommitBranch, $this->depends_stripper( $this->{depends_run}   ), 'R' );
-  $this->update_depends_helper( $CommitBranch, $this->depends_stripper( $this->{depends_lib}   ), 'L' );
+  $this->update_depends_helper( $CommitBranch, $this->depends_stripper( $this->{depends_build}   ), 'B' ); # build
+  $this->update_depends_helper( $CommitBranch, $this->depends_stripper( $this->{depends_run}     ), 'R' ); # runtime
+  $this->update_depends_helper( $CommitBranch, $this->depends_stripper( $this->{depends_lib}     ), 'L' ); # library
+  $this->update_depends_helper( $CommitBranch, $this->depends_stripper( $this->{depends_fetch}   ), 'F' ); # fetch
+  $this->update_depends_helper( $CommitBranch, $this->depends_stripper( $this->{depends_extract} ), 'E' ); # extract
+  $this->update_depends_helper( $CommitBranch, $this->depends_stripper( $this->{depends_patch}   ), 'P' ); # patch
 }
 
 sub depends_type_long {
@@ -1093,7 +1116,10 @@ sub depends_type_long {
   my %depends = (
     'B' => 'BUILD_DEPENDS',
     'R' => 'RUN_DEPENDS',
-    'L' => 'LIB_DEPENDS'
+    'L' => 'LIB_DEPENDS',
+    'F' => 'FETCH_DEPENDS',
+    'E' => 'EXTRACT_DEPENDS',
+    'P' => 'PATCH_DEPENDS'
   );
 
   return $depends{$depends_type};
