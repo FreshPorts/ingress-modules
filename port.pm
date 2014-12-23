@@ -13,7 +13,7 @@ require element;
 require utilities;
 require committer_opt_in;
 require port_dependencies;
-requires branches;
+require branches;
 
 use strict;
 use config;

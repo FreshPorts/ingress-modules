@@ -34,11 +34,14 @@ foreach my $site (@FreshPorts::Status::sites) {
 	$msg .= "SITE: $site ";
 	while (my ($queue, $pattern) = each %queues) {
 		my $Command = "find $base/$site/msgs/FreeBSD/$queue/";
+#		print $Command . "\n";
 
 		if ($pattern ne '') {
 			$Command .= " -name \"$pattern\"";
 		}
 		$Command .= ' -maxdepth 1 | wc -l';
+
+#		print $Command . "\n";
 
 		my $Count = `$Command`;
 		chomp $Count;
