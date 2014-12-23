@@ -816,7 +816,7 @@ sub _ExtractValuesFromMakefile {
 		$this->{fetch_depends}		= $fetchdepends;
 		$this->{extract_depends}	= $extractdepends;
 		$this->{patch_depends}		= $patchdepends;
-		$this->{uses}	    		= uses$;
+		$this->{uses}	    		= $uses;
 		# convert all whitespace to a single space
 		# This arose from 200609130717.k8D7HpNc057638@repoman.freebsd.org
 		#
