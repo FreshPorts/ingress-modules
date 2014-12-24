@@ -109,4 +109,52 @@ sub CanWeProcessThisBranch($)
   }
 }
 
+sub GetBranchFromPathName($)
+{
+  my $pathname = shift();
+
+  # convert /ports/branches/2014Q1/archivers/hs-tar to 2014Q1
+  # convert /ports/head/archivers/hs-tar            to head
+  # convert /ports/head/accessibility/accerciser    to head
+
+  # the variable names used here assume HEAD  
+  #
+  my ($emptyLeadingSlash, $subtree, $branch, $category, $port) = split/\//,$pathname, 5;
+
+  # example result based on above
+  #        undefined            'ports'    'head'  'archivers'  'hs-tar'
+
+  print "GetBranchFromPathName finds: '$subtree', '$category', '$port'\n";
+  if ($subtree ne $FreshPorts::Constants::PORTS) {
+    die("Unrecognized structure for pathname('$pathname'): $emptyLeadingSlash, $subtree, $category, $port");
+  }
+
+  if ($branch eq $FreshPorts::Constants::HEAD)
+  {
+    return $branch;
+  } else {
+    if ($branch eq 'branches')
+    {
+      return $category;
+    } else {
+      die("Unable to determine branch for '$pathname'\n");
+    }
+  }
+
+  die("Faulty code logic.  We should never get here in GetBranchFromPathName\n");
+}
+
+sub SetBranchInDB($$) {
+  my $dbh    = shift();
+  my $branch = shift();
+
+  $sql = 'select freshports_branch_set(' . $dbh->quote($branch) . ')';
+  $sth = $dbh->prepare($sql);
+  if (!$sth->execute())  {
+    FreshPorts::Utilities::ReportError('warning', "SetBranchInDB: Could not set branch:" .  $dbh->errstr, 1);
+  }
+  
+  $sth->finish();
+}
+
 1;

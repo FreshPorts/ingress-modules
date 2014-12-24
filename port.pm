@@ -814,6 +814,7 @@ sub _ExtractValuesFromMakefile {
 		$this->{not_for_archs}		= $not_for_archs;
 		$this->{showconfig} 		= $showconfig;
 		$this->{license}            = $license;
+		$this->{categories}			= $categories;
 		$this->{fetch_depends}		= $fetchdepends;
 		$this->{extract_depends}	= $extractdepends;
 		$this->{patch_depends}		= $patchdepends;
@@ -855,8 +856,7 @@ sub _Validate {
 	# verify that CATEGORIES contains the primary category
 	# make sure that $this->{categories} contains $this->{category}
 	print "categories: " . $this->{categories} . "\n";
-	my $CATEGORIES = "www mail editors";
-	my $category = "editor";
+	my $category = "";
 	
 	my @categories = split(/ /, $this->{categories});
 	
@@ -1148,6 +1148,7 @@ sub update_depends_helper {
 	my $depends_type = shift;
 
 	my $dependent;
+	my %AlreadyInserted;
 	
 	print "depends with this: '$depends'\n";
 	if ( $depends eq '' )
@@ -1159,10 +1160,11 @@ sub update_depends_helper {
   my $SVNDIR_CHROOT = FreshPorts::Branches::GetPathToRepoForBranchCHROOT($CommitBranch);
 
   # this magic courtesy of Ade Lovett
+  # NOTE: this removes duplicates
   my @depends_list = uniq( map { s/^.*$SVNDIR_CHROOT\///;$_ } split(/ /, $depends) );
   print "The '" . $depends_type . "' depends are: ";
   print join(' - ', @depends_list) . "\n";
-   
+
   my $port_dependencies = FreshPorts::PortDependencies->new( $this->{dbh} );
 
   foreach $dependent (@depends_list) {
@@ -1170,16 +1172,21 @@ sub update_depends_helper {
     $port_dependencies->{port_name}           = $this->{category} . '/' . $this->{name};
     $port_dependencies->{port_name_dependent} = $dependent;
     $port_dependencies->{depends_type}        = $depends_type;
-    if ( $port_dependencies->insert() )
-    {
-      # it worked
-    }
-    else
-    {
-      # we do not report unfound dependencies on branches.  They often haven't hadd a commitin the branch, and hence are not in the FreshPorts database
-      if ($CommitBranch eq $FreshPorts::Constants::HEAD) {
-        FreshPorts::CommitterOptIn::RecordErrorDetails("$this->{category}/$this->{name}", "NOTE: this particular sanity test is very experimental\nA port specified in the " . $this->depends_type_long( $depends_type ) . " of " . $this->{category} . '/' . $this->{name} . " does not exist: '" . $dependent . "' on branch '$CommitBranch'.\n\n");
+    if (!defined($AlreadyInserted{$dependent})) {
+      $AlreadyInserted{$dependent} = $dependent;
+      if ( $port_dependencies->insert() )
+      {
+        # it worked
       }
+      else
+      {
+        # we do not report unfound dependencies on branches.  They often haven't hadd a commitin the branch, and hence are not in the FreshPorts database
+        if ($CommitBranch eq $FreshPorts::Constants::HEAD) {
+          FreshPorts::CommitterOptIn::RecordErrorDetails("$this->{category}/$this->{name}", "NOTE: this particular sanity test is very experimental\nA port specified in the " . $this->depends_type_long( $depends_type ) . " of " . $this->{category} . '/' . $this->{name} . " does not exist: '" . $dependent . "' on branch '$CommitBranch'.\n\n");
+        }
+      }
+    } else {
+      print "Not inserting $dependent: already inserted\n";
     }
   }
 }
