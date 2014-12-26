@@ -1148,7 +1148,6 @@ sub update_depends_helper {
 	my $depends_type = shift;
 
 	my $dependent;
-	my %AlreadyInserted;
 	
 	print "depends with this: '$depends'\n";
 	if ( $depends eq '' )
@@ -1172,21 +1171,16 @@ sub update_depends_helper {
     $port_dependencies->{port_name}           = $this->{category} . '/' . $this->{name};
     $port_dependencies->{port_name_dependent} = $dependent;
     $port_dependencies->{depends_type}        = $depends_type;
-    if (!defined($AlreadyInserted{$dependent})) {
-      $AlreadyInserted{$dependent} = $dependent;
-      if ( $port_dependencies->insert() )
-      {
-        # it worked
+    if ( $port_dependencies->insert() )
+    {
+      # it worked
+    }
+    else
+    {
+      # we do not report unfound dependencies on branches.  They often haven't hadd a commitin the branch, and hence are not in the FreshPorts database
+      if ($CommitBranch eq $FreshPorts::Constants::HEAD) {
+        FreshPorts::CommitterOptIn::RecordErrorDetails("$this->{category}/$this->{name}", "NOTE: this particular sanity test is very experimental\nA port specified in the " . $this->depends_type_long( $depends_type ) . " of " . $this->{category} . '/' . $this->{name} . " does not exist: '" . $dependent . "' on branch '$CommitBranch'.\n\n");
       }
-      else
-      {
-        # we do not report unfound dependencies on branches.  They often haven't hadd a commitin the branch, and hence are not in the FreshPorts database
-        if ($CommitBranch eq $FreshPorts::Constants::HEAD) {
-          FreshPorts::CommitterOptIn::RecordErrorDetails("$this->{category}/$this->{name}", "NOTE: this particular sanity test is very experimental\nA port specified in the " . $this->depends_type_long( $depends_type ) . " of " . $this->{category} . '/' . $this->{name} . " does not exist: '" . $dependent . "' on branch '$CommitBranch'.\n\n");
-        }
-      }
-    } else {
-      print "Not inserting $dependent: already inserted\n";
     }
   }
 }
