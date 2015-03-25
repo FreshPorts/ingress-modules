@@ -64,4 +64,5 @@ then
 else
 	logger -t "FreshPorts ${0}"  "${VUXMLFLAGFILE} not set: no processing to do"
 fi
+echo `date` "FreshPorts ${0}"  "vuxml terminates" >> ${LOGFILE}
 logger -t "FreshPorts ${0}"  "vuxml terminates"
