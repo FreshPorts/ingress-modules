@@ -108,12 +108,20 @@ MAIN:
                     print 'invoking vuxml_mark_commits with ' . $v . "\n";
         			my $CommitMarker = FreshPorts::vuxml_mark_commits->new(DBHandle => $dbh,
                                                                            vid      => $v);
+                    print 'invoking ProcessEachRangeRecord'. "\n";
 		        	my $i = $CommitMarker->ProcessEachRangeRecord();
+
+                    print 'invoking ClearCachedEntries' . "\n";
         			$CommitMarker->ClearCachedEntries($v);
                 }
             }
         };
+        print 'finished with eval()' . "\n";
+
+        # if something went wrong in the eval, abort and don't do a commit
         if ($@) {
+            print "We've got a problem.";
+        	print "$0: $@\n";
         	die "$0: $@\n";
         }
         print "committing\n";
@@ -133,3 +141,5 @@ print "Total time: " . ($end - $start) . " seconds\n";
 #
 # That's All Folks!
 #
+
+print 'process_vuxml.pl finishes' . "\n";
