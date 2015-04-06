@@ -51,12 +51,22 @@ then
 	VULNFILE="${FRESHPORTS_JAIL_BASE_DIR}/${PORTSDIR}/security/vuxml/vuln.xml"
 	
 	/usr/bin/perl ./process_vuxml.pl < ${VULNFILE} >> ${LOGFILE}
+	if [ $? -eq 0 ]
+	then
+	  logger -t "FreshPorts ${0}"  "process_vuxml.pl finishes normally"
+	else
+	  logger -t "FreshPorts ${0}"  "FATAL process_vuxml.pl finished with an error"
+	fi
 
 	logger -t "FreshPorts ${0}"  "vuxml ident begins on ${VULNFILE}"
 	/usr/bin/perl ./vuxml_ident.pl     ${VULNFILE} > ${BASEDIR}/dynamic/vuxml_revision
 
 	logger -t "FreshPorts ${0}"  "vuxml latest begins"
 	/usr/bin/perl ./vuln_latest.pl
+	if [ $? = 0 ]
+	then
+	  logger -t "FreshPorts ${0}"  "vuxml finishes normally"
+	fi
 
 	rm ${VUXMLMUTEX}
 	echo `date` "FreshPorts ${0}"  "vuxml finishes" >> ${LOGFILE}
