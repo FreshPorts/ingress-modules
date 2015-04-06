@@ -122,6 +122,7 @@ MAIN:
         if ($@) {
             print "We've got a problem.";
         	print "$0: $@\n";
+	    	FreshPorts::CommitterOptIn::RecordErrorDetails("error processing vuxml", $0);
         	die "$0: $@\n";
         }
         print "committing\n";
