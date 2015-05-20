@@ -16,7 +16,7 @@ use announcements;
 use commit_log_ports_ignore;
 use system_status;
 
-use Text::Wrap;
+use Text::Wrapper;
 use email;
 
 my $Debug = 0;
@@ -161,6 +161,8 @@ order by watch_list_id, watch_list_name, user_id, category, port, commit_date";
 	$BodyHeader .= "Port count: " . sprintf("%5u", $PortCount) . " http://www.FreshPorts.org/categories.php\n";
 	$BodyHeader .= " New ports: " . sprintf("%5u", $NewPorts)  . " http://www.FreshPorts.org/ports-new.php?interval=$Interval\n\n";
 
+	my $wrapper = Text::Wrapper->new(columns => 72, body_start => '  ');
+
 	$Body = $BodyHeader;
 	while ($row = $sth->fetchrow_hashref()) {
 		print "now processing @row\n";
@@ -200,7 +202,7 @@ order by watch_list_id, watch_list_name, user_id, category, port, commit_date";
 		$Body .= $row->{category} . '/' . $row->{port} . "\n";
 
 		# and wrap the description of the change.
-		$Body .= wrap("  ", "  ", $row->{commit_message} . "\n");
+		$Body .= $wrapper->wrap($row->{commit_message} . "\n");
 		$Body .=      "  $row->{commit_date} - $row->{comitter}\n";
 		$Body .=      "  $FreshPorts::Config::FreshPortsURL" . $row->{category} . '/' . $row->{port} . "/\n\n\n";
 	}
@@ -290,6 +292,10 @@ if (($#ARGV+1) == 1) {
 			          from report_log_latest
 			         where frequency = '$Frequency'
 			           and report_id = $ReportID";
+			if ($Debug) {
+				print "sql is $sql\n";
+			}
+
 			$sth = $dbh->prepare($sql);
 			$sth->execute ||
 					die "Could not execute SQL $sql ... maybe invalid";
