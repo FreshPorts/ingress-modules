@@ -1118,9 +1118,9 @@ sub update_depends {
   $this->update_depends_helper( $CommitBranch, $this->depends_stripper( $this->{depends_build}   ), 'B' ); # build
   $this->update_depends_helper( $CommitBranch, $this->depends_stripper( $this->{depends_run}     ), 'R' ); # runtime
   $this->update_depends_helper( $CommitBranch, $this->depends_stripper( $this->{depends_lib}     ), 'L' ); # library
-  $this->update_depends_helper( $CommitBranch, $this->depends_stripper( $this->{depends_fetch}   ), 'F' ); # fetch
-  $this->update_depends_helper( $CommitBranch, $this->depends_stripper( $this->{depends_extract} ), 'E' ); # extract
-  $this->update_depends_helper( $CommitBranch, $this->depends_stripper( $this->{depends_patch}   ), 'P' ); # patch
+  $this->update_depends_helper( $CommitBranch, $this->depends_stripper( $this->{fetch_depends}   ), 'F' ); # fetch
+  $this->update_depends_helper( $CommitBranch, $this->depends_stripper( $this->{extract_depends} ), 'E' ); # extract
+  $this->update_depends_helper( $CommitBranch, $this->depends_stripper( $this->{patch_depends}   ), 'P' ); # patch
 }
 
 sub depends_type_long {
