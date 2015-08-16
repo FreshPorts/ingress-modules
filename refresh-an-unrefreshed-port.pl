@@ -15,6 +15,7 @@ use commit_log_ports;
 use system_status;
 use commit_log_ports_ignore;
 use caching;
+use Getopt::Long;
 
 my $dbh;
 
@@ -25,7 +26,10 @@ my $sql;
 my $sth;
 my @row;
 
+# items set on command line
 my $fetch_before_refresh = 1;
+my $message_id           = '';
+my $port_name            = '';
 
 my $currentBranch  = $FreshPorts::Constants::HEAD;
 
@@ -41,19 +45,21 @@ if (!$SystemStatus->Online()) {
 	exit 0;
 }
 
-	if (($#ARGV+1) >= 1) {
-		my $i;
+GetOptions ('fetch:i' => \$fetch_before_refresh, 'message_id:s' => \$message_id, 'port:s' => \$port_name);
 
-		for ($i = 0; $i < ($#ARGV+1); $i++) {
-			print "checking arg $i\n";
-			if ($ARGV[$i] eq '-r') {
-				# useful if we only want to use
-				# what's on disk.
-				print "not fetching before refresh....\n";
-				$fetch_before_refresh = 0;
-			}
-		}
-	}
+print "fetch='$fetch_before_refresh'\n";
+print "message_id='$message_id'\n";
+print "port_name='$port_name'\n";
+
+if ($message_id && $port_name) {
+  print "ERROR: --message_id and --port are mutually exclusive\n";
+  exit;
+}
+
+if (!$message_id && !$port_name) {
+  print "ERROR: at least one of --message_id and --port must be supplied\n";
+  exit;
+}
 
 $dbh = FreshPorts::Database::GetDBHandle();
 
@@ -73,10 +79,15 @@ $sql = "select ports.id, categories.name as category, element.name as port, comm
 		  and commit_log_ports.port_id       = ports.id  
           and commit_log_ports.needs_refresh <> 0 
 		  and element.status				 = 'A'
-		  and commit_log.id                  = commit_log_ports.commit_log_id
-		  and categories.name = 'www'
-		  and element.name    = 'linux-c6-flashplugin11'
-        order by category, port LIMIT 1";
+		  and commit_log.id                  = commit_log_ports.commit_log_id";
+
+if ($message_id) {
+  $sql .= ' and commit_log.message_id = ' . $dbh->quote($message_id);
+} elsif ($port_name) {
+  $sql .= ' and element.id = GetPort(' . $dbh->quote($port_name) . ')';
+}
+
+$sql .= " ORDER BY category, port LIMIT 1";
 
 print "sql = $sql\n";
 
