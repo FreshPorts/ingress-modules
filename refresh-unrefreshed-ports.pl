@@ -25,6 +25,8 @@ my $sql;
 my $sth;
 my @row;
 
+my $currentBranch  = $FreshPorts::Constants::HEAD;
+
 my $fetch_before_refresh = 1;
 
 FreshPorts::Utilities::InitSyslog();
@@ -55,6 +57,9 @@ if (!$SystemStatus->Online()) {
 
 $dbh = FreshPorts::Database::GetDBHandle();
 
+# start off on head
+FreshPorts::Branches::SetBranchInDB($dbh, $currentBranch);
+
 #
 # get a list of ports to update
 #
@@ -69,7 +74,8 @@ $sql = "select ports.id, categories.name as category, element.name as port, comm
           and commit_log_ports.needs_refresh <> 0 
 		  and element.status				 = 'A'
 		  and commit_log.id                  = commit_log_ports.commit_log_id
-        order by category, port";
+		  and commit_log.id >= 553551
+        order by commit_log.commit_date asc, category, port";
 
 print "sql = $sql\n";
 
@@ -128,9 +134,7 @@ foreach $porttorefresh (@PORTS) {
 				print "that port has been deleted and will not be refreshed\n";
 				$result = 0;
 			} else {
-				print "we need to add CommitBranch to this call\n";
-				exit;
-				$result = $port->RefreshFromFiles($needs_refresh, $fetch_before_refresh, $svn_revision);
+				$result = $port->RefreshFromFiles($currentBranch, $needs_refresh, $fetch_before_refresh, $svn_revision);
 				print "refresh attempt done ($result)\n";
 			}
 		} else {
@@ -142,7 +146,7 @@ foreach $porttorefresh (@PORTS) {
 		#
 		if ($result == 0) {
 
-			$port->save();
+			$port->save($currentBranch);
 
 			$commit_log_ports->{commit_log_id}	= $commit_log_id;
 			$commit_log_ports->{port_id}		= $port->{id};
