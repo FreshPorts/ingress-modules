@@ -19,9 +19,14 @@ my $sql;
 my $sth;
 my @row;
 
+my $currentBranch  = $FreshPorts::Constants::HEAD;
+
 FreshPorts::Utilities::InitSyslog();
 
 $dbh = FreshPorts::Database::GetDBHandle();
+
+# start off on head
+FreshPorts::Branches::SetBranchInDB($dbh, $currentBranch);
 
 #
 # get a list of ports to update
@@ -58,13 +63,11 @@ foreach $porttorefresh (@PORTS) {
 	if ($port->FetchByID()) {
 
 		# needs_refresh = 0, and fetch_files = 0
-		print "we need to add CommitBranch to this call\n";
-		exit;
-		$result = $port->RefreshFromFiles(0, 0, '');
+		$result = $port->RefreshFromFiles($currentBranch, 0, 0, '');
 		print "has been refreshed ($result)\n";
 
 		if ($result == 0) {
-			$port->save();
+			$port->save($currentBranch);
 			$dbh->commit();
 		} else {
 			$dbh->rollback();
