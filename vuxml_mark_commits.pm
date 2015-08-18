@@ -47,14 +47,14 @@ sub _initialize {
 }
 
 sub CommitsForThisPackage($) {
-	my $this        = shift;
+    my $this        = shift;
     my $PackageName = shift;
 
-	my $dbh = $this->{dbh};
+    my $dbh = $this->{dbh};
     my $sth;
     my $sql;
     my $row;
-	my @Commits;
+    my @Commits;
 
     $sql = "
 SELECT distinct CLP.port_id, CLP.port_version, CLP.port_revision, CLP.port_epoch
@@ -253,6 +253,11 @@ sub TestVersionValues($;$;$) {
 	                );
 
 	my $command = "$FreshPorts::vuxml_mark_commits::PKGVERSION -t $Version1 $Version2";
+	my $error   = $?;
+	if ( $error != 0 ) {
+          Sys::Syslog::syslog('notice', 'invoking PKGVERSION for ' . `uname -a` . "failed: " . $error);
+          die('invoking PKGVERSION for ' . `uname -a` . "failed: " . $error);
+	}
 #	print $command . "\n";
 	my $result  = `$command`;
 
@@ -497,10 +502,15 @@ my ($FreeBSDVersion) = $var[2]  =~ /(\d+)/;
 if ($FreeBSDVersion eq 4) {
   $FreshPorts::vuxml_mark_commits::PKGVERSION = '/usr/local/sbin/pkg_version';
 } else {
-  if ($FreeBSDVersion eq 6 || $FreeBSDVersion eq 7 || $FreeBSDVersion eq 8 || $FreeBSDVersion eq 9 || $FreeBSDVersion eq 10) {
+  if ($FreeBSDVersion eq 6 || $FreeBSDVersion eq 7 || $FreeBSDVersion eq 8 || $FreeBSDVersion eq 9) {
     $FreshPorts::vuxml_mark_commits::PKGVERSION = '/usr/sbin/pkg_version';
   } else {
-    die('cannot determine correct pkg_version for ' . `uname -a`);
+    if ( $FreeBSDVersion ge 10 ) {
+      $FreshPorts::vuxml_mark_commits::PKGVERSION = '/usr/sbin/pkg version';
+    } else {
+      Sys::Syslog::syslog('notice', 'cannot determine correct PKGVERSION for ' . `uname -a`);
+      die('cannot determine correct PKGVERSION for ' . `uname -a`);
+    }
   }
 }
 
