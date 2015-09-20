@@ -36,13 +36,12 @@ then
 	exit 1
 fi
 
+#echo ${NEWSCACHEDIR}
+#echo ${SPOOLINGDIR}
+#echo ${CACHE_NEEDS_REFRESH}
+
 if [ -r ${CACHE_NEEDS_REFRESH} ]
 then
-	#
-	# remove the flag
-	#
-	/bin/rm "${CACHE_NEEDS_REFRESH}"
-
 	#
 	# the following remove the old news feeds
 	#
@@ -61,4 +60,9 @@ then
 	/bin/chmod g+r ${SPOOLINGDIR}/*
 
 	/bin/mv ${SPOOLINGDIR}/* ${CACHEDIR}/
+
+	#
+	# remove the flag
+	#
+	/bin/rm "${CACHE_NEEDS_REFRESH}"
 fi
