@@ -59,7 +59,7 @@ then
 	fi
 
 	logger -t "FreshPorts ${0}"  "vuxml ident begins on ${VULNFILE}"
-	/usr/bin/perl ./vuxml_ident.pl     ${VULNFILE} > ${BASEDIR}/dynamic/vuxml_revision
+	/usr/bin/perl ./vuxml_ident.pl     ${VULNFILE} > ${DYNAMICROOT}/vuxml_revision
 
 	logger -t "FreshPorts ${0}"  "vuxml latest begins"
 	/usr/bin/perl ./vuln_latest.pl
