@@ -19,7 +19,7 @@ then
 fi
 
 
-ROWCOUNT=`${PSQL} -h ${HOST} -q --pset t -d ${DB} --user www -c "${QUERYCOUNT} ${QUERYBASE}"`
+ROWCOUNT=`${PSQL} -h ${HOST} -q --pset t -d ${DB} --user ${DBUSER} -c "${QUERYCOUNT} ${QUERYBASE}"`
 if [ ${ROWCOUNT} -ne 0 ]
 then
   echo 'This is a list of ports that do not have entries in the ports_categories table'
