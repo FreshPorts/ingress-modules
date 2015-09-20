@@ -63,7 +63,7 @@ SELECT distinct CLP.port_id, CLP.port_version, CLP.port_revision, CLP.port_epoch
    AND P.package_name    = '$PackageName'
    AND CLP.port_version <> ''";
 
-#    print "sql is $sql\n";
+    print "sql is $sql\n";
 
     $sth = $dbh->prepare($sql);
     $sth->execute ||
