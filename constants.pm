@@ -86,7 +86,4 @@ $FreshPorts::Constants::PORTS_MOVED						= '/ports/head/MOVED';
 
 $FreshPorts::Constants::Repository_Ports                = 'ports';
 
-
-
-
 1;
