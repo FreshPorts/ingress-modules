@@ -37,6 +37,8 @@ sub freshports_ConvertPortPathToStandardLocation($;$) {
 	# real ports tree and not the one we are using
 	
 	my $PathToRepo = FreshPorts::Branches::GetPathToRepoForBranch($CommitBranch);
+	
+	print "\$PathToRepo for \$CommitBranch='$CommitBranch' is '$PathToRepo'\n";
 
 	print "freshports_ConvertPortPathToStandardLocation() is converting '$pathname' ";
 	$pathname =~ s/$PathToRepo/$FreshPorts::Constants::UsualPortsTreeLocation/g;
@@ -673,12 +675,12 @@ sub _ExtractValuesFromMakefile {
 		# 
 		# freshports.org=#
 
-		$builddepends   = $this->depends_stripper(freshports_ConvertPortPathToStandardLocation($CommitBranch, FreshPorts::Utilities::trim_multiple_to_single(FreshPorts::Utilities::trim($builddepends))));
-		$rundepends     = $this->depends_stripper(freshports_ConvertPortPathToStandardLocation($CommitBranch, FreshPorts::Utilities::trim_multiple_to_single(FreshPorts::Utilities::trim($rundepends))));
-		$libdepends     = $this->depends_stripper(freshports_ConvertPortPathToStandardLocation($CommitBranch, FreshPorts::Utilities::trim_multiple_to_single(FreshPorts::Utilities::trim($libdepends))));
-		$fetchdepends   = $this->depends_stripper(freshports_ConvertPortPathToStandardLocation($CommitBranch, FreshPorts::Utilities::trim_multiple_to_single(FreshPorts::Utilities::trim($fetchdepends))));
-		$extractdepends = $this->depends_stripper(freshports_ConvertPortPathToStandardLocation($CommitBranch, FreshPorts::Utilities::trim_multiple_to_single(FreshPorts::Utilities::trim($extractdepends))));
-		$patchdepends   = $this->depends_stripper(freshports_ConvertPortPathToStandardLocation($CommitBranch, FreshPorts::Utilities::trim_multiple_to_single(FreshPorts::Utilities::trim($patchdepends))));
+		$builddepends   = $this->depends_stripper(freshports_ConvertPortPathToStandardLocation($CommitBranch, FreshPorts::Utilities::trim_multiple_to_single(FreshPorts::Utilities::trim($builddepends))),   $SVNDIR_CHROOT);
+		$rundepends     = $this->depends_stripper(freshports_ConvertPortPathToStandardLocation($CommitBranch, FreshPorts::Utilities::trim_multiple_to_single(FreshPorts::Utilities::trim($rundepends))),     $SVNDIR_CHROOT);
+		$libdepends     = $this->depends_stripper(freshports_ConvertPortPathToStandardLocation($CommitBranch, FreshPorts::Utilities::trim_multiple_to_single(FreshPorts::Utilities::trim($libdepends))),     $SVNDIR_CHROOT);
+		$fetchdepends   = $this->depends_stripper(freshports_ConvertPortPathToStandardLocation($CommitBranch, FreshPorts::Utilities::trim_multiple_to_single(FreshPorts::Utilities::trim($fetchdepends))),   $SVNDIR_CHROOT);
+		$extractdepends = $this->depends_stripper(freshports_ConvertPortPathToStandardLocation($CommitBranch, FreshPorts::Utilities::trim_multiple_to_single(FreshPorts::Utilities::trim($extractdepends))), $SVNDIR_CHROOT);
+		$patchdepends   = $this->depends_stripper(freshports_ConvertPortPathToStandardLocation($CommitBranch, FreshPorts::Utilities::trim_multiple_to_single(FreshPorts::Utilities::trim($patchdepends))),   $SVNDIR_CHROOT);
 
 		$master_port =~ s|$SVNDIR_CHROOT/||;
 
@@ -1110,17 +1112,20 @@ sub update_depends {
   my $CommitBranch = shift;
 
   my $port_dependencies = FreshPorts::PortDependencies->new( $this->{dbh} );
+
+  my $SVNDIR_CHROOT = FreshPorts::Branches::GetPathToRepoForBranchCHROOT($CommitBranch);
+  
   
   print 'about to delete port_dependencies for id ' . $this->{id} . "\n";
   $port_dependencies->{port_id} = $this->{id};
   $port_dependencies->delete();
 
-  $this->update_depends_helper( $CommitBranch, $this->depends_stripper( $this->{depends_build}   ), 'B' ); # build
-  $this->update_depends_helper( $CommitBranch, $this->depends_stripper( $this->{depends_run}     ), 'R' ); # runtime
-  $this->update_depends_helper( $CommitBranch, $this->depends_stripper( $this->{depends_lib}     ), 'L' ); # library
-  $this->update_depends_helper( $CommitBranch, $this->depends_stripper( $this->{fetch_depends}   ), 'F' ); # fetch
-  $this->update_depends_helper( $CommitBranch, $this->depends_stripper( $this->{extract_depends} ), 'E' ); # extract
-  $this->update_depends_helper( $CommitBranch, $this->depends_stripper( $this->{patch_depends}   ), 'P' ); # patch
+  $this->update_depends_helper( $CommitBranch, $this->depends_stripper( $this->{depends_build},   $SVNDIR_CHROOT ), 'B' ); # build
+  $this->update_depends_helper( $CommitBranch, $this->depends_stripper( $this->{depends_run},     $SVNDIR_CHROOT ), 'R' ); # runtime
+  $this->update_depends_helper( $CommitBranch, $this->depends_stripper( $this->{depends_lib},     $SVNDIR_CHROOT ), 'L' ); # library
+  $this->update_depends_helper( $CommitBranch, $this->depends_stripper( $this->{fetch_depends},   $SVNDIR_CHROOT ), 'F' ); # fetch
+  $this->update_depends_helper( $CommitBranch, $this->depends_stripper( $this->{extract_depends}, $SVNDIR_CHROOT ), 'E' ); # extract
+  $this->update_depends_helper( $CommitBranch, $this->depends_stripper( $this->{patch_depends},   $SVNDIR_CHROOT ), 'P' ); # patch
 }
 
 sub depends_type_long {
@@ -1185,9 +1190,34 @@ sub update_depends_helper {
   }
 }
 
+sub _addMissingPORTSDIR {
+  my $this     = shift;
+  my $depends  = shift;
+  my $PortsDir = shift;
+  
+  print "in _addMissingPORTSDIR(), we start with '$depends'\n";
+  
+  # We prepend ${PORTSDIR} to $depends if not already present
+
+  if ($depends =~ /^$PortsDir/)
+  {
+    print "I found '$depends' already starts with '$PortsDir'\n";
+  }
+  else
+  {
+    print "I am prepending '$depends' with '$PortsDir'\n";
+    $depends = "$PortsDir/$depends";
+  }
+
+  print "in _addMissingPORTSDIR(), we finish with '$depends'\n";
+
+  return $depends;
+}
+
 sub depends_stripper {
-  my $this    = shift;
-  my $depends = shift;
+  my $this     = shift;
+  my $depends  = shift;
+  my $PortsDir = shift;
 
   my $newdepends = '';
 
@@ -1213,6 +1243,14 @@ sub depends_stripper {
     {
       $newdepends .= " ";
     }
+
+    print "the DEPENDS test is '$d' and the dependency is '$dep'\n";
+
+    # all deps need to start with $PORTSDIR
+    # it needs to be an absolute path
+    $dep = $this->_addMissingPORTSDIR($dep, $PortsDir);
+    
+    print "after _addMissingPORTSDIR() the dependency is '$dep'\n";
 
     my $absdir = $this->_GetRealPath($ddir);
     if (defined($absdir))
