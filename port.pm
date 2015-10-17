@@ -1195,7 +1195,7 @@ sub _addMissingPORTSDIR {
   my $depends  = shift;
   my $PortsDir = shift;
   
-  print "in _addMissingPORTSDIR(), we start with '$depends'\n";
+  print "in _addMissingPORTSDIR(),      we start  with '$depends'\n";
   
   # We prepend ${PORTSDIR} to $depends if not already present
 
@@ -1209,7 +1209,7 @@ sub _addMissingPORTSDIR {
     $depends = "$PortsDir/$depends";
   }
 
-  print "in _addMissingPORTSDIR(), we finish with '$depends'\n";
+  print "in _addMissingPORTSDIR(),      we finish with '$depends'\n";
 
   return $depends;
 }
@@ -1244,13 +1244,13 @@ sub depends_stripper {
       $newdepends .= " ";
     }
 
-    print "the DEPENDS test is '$d' and the dependency is '$dep'\n";
+    print "the DEPENDS test is '$d' and the dependency is '$ddir'\n";
 
     # all deps need to start with $PORTSDIR
     # it needs to be an absolute path
-    $dep = $this->_addMissingPORTSDIR($dep, $PortsDir);
+    $ddir = $this->_addMissingPORTSDIR($ddir, $PortsDir);
     
-    print "after _addMissingPORTSDIR() the dependency is '$dep'\n";
+    print "after _addMissingPORTSDIR() the dependency is '$ddir'\n";
 
     my $absdir = $this->_GetRealPath($ddir);
     if (defined($absdir))
