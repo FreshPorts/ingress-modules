@@ -27,14 +27,22 @@ then
 	exit 0
 fi
 
-if [ "${MOVEDFLAGFILE}x" = 'x' -o "${PORTSDIR}x" = 'x' ]
+if [ "${MOVEDFLAGFILE}x" = 'x' -o "${PORTSDIR}x" = 'x' -o "${FRESHPORTS_JAIL_BASE_DIR}x" = 'x' ]
 then
-	echo "please set MOVEDFLAGFILE and PORTSDIR in config.sh"
+	echo "please set MOVEDFLAGFILE, PORTSDIR, and FRESHPORTS_JAIL_BASE_DIR in config.sh"
 	exit 1
+fi
+
+if [ -r "${FRESHPORTS_JAIL_BASE_DIR}${PORTSDIR}/MOVED" -a -f "${FRESHPORTS_JAIL_BASE_DIR}${PORTSDIR}/MOVED" ]
+then
+    # all good
+else
+   echo "\${FRESHPORTS_JAIL_BASE_DIR}\${PORTSDIR}/MOVED evaluates to '${FRESHPORTS_JAIL_BASE_DIR}${PORTSDIR}/MOVED' which is not a readable file or does not exist."
+   exit 1
 fi
 
 if [ -r ${MOVEDFLAGFILE} ]
 then
 	rm ${MOVEDFLAGFILE}
-	/usr/bin/perl ./process_moved.pl < ${PORTSDIR}/MOVED
+	/usr/bin/perl ./process_moved.pl < ${FRESHPORTS_JAIL_BASE_DIR}/${PORTSDIR}/MOVED
 fi
