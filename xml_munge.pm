@@ -747,6 +747,7 @@ sub handle_message_end {
 	print "into handle_message_end, let's save that message now!\n\n";
 
 	# First thing we must do, is tell the database what Branch to use...
+	# XXX why does this not use branches::SetBranchInDB() ?
 	my $sql = 'select freshports_branch_set(' . $self->{dbh}->quote($Updates{branch}) . ')';
 	my $sth = $self->{dbh}->prepare($sql);
 	if (!$sth->execute())  {
