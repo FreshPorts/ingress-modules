@@ -12,6 +12,8 @@ use strict;
 
 require Sys::Syslog;
 
+use branches;
+use constants;
 use db_utils;
 use database;
 use utilities;
@@ -41,6 +43,11 @@ sub main {
 
 	$dbh = FreshPorts::Database::GetDBHandle();
 	if ($dbh->{Active}) {
+
+		my $currentBranch  = $FreshPorts::Constants::HEAD;
+
+		# start off on head
+		FreshPorts::Branches::SetBranchInDB($dbh, $currentBranch);
 
 		EmptyMoved($dbh);
 
