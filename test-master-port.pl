@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/local/bin/perl -w
 #
 # $Id: test-master-port.pl,v 1.3 2007-12-30 18:41:59 dan Exp $
 #
