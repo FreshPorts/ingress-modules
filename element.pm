@@ -104,7 +104,7 @@ update element
 			FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql ... maybe invalid?", 1);
 	} else {
 		# we are inserting
-		$sql = "select Element_Add(	'$this->{pathname}', \
+		$sql = "select Element_Add(" . $dbh->quote($this->{pathname}) . ", \
 									'$this->{directory_file_flag}')";
 
 #		print "sql is $sql\n";
