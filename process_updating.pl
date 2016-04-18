@@ -18,6 +18,7 @@ use warnings;
 
 require Sys::Syslog;
 
+use branches;
 use db_utils;
 use database;
 use utilities;
@@ -51,6 +52,11 @@ sub main {
 
 	$dbh = FreshPorts::Database::GetDBHandle();
 	if ($dbh->{Active}) {
+
+		my $currentBranch  = $FreshPorts::Constants::HEAD;
+
+		# start off on head
+		FreshPorts::Branches::SetBranchInDB($dbh, $currentBranch);
 
 		EmptyUpdating($dbh);
 
@@ -119,7 +125,9 @@ sub parsefile ($) {
 
 			# take the split up $affects tokens and see if they look
 			# like ports entries.
+			print "starting PARTS for '$affects'\n";
 			for my $part (@affects_match) {
+				print "This is the PART we are looking for '$part'\n";
 				if ($part =~ m^/^) {
 					$part =~ s/[()]//g;  # strip out unmentionables
 					print "port found: '$part'\n";
@@ -135,6 +143,7 @@ sub parsefile ($) {
 					}
 				}
 			}
+			print "ending PARTS\n";
 
 			my $ID = AddUpdating($dbh, $date, $affects, $author, $msg);
 
@@ -192,8 +201,13 @@ sub AddUpdatingXref($;$;$) {
 	my $sql;
 	my @row;
 
+	# xxx debug
+	my $currentBranch  = $FreshPorts::Constants::HEAD;
+	FreshPorts::Branches::SetBranchInDB($dbh, $currentBranch);
+
 	# quote everything going to the database
 	$sql = "select PortsUpdatingPortsXrefAdd($PortsUpdatingID, $Port)";
+	print "$sql\n";
 	$sth = $dbh->prepare($sql);
 	if (!$sth->execute())  {
 		FreshPorts::Utilities::ReportError('warning', "Could not execute sql: '$sql'", 1);
@@ -244,6 +258,7 @@ SELECT C.name AS category,
 	my $Caching = FreshPorts::Caching->new($dbh);
     while ($updated_port = $sth->fetchrow_hashref()) {
         $i++;
+        	print "clearing for " . $updated_port->{category} . '/' . $updated_port->{port} . "\n";
 		$Caching->RemovePortFromCache($updated_port->{category}, $updated_port->{port});
 	}
 
