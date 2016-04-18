@@ -36,5 +36,5 @@ fi
 if [ -r ${UPDATINGFLAGFILE} ]
 then
 	rm ${UPDATINGFLAGFILE}
-	/usr/bin/perl ./process_updating.pl < ${PORTSDIR}/UPDATING
+	/usr/bin/perl ./process_updating.pl < ${FRESHPORTS_JAIL_BASE_DIR}/${PORTSDIR}/UPDATING
 fi
