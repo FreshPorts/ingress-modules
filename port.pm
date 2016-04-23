@@ -89,6 +89,7 @@ sub _initialize {
 	$this->{extract_depends}	= '';
 	$this->{patch_depends}		= '';
 	$this->{uses}			    = '';
+	$this->{pkgmessage} 	    = '';
 
 	$this->{categories}			= '';
 	$this->{element_pathname}   = '';
@@ -140,6 +141,7 @@ sub _GetValuesFromRow {
 	$this->{extract_depends}	= $row->{extract_depends};
 	$this->{patch_depends}		= $row->{patch_depends};
 	$this->{uses}			    = $row->{uses};
+	$this->{pkgmessage} 	    = $row->{pkgmessage};
 
 	$this->{categories}			= $row->{categories};
 	$this->{last_commit_id}		= $row->{last_commit_id};
@@ -262,6 +264,7 @@ update ports
        extract_depends   = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{extract_depends})        . ", 
        patch_depends     = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{patch_depends})          . ", 
        uses              = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{uses})                   . ", 
+       pkgmessage        = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{pkgmessage})             . ", 
        categories        = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{categories});
 
 
@@ -649,7 +652,7 @@ sub _ExtractValuesFromMakefile {
 		 my $no_package,     my $pkgnameprefix,  my $pkgnamesuffix,    my $portepoch,
 		 my $restricted,     my $no_cdrom,       my $expiration_date,  my $is_interactive,
 		 my $only_for_archs, my $not_for_archs,  my $license,          my $fetchdepends, 
-		 my $extractdepends, my $patchdepends,   my $uses) = split(/\n/s, $MakeResults);
+		 my $extractdepends, my $patchdepends,   my $uses,             my $pkgmessagepath) = split(/\n/s, $MakeResults);
 
 		my $package_name = $pkgnameprefix . $portname . $pkgnamesuffix;
 
@@ -704,6 +707,7 @@ sub _ExtractValuesFromMakefile {
 		print " extractdepends = '$extractdepends'\n";
 		print " patchdepends   = '$patchdepends'\n";
 		print " uses           = '$uses'\n";
+		print " pkgmessagepath = '\n$pkgmessagepath'\n";
 
 		# eliminate multiple // : PR 174
 		# to compensate for bug in File::PathConvert::realpath (which is no longer used; _GetRealPath)
@@ -737,6 +741,33 @@ sub _ExtractValuesFromMakefile {
 
 		chomp($longdescription); # get rid of the trailing whitespace.
 
+		# eliminate multiple // : PR 174
+		# to compensate for bug in File::PathConvert::realpath (which is no longer used; _GetRealPath)
+		$pkgmessagepath =~ s|//|/|g;
+
+		my $RealPKGMESSAGEPath = $this->_GetRealPath($pkgmessagepath);
+
+		# eliminate multiple // : PR 174
+		# to compensate for bug in File::PathConvert::realpath (which is no longer used; _GetRealPath))
+		$pkgmessagepath =~ s|//|/|g;
+
+		# if it's defined, and it exists....
+		my $pkgmessage = '';
+		if (looks_like_number($pkgmessagepath))
+		{
+                  print "PKGMESSAGE file does not exist: '$pkgmessagepath' (result of make -V PKGMESSAGE)\n";
+                  FreshPorts::CommitterOptIn::RecordErrorDetails("$this->{category}/$this->{name}", "PKGMESSAGE file does not exist: '$pkgmessagepath' (result of make -V PKGMESSAGE)\n");
+	  	}
+		else
+		{
+                   if (defined($pkgmessagepath) && $RealPKGMESSAGEPath) {
+                      print "invoking _GetPKGMESSAGE() with '$RealPKGMESSAGEPath'\n";
+                      $pkgmessage = $this->_GetPKGMESSAGE($RealPKGMESSAGEPath);
+                   }
+		}
+
+		chomp($pkgmessage); # get rid of the trailing whitespace.
+
 		print "12 \$shortdescription = '$shortdescription'\n";
 		print "13 \$longdescription  = '$longdescription'\n";
 		print "14 \$homepage='";
@@ -764,6 +795,11 @@ sub _ExtractValuesFromMakefile {
 		print "32 \$categories       = '$categories'\n";
 		print "33 \$showconfig       = '$showconfig'\n";
 		print "34 \$license          = '$license'\n";
+		print "35 \$fetchdepends     = '$fetchdepends'\n";
+		print "36 \$extractdepends   = '$extractdepends'\n";
+		print "37 \$patchdepends     = '$patchdepends'\n";
+		print "38 \$uses             = '$uses'\n";
+		print "39 \$pkgmessage       = '$pkgmessage'\n";
 
 		print "\n ---------------------------------------- \n";
 
@@ -821,6 +857,7 @@ sub _ExtractValuesFromMakefile {
 		$this->{extract_depends}	= $extractdepends;
 		$this->{patch_depends}		= $patchdepends;
 		$this->{uses}	    		= $uses;
+		$this->{pkgmessage} 		= $pkgmessage;
 		# convert all whitespace to a single space
 		# This arose from 200609130717.k8D7HpNc057638@repoman.freebsd.org
 		#
@@ -925,6 +962,33 @@ sub _GetDescrAndHomePage($) {
 
 
 # =================================
+sub _GetPKGMESSAGE($) {
+	my $this = shift;
+	my $file = shift;
+	my $pkgmessage;
+
+	$pkgmessage = "";
+	# this needs to open relative to the jail root.
+	# to be pure, we shold do this as a script in the jail-root, but we'd have to call two scripts:
+	# one for the homepage, one for te description.
+	if (open (F, $FreshPorts::Config::JailBaseDir . $file))
+	{
+	
+	  while(<F>){
+		$pkgmessage .= $_;
+	   }
+
+	   close F;
+	} else {
+          print "Unable to open '$file' (result of make -V PKGMESSAGE)\n";
+          FreshPorts::CommitterOptIn::RecordErrorDetails("$this->{category}/$this->{name}", "Unable to open '$file' (result of make -V PKGMESSAGE)\n");
+	}
+	
+	return $pkgmessage;
+}
+
+
+# =================================
 sub _GetRealPath($) {
 	my $this = shift;
   	my $file = shift;
@@ -961,8 +1025,8 @@ sub RefreshFromFiles($;$;$;$) {
 # refresh this port based on the make files associated with it and the value of needs_refresh
 # returns 0 for success, 1 for failure
 #
-	my $this		= shift;
-        my $CommitBranch        = shift;
+	my $this            = shift;
+	my $CommitBranch    = shift;
 	my $needs_refresh	= shift;
 	my $fetch_files		= shift;
 	my $svn_revision	= shift;
