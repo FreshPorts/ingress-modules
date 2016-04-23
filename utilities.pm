@@ -345,8 +345,33 @@ sub NULLIfEmpty {
 	return $result;
 }
 
+sub CommitCountPeriod {
+    my $dbh      = shift;
+    my $interval = shift;
+    
+    my $count    = 0; #default to nothing...
 
+	my $sth;
+	my $sql;
+	my @row;
 
+	$sql = 'SELECT count(*) AS count FROM commit_log WHERE date_added > NOW() - INTERVAL ' . $dbh->quote($interval);
+
+	$sth = $dbh->prepare($sql);
+	if (!$sth->execute) {
+		FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql", 1);
+	}
+
+	$row = $sth->fetchrow_hashref();
+	$sth->finish();
+
+	# no sense setting values if we didn't get anything...
+	if ($row) {
+		$count = $row->{count};
+	}
+
+	return $count;
+}
 
 FreshPorts::Utilities::InitSyslog();
 

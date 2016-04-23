@@ -8,6 +8,7 @@
 use strict;
 
 use config;
+use database;
 use utilities;
 use status;
 
@@ -23,12 +24,20 @@ sub SendNotice($) {
 
 my $base=$FreshPorts::Config::QueueBaseDir;
 
-my %queues = ('incoming' => '*.txt', 'retry' => '*.txt', 'recent' => '*.xml');
-my %queue_names = ('incoming' => 'incoming', 'retry' => 'retry', 'recent' => 'processed');
+my %queues          = ('incoming' => '*.txt',    'retry' => '*.txt', 'recent' => '*.xml');
+my %queue_names     = ('incoming' => 'incoming', 'retry' => 'retry', 'recent' => 'processed');
 my %report_non_zero = ('retry' => 1, 'incoming' => 1);
+
+my $Interval = '10 minutes';
 
 my $send_report = 0;
 my $msg         = '';
+
+my $CountRecent;
+
+undef($CountRecent);
+
+my $dbh = FreshPorts::Database::GetDBHandle();
 
 foreach my $site (@FreshPorts::Status::sites) {
 	$msg .= "SITE: $site ";
@@ -49,7 +58,12 @@ foreach my $site (@FreshPorts::Status::sites) {
 		$msg .= " $queue: $Count ";
 
 		if ($Count && defined($report_non_zero{$queue})) {
-			$send_report = 1;
+			if (!defined($CountRecent)) {
+				$CountRecent = FreshPorts::Utilities::CommitCountPeriod($dbh, $Interval);
+			}
+			if ($Count > $CountRecent) {
+				$send_report = 1;
+			}
 		}
 	}
 
