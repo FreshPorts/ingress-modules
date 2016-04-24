@@ -253,13 +253,13 @@ sub TestVersionValues($;$;$) {
 	                );
 
 	my $command = "$FreshPorts::vuxml_mark_commits::PKGVERSION -t $Version1 $Version2";
+	print "testing for $command\n";
+	my $result  = `$command`;
 	my $error   = $?;
 	if ( $error != 0 ) {
-          Sys::Syslog::syslog('notice', 'invoking PKGVERSION for ' . `uname -a` . "failed: " . $error);
-          die('invoking PKGVERSION for ' . `uname -a` . "failed: " . $error);
+          Sys::Syslog::syslog('notice', 'invoking PKGVERSION for ' . `uname -a` . "Version1='$Version1' Version2='$Version2' failed: " . $error);
+          die('invoking PKGVERSION for ' . `uname -a` . "Version1='$Version1' Version2='$Version2' failed: " . $error);
 	}
-#	print $command . "\n";
-	my $result  = `$command`;
 
 	chomp $result;
 	# chomp stopped chomping after we started feeding the vuxml in one at a time.
