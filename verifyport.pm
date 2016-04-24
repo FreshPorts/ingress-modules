@@ -21,6 +21,7 @@ use vuxml_mark_commits;
 
 require File::Basename;
 require Sys::Syslog;
+use POSIX qw{strftime};
 
 #
 # WARNING: this hash is filled up during the processing of a single
@@ -373,7 +374,12 @@ sub FetchAllFiles($;$;$;$) {
 	# if we have a revision	
 	if (defined($svn_revision) && $svn_revision ne '')
 	{
+		my $startTime = time;
 		$FetchOK = FreshPorts::Utilities::svnUpFile($SVNDIR, '', $svn_revision);
+		
+		my $elapsedTime = time - $startTime;
+		
+		print "Elapsed time for svn up " . strftime("\%H:\%M:\%S", gmtime($elapsedTime)) . "\n";
 
 		return $FetchOK;
 	}
@@ -391,7 +397,7 @@ sub FetchAllFiles($;$;$;$) {
 			print "outside ports tree: ignoring $filename\n";
 			next;
 		}
-		
+
 		#
 		# do not fetch directories
 		# THIS MAKES USE OF THE FACT that SVN puts added directories into
