@@ -90,6 +90,7 @@ sub _initialize {
 	$this->{patch_depends}		= '';
 	$this->{uses}			    = '';
 	$this->{pkgmessage} 	    = '';
+	$this->{distinfo}    	    = '';
 
 	$this->{categories}			= '';
 	$this->{element_pathname}   = '';
@@ -142,6 +143,7 @@ sub _GetValuesFromRow {
 	$this->{patch_depends}		= $row->{patch_depends};
 	$this->{uses}			    = $row->{uses};
 	$this->{pkgmessage} 	    = $row->{pkgmessage};
+	$this->{distinfo}    	    = $row->{distinfo};
 
 	$this->{categories}			= $row->{categories};
 	$this->{last_commit_id}		= $row->{last_commit_id};
@@ -265,6 +267,7 @@ update ports
        patch_depends     = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{patch_depends})          . ", 
        uses              = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{uses})                   . ", 
        pkgmessage        = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{pkgmessage})             . ", 
+       distinfo          = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{distinfo})               . ", 
        categories        = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{categories});
 
 
@@ -284,7 +287,7 @@ update ports
 		# we are inserting
 		# do we really need to quote these things?
 
-		if (!$this->{category_id} && $this->{partialpathname}) {
+		if (!$this->{element_id} && $this->{partialpathname}) {
 			#
 			# we have a partial name but no element.
 			# let's get the element
@@ -652,7 +655,8 @@ sub _ExtractValuesFromMakefile {
 		 my $no_package,     my $pkgnameprefix,  my $pkgnamesuffix,    my $portepoch,
 		 my $restricted,     my $no_cdrom,       my $expiration_date,  my $is_interactive,
 		 my $only_for_archs, my $not_for_archs,  my $license,          my $fetchdepends, 
-		 my $extractdepends, my $patchdepends,   my $uses,             my $pkgmessagepath) = split(/\n/s, $MakeResults);
+		 my $extractdepends, my $patchdepends,   my $uses,             my $pkgmessagepath,
+		 my $distinfo_file   ) = split(/\n/s, $MakeResults);
 
 		my $package_name = $pkgnameprefix . $portname . $pkgnamesuffix;
 
@@ -708,6 +712,7 @@ sub _ExtractValuesFromMakefile {
 		print " patchdepends   = '$patchdepends'\n";
 		print " uses           = '$uses'\n";
 		print " pkgmessagepath = '\n$pkgmessagepath'\n";
+		print " distinfo_file  = '\n$distinfo_file'\n";
 
 		# eliminate multiple // : PR 174
 		# to compensate for bug in File::PathConvert::realpath (which is no longer used; _GetRealPath)
@@ -761,12 +766,29 @@ sub _ExtractValuesFromMakefile {
 		else
 		{
                    if (defined($pkgmessagepath) && $RealPKGMESSAGEPath) {
-                      print "invoking _GetPKGMESSAGE() with '$RealPKGMESSAGEPath'\n";
-                      $pkgmessage = $this->_GetPKGMESSAGE($RealPKGMESSAGEPath);
+                      print "invoking _GetFileContentsFromJail() with '$RealPKGMESSAGEPath'\n";
+                      $pkgmessage = $this->_GetFileContentsFromJail($RealPKGMESSAGEPath);
                    }
 		}
-
 		chomp($pkgmessage); # get rid of the trailing whitespace.
+		
+		my $RealDIstInfoFilePath = $this->_GetRealPath($distinfo_file);
+		# if it's defined, and it exists....
+		my $distinfo = '';
+		if (looks_like_number($RealDIstInfoFilePath))
+		{
+                  print "DISTINFO_FILE file does not exist: '$distinfo_file' (result of make -V DISTINFO_FILE)\n";
+                  FreshPorts::CommitterOptIn::RecordErrorDetails("$this->{category}/$this->{name}", "DISTINFO_FILE file does not exist: '$distinfo_file' (result of make -V DISTINFO_FILE)\n");
+	  	}
+		else
+		{
+                   if (defined($RealDIstInfoFilePath) && $RealDIstInfoFilePath) {
+                      print "invoking _GetFileContentsFromJail() with '$RealDIstInfoFilePath'\n";
+                      $distinfo = $this->_GetFileContentsFromJail($RealDIstInfoFilePath);
+#                      print "back from _GetFileContentsFromJail with '$distinfo'\n";
+                   }
+		}
+		chomp($distinfo); # get rid of the trailing whitespace.
 
 		print "12 \$shortdescription = '$shortdescription'\n";
 		print "13 \$longdescription  = '$longdescription'\n";
@@ -800,6 +822,7 @@ sub _ExtractValuesFromMakefile {
 		print "37 \$patchdepends     = '$patchdepends'\n";
 		print "38 \$uses             = '$uses'\n";
 		print "39 \$pkgmessage       = '$pkgmessage'\n";
+		print "40 \$distinfo         = '$distinfo'\n";
 
 		print "\n ---------------------------------------- \n";
 
@@ -858,6 +881,7 @@ sub _ExtractValuesFromMakefile {
 		$this->{patch_depends}		= $patchdepends;
 		$this->{uses}	    		= $uses;
 		$this->{pkgmessage} 		= $pkgmessage;
+		$this->{distinfo}           = $distinfo;
 		# convert all whitespace to a single space
 		# This arose from 200609130717.k8D7HpNc057638@repoman.freebsd.org
 		#
@@ -933,8 +957,8 @@ sub _GetDescrAndHomePage($) {
 	$DESCR = "";
 	$url   = "";
 	# this needs to open relative to the jail root.
-	# to be pure, we shold do this as a script in the jail-root, but we'd have to call two scripts:
-	# one for the homepage, one for te description.
+	# to be pure, we should do this as a script in the jail-root, but we'd have to call two scripts:
+	# one for the homepage, one for the description.
 	if (open (F, $FreshPorts::Config::JailBaseDir . $file))
 	{
 	
@@ -962,29 +986,32 @@ sub _GetDescrAndHomePage($) {
 
 
 # =================================
-sub _GetPKGMESSAGE($) {
+sub _GetFileContentsFromJail($) {
 	my $this = shift;
 	my $file = shift;
-	my $pkgmessage;
+	my $filecontents;
 
-	$pkgmessage = "";
+#	print "about to read from " . $FreshPorts::Config::JailBaseDir . $file . "\n";
+
+	$filecontents = "";
 	# this needs to open relative to the jail root.
-	# to be pure, we shold do this as a script in the jail-root, but we'd have to call two scripts:
-	# one for the homepage, one for te description.
+	# to be pure, we should do this as a script in the jail-root
 	if (open (F, $FreshPorts::Config::JailBaseDir . $file))
 	{
 	
 	  while(<F>){
-		$pkgmessage .= $_;
+		$filecontents .= $_;
 	   }
 
 	   close F;
 	} else {
-          print "Unable to open '$file' (result of make -V PKGMESSAGE)\n";
-          FreshPorts::CommitterOptIn::RecordErrorDetails("$this->{category}/$this->{name}", "Unable to open '$file' (result of make -V PKGMESSAGE)\n");
+          print "Unable to open '$file'\n";
+          FreshPorts::CommitterOptIn::RecordErrorDetails("$this->{category}/$this->{name}", "Unable to open '$file'\n");
 	}
-	
-	return $pkgmessage;
+
+#    print "here is what we have: $filecontents\n";	
+
+	return $filecontents;
 }
 
 
@@ -1345,6 +1372,30 @@ sub depends_stripper {
 
   print "2depends: $newdepends\n";
   return $newdepends;
+}
+
+sub CreatePortOnBranch {
+  my $this          = shift;
+  my $category_name = shift;
+  my $port_name     = shift;
+  my $CommitBranch  = shift;
+
+  my $dbh = $this->{dbh}; # just a short cut...
+  my $sth;
+  my $sql;
+  my @row;
+
+  $sql = 'select CreatePort(' . $dbh->quote($category_name) . ', ' . $dbh->quote($port_name) . ', ' . $dbh->quote($CommitBranch) . ')';
+  $sth = $this->{dbh}->prepare($sql);
+  $sth->execute ||
+    FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql ... maybe invalid? " . $dbh->errstr, 1);
+    
+  @row = $sth->fetchrow_array();
+  $sth->finish();
+  
+  $this->{id} = $row[0];
+  
+  return $this->{id};
 }
 
 

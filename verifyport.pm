@@ -140,6 +140,7 @@ sub _CompileListOfPorts($;$;$;$) {
 					# add it as an element and a port.  See _RecordPortsAndElements() where svn.log would be listed in 
 					# both CommitLogPorts and Files.
 					#
+
 					if (defined($extra)) {
 						if (!$port) {
 							print "* * * not found in existing cache.  we'll have to load/create that port!\n";
@@ -726,7 +727,8 @@ sub RefreshAllSlavePortsOfPortsTouchedByCommit($;$;$;$) {
 	while (my ($portname, $commit_log_ports) = each %CommitLogPorts) {
 		my $port = $commit_log_ports->{port};
 
-		#    find all it's slave ports
+		#    find all it's slave ports  ... we do this on head, by design.
+		#    because head will be correct, the branch may not have all the slave ports, but head will.
 		%tmp = $MasterSlave->FetchByMaster("$port->{category}/$port->{name}");
 
 		#    add each one to a hash
@@ -739,9 +741,37 @@ sub RefreshAllSlavePortsOfPortsTouchedByCommit($;$;$;$) {
 	while (my ($PortName, $ignore) = each %Slaves) {
 		# fetch it
 		my $port = FreshPorts::Port->new($dbh);
+		
+		my $pathname;
 
+		# we have to fetch from the branch
 		$port->{partialpathname} = $FreshPorts::Config::Ports_Default_Directory . '/' . $PortName;
-		$port->FetchByPartialPathName();
+		if ($CommitBranch eq $FreshPorts::Constants::HEAD)
+		{
+		  $pathname = $FreshPorts::Config::DB_Root_Prefix_PORTS . '/head/' . $PortName;
+		}
+		else
+		{
+		  $pathname = $FreshPorts::Config::DB_Root_Prefix_PORTS . '/branches/' . $CommitBranch . '/' . $PortName;
+		}
+
+        $port->{partialpathname} = $pathname;
+		my $port_id = $port->FetchByPartialPathName();
+		# if no such port, then it has not yet been committed to this branch
+		if (!defined($port_id)) {
+			print 'no such port on this branch: ' . $CommitBranch . "\n";
+			print "port not retrieved with $port->{partialpathname}.  This must be a new port\n";
+
+			#
+			# these are the values needed to create a new port
+			#
+			my ($category_name, $port_name) = split/\//,$PortName, 2;
+			$port->CreatePortOnBranch($category_name, $port_name, $CommitBranch);
+
+			print "new port created with port id = " . $port->{id} . "\n";
+			
+			my $port_id = $port->FetchByPartialPathName();
+		}
 
 		#  refresh it
 		$port->RefreshFromFiles($CommitBranch, 1, 0, ''); # refresh the port, don't fetch the files
