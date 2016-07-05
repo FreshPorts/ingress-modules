@@ -80,8 +80,8 @@ foreach $porttorefresh (@PORTS) {
 				# fetch failed
 				# sleep, then try again
 				Sys::Syslog::syslog('warning', "sleeping after fetch failed for ($port_id, $category_name, $port_name, $needs_refresh)");
-				print "fetch failed, sleeping...\n";
-				sleep $FreshPorts::Config::Fetch_Sleep_Time;
+				print 'fetch failed, sleeping for ' . ($FreshPorts::Config::Fetch_Retry_Limit - $FetchAttempts + 1) * $FreshPorts::Config::Fetch_Sleep_Time . "seconds...\n";
+				sleep ($FreshPorts::Config::Fetch_Retry_Limit - $FetchAttempts + 1) * $FreshPorts::Config::Fetch_Sleep_Time;
 				$FetchAttempts--;
 			}
 		}
