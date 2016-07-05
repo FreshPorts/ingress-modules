@@ -16,7 +16,7 @@ fi
 MASTER='sysutils/bacula-server'
 
 # this always tests against head
-COMMAND="/usr/local/bin/sudo /usr/sbin/chroot -u ${FRESHPORTS_JAIL_USER} ${FRESHPORTS_JAIL_BASE_DIR} ${FRESHPORTS_JAIL_MASTER_PORT_SCRIPT} /usr/local/PORTS-head sysutils/bacula-client"
+COMMAND="/usr/local/bin/sudo /usr/sbin/chroot -u ${FRESHPORTS_JAIL_USER} ${FRESHPORTS_JAIL_BASE_DIR} ${FRESHPORTS_JAIL_MASTER_PORT_SCRIPT} ${PORTSDIR} sysutils/bacula-client"
 MASTER_PORT=`${COMMAND}`
 
 if [ "${MASTER_PORT}X" != "${MASTER}X" ]
