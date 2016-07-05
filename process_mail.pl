@@ -61,12 +61,12 @@ sub main {
       my $process = $ListProperties->{'process'};
       eval "use $process";
     }
-        
+
 	if (!$found) {
 		FreshPorts::Utilities::ReportErrorEmailNoPrint('err', "This List-Id/Message-Id combination is not known to this script. List-Id='" . 
-			$ListId . "' Message-Id='" . $MessageId . "'\n\nIs this a corrupted commit or email?", 1)
+			$ListId . "' Message-Id='" . $MessageId . "'\n\nIs this a corrupted commit or email? Perhaps trailing ^M on the lines.", 1)
 	}
-    
+
 	# Get the data
 	my ($Data_ref) = &GetData($message);
 
