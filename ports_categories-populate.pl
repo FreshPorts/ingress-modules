@@ -41,10 +41,10 @@ print "sql = '$sql'\n";
 
 $sth = $dbh->prepare($sql);
 if ( !defined $sth ) {
-   FreshPorts::Utilities::ReportError('warning', "Could not prepare SQL $sql" . pg_lasterror(), 1);
+   FreshPorts::Utilities::ReportError('warning', "Could not prepare SQL $sql" . pg_last_error(), 1);
 }
 if (!$sth->execute) {
-   FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql" . pg_lasterror(), 1);
+   FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql" . pg_last_error(), 1);
 }
 
 while ($row = $sth->fetchrow_hashref()) {
