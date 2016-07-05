@@ -7,12 +7,6 @@ package FreshPorts::Branches;
 
 require config;
 
-# these are the branches we can process... I don't see us using this yet.  See CanWeProcesThisBranch()
-%FreshPorts::Branches::Branches = (
-  'head',
-  'RELENG_9_1_0'
-);
-
 # these are the mailing lists associated with those branches
 %FreshPorts::Branches::MailingLists = (
   '"SVN commit messages for the entire src tree \(except for &quot;' => {
@@ -73,7 +67,7 @@ sub ListProperties($)
  $ListId =~ s/List-Id:\s+//;
 
  $hash = $FreshPorts::Branches::MailingLists{$ListId};
-     
+
  return $hash;
 }
 
@@ -97,9 +91,12 @@ sub GetPathToRepoForBranchCHROOT($)
 sub CanWeProcessThisBranch($)
 {
   my $CommitBranch = shift;
+  
+  my $RepoPath = GetPathToRepoForBranch($CommitBranch);
+  
+  if (0) { print 'RepoPath=' . $RepoPath . "\n"; }
 
-  if (-e GetPathToRepoForBranch($CommitBranch) &&
-      -d GetPathToRepoForBranch($CommitBranch))
+  if (-e $RepoPath && -d $RepoPath)
   {
       return 1;
   }
