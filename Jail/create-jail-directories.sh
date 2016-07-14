@@ -14,7 +14,8 @@ mkdir -p ${JAILBASE}/usr/ports    \
          ${JAILBASE}/bin          \
          ${JAILBASE}/dev
          
-cp scripts/*.sh ${JAILBASE}
+cp  -p scripts/*.sh ${JAILBASE}
+cp -rp etc          ${JAILBASE}
 
 echo "
 # Put the following in /etc/fstab

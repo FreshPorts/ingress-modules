@@ -91,6 +91,9 @@ sub _initialize {
 	$this->{uses}			    = '';
 	$this->{pkgmessage} 	    = '';
 	$this->{distinfo}    	    = '';
+	$this->{license_restricted}    	    = '';
+	$this->{manual_package_build}       = '';
+	$this->{license_perms}    	    = '';
 
 	$this->{categories}			= '';
 	$this->{element_pathname}   = '';
@@ -144,6 +147,9 @@ sub _GetValuesFromRow {
 	$this->{uses}			    = $row->{uses};
 	$this->{pkgmessage} 	    = $row->{pkgmessage};
 	$this->{distinfo}    	    = $row->{distinfo};
+	$this->{license_restricted} = $row->{license_restricted};
+	$this->{manual_package_build} = $row->{manual_package_build};
+	$this->{license_perms}        = $row->{license_perms};
 
 	$this->{categories}			= $row->{categories};
 	$this->{last_commit_id}		= $row->{last_commit_id};
@@ -233,42 +239,45 @@ sub _save {
 
 		$sql = "
 update ports  
-   set short_description = " . $dbh->quote($this->{short_description})                                   . ",
-       long_description  = " . $dbh->quote($this->{long_description})                                    . ", 
-       version           = " . $dbh->quote($this->{version})                                             . ", 
-       revision          = " . $dbh->quote($this->{revision})                                            . ", 
-       maintainer        = " . $dbh->quote($this->{maintainer})                                          . ", 
-       homepage          = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{homepage})               . ", 
-       master_sites      = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{master_sites})           . ", 
-       extract_suffix    = " . $dbh->quote($this->{package_exists})                                      . ", 
-       depends_build     = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{depends_build})          . ", 
-       depends_run       = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{depends_run})            . ", 
-       depends_lib       = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{depends_lib})            . ", 
-       forbidden         = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{forbidden})              . ", 
-       broken            = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{broken})                 . ", 
-       deprecated        = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{deprecated})             . ", 
-       ignore            = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{ignore})                 . ", 
-       master_port       = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{master_port})            . ",
-       latest_link       = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{latest_link})            . ", 
-       no_latest_link    = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{no_latest_link})         . ", 
-       no_package        = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{no_package})             . ", 
-       package_name      = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{package_name})           . ", 
-       portepoch         = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{portepoch})              . ", 
-       restricted        = " . $restricted_alt                                                           . ", 
-       no_cdrom          = " . $no_cdrom_alt                                                             . ",  
-       expiration_date   = " . $expiration_date_alt                                                      . ", 
-       is_interactive    = " . $is_interactive_alt                                                       . ", 
-       only_for_archs    = " . $only_for_archs_alt                                                       . ",
-       not_for_archs     = " . $not_for_archs_alt                                                        . ",
-       showconfig        = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{showconfig})             . ",
-       license           = " . $license_alt                                                              . ",
-       fetch_depends     = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{fetch_depends})          . ", 
-       extract_depends   = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{extract_depends})        . ", 
-       patch_depends     = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{patch_depends})          . ", 
-       uses              = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{uses})                   . ", 
-       pkgmessage        = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{pkgmessage})             . ", 
-       distinfo          = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{distinfo})               . ", 
-       categories        = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{categories});
+   set short_description    = " . $dbh->quote($this->{short_description})                                   . ",
+       long_description     = " . $dbh->quote($this->{long_description})                                    . ", 
+       version              = " . $dbh->quote($this->{version})                                             . ", 
+       revision             = " . $dbh->quote($this->{revision})                                            . ", 
+       maintainer           = " . $dbh->quote($this->{maintainer})                                          . ", 
+       homepage             = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{homepage})               . ", 
+       master_sites         = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{master_sites})           . ", 
+       extract_suffix       = " . $dbh->quote($this->{package_exists})                                      . ", 
+       depends_build        = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{depends_build})          . ", 
+       depends_run          = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{depends_run})            . ", 
+       depends_lib          = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{depends_lib})            . ", 
+       forbidden            = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{forbidden})              . ", 
+       broken               = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{broken})                 . ", 
+       deprecated           = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{deprecated})             . ", 
+       ignore               = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{ignore})                 . ", 
+       master_port          = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{master_port})            . ",
+       latest_link          = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{latest_link})            . ", 
+       no_latest_link       = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{no_latest_link})         . ", 
+       no_package           = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{no_package})             . ", 
+       package_name         = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{package_name})           . ", 
+       portepoch            = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{portepoch})              . ", 
+       restricted           = " . $restricted_alt                                                           . ", 
+       no_cdrom             = " . $no_cdrom_alt                                                             . ",  
+       expiration_date      = " . $expiration_date_alt                                                      . ", 
+       is_interactive       = " . $is_interactive_alt                                                       . ", 
+       only_for_archs       = " . $only_for_archs_alt                                                       . ",
+       not_for_archs        = " . $not_for_archs_alt                                                        . ",
+       showconfig           = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{showconfig})             . ",
+       license              = " . $license_alt                                                              . ",
+       fetch_depends        = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{fetch_depends})          . ", 
+       extract_depends      = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{extract_depends})        . ", 
+       patch_depends        = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{patch_depends})          . ", 
+       uses                 = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{uses})                   . ", 
+       pkgmessage           = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{pkgmessage})             . ", 
+       distinfo             = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{distinfo})               . ", 
+       license_restricted   = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{license_restricted})     . ", 
+       manual_package_build = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{manual_package_build})   . ", 
+       license_perms        = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{license_perms})          . ", 
+       categories           = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{categories});
 
 
 		# we don't always have this value, so we don't change it....
@@ -647,16 +656,16 @@ sub _ExtractValuesFromMakefile {
 
 	if ($result == 0) {
 
-		(my $portname,       my $packagename,    my $descrpath,        my $categories,
-		 my $portversion,    my $portrevision,   my $shortdescription, my $CommentFile,
-		 my $maintainer,     my $extractsuffix,  my $builddepends,     my $rundepends,
-		 my $libdepends,     my $forbidden,      my $broken,           my $deprecated,
-		 my $ignore,         my $master_port,    my $latest_link,      my $no_latest_link,
-		 my $no_package,     my $pkgnameprefix,  my $pkgnamesuffix,    my $portepoch,
-		 my $restricted,     my $no_cdrom,       my $expiration_date,  my $is_interactive,
-		 my $only_for_archs, my $not_for_archs,  my $license,          my $fetchdepends, 
-		 my $extractdepends, my $patchdepends,   my $uses,             my $pkgmessagepath,
-		 my $distinfo_file   ) = split(/\n/s, $MakeResults);
+		(my $portname,       my $packagename,        my $descrpath,            my $categories,
+		 my $portversion,    my $portrevision,       my $shortdescription,     my $CommentFile,
+		 my $maintainer,     my $extractsuffix,      my $builddepends,         my $rundepends,
+		 my $libdepends,     my $forbidden,          my $broken,               my $deprecated,
+		 my $ignore,         my $master_port,        my $latest_link,          my $no_latest_link,
+		 my $no_package,     my $pkgnameprefix,      my $pkgnamesuffix,        my $portepoch,
+		 my $restricted,     my $no_cdrom,           my $expiration_date,      my $is_interactive,
+		 my $only_for_archs, my $not_for_archs,      my $license,              my $fetchdepends, 
+		 my $extractdepends, my $patchdepends,       my $uses,                 my $pkgmessagepath,
+		 my $distinfo_file,  my $license_restricted, my $manual_package_build, my $license_perms) = split(/\n/s, $MakeResults);
 
 		my $package_name = $pkgnameprefix . $portname . $pkgnamesuffix;
 
@@ -690,29 +699,38 @@ sub _ExtractValuesFromMakefile {
 		$patchdepends   = $this->depends_stripper(freshports_ConvertPortPathToStandardLocation($CommitBranch, FreshPorts::Utilities::trim_multiple_to_single(FreshPorts::Utilities::trim($patchdepends))),   $SVNDIR_CHROOT);
 
 		$master_port =~ s|$SVNDIR_CHROOT/||;
+		
+#		chomp($pkgmessagepath);
+#		chomp($distinfo_file);
+#		chomp($license_restricted);
+#		chomp($manual_package_build);
+#		chomp($license_perms);
 
-		print " portname       = '$this->{name}'\n";
-		print " packagename    = '$portname'\n";
-		print " category       = '$this->{category}'\n";
-		print " packagename    = '$packagename'\n";
-		print " descrpath      = '$descrpath'\n";
-		print " categories     = '$categories'\n";
-		print " portversion    = '$portversion'\n";
-		print " portrevision   = '$portrevision'\n";
-		print " comment        = '$shortdescription'\n";
-		print " CommentFile    = '$CommentFile'\n";
-		print " maintainer     = '$maintainer'\n";
-		print " extractsuffix  = '$extractsuffix'\n";
-		print " mastersites    = '$mastersites'\n";
-		print " builddepends   = '$builddepends'\n";
-		print " rundepends     = '$rundepends'\n";
-		print " libdepends     = '$libdepends'\n";
-		print " fetchdepends   = '$fetchdepends'\n";
-		print " extractdepends = '$extractdepends'\n";
-		print " patchdepends   = '$patchdepends'\n";
-		print " uses           = '$uses'\n";
-		print " pkgmessagepath = '\n$pkgmessagepath'\n";
-		print " distinfo_file  = '\n$distinfo_file'\n";
+		print " portname                 = '$this->{name}'\n";
+		print " packagename              = '$portname'\n";
+		print " category                 = '$this->{category}'\n";
+		print " packagename              = '$packagename'\n";
+		print " descrpath                = '$descrpath'\n";
+		print " categories               = '$categories'\n";
+		print " portversion              = '$portversion'\n";
+		print " portrevision             = '$portrevision'\n";
+		print " comment                  = '$shortdescription'\n";
+		print " CommentFile              = '$CommentFile'\n";
+		print " maintainer               = '$maintainer'\n";
+		print " extractsuffix            = '$extractsuffix'\n";
+		print " mastersites              = '$mastersites'\n";
+		print " builddepends             = '$builddepends'\n";
+		print " rundepends               = '$rundepends'\n";
+		print " libdepends               = '$libdepends'\n";
+		print " fetchdepends             = '$fetchdepends'\n";
+		print " extractdepends           = '$extractdepends'\n";
+		print " patchdepends             = '$patchdepends'\n";
+		print " uses                     = '$uses'\n";
+		print " pkgmessagepath           = '$pkgmessagepath'\n";
+		print " distinfo_file            = '$distinfo_file'\n";
+		print " license_restricted       = '$license_restricted'\n";
+		print " manual_package_build     = '$manual_package_build'\n";
+		print " license_perms            = '$license_perms'\n";
 
 		# eliminate multiple // : PR 174
 		# to compensate for bug in File::PathConvert::realpath (which is no longer used; _GetRealPath)
@@ -790,39 +808,42 @@ sub _ExtractValuesFromMakefile {
 		}
 		chomp($distinfo); # get rid of the trailing whitespace.
 
-		print "12 \$shortdescription = '$shortdescription'\n";
-		print "13 \$longdescription  = '$longdescription'\n";
-		print "14 \$homepage='";
+		print "12 \$shortdescription     = '$shortdescription'\n";
+		print "13 \$longdescription      = '$longdescription'\n";
+		print "14 \$homepage             ='";
 		if (defined($homepage)) {
 			print "$homepage";
 		}
 		print "'\n";
 
-		print "16 \$forbidden        = '$forbidden'\n";
-		print "17 \$broken           = '$broken'\n";
-		print "18 \$deprecated       = '$deprecated'\n";
-		print "19 \$ignore           = '$ignore'\n";
-		print "20 \$master_port      = '$master_port'\n";
-		print "21 \$latest_link      = '$latest_link'\n";
-		print "22 \$no_latest_link   = '$no_latest_link'\n";
-		print "23 \$no_package       = '$no_package'\n";
-		print "24 \$package_name     = '$package_name'\n";
-		print "25 \$portepoch        = '$portepoch'\n";
-		print "26 \$restricted       = '$restricted'\n";
-		print "27 \$no_cdrom         = '$no_cdrom'\n";
-		print "28 \$expiration_date  = '$expiration_date'\n";
-		print "29 \$is_interactive   = '$is_interactive'\n";
-		print "30 \$only_for_archs   = '$only_for_archs'\n";
-		print "31 \$not_for_archs    = '$not_for_archs'\n";
-		print "32 \$categories       = '$categories'\n";
-		print "33 \$showconfig       = '$showconfig'\n";
-		print "34 \$license          = '$license'\n";
-		print "35 \$fetchdepends     = '$fetchdepends'\n";
-		print "36 \$extractdepends   = '$extractdepends'\n";
-		print "37 \$patchdepends     = '$patchdepends'\n";
-		print "38 \$uses             = '$uses'\n";
-		print "39 \$pkgmessage       = '$pkgmessage'\n";
-		print "40 \$distinfo         = '$distinfo'\n";
+		print "16 \$forbidden            = '$forbidden'\n";
+		print "17 \$broken               = '$broken'\n";
+		print "18 \$deprecated           = '$deprecated'\n";
+		print "19 \$ignore               = '$ignore'\n";
+		print "20 \$master_port          = '$master_port'\n";
+		print "21 \$latest_link          = '$latest_link'\n";
+		print "22 \$no_latest_link       = '$no_latest_link'\n";
+		print "23 \$no_package           = '$no_package'\n";
+		print "24 \$package_name         = '$package_name'\n";
+		print "25 \$portepoch            = '$portepoch'\n";
+		print "26 \$restricted           = '$restricted'\n";
+		print "27 \$no_cdrom             = '$no_cdrom'\n";
+		print "28 \$expiration_date      = '$expiration_date'\n";
+		print "29 \$is_interactive       = '$is_interactive'\n";
+		print "30 \$only_for_archs       = '$only_for_archs'\n";
+		print "31 \$not_for_archs        = '$not_for_archs'\n";
+		print "32 \$categories           = '$categories'\n";
+		print "33 \$showconfig           = '$showconfig'\n";
+		print "34 \$license              = '$license'\n";
+		print "35 \$fetchdepends         = '$fetchdepends'\n";
+		print "36 \$extractdepends       = '$extractdepends'\n";
+		print "37 \$patchdepends         = '$patchdepends'\n";
+		print "38 \$uses                 = '$uses'\n";
+		print "39 \$pkgmessage           = '$pkgmessage'\n";
+		print "40 \$distinfo             = '$distinfo'\n";
+		print "41 \$license_restricted   = '$license_restricted'\n";
+		print "42 \$manual_package_build = '$manual_package_build'\n";
+		print "43 \$license_perms        = '$license_perms'\n";
 
 		print "\n ---------------------------------------- \n";
 
@@ -874,14 +895,17 @@ sub _ExtractValuesFromMakefile {
 		$this->{only_for_archs}		= $only_for_archs;
 		$this->{not_for_archs}		= $not_for_archs;
 		$this->{showconfig} 		= $showconfig;
-		$this->{license}            = $license;
-		$this->{categories}			= $categories;
+		$this->{license}                = $license;
+		$this->{categories}		= $categories;
 		$this->{fetch_depends}		= $fetchdepends;
 		$this->{extract_depends}	= $extractdepends;
 		$this->{patch_depends}		= $patchdepends;
 		$this->{uses}	    		= $uses;
 		$this->{pkgmessage} 		= $pkgmessage;
-		$this->{distinfo}           = $distinfo;
+		$this->{distinfo}               = $distinfo;
+		$this->{license_restricted}     = $license_restricted;
+		$this->{manual_package_build}   = $manual_package_build;
+		$this->{license_perms}          = $license_perms;
 		# convert all whitespace to a single space
 		# This arose from 200609130717.k8D7HpNc057638@repoman.freebsd.org
 		#
