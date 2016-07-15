@@ -795,8 +795,8 @@ sub _ExtractValuesFromMakefile {
 		my $distinfo = '';
 		if (looks_like_number($RealDIstInfoFilePath))
 		{
+		          # this is never an error.  Some ports do not have dist files
                   print "DISTINFO_FILE file does not exist: '$distinfo_file' (result of make -V DISTINFO_FILE)\n";
-                  FreshPorts::CommitterOptIn::RecordErrorDetails("$this->{category}/$this->{name}", "DISTINFO_FILE file does not exist: '$distinfo_file' (result of make -V DISTINFO_FILE)\n");
 	  	}
 		else
 		{
