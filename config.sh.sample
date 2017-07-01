@@ -61,9 +61,11 @@ WWWENPORTSCATEGORIES="${BASEDIR}/dynamic/www.en.ports.categories"
 
 CACHE_NEEDS_REFRESH="${BASEDIR}/dynamic/cache_needs_refresh"
 
+# these are relative to FRESHPORTS_JAIL_BASE_DIR
+PORTSDIRBASE="/usr/local"
 # note: this works on HEAD only
 # and is relative to ${FRESHPORTS_JAIL_BASE_DIR}
-PORTSDIR="/usr/local/PORTS-head"
+PORTSDIR="${PORTSDIRBASE}/PORTS-head"
 ADMINEMAIL="ADMIN_EMAIL"
 
 if [ -e 'OFFLINE' ]
