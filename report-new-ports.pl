@@ -77,24 +77,25 @@ sub CompileWatchNotifyList($;$;$;$;$;$) {
 	#               and users.id                      = 2
 
 	$sql = "
-  select users.id as user_id, 
-         users.email as user_email, 
-         categories.name as category, 
-         element.name    as port, 
-         to_char(ports.date_added + SystemTimeAdjust(), 'DD Mon YYYY') as date_added,
-         ports.short_description as description
-    from users, ports, categories, element, report_frequency, report_subscriptions
-   where report_frequency.frequency        = '$Frequency' 
-     and length(users.email)               > 0 
-     and users.emailbouncecount            = 0 
-     and ports.category_id                 = categories.id
-     and ports.element_id                  = element.id 
-     and users.id                          = report_subscriptions.user_id
-     and report_subscriptions.report_id    = $ReportID
-     and report_frequency.id               = report_subscriptions.report_frequency_id
-     and ports.date_added                  > '$LastSent'
-     and element.status                    = 'A'
-order by users.id, (ports.date_added + SystemTimeAdjust())::date asc, categories.name, element.name";
+  SELECT U.id,
+         U.email,
+         C.name AS category,
+         E.name AS port,
+         to_char(P.date_added + SystemTimeAdjust(), 'DD Mon YYYY') as date_added,
+         P.short_description as description
+    FROM ports P JOIN element E               ON P.date_added > '$LastSent' AND
+                                                 P.element_id = E.id AND
+                                                 E.status     = 'A'
+                 JOIN element_pathname     EP ON EP.element_id = E.id AND 
+                                                 EP.pathname ilike '/ports/head/%'
+                 JOIN categories           C  ON P.category_id      = C.id
+                 JOIN report_frequency     RF ON RF.frequency       = '$Frequency'
+                 JOIN report_subscriptions RS ON RF.id              = RS.report_frequency_id AND
+                                                 RS.report_id       = 2
+                 JOIN users                U  on RS.user_id         = U.id AND
+                                                 length(U.email)    > 0    AND
+                                                 U.emailbouncecount = 0
+   ORDER BY U.id, (P.date_added + SystemTimeAdjust())::date ASC, category, port";
 
 	if ($Debug)	{
 		print "sql is $sql\n";
