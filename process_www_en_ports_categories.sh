@@ -7,13 +7,13 @@
 
 logger -t FreshPorts $0 has been invoked
 
-if [ ! -f config.sh ]
+if [ ! -f /usr/local/etc/freshports/config.sh ]
 then
-	echo "config.sh not found..."
+	echo "/usr/local/etc/freshports/config.sh not found..."
 	exit 1
 fi
 
-. config.sh
+. /usr/local/etc/freshports/config.sh
 
 if [ $OFFLINE = 1 ]
 then
@@ -23,7 +23,7 @@ fi
 
 if [ "${WWWENPORTSCATEGORIES}x" = 'x' -o "${SPOOLINGDIR}x" = 'x' ]
 then
-	echo "please set WWWENPORTSCATEGORIES and SPOOLINGDIR in config.sh"
+	echo "please set WWWENPORTSCATEGORIES and SPOOLINGDIR in /usr/local/etc/freshports/config.sh"
 	exit 1
 fi
 

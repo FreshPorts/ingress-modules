@@ -4,7 +4,13 @@
 # depending on what is required
 #
 
-. config.sh
+if [ ! -f /usr/local/etc/freshports/config.sh ]
+then
+	echo "/usr/local/etc/freshports/config.sh not found..."
+	exit 1
+fi
+
+. /usr/local/etc/freshports/config.sh
 
 # let the daemons, cronjobs etc know we are offline
 #

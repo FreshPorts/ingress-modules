@@ -14,12 +14,12 @@
 # file switch, set by commit processing script
 # That file 
 
-if [ ! -f config.sh ]
+if [ ! -f /usr/local/etc/freshports/config.sh ]
 then
 	exit 1
 fi
 
-. config.sh
+. /usr/local/etc/freshports/config.sh
 
 if [ $OFFLINE = 1 ]
 then
@@ -28,7 +28,7 @@ fi
 
 if [ "${VUXMLFLAGFILE}x" = 'x' -o "${PORTSDIR}x" = 'x' -o "${VUXMLMUTEX}x" = 'x' -o "${DIRLOG}x" = 'x' ]
 then
-	logger -t "FreshPorts ${0}" "please set all of VUXMLFLAGFILE, PORTSDIR, VUXMLMUTEX, and DIRLOG in config.sh"
+	logger -t "FreshPorts ${0}" "please set all of VUXMLFLAGFILE, PORTSDIR, VUXMLMUTEX, and DIRLOG in /usr/local/etc/freshports/config.sh"
 	exit 1
 fi
 

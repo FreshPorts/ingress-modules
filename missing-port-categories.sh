@@ -5,13 +5,13 @@ QUERYCOUNT='select count(id)'
 QUERYROWS="select id, category_id, name, category, category || '/' || name AS port"
 QUERYORDER="ORDER BY category, name"
 
-if [ ! -f config.sh ]
+if [ ! -f /usr/local/etc/freshports/config.sh ]
 then
-	echo "config.sh not found..."
+	echo "/usr/local/etc/freshports/config.sh not found..."
 	exit 1
 fi
 
-. config.sh
+. /usr/local/etc/freshports/config.sh
 
 if [ $OFFLINE = 1 ]
 then

@@ -6,13 +6,13 @@ then
    exit 1
 fi
 
-if [ ! -f config.sh ]
+if [ ! -f /usr/local/etc/freshports/config.sh ]
 then
-	echo "config.sh not found..."
+	echo "/usr/local/etc/freshports/config.sh not found..."
 	exit 1
 fi
 
-. config.sh
+. /usr/local/etc/freshports/config.sh
 
 echo ${FRESHPORTS_JAIL_BASE_DIR}${PORTSDIRBASE}
 cd ${FRESHPORTS_JAIL_BASE_DIR}${PORTSDIRBASE}
