@@ -5,7 +5,7 @@
 # Copyright (c) 1999-2002 DVL Software
 #
 # use this script to create the directories needed by the ~/scripts/procmail/dot.procmailrc
-# script and /usr/local/etc/freshports/config.sh
+# script and ~/scripts/config.sh
 #
 
 if [ $# -ne 1 ]

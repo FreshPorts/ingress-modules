@@ -14,13 +14,13 @@
 # file switch, set by commit processing script
 # That file 
 
-if [ ! -f /usr/local/etc/freshports/config.sh ]
+if [ ! -f config.sh ]
 then
-	echo "/usr/local/etc/freshports/config.sh not found..."
+	echo "config.sh not found..."
 	exit 1
 fi
 
-. /usr/local/etc/freshports/config.sh
+. config.sh
 
 if [ $OFFLINE = 1 ]
 then
@@ -29,7 +29,7 @@ fi
 
 if [ "${MOVEDFLAGFILE}x" = 'x' -o "${PORTSDIR}x" = 'x' -o "${FRESHPORTS_JAIL_BASE_DIR}x" = 'x' ]
 then
-	echo "please set MOVEDFLAGFILE, PORTSDIR, and FRESHPORTS_JAIL_BASE_DIR in /usr/local/etc/freshports/config.sh"
+	echo "please set MOVEDFLAGFILE, PORTSDIR, and FRESHPORTS_JAIL_BASE_DIR in config.sh"
 	exit 1
 fi
 

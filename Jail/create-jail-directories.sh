@@ -46,7 +46,7 @@ echo "This entry is required in scripts/config.sh:
 FRESHPORTS_JAIL_BASE_DIR=\"${JAILBASE}\"
 "
 
-echo "This entry is required in scripts/config.pm
+echo "This entry is required in /usr/local/etc/freshports/config.pm
 
 \$FreshPorts::Config::JailBaseDir = '${JAILBASE}';
 "

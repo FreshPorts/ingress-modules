@@ -5,13 +5,13 @@
 # Copyright (c) 2004 DVL Software Limited
 #
 
-if [ ! -f /usr/local/etc/freshports/config.sh ]
+if [ ! -f config.sh ]
 then
-	echo "/usr/local/etc/freshports/config.sh not found..."
+	echo "config.sh not found..."
 	exit 1
 fi
 
-. /usr/local/etc/freshports/config.sh
+. config.sh
 
 if [ $OFFLINE = 1 ]
 then
@@ -20,19 +20,19 @@ fi
 
 if [ "${WEBSITEURL}x" = "x" ]
 then
-	echo 'define WEBSITEURL in /usr/local/etc/freshports/config.sh first'
+	echo 'define WEBSITEURL in config.sh first'
 	exit 1
 fi
 
 if [ "${SPOOLINGDIR}x" = "x" ]
 then
-	echo 'define SPOOLINGDIR in /usr/local/etc/freshports/config.sh first'
+	echo 'define SPOOLINGDIR in config.sh first'
 	exit 1
 fi
 
 if [ "${CACHE_NEEDS_REFRESH}x" = 'x' ]
 then
-	echo "please set CACHE_NEEDS_REFRESH in /usr/local/etc/freshports/config.sh"
+	echo "please set CACHE_NEEDS_REFRESH in config.sh"
 	exit 1
 fi
 

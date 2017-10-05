@@ -1,12 +1,12 @@
 #!/bin/sh
 
-if [ ! -f /usr/local/etc/freshports/config.sh ]
+if [ ! -f config.sh ]
 then
-	echo "/usr/local/etc/freshports/config.sh not found..."
+	echo "config.sh not found..."
 	exit 1
 fi
 
-. /usr/local/etc/freshports/config.sh
+. config.sh
 
 if [ $OFFLINE = 1 ]
 then
