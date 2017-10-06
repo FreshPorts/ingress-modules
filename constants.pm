@@ -48,6 +48,7 @@ $FreshPorts::Constants::FILE_MAKEFILE				= "Makefile";
 	"Makefile"		=> 6,
 	"Makefile.inc"	=> 7,
 	"CVSROOT"       => 8,
+	"base"          => 9,
 );
 
 $FreshPorts::Constants::UsualPortsTreeLocation			= '/usr/ports';
@@ -62,7 +63,7 @@ $FreshPorts::Constants::ReportDeletedPorts				= 5;
 
 $FreshPorts::Constants::VERSION_REVISION_JOINER			= '_';
 
-$FreshPorts::Constants::VUXML_URL                       = 'http://www.vuxml.org/freebsd/';
+$FreshPorts::Constants::VUXML_URL                       = 'https://www.vuxml.org/freebsd/';
 
 $FreshPorts::Constants::Notify_ports_moved				= 'notify_ports_moved';			# /usr/ports/MOVED
 $FreshPorts::Constants::Notify_ports_updating			= 'notify_ports_updating';		# /usr/ports/UPDATING
