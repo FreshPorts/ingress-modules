@@ -6,7 +6,7 @@
 # Please check if all the paths in PATH are reachable, 
 # remove the ones that are not.
 
-PATH=$HOME/bin:/usr/bin:/usr/ucb:/bin:/usr/local/bin:.
+PATH=/usr/bin:/usr/ucb:/bin:/usr/local/bin:.
 MAILDIR=$HOME/mail	# You'd better make sure it exists
 DEFAULT=$MAILDIR/mbox
 LOGFILE=$MAILDIR/procmail.log
@@ -19,24 +19,22 @@ UMASK=022
 #
 FILE=`date +%Y.%m.%d.%H.%M.%S`.$$.txt
 
-ARG = $1
-
 :0
-* ARG ?? ^^working-copy.freshports.org^^|^^beta.freshports.org^^
-* ^Sender: owner-cvs-all@FreeBSD.ORG
+* ! ^X-List-Administrivia: yes
+* ^Sender: (owner-svn-ports-branches@freebsd.org|owner-cvs-all@freebsd.org|owner-cvs-doc@freebsd.org|owner-cvs-ports@freebsd.org|owner-cvs-projects@freebsd.org|owner-cvs-src-old@FreeBSD.ORG|owner-svn-src-all@freebsd.org|owner-svn-doc-all@freebsd.org|owner-svn-ports-head@freebsd.org)
 {
    #
    # this should restrict all entries to just that from the mailing list
    # 
    :0
-   * ^X-FreeBSD-CVS-Branch: *
+   * (^X-FreeBSD-CVS-Branch: *|X-SVN-Group: *)
    {
 
-      MSGDIR=$HOME/FreshPorts/$ARG/msgs/FreeBSD
-		TMPDIR=$MSGDIR/spooling
-		SPOOL=${TMPDIR}/${FILE}
-		DEST=${MSGDIR}/incoming/${FILE}
-	   TRAP='echo \$SPOOL is $SPOOL && echo \$DEST. is $DEST'
+      MSGDIR=$HOME/message-queues
+      TMPDIR=$MSGDIR/spooling
+      SPOOL=${TMPDIR}/${FILE}
+      DEST=${MSGDIR}/incoming/${FILE}
+      TRAP='echo \$SPOOL is $SPOOL && echo \$DEST. is $DEST'
       :0
          | cat > ${SPOOL} && mv ${SPOOL} ${DEST}
    }
