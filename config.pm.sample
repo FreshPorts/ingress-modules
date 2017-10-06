@@ -12,40 +12,43 @@ use Cwd;
 # This section contains local settings.  Change them to suit your environment.
 #
 
-$FreshPorts::Config::FreshPortsURL		= 'http://WEBSITE_URL/';
+$FreshPorts::Config::FreshPortsURL		= 'https://example.freshports.org/';
 
 $FreshPorts::Config::TimeAdjust			= '-10800 seconds';
 
-$FreshPorts::Config::host			= 'localhost';
-$FreshPorts::Config::dbname			= 'databasename';
-$FreshPorts::Config::user			= 'user';
-$FreshPorts::Config::password			= 'password';
+$FreshPorts::Config::host			= '';
+$FreshPorts::Config::dbname			= 'freshports.org';
+$FreshPorts::Config::user			= 'commits';
+$FreshPorts::Config::password			= '';
 
-$FreshPorts::Config::BaseDir			= "/usr/local/FreshPorts";
+$FreshPorts::Config::BaseDir			= '/var/db/freshports';
 
-$FreshPorts::Config::scriptpath			= $FreshPorts::Config::BaseDir . '/scripts';
+$FreshPorts::Config::scriptpath			= '/usr/local/libexec/freshports';
 
 $FreshPorts::Config::mkdir_pkg			= 0;
 
-$FreshPorts::Config::QueueBaseDir     		= $FreshPorts::Config::BaseDir;
+$FreshPorts::Config::QueueBaseDir     		= $FreshPorts::Config::BaseDir . '/message-queues';
+
+# scripts for the jail
+$FreshPorts::Config::JailBaseDir = $FreshPorts::Config::BaseDir . '/ports-jail';
 
 #
 # where on disk is the ports tree?
 #
-$FreshPorts::Config::path_to_tree		= $FreshPorts::Config::BaseDir;
+$FreshPorts::Config::path_to_tree		= $FreshPorts::Config::JailBaseDir . '/var/db/repos';
 
 #
-# path to ports tree. no trailing slash
+# path to ports tree. no trailing slash. This is usually HEAD
 #
-$FreshPorts::Config::path_to_ports		= $FreshPorts::Config::path_to_tree . '/PORTS-SVN';
+$FreshPorts::Config::path_to_ports		= $FreshPorts::Config::path_to_tree . '/PORTS-head';
 
 #
 # where in the cvs tree are ports?
 #
 $FreshPorts::Config::ports_prefix		= 'ports';
 
-$FreshPorts::Config::DailySummaryDir	= $FreshPorts::Config::BaseDir . "/www/archives"; # no trailing /
-$FreshPorts::Config::HourlySummaryDir	= $FreshPorts::Config::BaseDir . "/dynamic";
+$FreshPorts::Config::DailySummaryDir	= $FreshPorts::Config::BaseDir . "/cache/daily"; # no trailing /
+$FreshPorts::Config::HourlySummaryDir	= $FreshPorts::Config::BaseDir . "/cache/html";
 
 $FreshPorts::Config::CommitterNotify	= 0;	# Should we notify committers of problems?
 $FreshPorts::Config::NotifyAdmin        = 1;	# Notify me
@@ -62,33 +65,33 @@ $FreshPorts::Config::scriptpath				= Cwd::abs_path($FreshPorts::Config::scriptpa
 $FreshPorts::Config::path_to_tree			= Cwd::abs_path($FreshPorts::Config::path_to_tree);	
 $FreshPorts::Config::path_to_ports			= Cwd::abs_path($FreshPorts::Config::path_to_ports);
 
-$FreshPorts::Config::email_server			= 'localhost';
+$FreshPorts::Config::email_server			= '127.1.0.202';
 $FreshPorts::Config::email_port				= 25;
 $FreshPorts::Config::email_client			= 'localhost';
 
 $FreshPorts::Config::SystemOwnerEmail		= 'dan@langille.org';
 
-$FreshPorts::Config::JobWaiting			= $FreshPorts::Config::BaseDir . '/dynamic/job_waiting';
-$FreshPorts::Config::MovedFileFlag		= $FreshPorts::Config::BaseDir . '/dynamic/refresh_moved';
-$FreshPorts::Config::UpdatingFileFlag		= $FreshPorts::Config::BaseDir . '/dynamic/refresh_updating';
-$FreshPorts::Config::VuXMLFileFlag		= $FreshPorts::Config::BaseDir . '/dynamic/vuxml';
-$FreshPorts::Config::RefreshCachFileFlag	= $FreshPorts::Config::BaseDir . '/dynamic/cache_needs_refresh';
-$FreshPorts::Config::WWWENPortsCategoriesFlag	= $FreshPorts::Config::BaseDir . '/dynamic/www.en.ports.categories';
+$FreshPorts::Config::JobWaiting			= $FreshPorts::Config::BaseDir . '/signals/job_waiting';
+$FreshPorts::Config::MovedFileFlag		= $FreshPorts::Config::BaseDir . '/signals/refresh_moved';
+$FreshPorts::Config::UpdatingFileFlag		= $FreshPorts::Config::BaseDir . '/signals/refresh_updating';
+$FreshPorts::Config::VuXMLFileFlag		= $FreshPorts::Config::BaseDir . '/signals/vuxml';
+$FreshPorts::Config::RefreshCachFileFlag	= $FreshPorts::Config::BaseDir . '/signals/cache_needs_refresh';
+$FreshPorts::Config::WWWENPortsCategoriesFlag	= $FreshPorts::Config::BaseDir . '/signals/www.en.ports.categories';
 
-$FreshPorts::Config::PortsFreezeFile	    	= $FreshPorts::Config::BaseDir . '/dynamic/PortsFreezeIsInEffect';
+$FreshPorts::Config::PortsFreezeFile	    	= $FreshPorts::Config::BaseDir . '/signals/PortsFreezeIsInEffect';
 
 # number of files in the ports tree
-$FreshPorts::Config::PortsTreeCount	    	= $FreshPorts::Config::BaseDir . '/dynamic/PortsTreeCount';
+$FreshPorts::Config::PortsTreeCount	    	= $FreshPorts::Config::BaseDir . '/cache/html/PortsTreeCount';
 
 #
 # for ports caching
 #
-$FreshPorts::Config::CachingRoot            = $FreshPorts::Config::BaseDir . '/dynamic/caching';
+$FreshPorts::Config::CachingRoot            = $FreshPorts::Config::BaseDir . '/cache';
 
 #
 # tmp place for putting files needed by some special processing
 #
-$FreshPorts::Config::TMP	= $FreshPorts::Config::BaseDir . '/dynamic/caching/tmp';
+$FreshPorts::Config::TMP	= $FreshPorts::Config::BaseDir . '/tmp';
 
 #
 # For fetching files from CVS
@@ -130,11 +133,8 @@ $FreshPorts::Config::DB_Root_Prefix_SRC    = '/base';
 
 $FreshPorts::Config::Ports_Default_Directory = $FreshPorts::Config::DB_Root_Prefix_PORTS . '/head';
 
-# scripts for the jail
-$FreshPorts::Config::JailBaseDir = '/usr/local/FreshPorts/ports-jail';
-
 # this is the path, within the CHROOT, to where we find the SVN directories.
-$FreshPorts::Config::SVNBaseDir  = '/usr/local';
+$FreshPorts::Config::SVNBaseDir  = '/var/db/repos';
 
 $FreshPorts::Config::JailCategoryDescrptionScript = '/make-category-comment.sh';
 $FreshPorts::Config::JailDescr                    = '/make-descr.sh';
@@ -143,6 +143,6 @@ $FreshPorts::Config::JailMasterSitesScript        = '/make-master-sites-all.sh';
 $FreshPorts::Config::JailPortScript               = '/make-port.sh';
 $FreshPorts::Config::JailRealPath                 = '/realpath.sh';
 $FreshPorts::Config::JailShowConfigScript         = '/make-showconfig.sh';
-$FreshPorts::Config::JailUser                     = 'dan';
+$FreshPorts::Config::JailUser                     = 'freshports';
 
 1;
