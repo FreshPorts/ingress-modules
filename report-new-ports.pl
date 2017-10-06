@@ -134,8 +134,8 @@ sub CompileWatchNotifyList($;$;$;$;$;$) {
 
 	my $BodyHeader = '';
 	$BodyHeader .= $Announce . "\n"; 
-	$BodyHeader .= "Port count: " . sprintf("%5u", $PortCount) . " http://www.FreshPorts.org/categories.php\n";
-	$BodyHeader .= " New ports: " . sprintf("%5u", $NewPorts)  . " http://www.FreshPorts.org/ports-new.php?interval=$Interval\n\n";
+	$BodyHeader .= "Port count: " . sprintf("%5u", $PortCount) . " https://www.FreshPorts.org/categories.php\n";
+	$BodyHeader .= " New ports: " . sprintf("%5u", $NewPorts)  . " https://www.FreshPorts.org/ports-new.php?interval=$Interval\n\n";
 
 	$Body = $BodyHeader;
 	while ($row = $sth->fetchrow_hashref()) {

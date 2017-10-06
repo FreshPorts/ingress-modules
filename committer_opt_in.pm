@@ -112,7 +112,7 @@ The following is a list of the ports which had errors:
 
 You are receiving this message as you are a FreeBSD
 committer who has opted into this service.  Please
-see http://www.FreshPorts.org/committer-opt-in.php
+see https://www.FreshPorts.org/committer-opt-in.php
 for more information.
 ";
 	}

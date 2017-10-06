@@ -774,6 +774,7 @@ sub RefreshAllSlavePortsOfPortsTouchedByCommit($;$;$;$) {
 		}
 
 		#  refresh it
+		#  XXX WE ARE REFRESHING WITHOUT FIRST DOING AN SVN UP
 		$port->RefreshFromFiles($CommitBranch, 1, 0, ''); # refresh the port, don't fetch the files
 
 		#  save it

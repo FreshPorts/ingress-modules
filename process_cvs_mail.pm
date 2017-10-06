@@ -109,7 +109,7 @@ sub WriteXML {
 	$writer->xmlDecl("ISO-8859-1");
 
 	# Add the XML Document Type
-	$writer->doctype('UPDATES','-//FreshPorts//DTD FreshPorts 2.0//EN', 'http://www.freshports.org/docs/fp-updates.dtd');
+	$writer->doctype('UPDATES','-//FreshPorts//DTD FreshPorts 2.0//EN', 'https://www.freshports.org/docs/fp-updates.dtd');
 
 	# Convert the data into XML
 	&DataToXML($writer, $data_ref); 
