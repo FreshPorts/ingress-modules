@@ -149,7 +149,7 @@ if ($rowcount > 0) {
 	print $list;
 
 	print "$ENV{HOME} is where we were\n";
-	SendNotice("dan\@langille.org", $rowcount, $list);
+	SendNotice($FreshPorts::Config::SystemOwnerEmail, $rowcount, $list);
 }
 
 $sth->finish();
