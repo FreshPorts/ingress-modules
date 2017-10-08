@@ -6,13 +6,13 @@
 logfile "$HOME/mail/mailfilter.log"
 
 # but nothing should be store locally in any mailbox
-TYPE=mbox
+TYPE=Maildir
 
 # unrecognized or list admin messages are sent here
-FORWARDING="dan@langille.org"
+FORWARDING="!dan@langille.org"
 
 # should never be used, but defined anyway
-DEFAULT="$HOME/mail/mbox"
+DEFAULT="$HOME/mail/Maildir"
 
 UMASK=022
 
@@ -28,7 +28,9 @@ FILE=`date +%Y.%m.%d.%H.%M.%S`.$PROCESS_ID.txt
 #
 if ( /^X-List-Administrivia: yes/ )
 {
-  to $FORWARDING
+  log "Administrivia"
+  cc $FORWARDING
+  exit
 }
 
 # we are only interested in messages from these owners
@@ -40,14 +42,11 @@ if ( /^Sender: (owner-svn-doc-all|owner-svn-ports-branches|owner-svn-ports-head|
   if ( /^(X-SVN-Group: *|X-FreeBSD-CVS-Branch: *)/ )
   {
     MSGDIR=$HOME/message-queues
-    TMPDIR=$MSGDIR/spooling
-    SPOOL=${TMPDIR}/${FILE}
     DEST=${MSGDIR}/incoming/${FILE}
-    echo "SPOOL is $SPOOL"
-    echo "DEST  is $DEST"
+    log "DEST  is $DEST"
 
     # save to a file, avoiding race condition
-    to "|> $SPOOL; /bin/mv ${SPOOL} ${DEST}"
+    to $DEST
   }
   else
   {
@@ -59,4 +58,5 @@ if ( /^Sender: (owner-svn-doc-all|owner-svn-ports-branches|owner-svn-ports-head|
 #
 # anything else, should be forwarded. We do not accumulate email here
 #
-to $FORWARDING
+log "no, not interested in this at all"
+cc $FORWARDING
