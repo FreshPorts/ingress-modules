@@ -1,3 +1,6 @@
+See maildrop instead of this directory. procmail was used from the
+beginning, but a change to maildrop was made in October 2017.
+
 In the old days, before running, you'd need to run create_dirs.sh then copy
 these files. 
 
