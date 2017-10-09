@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/local/bin/perl
 #
 # $Id: commit_log.pm,v 1.7 2012-09-25 18:11:23 dan Exp $
 #

@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/local/bin/perl -w
 #
 # $Id: main-page-update.pl,v 1.11 2002-04-01 21:21:00 dan Exp $
 #

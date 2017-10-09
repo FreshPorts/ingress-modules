@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/local/bin/perl -w
 #
 # $Id: test_split.pl,v 1.2 2001-12-22 04:30:43 dan Exp $
 #

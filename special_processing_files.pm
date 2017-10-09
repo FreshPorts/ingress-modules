@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/local/bin/perl
 #
 # $Id: special_processing_files.pm,v 1.9 2008-09-18 04:28:55 dan Exp $
 #

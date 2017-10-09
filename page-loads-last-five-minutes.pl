@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/local/bin/perl -w
 #
 # $Id: page-loads-last-five-minutes.pl,v 1.1 2007-02-14 22:25:42 dan Exp $
 #

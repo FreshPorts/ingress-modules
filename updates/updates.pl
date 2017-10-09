@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/local/bin/perl
 #
 # $Id: updates.pl,v 1.25 2001-10-31 01:51:10 dan Exp $
 #

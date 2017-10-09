@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/local/bin/perl -w
 #
 # $Id: refresh-unrefreshed-ports.pl,v 1.25 2012-09-04 00:06:23 dan Exp $
 #

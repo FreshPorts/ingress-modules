@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/local/bin/perl -w
 #
 # $Id: queue-status.pl,v 1.3 2012/10/17 18:10:22 dan Exp $
 #

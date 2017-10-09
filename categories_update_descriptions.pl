@@ -4,7 +4,7 @@
 # Copyright (c) 2007  DVL Software
 #
 
-#! /usr/bin/perl
+#! /usr/local/bin/perl
 
 #use 5.006;
 use warnings;

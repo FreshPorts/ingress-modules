@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/local/bin/perl -w
 #
 # $Id: job-waiting.pl,v 1.3 2007-01-29 00:17:35 dan Exp $
 #

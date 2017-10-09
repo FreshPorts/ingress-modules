@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/local/bin/perl
 #
 # $Id: vuxml_ranges.pm,v 1.2 2006-12-17 12:04:05 dan Exp $
 #

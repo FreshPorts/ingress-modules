@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w 
+#!/usr/local/bin/perl -w 
 #
 # $Id: vuxml_ident.pl,v 1.3 2012-07-22 12:02:46 dan Exp $
 #

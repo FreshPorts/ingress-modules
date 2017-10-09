@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/local/bin/perl
 #
 # $Id: vuxml.pm,v 1.4 2013-01-16 15:37:57 dan Exp $
 #

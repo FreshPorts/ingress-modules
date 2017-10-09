@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/local/bin/perl
 #
 # $Id: test_FileBasename.pl,v 1.2 2001-12-22 04:30:41 dan Exp $
 #

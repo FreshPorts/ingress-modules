@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/local/bin/perl -w
 #
 # $Id: load_xml_into_db.pl,v 1.49 2006-12-17 12:04:01 dan Exp $
 #

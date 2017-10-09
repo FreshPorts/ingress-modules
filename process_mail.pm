@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/local/bin/perl -w
 #
 # $Id: process_mail.pm,v 1.4 2012-11-01 00:54:56 dan Exp $
 #

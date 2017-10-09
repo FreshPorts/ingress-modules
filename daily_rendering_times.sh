@@ -35,4 +35,4 @@ DAYS=$1
 
 YYYY_MM_DD=`eval date -v-${DAYS}d "+%Y-%m-%d"`
 
-/usr/bin/perl ${SCRIPTDIR}/daily_rendering_times.pl ${YYYY_MM_DD}
+/usr/local/bin/perl ${SCRIPTDIR}/daily_rendering_times.pl ${YYYY_MM_DD}

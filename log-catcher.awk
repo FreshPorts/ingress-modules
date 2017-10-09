@@ -14,7 +14,7 @@ BEGIN {
  OUTDIR="/usr/local/etc/freshports/msgs/" ;
  MUNGER="/usr/bin/awk -f /home/freshports.org/scripts/log-munger.awk";
 
- UPDATER = "/usr/bin/perl /home/freshports.org/scripts/updates/updates.pl";
+ UPDATER = "/usr/local/bin/perl /home/freshports.org/scripts/updates/updates.pl";
 
  getline pid<"/dev/pid"
 

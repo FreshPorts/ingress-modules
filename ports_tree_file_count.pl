@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/local/bin/perl -w
 #
 # $Id: ports_tree_file_count.pl,v 1.2 2007-10-11 18:15:33 dan Exp $
 #

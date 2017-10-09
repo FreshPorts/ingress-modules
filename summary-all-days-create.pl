@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/local/bin/perl
 #
 # $Id: summary-all-days-create.pl,v 1.5 2002-02-02 04:46:42 dan Exp $
 #

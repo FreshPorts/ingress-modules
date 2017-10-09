@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/local/bin/perl
 #
 # $Id: system_status.pm,v 1.3 2007-12-30 18:36:46 dan Exp $
 #

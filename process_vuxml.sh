@@ -50,7 +50,7 @@ then
 	# define the vuln file we are going to operate on
 	VULNFILE="${FRESHPORTS_JAIL_BASE_DIR}/${PORTSDIR}/security/vuxml/vuln.xml"
 	
-	/usr/bin/perl ./process_vuxml.pl < ${VULNFILE} >> ${LOGFILE}
+	/usr/local/bin/perl ./process_vuxml.pl < ${VULNFILE} >> ${LOGFILE}
 	if [ $? -eq 0 ]
 	then
 	  logger -t "FreshPorts ${0}"  "process_vuxml.pl finishes normally"
@@ -59,10 +59,10 @@ then
 	fi
 
 	logger -t "FreshPorts ${0}"  "vuxml ident begins on ${VULNFILE}"
-	/usr/bin/perl ./vuxml_ident.pl     ${VULNFILE} > ${DYNAMICROOT}/vuxml_revision
+	/usr/local/bin/perl ./vuxml_ident.pl     ${VULNFILE} > ${DYNAMICROOT}/vuxml_revision
 
 	logger -t "FreshPorts ${0}"  "vuxml latest begins"
-	/usr/bin/perl ./vuln_latest.pl
+	/usr/local/bin/perl ./vuln_latest.pl
 	if [ $? = 0 ]
 	then
 	  logger -t "FreshPorts ${0}"  "vuxml finishes normally"

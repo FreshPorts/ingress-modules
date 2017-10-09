@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/local/bin/perl
 #
 # $Id: housekeeping.pm,v 1.2 2002-04-01 21:18:58 dan Exp $
 #

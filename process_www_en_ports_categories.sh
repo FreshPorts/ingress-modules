@@ -32,7 +32,7 @@ CATEGORIES="${SPOOLINGDIR}/categories"
 if [ -r ${WWWENPORTSCATEGORIES} ]
 then
 	logger -t FreshPorts invoking categories_update_descriptions.pl with ${CATEGORIES}
-	/usr/bin/perl categories_update_descriptions.pl ${CATEGORIES}
+	/usr/local/bin/perl categories_update_descriptions.pl ${CATEGORIES}
 
 	# regardless of any errors, we should remove this as we don't want to keep doing this
 	rm ${WWWENPORTSCATEGORIES}

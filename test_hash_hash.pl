@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/local/bin/perl -w
 #
 # $Id: test_hash_hash.pl,v 1.3 2001-12-31 15:27:47 dan Exp $
 #

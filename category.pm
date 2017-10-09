@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/local/bin/perl
 #
 # $Id: category.pm,v 1.12 2013-03-23 22:15:50 dan Exp $
 #

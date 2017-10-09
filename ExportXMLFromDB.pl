@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/local/bin/perl -w
 #
 # $Id: ExportXMLFromDB.pl,v 1.8 2002-03-11 00:15:24 dan Exp $
 #

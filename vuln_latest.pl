@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/local/bin/perl -w
 #
 # $Id: vuln_latest.pl,v 1.12 2008-09-04 14:33:09 dan Exp $
 #

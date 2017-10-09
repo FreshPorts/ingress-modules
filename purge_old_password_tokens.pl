@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/local/bin/perl -w
 #
 # $Id: purge_old_password_tokens.pl,v 1.1 2010-09-17 14:31:02 dan Exp $
 #

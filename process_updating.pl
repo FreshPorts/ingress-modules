@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/local/bin/perl
 #
 # $Id: process_updating.pl,v 1.3 2008-02-01 14:31:31 dan Exp $
 #

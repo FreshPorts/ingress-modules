@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/local/bin/perl -w
 #
 # $Id: unrefreshed.pl,v 1.12 2006-12-17 12:04:03 dan Exp $
 #

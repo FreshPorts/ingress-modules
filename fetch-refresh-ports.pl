@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/local/bin/perl -w
 #
 # $Id: fetch-refresh-ports.pl,v 1.8 2007-10-11 18:14:03 dan Exp $
 #

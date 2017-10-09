@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/local/bin/perl -w
 #
 # $Id: refresh-daily-summaries.pl,v 1.2 2006-12-17 12:04:02 dan Exp $
 #

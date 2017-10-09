@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/local/bin/perl -w
 #
 # $Id: announce.pl,v 1.6 2006-12-17 12:03:58 dan Exp $
 #

@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/local/bin/perl
 #
 # $Id: test_grep.pl,v 1.2 2001-12-22 04:30:42 dan Exp $
 #

@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/local/bin/perl -w
 #
 # $Id: report-notification.pl,v 1.4 2007-04-19 22:33:12 dan Exp $
 #

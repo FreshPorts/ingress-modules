@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/local/bin/perl -w
 #
 # $Id: vuxml_mark_commits.pm,v 1.7 2012-07-22 12:02:19 dan Exp $
 #

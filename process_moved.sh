@@ -44,5 +44,5 @@ fi
 if [ -r ${MOVEDFLAGFILE} ]
 then
 	rm ${MOVEDFLAGFILE}
-	/usr/bin/perl ./process_moved.pl < ${FRESHPORTS_JAIL_BASE_DIR}/${PORTSDIR}/MOVED
+	/usr/local/bin/perl ./process_moved.pl < ${FRESHPORTS_JAIL_BASE_DIR}/${PORTSDIR}/MOVED
 fi

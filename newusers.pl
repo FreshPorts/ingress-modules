@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/local/bin/perl
 #
 # $Id: newusers.pl,v 1.5 2011-08-22 01:39:35 dan Exp $
 #

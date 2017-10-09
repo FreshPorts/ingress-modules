@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/local/bin/perl -w
 #
 # $Id: process_svn_mail.pm,v 1.9 2012-10-26 15:22:15 dan Exp $
 #

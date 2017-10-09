@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/local/bin/perl
 #
 # $Id: ports_vulnerable.pm,v 1.3 2012-03-31 20:38:04 dan Exp $
 #

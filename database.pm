@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/local/bin/perl
 #
 # $Id: database.pm,v 1.5 2006-12-17 12:04:00 dan Exp $
 #

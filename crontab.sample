@@ -17,15 +17,15 @@ DIRLOG=/usr/websites/WEBSITE-NAME/scripts-log
 
 0	1	*		*	*	nice -15 sh -c '(cd ${DIR} && sh ./database_dump.sh 2>&1 | mail -s "freshports Backup" root)'
 
-10	18	*		*	*	nice -15 sh -c '(cd ${DIR} && /usr/bin/perl ./report-notification.pl D 2>&1 > ${DIRLOG}/report-security.daily)'
-0	19	*		*	2	nice -15 sh -c '(cd ${DIR} && /usr/bin/perl ./report-notification.pl W 2>&1 > ${DIRLOG}/report-notification.weekly)'
-20	19	9,23	*	*	nice -15 sh -c '(cd ${DIR} && /usr/bin/perl ./report-notification.pl F 2>&1 > ${DIRLOG}/report-notification.fortnightly)'
-40	19	23		*	*	nice -15 sh -c '(cd ${DIR} && /usr/bin/perl ./report-notification.pl M 2>&1 > ${DIRLOG}/report-notification.monthly)'
+10	18	*		*	*	nice -15 sh -c '(cd ${DIR} && /usr/local/bin/perl ./report-notification.pl D 2>&1 > ${DIRLOG}/report-security.daily)'
+0	19	*		*	2	nice -15 sh -c '(cd ${DIR} && /usr/local/bin/perl ./report-notification.pl W 2>&1 > ${DIRLOG}/report-notification.weekly)'
+20	19	9,23	*	*	nice -15 sh -c '(cd ${DIR} && /usr/local/bin/perl ./report-notification.pl F 2>&1 > ${DIRLOG}/report-notification.fortnightly)'
+40	19	23		*	*	nice -15 sh -c '(cd ${DIR} && /usr/local/bin/perl ./report-notification.pl M 2>&1 > ${DIRLOG}/report-notification.monthly)'
 
-10	18	*		*	*	nice -15 sh -c '(cd ${DIR} && /usr/bin/perl ./report-new-ports.pl D 2>&1 > ${DIRLOG}/report-new-ports.daily)'
-0	19	*		*	2	nice -15 sh -c '(cd ${DIR} && /usr/bin/perl ./report-new-ports.pl W 2>&1 > ${DIRLOG}/report-new-ports.weekly)'
-20	19	9,23	*	*	nice -15 sh -c '(cd ${DIR} && /usr/bin/perl ./report-new-ports.pl F 2>&1 > ${DIRLOG}/report-new-ports.fortnightly)'
-40	19	23		*	*	nice -15 sh -c '(cd ${DIR} && /usr/bin/perl ./report-new-ports.pl M 2>&1 > ${DIRLOG}/report-new-ports.monthly)'
+10	18	*		*	*	nice -15 sh -c '(cd ${DIR} && /usr/local/bin/perl ./report-new-ports.pl D 2>&1 > ${DIRLOG}/report-new-ports.daily)'
+0	19	*		*	2	nice -15 sh -c '(cd ${DIR} && /usr/local/bin/perl ./report-new-ports.pl W 2>&1 > ${DIRLOG}/report-new-ports.weekly)'
+20	19	9,23	*	*	nice -15 sh -c '(cd ${DIR} && /usr/local/bin/perl ./report-new-ports.pl F 2>&1 > ${DIRLOG}/report-new-ports.fortnightly)'
+40	19	23		*	*	nice -15 sh -c '(cd ${DIR} && /usr/local/bin/perl ./report-new-ports.pl M 2>&1 > ${DIRLOG}/report-new-ports.monthly)'
 
 0	0	*		*	*	nice -15 sh -c '(cd ${DIR} && /bin/sh ./searchlog.sh 2>&1 | mail -s "freshports searchlog" dan@langille.org)'
 0	0	*		*	*	nice -15 sh -c '(cd ${DIR} && /bin/sh ./newusers.sh  2>&1 | mail -s "FreshPorts users"     dan@langille.org)'

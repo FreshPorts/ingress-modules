@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/local/bin/perl
 #
 # $Id: ports_categories.pm,v 1.2 2006-12-17 12:04:01 dan Exp $
 #

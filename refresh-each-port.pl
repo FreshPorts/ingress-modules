@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/local/bin/perl -w
 #
 # $Id: refresh-each-port.pl,v 1.4 2012-08-15 11:49:10 dan Exp $
 #

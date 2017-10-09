@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/local/bin/perl
 #
 # $Id: ports.pm,v 1.24 2001-11-13 14:52:58 dan Exp $
 #

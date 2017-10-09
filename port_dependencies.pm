@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/local/bin/perl
 #
 # $Id: port_dependencies.pm,v 1.2 2011-08-15 16:32:47 dan Exp $
 #

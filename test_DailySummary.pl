@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/local/bin/perl
 #
 # $Id: test_DailySummary.pl,v 1.3 2002-04-01 21:16:21 dan Exp $
 #

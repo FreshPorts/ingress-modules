@@ -29,8 +29,8 @@ then
 	exit 0
 fi
 
-XML="${MSGDIR}/msgs/FreeBSD/recent"
-OUTPUT="${MSGDIR}/msgs/FreeBSD/recent"
+XML="${MSGDIR}/recent"
+OUTPUT="${MSGDIR}/recent"
 
 PATHNAME=$1
 
@@ -39,7 +39,7 @@ FILE=`basename ${PATHNAME}`
 #
 # convert the raw file to XML
 #
-/usr/bin/perl ${SCRIPTDIR}/process_mail.pl < ${PATHNAME} >    \
+/usr/local/bin/perl ${SCRIPTDIR}/process_mail.pl < ${PATHNAME} >    \
        ${XML}/${FILE}.xml 2>${XML}/${FILE}.errors
 RESULT=$?
 
@@ -58,7 +58,7 @@ fi
 # load the XML into the database
 #
 
-/usr/bin/perl ${SCRIPTDIR}/load_xml_into_db.pl ${XML}/${FILE}.xml > \
+/usr/local/bin/perl ${SCRIPTDIR}/load_xml_into_db.pl ${XML}/${FILE}.xml > \
                ${OUTPUT}/${FILE}.loading 2>${OUTPUT}/$FILE.errors
 RESULT=$?
 
