@@ -10,6 +10,8 @@
 # Takes a file name as a parameter
 #
 
+logger $0 has started
+
 if [ $# -ne 1 ]
 then
    echo $0 : usage $0 FILE
@@ -31,6 +33,8 @@ fi
 
 XML="${MSGDIR}/recent"
 OUTPUT="${MSGDIR}/recent"
+
+logger "$0 invoked, using XML='${XML}' and OUTPUT='${OUTPUT}'"
 
 PATHNAME=$1
 
