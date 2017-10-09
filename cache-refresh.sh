@@ -5,6 +5,8 @@
 # Copyright (c) 2004 DVL Software Limited
 #
 
+logger cache-refresh.sh needs to be rewritten to mv files to the correct places
+
 if [ ! -f config.sh ]
 then
 	echo "config.sh not found..."
