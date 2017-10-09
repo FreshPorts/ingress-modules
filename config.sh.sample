@@ -4,8 +4,8 @@
 #
 
 # this must always be defined and functional.
-FRESHPORTS_FREEBSD_CVS_URL="http://www.freebsd.org/cgi/cvsweb.cgi"
-FRESHPORTS_FREEBSD_SVN_URL="http://svn.freebsd.org"
+FRESHPORTS_FREEBSD_CVS_URL="https://www.freebsd.org/cgi/cvsweb.cgi"
+FRESHPORTS_FREEBSD_SVN_URL="https://svn.freebsd.org"
 
 FETCH="/usr/bin/fetch"
 FETCH_OPTIONS="-qo"
@@ -13,13 +13,13 @@ FETCH_OPTIONS="-qo"
 # where is this website installed?
 # do not include a trailing slash
 # this directory should contain the www and scripts directories.
-BASEDIR="/usr/local/FreshPorts"
+BASEDIR="/var/db/freshports"
 
 #
 # the directory where logs go.  used mainly for notifications
 # and outputs of vuxml processing
 #
-DIRLOG="${BASEDIR}/scripts-log"
+DIRLOG="/var/log/freshports"
 
 # what is the URL for this website?
 # MUST have a trailing /
@@ -28,7 +28,7 @@ WEBSITEURL="http://WEBSITE_URL"
 #
 # where do I find files such as load_xml_into_db.pl
 #
-SCRIPTDIR="${BASEDIR}/scripts"
+SCRIPTDIR="/usr/local/libexec/freshports"
 
 #
 # Where does the msg directory start?
@@ -38,31 +38,39 @@ SCRIPTDIR="${BASEDIR}/scripts"
 #
 MSGDIR="/usr/local/FreshPorts/freshports.org/"
 
-DYNAMICROOT="${BASEDIR}/dynamic"
-CACHINGROOT="${DYNAMICROOT}/caching"
+DYNAMICROOT="${BASEDIR}/cache"
+CACHINGROOT="${DYNAMICROOT}"
 
-CACHEDIR="${CACHINGROOT}/cache"
+# used by cache-refresh.sh
+CACHEDIR="${CACHINGROOT}"
 NEWSCACHEDIR="${CACHINGROOT}/news"
+
+# used by cache-refresh.sh & process_www_en_ports_categories.sh
 SPOOLINGDIR="${CACHINGROOT}/tmp"
 
 # What file do we set for /usr/ports/MOVED?
 
-MOVEDFLAGFILE="${BASEDIR}/dynamic/refresh_moved"
+MOVEDFLAGFILE="${BASEDIR}/signals/refresh_moved"
 
 # What file do we set for /usr/ports/UPDATING?
 
-UPDATINGFLAGFILE="${BASEDIR}/dynamic/refresh_updating"
+UPDATINGFLAGFILE="${BASEDIR}/signals/refresh_updating"
 
-PORTSFREEZEFILE="${BASEDIR}/dynamic/PortsFreezeIsOn"
+PORTSFREEZEFILE="${BASEDIR}/signalsPortsFreezeIsOn"
 
-VUXMLFLAGFILE="${BASEDIR}/dynamic/vuxml"
-VUXMLMUTEX="${BASEDIR}/dynamic/vuxml_mutex"
-WWWENPORTSCATEGORIES="${BASEDIR}/dynamic/www.en.ports.categories"
+VUXMLFLAGFILE="${BASEDIR}/signals/vuxml"
+VUXMLMUTEX="${BASEDIR}/signals/vuxml_mutex"
+WWWENPORTSCATEGORIES="${BASEDIR}/signals/www.en.ports.categories"
 
-CACHE_NEEDS_REFRESH="${BASEDIR}/dynamic/cache_needs_refresh"
+CACHE_NEEDS_REFRESH="${BASEDIR}/signals/cache_needs_refresh"
+
+# scripts for the jail
+FRESHPORTS_JAIL_BASE_DIR=${BASEDIR} . "/ports-jail"
+FRESHPORTS_JAIL_MASTER_PORT_SCRIPT="/make-master-port-test.sh"
+FRESHPORTS_JAIL_USER="dan"
 
 # these are relative to FRESHPORTS_JAIL_BASE_DIR
-PORTSDIRBASE="/usr/local"
+PORTSDIRBASE="/var/db/repos/"
 # note: this works on HEAD only
 # and is relative to ${FRESHPORTS_JAIL_BASE_DIR}
 PORTSDIR="${PORTSDIRBASE}/PORTS-head"
@@ -77,11 +85,6 @@ fi
 
 # define your local cvsup host here
 FREEBSDCVSUPHOST="cvsup.unixathome.org"
-
-# scripts for the jail
-FRESHPORTS_JAIL_BASE_DIR="/usr/local/FreshPorts/ports-jail"
-FRESHPORTS_JAIL_MASTER_PORT_SCRIPT="/make-master-port-test.sh"
-FRESHPORTS_JAIL_USER="dan"
 
 # for whoever needs it
 PSQL=/usr/local/bin/psql
