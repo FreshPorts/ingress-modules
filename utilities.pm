@@ -110,7 +110,7 @@ print "after '$SRCDIR'\n";
 			# fetch failed
 			# sleep, then try again
 
-			Sys::Syslog::syslog('warning', "sleeping after fetch failed for ($DESTDIR $SRCDIR $FILE)");
+			FreshPorts::Utilities::ReportError('warning', "sleeping after fetch failed for ($DESTDIR $SRCDIR $FILE)");
 			print "fetch failed, sleeping...\n";
 			sleep $FreshPorts::Config::Fetch_Sleep_Time;
 			$FetchAttempts--;
@@ -179,7 +179,7 @@ print "after '$SVNITEM'\n";
 			# fetch failed
 			# sleep, then try again
 
-			Sys::Syslog::syslog('warning', 'sleeping for ' . ($FreshPorts::Config::Fetch_Retry_Limit - $numAttempts + 1) * $FreshPorts::Config::Fetch_Sleep_Time . " seconds after svn up failed for ($SVNDIR $SVNITEM $REVISION)");
+			FreshPorts::Utilities::ReportError('warning', 'sleeping for ' . ($FreshPorts::Config::Fetch_Retry_Limit - $numAttempts + 1) * $FreshPorts::Config::Fetch_Sleep_Time . " seconds after svn up failed for ($SVNDIR $SVNITEM $REVISION)");
 			print "fetch failed, sleeping...\n";
 			# this waits less time each wait... should be longer each wait I think
 			print "\$FreshPorts::Config::Fetch_Retry_Limit='$FreshPorts::Config::Fetch_Retry_Limit'\n";
@@ -212,11 +212,18 @@ $FreshPorts::Utilities::syslog_init = 0;
 sub InitSyslog() {
 	if (!$FreshPorts::Utilities::syslog_init) {
 		Sys::Syslog::setlogsock('unix');
-		Sys::Syslog::openlog('FreshPorts', 'cons, pid', 'user');
+		Sys::Syslog::openlog('FreshPorts', 'cons, pid', 'local3');
 		$FreshPorts::Utilities::syslog_init = 1;
 	}
 }
 
+
+sub Report($;$) {
+	my $level	= shift;
+	my $message	= shift;
+
+	_ReportErrorHelper($level, $message, 0, 0, 0);
+}
 
 sub ReportError($;$;$) {
 	my $level	= shift;
@@ -249,9 +256,9 @@ sub ReportErrorEmailNoPrint($;$;$;$) {
 sub _ReportErrorHelper($;$;$;$;$) {
 	my $level	= shift;
 	my $message	= shift;
-	my $email   = shift;
+	my $email	= shift;
 	my $die		= shift;
-	my $print   = shift;
+	my $print	= shift;
 
 	my $suffix = $FreshPorts::Config::scriptpath;
 
