@@ -14,7 +14,7 @@ FORWARDING="!dan@langille.org"
 # should never be used, but defined anyway
 DEFAULT="$HOME/mail/Maildir"
 
-UMASK=022
+UMASK=002
 
 #
 # File of the form YYYY.MM.DD.HH.MM.SS.PID.txt
@@ -26,20 +26,20 @@ FILE=`date +%Y.%m.%d.%H.%M.%S`.$PROCESS_ID.txt
 #
 # do not process any subscribe / unsubscribe emails
 #
-if ( /^X-List-Administrivia: yes/ )
+if ( /^X-List-Administrivia: yes/:h )
 {
   log "Administrivia detected."
   to $FORWARDING
 }
 
 # we are only interested in messages from these owners
-if ( /^Sender: (owner-svn-doc-all|owner-svn-ports-branches|owner-svn-ports-head|owner-svn-src-all|owner-cvs-doc|owner-cvs-ports|owner-cvs-projects|owner-cvs-all|)@freebsd.org/ )
+if ( /^Sender: (owner-svn-doc-all|owner-svn-ports-branches|owner-svn-ports-head|owner-svn-src-all|owner-cvs-doc|owner-cvs-ports|owner-cvs-projects|owner-cvs-all|)@freebsd.org/:h )
 {
   log "This is from a Sender we are interested in."
   #
   # if the email has these headers, we process it
   #
-  if ( /^(X-SVN-Group: *|X-FreeBSD-CVS-Branch: *)/ )
+  if ( /^(X-SVN-Group: *|X-FreeBSD-CVS-Branch: *)/:h )
   {
     log "Confirmed, this is not a reply etc.  Saving for later processing."
 
@@ -52,8 +52,19 @@ if ( /^Sender: (owner-svn-doc-all|owner-svn-ports-branches|owner-svn-ports-head|
   }
   else
   {
-    log "This is a reply or not from a commit, discarding."
     # discard this message, we are not interested. It is someone replying to an email
+
+    log "This is a reply or not from a commit, discarding."
+
+    # we duplicate the logging we'd get for a delivered message
+    /^Date:\s+(.*)/:h
+    log $MATCH
+
+    /^From:\s+(.*)/:h
+    log $MATCH
+
+    /^Subject:\s+(.*)/:h
+    log $MATCH
     exit
   }
 }
