@@ -289,7 +289,7 @@ sub handle_os_end {
 			$Updates{branch_id} = $SystemBranchID;
 		}
 	} else {
-		Sys::Syslog::syslog('warning', "Branch was empty.  Probably imported sources.  Ignoring $inputfile");
+		FreshPorts::Utilities::Report('warning', "Branch was empty.  Probably imported sources.  Ignoring $inputfile");
 		print "Branch was empty.  Probably imported sources.  Ignoring message $inputfile\n";
 		die   "Branch was empty.  Probably imported sources.  Ignoring message $inputfile\n";
 	}
