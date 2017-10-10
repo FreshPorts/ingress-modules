@@ -6,6 +6,7 @@
 package FreshPorts::Branches;
 
 require config;
+require utilities;
 
 # these are the mailing lists associated with those branches
 %FreshPorts::Branches::MailingLists = (
@@ -94,7 +95,7 @@ sub CanWeProcessThisBranch($)
   
   my $RepoPath = GetPathToRepoForBranch($CommitBranch);
   
-  if (0) { print 'RepoPath=' . $RepoPath . "\n"; }
+  FreshPorts::Utilities::Report('notice', "Let us verify that RepoPath ('$RepoPath') for Branch '$CommitBranch' actually exists on disk.");
 
   if (-e $RepoPath && -d $RepoPath)
   {
@@ -148,10 +149,14 @@ sub SetBranchInDB($$) {
   $sql = 'select freshports_branch_set(' . $dbh->quote($branch) . ')';
   $sth = $dbh->prepare($sql);
   if (!$sth->execute())  {
-    FreshPorts::Utilities::ReportError('warning', "SetBranchInDB: Could not set branch:" .  $dbh->errstr, 1);
+    FreshPorts::Utilities::Report('warning', "SetBranchInDB: Could not set branch:" .  $dbh->errstr);
   }
   
   $sth->finish();
 }
+
+FreshPorts::Utilities::InitSyslog();
+
+
 
 1;
