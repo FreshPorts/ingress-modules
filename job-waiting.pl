@@ -12,6 +12,7 @@ use database;
 use cache;
 use commit_log_ports_ignore;
 use system_status;
+use utilities;
 my $dbh;
 
 my $DaysRefreshed;
@@ -25,10 +26,10 @@ my %Jobs = (
 
 while (my ($flag, $script) = each %Jobs) {
 	if (-f $flag) {
-		Sys::Syslog::syslog('notice', "$flag exists.  About to run $script");
+		FreshPorts::Utilities::Report('notice', "$flag exists.  About to run $script");
 		`$FreshPorts::Config::scriptpath/$script`;
-		Sys::Syslog::syslog('notice', "Finished running $script");
+		FreshPorts::Utilities::Report('notice', "Finished running $script");
 	} else {
-		Sys::Syslog::syslog('notice', "flag '$flag' not set.  no work for $script");
+		FreshPorts::Utilities::Report('notice', "flag '$flag' not set.  no work for $script");
 	}
 }
