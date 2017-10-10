@@ -38,7 +38,7 @@ SCRIPTDIR="/usr/local/libexec/freshports"
 # created by ${SCRIPTDIR}/procmail/create_dirs.sh
 # and be the value which supplied to that script.
 #
-MSGDIR=${BASEDIR} . "/message-queues"
+MSGDIR="${BASEDIR}/message-queues"
 
 DYNAMICROOT="${BASEDIR}/cache"
 CACHINGROOT="${DYNAMICROOT}"
@@ -67,7 +67,7 @@ WWWENPORTSCATEGORIES="${BASEDIR}/signals/www.en.ports.categories"
 CACHE_NEEDS_REFRESH="${BASEDIR}/signals/cache_needs_refresh"
 
 # scripts for the jail
-FRESHPORTS_JAIL_BASE_DIR=${BASEDIR} . "/ports-jail"
+FRESHPORTS_JAIL_BASE_DIR="${BASEDIR}/ports-jail"
 FRESHPORTS_JAIL_MASTER_PORT_SCRIPT="/make-master-port-test.sh"
 FRESHPORTS_JAIL_USER="dan"
 
