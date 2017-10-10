@@ -5,7 +5,9 @@
 # Copyright (c) 2004 DVL Software Limited
 #
 
-logger cache-refresh.sh needs to be rewritten to mv files to the correct places
+LOGGERTAG="cache-refresh.sh"
+
+${LOGGER} -t ${LOGGERTAG} "cache-refresh.sh needs to be rewritten to mv files to the correct places"
 
 if [ ! -f config.sh ]
 then

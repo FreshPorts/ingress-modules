@@ -5,7 +5,9 @@
 # Copyright (c) 2003-2007 DVL Software Limited
 #
 
-logger -t FreshPorts $0 has been invoked
+LOGGERTAG="process_www_en_ports_categories.sh"
+
+${LOGGER} -t ${LOGGERTAG} has been invoked
 
 if [ ! -f config.sh ]
 then
@@ -17,7 +19,7 @@ fi
 
 if [ $OFFLINE = 1 ]
 then
-	logger -t FreshPorts system is OFFLINE ... exiting
+	${LOGGER} -t ${LOGGERTAG} -t FreshPorts system is OFFLINE ... exiting
 	exit 0
 fi
 
@@ -31,11 +33,11 @@ CATEGORIES="${SPOOLINGDIR}/categories"
 
 if [ -r ${WWWENPORTSCATEGORIES} ]
 then
-	logger -t FreshPorts invoking categories_update_descriptions.pl with ${CATEGORIES}
+	${LOGGER} -t ${LOGGERTAG} -t FreshPorts invoking categories_update_descriptions.pl with ${CATEGORIES}
 	/usr/local/bin/perl categories_update_descriptions.pl ${CATEGORIES}
 
 	# regardless of any errors, we should remove this as we don't want to keep doing this
 	rm ${WWWENPORTSCATEGORIES}
 else
-	logger -t FreshPorts $0 was invoked but ${WWWENPORTSCATEGORIES} was not set.
+	${LOGGER} -t ${LOGGERTAG} was invoked but ${WWWENPORTSCATEGORIES} was not set.
 fi

@@ -5,10 +5,12 @@
 # Copyright (c) 2003-2004 DVL Software Limited
 #
 
+LOGGERTAG="process_CVSROOT_approvers.sh"
+
 if [ ! -f config.sh ]
 then
 	echo "config.sh not found..."
-	logger "config.sh not found..."
+	${LOGGER} -t ${LOGGERTAG} "config.sh not found..."
 	exit 1
 fi
 
@@ -17,14 +19,14 @@ fi
 if [ "${PORTSFREEZEFILE}x" = 'x' ]
 then
 	echo "please set PORTSFREEZEFILE in config.sh"
-	logger "please set PORTSFREEZEFILE in config.sh"
+	${LOGGER} -t ${LOGGERTAG} "please set PORTSFREEZEFILE in config.sh"
 	exit 1
 fi
 
 if [ ! -r $1 ]
 then
 	echo "please supply the file name for CVSROOT_Approvers as the first parameter."
-	logger "please supply the file name for CVSROOT_Approvers as the first parameter."
+	${LOGGER} -t ${LOGGERTAG} "please supply the file name for CVSROOT_Approvers as the first parameter."
 	exit 1
 fi
 

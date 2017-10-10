@@ -14,6 +14,8 @@
 # file switch, set by commit processing script
 # That file 
 
+LOGGERTAG="process_vuxml.sh"
+
 if [ ! -f config.sh ]
 then
 	exit 1
@@ -28,13 +30,13 @@ fi
 
 if [ "${VUXMLFLAGFILE}x" = 'x' -o "${PORTSDIR}x" = 'x' -o "${VUXMLMUTEX}x" = 'x' -o "${DIRLOG}x" = 'x' ]
 then
-	logger -t "FreshPorts ${0}" "please set all of VUXMLFLAGFILE, PORTSDIR, VUXMLMUTEX, and DIRLOG in config.sh"
+	${LOGGER} -t ${LOGGERTAG} "please set all of VUXMLFLAGFILE, PORTSDIR, VUXMLMUTEX, and DIRLOG in config.sh"
 	exit 1
 fi
 
 if [ -f ${VUXMLMUTEX} ]
 then
-	logger -t "FreshPorts ${0}"  "${VUXMLMUTEX} is set.  vuxml processing is already underway"
+	${LOGGER} -t ${LOGGERTAG} "${VUXMLMUTEX} is set.  vuxml processing is already underway"
 	exit 0
 fi
 
@@ -44,8 +46,8 @@ if [ -r ${VUXMLFLAGFILE} ]
 then
 	touch ${VUXMLMUTEX}
 	rm ${VUXMLFLAGFILE}
-	logger -t   "FreshPorts ${0}"  "vuxml processing begins"
-	echo `date` "FreshPorts ${0}"  "vuxml processing begins"                  >> ${LOGFILE}
+	${LOGGER} -t ${LOGGERTAG} "vuxml processing begins"
+	echo `date` "${LOGGERTAG}"  "vuxml processing begins"                  >> ${LOGFILE}
 	
 	# define the vuln file we are going to operate on
 	VULNFILE="${FRESHPORTS_JAIL_BASE_DIR}/${PORTSDIR}/security/vuxml/vuln.xml"
@@ -53,26 +55,26 @@ then
 	/usr/local/bin/perl ./process_vuxml.pl < ${VULNFILE} >> ${LOGFILE}
 	if [ $? -eq 0 ]
 	then
-	  logger -t "FreshPorts ${0}"  "process_vuxml.pl finishes normally"
+	  ${LOGGER} -t ${LOGGERTAG} "process_vuxml.pl finishes normally"
 	else
-	  logger -t "FreshPorts ${0}"  "FATAL process_vuxml.pl finished with an error"
+	  ${LOGGER} -t ${LOGGERTAG} "FATAL process_vuxml.pl finished with an error"
 	fi
 
-	logger -t "FreshPorts ${0}"  "vuxml ident begins on ${VULNFILE}"
+	${LOGGER} -t ${LOGGERTAG} "vuxml ident begins on ${VULNFILE}"
 	/usr/local/bin/perl ./vuxml_ident.pl     ${VULNFILE} > ${DYNAMICROOT}/vuxml_revision
 
-	logger -t "FreshPorts ${0}"  "vuxml latest begins"
+	${LOGGER} -t ${LOGGERTAG} "vuxml latest begins"
 	/usr/local/bin/perl ./vuln_latest.pl
 	if [ $? = 0 ]
 	then
-	  logger -t "FreshPorts ${0}"  "vuxml finishes normally"
+	  ${LOGGER} -t ${LOGGERTAG} "vuxml finishes normally"
 	fi
 
 	rm ${VUXMLMUTEX}
-	echo `date` "FreshPorts ${0}"  "vuxml finishes" >> ${LOGFILE}
-	logger -t "FreshPorts ${0}"  "vuxml finishes"
+	echo `date` "${LOGGERTAG}"  "vuxml finishes" >> ${LOGFILE}
+	${LOGGER} -t ${LOGGERTAG} "vuxml finishes"
 else
-	logger -t "FreshPorts ${0}"  "${VUXMLFLAGFILE} not set: no processing to do"
+	${LOGGER} -t ${LOGGERTAG} "${VUXMLFLAGFILE} not set: no processing to do"
 fi
-echo `date` "FreshPorts ${0}"  "vuxml terminates" >> ${LOGFILE}
-logger -t "FreshPorts ${0}"  "vuxml terminates"
+echo `date` "${LOGGERTAG}"  "vuxml terminates" >> ${LOGFILE}
+${LOGGER} -t ${LOGGERTAG} "vuxml terminates"

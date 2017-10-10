@@ -9,8 +9,9 @@
 #
 # Takes a file name as a parameter
 #
+LOGGERTAG="freebsd-cvs.sh"
 
-logger $0 has started
+${LOGGER} -t ${LOGGERTAG} $0 has started
 
 if [ $# -ne 1 ]
 then
@@ -34,7 +35,7 @@ fi
 XML="${MSGDIR}/recent"
 OUTPUT="${MSGDIR}/recent"
 
-logger "$0 invoked, using XML='${XML}' and OUTPUT='${OUTPUT}'"
+${LOGGER} -t ${LOGGERTAG} "$0 invoked, using XML='${XML}' and OUTPUT='${OUTPUT}'"
 
 PATHNAME=$1
 
