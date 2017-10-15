@@ -14,6 +14,7 @@ require utilities;
 require committer_opt_in;
 require port_dependencies;
 require branches;
+require ports_generate_plist;
 
 use strict;
 use config;
@@ -27,25 +28,6 @@ use Scalar::Util qw(looks_like_number);
 
 # for testing dates, as recommended by "B. Estrade" <estrabd@gmail.com>
 use POSIX qw/strftime/;
-
-sub freshports_ConvertPortPathToStandardLocation($;$) {
-	my $CommitBranch = shift;
-	my $pathname     = shift;
-
-	# look for $FreshPorts::Config::path_to_tree and 
-	# replace it with /usr.  Why? so we refer to the 
-	# real ports tree and not the one we are using
-	
-	my $PathToRepo = FreshPorts::Branches::GetPathToRepoForBranch($CommitBranch);
-	
-	print "\$PathToRepo for \$CommitBranch='$CommitBranch' is '$PathToRepo'\n";
-
-	print "freshports_ConvertPortPathToStandardLocation() is converting '$pathname' ";
-	$pathname =~ s/$PathToRepo/$FreshPorts::Constants::UsualPortsTreeLocation/g;
-	print " to '$pathname'\n";
-
-	return $pathname;
-}
 
 # =================================
 
@@ -96,6 +78,7 @@ sub _initialize {
 	$this->{license_perms}    	= '';
 	$this->{pkg_plist}    	    = '';
 	$this->{makefile}    	    = '';
+	$this->{generate_plist}     = '';
 
 	$this->{categories}			= '';
 	$this->{element_pathname}   = '';
@@ -154,6 +137,7 @@ sub _GetValuesFromRow {
 	$this->{license_perms}      = $row->{license_perms};
 	$this->{pkg_plist}          = $row->{pkg_plist};
 	$this->{makefile}           = $row->{makefile};
+	$this->{generate_plist}     = $row->{generate_plist};
 
 	$this->{categories}			= $row->{categories};
 	$this->{last_commit_id}		= $row->{last_commit_id};
@@ -283,6 +267,7 @@ update ports
        license_perms        = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{license_perms})          . ", 
        pkg_plist            = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{pkg_plist})              . ", 
        makefile             = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{makefile})               . ", 
+       generate_plist       = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{generate_plist})         . ", 
        categories           = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{categories});
 
 
@@ -352,6 +337,7 @@ update ports
 
     if ($FullSave) {
         $this->update_depends($CommitBranch);
+        $this->upate_generate_plist($CommitBranch);
     }
 
 	# after savings, return the ID
@@ -699,13 +685,6 @@ sub _ExtractValuesFromMakefile {
 		# 
 		# freshports.org=#
 
-		$builddepends   = $this->depends_stripper(freshports_ConvertPortPathToStandardLocation($CommitBranch, FreshPorts::Utilities::trim_multiple_to_single(FreshPorts::Utilities::trim($builddepends))),   $SVNDIR_CHROOT);
-		$rundepends     = $this->depends_stripper(freshports_ConvertPortPathToStandardLocation($CommitBranch, FreshPorts::Utilities::trim_multiple_to_single(FreshPorts::Utilities::trim($rundepends))),     $SVNDIR_CHROOT);
-		$libdepends     = $this->depends_stripper(freshports_ConvertPortPathToStandardLocation($CommitBranch, FreshPorts::Utilities::trim_multiple_to_single(FreshPorts::Utilities::trim($libdepends))),     $SVNDIR_CHROOT);
-		$fetchdepends   = $this->depends_stripper(freshports_ConvertPortPathToStandardLocation($CommitBranch, FreshPorts::Utilities::trim_multiple_to_single(FreshPorts::Utilities::trim($fetchdepends))),   $SVNDIR_CHROOT);
-		$extractdepends = $this->depends_stripper(freshports_ConvertPortPathToStandardLocation($CommitBranch, FreshPorts::Utilities::trim_multiple_to_single(FreshPorts::Utilities::trim($extractdepends))), $SVNDIR_CHROOT);
-		$patchdepends   = $this->depends_stripper(freshports_ConvertPortPathToStandardLocation($CommitBranch, FreshPorts::Utilities::trim_multiple_to_single(FreshPorts::Utilities::trim($patchdepends))),   $SVNDIR_CHROOT);
-
 		$master_port =~ s|$SVNDIR_CHROOT/||;
 		
 #		chomp($pkgmessagepath);
@@ -840,6 +819,20 @@ sub _ExtractValuesFromMakefile {
         my $makefile = $this->_GetFileContentsFromJail("$SVNDIR_CHROOT/$this->{category}/$this->{name}/$FreshPorts::Constants::FILE_MAKEFILE");
 		chomp($makefile); # get rid of the trailing whitespace.
 
+		# extract the generate_plist contents
+     	my $configure_plist_command = "/usr/local/bin/sudo /usr/sbin/chroot -u $FreshPorts::Config::JailUser $FreshPorts::Config::JailBaseDir $FreshPorts::Config::JailConfigurePlist $SVNDIR_CHROOT $this->{category}/$this->{name} 2>$TmpFile";
+
+    	print "generate_plist_command = $configure_plist_command\n";
+
+    	my $generate_plist = `$configure_plist_command`;
+    	# save this for later reference
+    	$result = $?;
+    	print 'Result = ' . $result . "\n";
+
+		chomp($generate_plist); # get rid of the trailing whitespace.
+		
+		print "12x \$generate_plist      = '$generate_plist\n";
+
 		print "12 \$shortdescription     = '$shortdescription'\n";
 		print "13 \$longdescription      = '$longdescription'\n";
 		print "14 \$homepage             ='";
@@ -941,6 +934,7 @@ sub _ExtractValuesFromMakefile {
 		$this->{license_perms}      = $license_perms;
 		$this->{pkg_plist}          = $pkg_plist;
 		$this->{makefile}           = $makefile;
+		$this->{generate_plist}     = $generate_plist;
 		# convert all whitespace to a single space
 		# This arose from 200609130717.k8D7HpNc057638@repoman.freebsd.org
 		#
@@ -1255,6 +1249,18 @@ sub IsValidDate($) {
   return ($test eq $string) ? $string : undef;
 }
 
+sub upate_generate_plist {
+  # for each of the depends in this port, update the ports_dependencies relationships
+  my $this = shift;
+
+  my $CommitBranch = shift;
+
+  my $generate_plist = FreshPorts::Ports_generate_plist->new( $this->{dbh} );
+  
+  $generate_plist->save($this->{id}, $this->{generate_plist});
+  
+}
+
 sub update_depends {
   # for each of the depends in this port, update the ports_dependencies relationships
   my $this = shift;
@@ -1270,12 +1276,12 @@ sub update_depends {
   $port_dependencies->{port_id} = $this->{id};
   $port_dependencies->delete();
 
-  $this->update_depends_helper( $CommitBranch, $this->depends_stripper( $this->{depends_build},   $SVNDIR_CHROOT ), 'B' ); # build
-  $this->update_depends_helper( $CommitBranch, $this->depends_stripper( $this->{depends_run},     $SVNDIR_CHROOT ), 'R' ); # runtime
-  $this->update_depends_helper( $CommitBranch, $this->depends_stripper( $this->{depends_lib},     $SVNDIR_CHROOT ), 'L' ); # library
-  $this->update_depends_helper( $CommitBranch, $this->depends_stripper( $this->{fetch_depends},   $SVNDIR_CHROOT ), 'F' ); # fetch
-  $this->update_depends_helper( $CommitBranch, $this->depends_stripper( $this->{extract_depends}, $SVNDIR_CHROOT ), 'E' ); # extract
-  $this->update_depends_helper( $CommitBranch, $this->depends_stripper( $this->{patch_depends},   $SVNDIR_CHROOT ), 'P' ); # patch
+  $this->update_depends_helper( $CommitBranch, $this->{depends_build},   'B' ); # build
+  $this->update_depends_helper( $CommitBranch, $this->{depends_run},     'R' ); # runtime
+  $this->update_depends_helper( $CommitBranch, $this->{depends_lib},     'L' ); # library
+  $this->update_depends_helper( $CommitBranch, $this->{fetch_depends},   'F' ); # fetch
+  $this->update_depends_helper( $CommitBranch, $this->{extract_depends}, 'E' ); # extract
+  $this->update_depends_helper( $CommitBranch, $this->{patch_depends},   'P' ); # patch
 }
 
 sub depends_type_long {
@@ -1295,7 +1301,10 @@ sub depends_type_long {
 }
 
 sub update_depends_helper {
-	# for this depends, put it into the db
+    #
+	# Take a space-separated list of depends and insert them into the database
+	# e.g. py27-setuptools>0:devel/py27-setuptools /usr/local/bin/python2.7:lang/python27
+	#
 	my $this = shift;
 
 	my $CommitBranch = shift;
@@ -1315,7 +1324,7 @@ sub update_depends_helper {
 
   # this magic courtesy of Ade Lovett
   # NOTE: this removes duplicates
-  my @depends_list = uniq( map { s/^.*$SVNDIR_CHROOT\///;$_ } split(/ /, $depends) );
+  my @depends_list = uniq( map { s/^.*://;$_ } split(/ /, $depends) );
   print "The '" . $depends_type . "' depends are: ";
   print join(' - ', @depends_list) . "\n";
 
@@ -1332,7 +1341,7 @@ sub update_depends_helper {
     }
     else
     {
-      # we do not report unfound dependencies on branches.  They often haven't hadd a commit in the branch, and hence are not in the FreshPorts database
+      # we do not report unfound dependencies on branches.  Such ports on branches often haven't had a commit in the branch, and hence are not in the FreshPorts database
       if ($CommitBranch eq $FreshPorts::Constants::HEAD) {
         FreshPorts::CommitterOptIn::RecordErrorDetails("$this->{category}/$this->{name}", "NOTE: this particular sanity test is very experimental\nA port specified in the " . $this->depends_type_long( $depends_type ) . " of " . $this->{category} . '/' . $this->{name} . " does not exist: '" . $dependent . "' on branch '$CommitBranch'.\n\n");
       }
@@ -1362,75 +1371,6 @@ sub _addMissingPORTSDIR {
   print "in _addMissingPORTSDIR(),      we finish with '$depends'\n";
 
   return $depends;
-}
-
-sub depends_stripper {
-  my $this     = shift;
-  my $depends  = shift;
-  my $PortsDir = shift;
-
-  my $newdepends = '';
-
-  # if it not defined, return an empty string  
-  if ( !defined($depends) || $depends eq '')
-  {
-    print "no depends found\n";
-    return $newdepends;
-  }
-
-  print "1depends: $depends\n";
-  
-  foreach my $dep (split(/\s+/, $depends))
-  {
-    print "Now splitting: '$dep'\n";
-    my ($d, $ddir) = split(/:/, $dep);
-    if (!defined($ddir) || $depends eq 'DEPENDS')
-    {
-      $ddir = $d;
-    }
-
-    if ($newdepends)
-    {
-      $newdepends .= " ";
-    }
-
-    print "the DEPENDS test is '$d' and the dependency is '$ddir'\n";
-
-    # all deps need to start with $PORTSDIR
-    # it needs to be an absolute path
-    $ddir = $this->_addMissingPORTSDIR($ddir, $PortsDir);
-    
-    print "after _addMissingPORTSDIR() the dependency is '$ddir'\n";
-
-    my $absdir = $this->_GetRealPath($ddir);
-    if (defined($absdir))
-    {
-      if ( $absdir ne $ddir )
-      {
-        if ($absdir == 0)
-        {
-          print "that path does not exist\n";
-          # set things back to what we had, so the error can process correctly
-          $absdir = $ddir;
-        }
-        else
-        {
-          print "converted '$ddir' to '$absdir'\n";
-        }
-      }
-
-      $newdepends .= "$d:$absdir";
-    }
-    else
-    {
-      # this should be a sanity test failure?
-      print "Oh.  Umm.  No, that does not translate into a valid dependency.  Skipping....\n";
-      FreshPorts::CommitterOptIn::RecordErrorDetails("$this->{category}/$this->{name}", "\nI could not translate the following into a dependency: '$dep'");
-    }
-  }
-
-  print "2depends: $newdepends\n";
-  return $newdepends;
 }
 
 sub CreatePortOnBranch {
