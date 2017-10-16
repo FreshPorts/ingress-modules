@@ -46,14 +46,6 @@ sub GetData {
 	my $RepoPrefix = &GetOS_RepoPrefix($message);
 	my $Branch     = &GetOS_Branch($message);
 
-	# if this is a port commit, do we have that branch checked out?
-	if ($RepoPrefix eq $FreshPorts::Constants::PORTS && !FreshPorts::Branches::CanWeProcessThisBranch($Branch))
-	{
-		# we will not return from this
-		FreshPorts::Utilities::ReportErrorEmailNoPrint('err', "We do not have a checked out repo for this branch ('" . $Branch . "').\n\n", 1);
-		die("what? no $Branch (using repo $RepoPrefix)\n");
-	}
-
 	$Message_Subject = &GetMessage_Subject($message);
 
 #print "subject: '$Message_Subject'\n";
@@ -70,6 +62,18 @@ sub GetData {
 	if (!defined($MessageID)) {
 		FreshPorts::Utilities::ReportErrorEmailNoPrint('err', "No message ID found for this commit message (" . $Message_Subject . ").\n\nIs this a corrupted commit or email?", 1)
 	}
+
+	# if this is a port commit, do we have that branch checked out?
+	if ($RepoPrefix eq $FreshPorts::Constants::PORTS && !FreshPorts::Branches::CanWeProcessThisBranch($Branch))
+	{
+		# we will not return from this
+		FreshPorts::Utilities::ReportErrorEmailNoPrint('err', "We do not have a checked out repo for this branch ('" . $Branch . "').\n\n", 1);
+		die("what? no $Branch (using repo $RepoPrefix)\n");
+	}
+
+    FreshPorts::Utilities::Report('notice', "MessageId: '$MessageID'");
+    FreshPorts::Utilities::Report('notice', "Branch:    '$Branch'");
+    FreshPorts::Utilities::Report('notice', "Subject:   '$Message_Subject'");
 
 	@Data =	[	'UPDATES', [ { Version => '1.3.2.1' },
 				'UPDATE', [ {},
