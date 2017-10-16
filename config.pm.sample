@@ -136,6 +136,7 @@ $FreshPorts::Config::Ports_Default_Directory = $FreshPorts::Config::DB_Root_Pref
 # this is the path, within the CHROOT, to where we find the SVN directories.
 $FreshPorts::Config::SVNBaseDir  = '/var/db/repos';
 
+$FreshPorts::Config::JailConfigurePlist           = '/make-generate-plist.sh';
 $FreshPorts::Config::JailCategoryDescrptionScript = '/make-category-comment.sh';
 $FreshPorts::Config::JailDescr                    = '/make-descr.sh';
 $FreshPorts::Config::JailDescrAndHomePage         = '/cat-descr.sh';
