@@ -825,9 +825,9 @@ sub _ExtractValuesFromMakefile {
         print "invoking _GetFileContentsFromJail() with '$Makefile'\n";
         # the file to the file is relative to the jail root
         my $makefile = $this->_GetFileContentsFromJail("$SVNDIR_CHROOT/$this->{category}/$this->{name}/$FreshPorts::Constants::FILE_MAKEFILE");
-		chomp($makefile); # get rid of the trailing whitespace.
+	chomp($makefile); # get rid of the trailing whitespace.
 
-		# extract the generate_plist contents
+	# extract the generate_plist contents
      	my $configure_plist_command = "/usr/local/bin/sudo /usr/sbin/chroot -u $FreshPorts::Config::JailUser $FreshPorts::Config::JailBaseDir $FreshPorts::Config::JailConfigurePlist $SVNDIR_CHROOT $this->{category}/$this->{name} 2>$TmpFile";
 
     	print "generate_plist_command = $configure_plist_command\n";
