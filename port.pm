@@ -684,6 +684,14 @@ sub _ExtractValuesFromMakefile {
 		# (13 rows)
 		# 
 		# freshports.org=#
+		
+		$builddepends   = FreshPorts::Utilities::trim_multiple_to_single(FreshPorts::Utilities::trim($builddepends));
+		$rundepends     = FreshPorts::Utilities::trim_multiple_to_single(FreshPorts::Utilities::trim($rundepends));
+		$libdepends     = FreshPorts::Utilities::trim_multiple_to_single(FreshPorts::Utilities::trim($libdepends));
+		$fetchdepends   = FreshPorts::Utilities::trim_multiple_to_single(FreshPorts::Utilities::trim($fetchdepends));
+		$extractdepends = FreshPorts::Utilities::trim_multiple_to_single(FreshPorts::Utilities::trim($extractdepends));
+		$patchdepends   = FreshPorts::Utilities::trim_multiple_to_single(FreshPorts::Utilities::trim($patchdepends));
+
 
 		$master_port =~ s|$SVNDIR_CHROOT/||;
 		
@@ -1268,9 +1276,6 @@ sub update_depends {
   my $CommitBranch = shift;
 
   my $port_dependencies = FreshPorts::PortDependencies->new( $this->{dbh} );
-
-  my $SVNDIR_CHROOT = FreshPorts::Branches::GetPathToRepoForBranchCHROOT($CommitBranch);
-  
   
   print 'about to delete port_dependencies for id ' . $this->{id} . "\n";
   $port_dependencies->{port_id} = $this->{id};
@@ -1319,8 +1324,6 @@ sub update_depends_helper {
 	  print "no depends to look for; returning\n";
 	  return;
 	}
-
-  my $SVNDIR_CHROOT = FreshPorts::Branches::GetPathToRepoForBranchCHROOT($CommitBranch);
 
   # this magic courtesy of Ade Lovett
   # NOTE: this removes duplicates
