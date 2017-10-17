@@ -76,8 +76,6 @@ sub _initialize {
 	$this->{license_restricted} = '';
 	$this->{manual_package_build} = '';
 	$this->{license_perms}    	= '';
-	$this->{pkg_plist}    	    = '';
-	$this->{makefile}    	    = '';
 	$this->{generate_plist}     = '';
 
 	$this->{categories}			= '';
@@ -135,8 +133,6 @@ sub _GetValuesFromRow {
 	$this->{license_restricted} = $row->{license_restricted};
 	$this->{manual_package_build} = $row->{manual_package_build};
 	$this->{license_perms}      = $row->{license_perms};
-	$this->{pkg_plist}          = $row->{pkg_plist};
-	$this->{makefile}           = $row->{makefile};
 	$this->{generate_plist}     = $row->{generate_plist};
 
 	$this->{categories}			= $row->{categories};
@@ -265,8 +261,6 @@ update ports
        license_restricted   = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{license_restricted})     . ", 
        manual_package_build = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{manual_package_build})   . ", 
        license_perms        = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{license_perms})          . ", 
-       pkg_plist            = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{pkg_plist})              . ", 
-       makefile             = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{makefile})               . ", 
        generate_plist       = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{generate_plist})         . ", 
        categories           = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{categories});
 
@@ -658,8 +652,7 @@ sub _ExtractValuesFromMakefile {
 		 my $restricted,     my $no_cdrom,           my $expiration_date,      my $is_interactive,
 		 my $only_for_archs, my $not_for_archs,      my $license,              my $fetchdepends, 
 		 my $extractdepends, my $patchdepends,       my $uses,                 my $pkgmessagepath,
-		 my $distinfo_file,  my $license_restricted, my $manual_package_build, my $license_perms,
-		 my $pkg_plist_file) = split(/\n/s, $MakeResults);
+		 my $distinfo_file,  my $license_restricted, my $manual_package_build, my $license_perms) = split(/\n/s, $MakeResults);
 
 		my $package_name = $pkgnameprefix . $portname . $pkgnamesuffix;
 
@@ -726,7 +719,6 @@ sub _ExtractValuesFromMakefile {
 		print " license_restricted       = '$license_restricted'\n";
 		print " manual_package_build     = '$manual_package_build'\n";
 		print " license_perms            = '$license_perms'\n";
-		print " pkg_plist_file           = '$pkg_plist_file'\n";
 
 		# eliminate multiple // : PR 174
 		# to compensate for bug in File::PathConvert::realpath (which is no longer used; _GetRealPath)
@@ -804,30 +796,7 @@ sub _ExtractValuesFromMakefile {
 		}
 		chomp($distinfo); # get rid of the trailing whitespace.
 
-		my $RealPkgPlistFilePath = $this->_GetRealPath($pkg_plist_file);
-		# if it's defined, and it exists....
-		my $pkg_plist = '';
-		if (looks_like_number($RealPkgPlistFilePath))
-		{
-		          # this is never an error.  Some ports do not have dist files
-                  print "PKG_PLIST file does not exist: '$pkg_plist_file' (result of make -V PLIST)\n";
-	  	}
-		else
-		{
-                   if (defined($RealPkgPlistFilePath) && $RealPkgPlistFilePath) {
-                      print "invoking _GetFileContentsFromJail() with '$RealPkgPlistFilePath'\n";
-                      $pkg_plist = $this->_GetFileContentsFromJail($RealPkgPlistFilePath);
-                   }
-		}
-		chomp($pkg_plist); # get rid of the trailing whitespace.
-
-		# extract the Makefile contents
-        print "invoking _GetFileContentsFromJail() with '$Makefile'\n";
-        # the file to the file is relative to the jail root
-        my $makefile = $this->_GetFileContentsFromJail("$SVNDIR_CHROOT/$this->{category}/$this->{name}/$FreshPorts::Constants::FILE_MAKEFILE");
-	chomp($makefile); # get rid of the trailing whitespace.
-
-	# extract the generate_plist contents
+		# extract the generate_plist contents
      	my $configure_plist_command = "/usr/local/bin/sudo /usr/sbin/chroot -u $FreshPorts::Config::JailUser $FreshPorts::Config::JailBaseDir $FreshPorts::Config::JailConfigurePlist $SVNDIR_CHROOT $this->{category}/$this->{name} 2>$TmpFile";
 
     	print "generate_plist_command = $configure_plist_command\n";
@@ -877,7 +846,6 @@ sub _ExtractValuesFromMakefile {
 		print "41 \$license_restricted   = '$license_restricted'\n";
 		print "42 \$manual_package_build = '$manual_package_build'\n";
 		print "43 \$license_perms        = '$license_perms'\n";
-		print "44 \$pkg_plist            = '$pkg_plist'\n";
 
 		print "\n ---------------------------------------- \n";
 
@@ -940,8 +908,6 @@ sub _ExtractValuesFromMakefile {
 		$this->{license_restricted} = $license_restricted;
 		$this->{manual_package_build} = $manual_package_build;
 		$this->{license_perms}      = $license_perms;
-		$this->{pkg_plist}          = $pkg_plist;
-		$this->{makefile}           = $makefile;
 		$this->{generate_plist}     = $generate_plist;
 		# convert all whitespace to a single space
 		# This arose from 200609130717.k8D7HpNc057638@repoman.freebsd.org

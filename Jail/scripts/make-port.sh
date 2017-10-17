@@ -27,6 +27,5 @@ ${MAKE} -V PORTNAME       -V PKGNAME             -V DESCR                -V CATE
         -V ONLY_FOR_ARCHS -V NOT_FOR_ARCHS       -V LICENSE              -V FETCH_DEPENDS   \
         -V PATCH_DEPENDS  -V EXTRACT_DEPENDS     -V USES                 -V PKGMESSAGE      \
         -V DISTINFO_FILE  -V _LICENSE_RESTRICTED -V MANUAL_PACKAGE_BUILD -V LICENSE_PERMS   \
-        -V PLIST \
         -f ${REPO_PATH}/${PORT}/Makefile \
         PORTSDIR=${REPO_PATH}
