@@ -11,8 +11,6 @@
 #
 LOGGERTAG="freebsd-cvs.sh"
 
-${LOGGER} -t ${LOGGERTAG} $0 has started
-
 if [ $# -ne 1 ]
 then
    echo $0 : usage $0 FILE
@@ -26,6 +24,8 @@ then
 fi
 
 . config.sh
+
+${LOGGER} -t ${LOGGERTAG} $0 has started
 
 if [ $OFFLINE = 1 ]
 then
@@ -44,6 +44,8 @@ FILE=`basename ${PATHNAME}`
 #
 # convert the raw file to XML
 #
+${LOGGER} -t ${LOGGERTAG} "$0 converting to XML via process_mail.pl"
+
 /usr/local/bin/perl ${SCRIPTDIR}/process_mail.pl < ${PATHNAME} >    \
        ${XML}/${FILE}.xml 2>${XML}/${FILE}.errors
 RESULT=$?
@@ -63,6 +65,8 @@ fi
 # load the XML into the database
 #
 
+${LOGGER} -t ${LOGGERTAG} "$0 loading that XML into the database via load_xml_into_db.pl"
+
 /usr/local/bin/perl ${SCRIPTDIR}/load_xml_into_db.pl ${XML}/${FILE}.xml > \
                ${OUTPUT}/${FILE}.loading 2>${OUTPUT}/$FILE.errors
 RESULT=$?
@@ -77,5 +81,8 @@ then
       rm ${OUTPUT}/$FILE.errors
    fi
 fi
+
+${LOGGER} -t ${LOGGERTAG} "$0 finished"
+
 
 exit $RESULT
