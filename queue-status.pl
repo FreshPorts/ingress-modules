@@ -13,7 +13,7 @@ use utilities;
 use status;
 
 sub SendNotice($) {
-	my $Msg			= shift;
+	my $Msg		= shift;
 	my $hostname	= `hostname`;
 
 	chomp $hostname;
@@ -39,10 +39,10 @@ undef($CountRecent);
 
 my $dbh = FreshPorts::Database::GetDBHandle();
 
-foreach my $site (@FreshPorts::Status::sites) {
-	$msg .= "SITE: $site ";
-	while (my ($queue, $pattern) = each %queues) {
-		my $Command = "find $base/$site/msgs/FreeBSD/$queue/";
+	$msg .= "SITE: $FreshPorts::Config::FreshPortsURL ";
+	foreach my $queue (@FreshPorts::Status::queues) {
+		my $pattern = $queues{$queue};
+		my $Command = "find $FreshPorts::Config::QueueBaseDir/$queue/";
 #		print $Command . "\n";
 
 		if ($pattern ne '') {
@@ -68,7 +68,6 @@ foreach my $site (@FreshPorts::Status::sites) {
 	}
 
 	$msg .= " ";
-}
 
 if ($send_report) {
 #	Sys::Syslog::syslog('notice', 'There is a problem with the FreshPorts queues');
