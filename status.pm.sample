@@ -8,4 +8,6 @@ package FreshPorts::Status;
 
 use strict;
 
-@FreshPorts::Status::sites  = ('beta.freshports.org', 'working-copy.freshports.org', 'production.freshports.org');
+@FreshPorts::Status::sites  = ('www.freshports.org');
+
+@FreshPorts::Status::queues  = ('incoming', recent', 'retry');
