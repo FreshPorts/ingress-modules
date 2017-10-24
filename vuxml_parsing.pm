@@ -61,7 +61,7 @@ our ($VuXML);
 # Call like this:
 #
 # $v = new FreshPorts::vuxml_parsing(DBHandle      => $dbh,
-#                                    Stream        => *STDIN,
+#                                    Stream        => IO::File,
 #                                    UpdateInPlace => $UpdateInPlace);
 #
 # DBHandle is a database handle from the DBI module. Required (well,
