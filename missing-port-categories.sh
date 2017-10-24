@@ -18,7 +18,6 @@ then
 	exit 0
 fi
 
-
 ROWCOUNT=`${PSQL} -h ${HOST} -q --pset t -d ${DB} --user ${DBUSER} -c "${QUERYCOUNT} ${QUERYBASE}"`
 if [ ${ROWCOUNT} -ne 0 ]
 then
