@@ -19,7 +19,9 @@ use strict;
 use warnings;
 use Digest::SHA qw(sha256_hex);
 use autodie qw(:default);
+use IO::File;
 
+use committer_opt_in;
 use database;
 use vuxml;
 use vuxml_parsing;
@@ -37,6 +39,9 @@ MAIN:
 {
     my %vulns;
     my @vulns;
+
+    my $fh;
+    my $p;
 
     # slurp vuln.xml whole.
     local $/;
@@ -85,25 +90,27 @@ MAIN:
 
                 if ($updateRequired)
                 {
-                    open(HANDLE, '<', \$vulns{$v});
-            		my $p = FreshPorts::vuxml_parsing->new(Stream        => *HANDLE,
-                                                           DBHandle      => $dbh,
-                                                           UpdateInPlace => 1);
-                                                           
-            		$p->parse_xml($csum);
+                    $fh = IO::File->new();
+                    if ($fh->open('< ' . $vulns{$v})) {
+                		$p = FreshPorts::vuxml_parsing->new(Stream        => $fh,
+                                                               DBHandle      => $dbh,
+                                                               UpdateInPlace => 1);
 
-                    close HANDLE;
+                		$p->parse_xml($csum);
+
+                        if ($p->database_updated())
+                        {
+                            print "yes, the database was updated\n";
+                        }
+                        else
+                        {
+                            print "no, the database was NOT updated\n";
+                            next;
+                        }
+
+                        $fh->close;
+                    }
                     # process $vulns{$v} via vuxml_processing
-                    
-                    if ($p->database_updated())
-                    {
-                        print "yes, the database was updated\n";
-                    }
-                    else
-                    {
-                        print "no, the database was NOT updated\n";
-                        next;
-                    }
 
                     print 'invoking vuxml_mark_commits with ' . $v . "\n";
         			my $CommitMarker = FreshPorts::vuxml_mark_commits->new(DBHandle => $dbh,
