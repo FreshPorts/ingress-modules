@@ -1139,7 +1139,7 @@ sub RefreshFromFiles($;$;$;$) {
 			}
 		}
 	} else {
-		print "this port does not need a refresh or we were told not to fetch\n";
+		print "this port *** EITHER *** does not need a refresh *** OR *** we were told not to fetch\n";
 	}
 
 	# if we didn't use up all of our fetch attempts...
