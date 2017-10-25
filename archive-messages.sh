@@ -32,14 +32,12 @@ fi
 
 DAYS=$1
 
-BASEDIR=${MSGDIR}/msgs/FreeBSD
-
 YYYY_MM_DD=`eval date -v-${DAYS}d "+%Y_%m_%d"`
 YYYY_MM=`eval date -v-${DAYS}d "+%Y_%m"`
 YYYYMMDD=`eval date -v-${DAYS}d "+%Y.%m.%d"`
 
 
-DEST="${BASEDIR}/archive/${YYYY_MM}/${YYYY_MM_DD}/"
+DEST="${MSGDIR}/archive/${YYYY_MM}/${YYYY_MM_DD}/"
 mkdir -p ${DEST}
 
-find ${BASEDIR}/recent -type f -name ${YYYYMMDD}\* | xargs -n 1 -J {} mv {} ${DEST}
+find ${MSGDIR}/recent -type f -name ${YYYYMMDD}\* | xargs -n 1 -J {} mv {} ${DEST}
