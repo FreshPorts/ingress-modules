@@ -87,4 +87,12 @@ $FreshPorts::Constants::PORTS_MOVED						= '/ports/head/MOVED';
 
 $FreshPorts::Constants::Repository_Ports                = 'ports';
 
+#
+# database connection types
+#
+
+$FreshPorts::Constants::DB_ConnectionType_ReadOnly  = 'RO';         # read-only. still rather limited in what you can read
+$FreshPorts::Constants::DB_ConnectionType_Commits   = 'Commits';    # used for inserting and processing new commits
+$FreshPorts::Constants::DB_ConnectionType_Listener  = 'listen';     # for the fp-listen daemon
+
 1;
