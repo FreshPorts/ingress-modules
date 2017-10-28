@@ -61,7 +61,7 @@ sub main {
 		exit 0;
 	}
 
-	$dbh = FreshPorts::Database::GetDBHandle();
+	$dbh = FreshPorts::Database::GetDBHandle($FreshPorts::Constants::DB_ConnectionType => $FreshPorts::Constants::DB_ConnectionType_ReadOnly);
 	if ($dbh->{Active}) {
 
 		CheckMasterPorts($dbh);
