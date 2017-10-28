@@ -23,7 +23,12 @@ sub GetDBHandle {
     # was anything passed in
     my $ConnectionType = delete($opts{$FreshPorts::Constants::DB_ConnectionType});
 
-    if (!defined($ConnectionType) || $ConnectionType eq $FreshPorts::Constants::DB_ConnectionType_Commits) {
+    # assign a default value
+    if (!defined($ConnectionType)) {
+        $ConnectionType = $FreshPorts::Constants::DB_ConnectionType_Commits;
+    }
+
+    if ($ConnectionType eq $FreshPorts::Constants::DB_ConnectionType_Commits) {
         $user     = $FreshPorts::Config::user;
         $password = $FreshPorts::Config::password;
      }
