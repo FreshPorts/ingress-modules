@@ -85,11 +85,9 @@ else
 	OFFLINE=0;
 fi
 
-# define your local cvsup host here
-FREEBSDCVSUPHOST="cvsup.unixathome.org"
-
 # for whoever needs it
 PSQL=/usr/local/bin/psql
 DB=freshports.org
 HOST='localhost'
-DBUSER='USER'
+DBUSER='reading'
+# password goes in ~/.pgpass
