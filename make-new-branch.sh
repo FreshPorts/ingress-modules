@@ -16,5 +16,6 @@ fi
 
 echo ${FRESHPORTS_JAIL_BASE_DIR}${PORTSDIRBASE}
 cd ${FRESHPORTS_JAIL_BASE_DIR}${PORTSDIRBASE}
+
 mkdir "PORTS-$1"
 svn co svn://svn.freebsd.org/ports/branches/$1 "PORTS-$1"
