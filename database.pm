@@ -15,7 +15,30 @@ use Sys::Syslog;
 require config;
 
 sub GetDBHandle {
-	my $dbh_pg = DBI->connect('DBI:Pg:dbname=' . $FreshPorts::Config::dbname . ';host=' . $FreshPorts::Config::host, $FreshPorts::Config::user, $FreshPorts::Config::password);
+    my %opts = @_;
+    
+    my $user;
+    my $password;
+
+    # was anything passed in
+    my $ConnectionType = delete($opts{$FreshPorts::Constants::DB_ConnectionType});
+
+    if (!$ConnectionType) {
+        $user     = $FreshPorts::Config::user;
+        $password = $FreshPorts::Config::password;
+     }
+
+     if ($ConnectionType eq $FreshPorts::Constants::DB_ConnectionType_ReadOnly) {
+         $user     = $FreshPorts::Config::user_readonly;
+         $password = $FreshPorts::Config::password_readonly;
+     }
+
+     if ($ConnectionType eq $FreshPorts::Constants::DB_ConnectionType_Listener) {
+         $user     = $FreshPorts::Config::user_listening;
+         $password = $FreshPorts::Config::password_listening;
+     }
+       
+	my $dbh_pg = DBI->connect('DBI:Pg:dbname=' . $FreshPorts::Config::dbname . ';host=' . $FreshPorts::Config::host . ';sslmode=require', $user, $password);
 	if ($dbh_pg->{Active}) {
 		$dbh_pg->{AutoCommit} = 0;
 
