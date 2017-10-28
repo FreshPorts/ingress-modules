@@ -24,5 +24,5 @@ then
   echo 'This is a list of ports that do not have entries in the ports_categories table'
   echo 'This can be fixed with this query:'
   echo 'begin;  insert into ports_categories select id, category_id from ports_active PA WHERE NOT EXISTS (SELECT * from ports_categories PC where PC.port_id = PA.id and PC.category_id = PA.category_id);'
-  ${PSQL} -h ${HOST} -q -d ${DB} --user www -c "${QUERYROWS} ${QUERYBASE} ${QUERYORDER}"
+  ${PSQL} -h ${HOST} -q -d ${DB} --user  ${DBUSER} -c "${QUERYROWS} ${QUERYBASE} ${QUERYORDER}"
 fi
