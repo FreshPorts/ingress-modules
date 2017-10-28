@@ -91,8 +91,14 @@ $FreshPorts::Constants::Repository_Ports                = 'ports';
 # database connection types
 #
 
-$FreshPorts::Constants::DB_ConnectionType_ReadOnly  = 'RO';         # read-only. still rather limited in what you can read
-$FreshPorts::Constants::DB_ConnectionType_Commits   = 'Commits';    # used for inserting and processing new commits
-$FreshPorts::Constants::DB_ConnectionType_Listener  = 'listen';     # for the fp-listen daemon
+# e.g. my $dbh = FreshPorts::Database::GetDBHandle($FreshPorts::Constants::DB_ConnectionType => $FreshPorts::Constants::DB_ConnectionType_ReadOnly);
+# use this in the call to FreshPorts::Database::GetDBHandle
+$FreshPorts::Constants::DB_ConnectionType           = 'ConnectionType'; 
+
+# The possible values which can be assigned to the ConnectionType parameter when calling GetDBHandle:
+
+$FreshPorts::Constants::DB_ConnectionType_ReadOnly  = 'RO';             # read-only. still rather limited in what you can read
+$FreshPorts::Constants::DB_ConnectionType_Commits   = 'Commits';        # used for inserting and processing new commits
+$FreshPorts::Constants::DB_ConnectionType_Listener  = 'listen';         # for the fp-listen daemon
 
 1;
