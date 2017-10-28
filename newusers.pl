@@ -49,7 +49,7 @@ if (($#ARGV+1) == 2) {
    my $StartDate = $ARGV[0];
    my $EndDate   = $ARGV[1];
 
-   my $dbh = FreshPorts::Database::GetDBHandle();
+   my $dbh = FreshPorts::Database::GetDBHandle($FreshPorts::Constants::DB_ConnectionType => $FreshPorts::Constants::DB_ConnectionType_ReadOnly);
    if (!$dbh) {
       print " connect failed\n";
    }
