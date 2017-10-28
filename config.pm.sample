@@ -90,7 +90,7 @@ $FreshPorts::Config::VuXMLFileFlag              = $FreshPorts::Config::BaseDir .
 $FreshPorts::Config::RefreshCachFileFlag        = $FreshPorts::Config::BaseDir . '/signals/cache_needs_refresh';
 $FreshPorts::Config::WWWENPortsCategoriesFlag   = $FreshPorts::Config::BaseDir . '/signals/www.en.ports.categories';
 
-$FreshPorts::Config::PortsFreezeFile	    	= $FreshPorts::Config::BaseDir . '/signals/PortsFreezeIsInEffect';
+$FreshPorts::Config::PortsFreezeFile            = $FreshPorts::Config::BaseDir . '/signals/PortsFreezeIsInEffect';
 
 # number of files in the ports tree
 $FreshPorts::Config::PortsTreeCount	    	= $FreshPorts::Config::BaseDir . '/cache/html/PortsTreeCount';
