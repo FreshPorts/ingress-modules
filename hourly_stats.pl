@@ -136,7 +136,7 @@ if (!$SystemStatus->Online()) {
 }
 
 
-$dbh = FreshPorts::Database::GetDBHandle($FreshPorts::Constants::DB_ConnectionType => $FreshPorts::Constants::DB_ConnectionType_ReadOnly);
+my $dbh = FreshPorts::Database::GetDBHandle($FreshPorts::Constants::DB_ConnectionType => $FreshPorts::Constants::DB_ConnectionType_ReadOnly);
 
 GetStatistics($dbh);
 CreateHourlySummary();
