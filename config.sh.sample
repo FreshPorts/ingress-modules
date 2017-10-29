@@ -85,7 +85,10 @@ else
 	OFFLINE=0;
 fi
 
-# for whoever needs it
+#
+# we provide readonly access to shell scripts
+# no updates are performed
+#
 PSQL=/usr/local/bin/psql
 DB=freshports.org
 HOST='localhost'
