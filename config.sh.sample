@@ -58,7 +58,7 @@ MOVEDFLAGFILE="${BASEDIR}/signals/refresh_moved"
 
 UPDATINGFLAGFILE="${BASEDIR}/signals/refresh_updating"
 
-PORTSFREEZEFILE="${BASEDIR}/signalsPortsFreezeIsOn"
+PORTSFREEZEFILE="${BASEDIR}/signals/PortsFreezeIsOn"
 
 VUXMLFLAGFILE="${BASEDIR}/signals/vuxml"
 VUXMLMUTEX="${BASEDIR}/signals/vuxml_mutex"
