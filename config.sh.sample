@@ -42,6 +42,7 @@ MSGDIR="${BASEDIR}/message-queues"
 
 DYNAMICROOT="${BASEDIR}/cache"
 CACHINGROOT="${DYNAMICROOT}"
+HTMLROOT="${DYNAMICROOT}/html"
 
 # used by cache-refresh.sh
 CACHEDIR="${CACHINGROOT}"

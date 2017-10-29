@@ -5,4 +5,4 @@
 # Copyright (c) 2001-2003 DVL Software
 #
 
-grep `date -v-1d "+%Y-%m-%d"` /usr/websites/freshports.org/dynamic/searchlog.txt
+grep `date -v-1d "+%Y-%m-%d"` ${CACHINGROOT}/searchlog.txt

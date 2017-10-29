@@ -61,7 +61,7 @@ then
 	fi
 
 	${LOGGER} -t ${LOGGERTAG} "vuxml ident begins on ${VULNFILE}"
-	/usr/local/bin/perl ./vuxml_ident.pl     ${VULNFILE} > ${DYNAMICROOT}/vuxml_revision
+	/usr/local/bin/perl ./vuxml_ident.pl     ${VULNFILE} > ${HTMLROOT}/vuxml_revision
 
 	${LOGGER} -t ${LOGGERTAG} "vuxml latest begins"
 	/usr/local/bin/perl ./vuln_latest.pl
