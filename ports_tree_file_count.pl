@@ -12,7 +12,7 @@ use config;
 use branches;
 
 # this is hardcoded to HEAD for now
-my $Command="/usr/bin/find " . FreshPorts::Branches::GetPathToRepoForBranch($FreshPorts::Constants::HEAD) . " | /usr/bin/wc -l > $FreshPorts::Config::PortsTreeCount";
+my $Command="/usr/bin/find " . FreshPorts::Branches::GetPathToRepoForBranch($FreshPorts::Constants::HEAD) . "/* | /usr/bin/wc -l > $FreshPorts::Config::PortsTreeCount";
 
 # print $Command;
 
