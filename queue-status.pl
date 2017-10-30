@@ -8,6 +8,7 @@
 use strict;
 
 use config;
+use constants;
 use database;
 use utilities;
 use status;
@@ -39,40 +40,42 @@ undef($CountRecent);
 
 my $dbh = FreshPorts::Database::GetDBHandle();
 
-	$msg .= "SITE: $FreshPorts::Config::FreshPortsURL ";
-	foreach my $queue (@FreshPorts::Status::queues) {
-		my $pattern = $queues{$queue};
-		my $Command = "find $FreshPorts::Config::QueueBaseDir/$queue/";
-#		print $Command . "\n";
+$msg .= "SITE: $FreshPorts::Config::FreshPortsURL ";
+foreach my $queue (@FreshPorts::Status::queues) {
+	my $pattern = $queues{$queue};
+	my $Command = "find $FreshPorts::Config::QueueBaseDir/$queue/";
+#	print $Command . "\n";
 
-		if ($pattern ne '') {
-			$Command .= " -name \"$pattern\"";
+	if ($pattern ne '') {
+		$Command .= " -name \"$pattern\"";
+	}
+	$Command .= ' -maxdepth 1 | wc -l';
+
+#	print $Command . "\n";
+
+	my $Count = `$Command`;
+	chomp $Count;
+	$Count = FreshPorts::Utilities::trim($Count);
+	$msg .= " $queue: $Count ";
+
+	if ($queue = 'incoming' && $Count && defined($report_non_zero{$queue})) {
+		if (!defined($CountRecent)) {
+			$CountRecent = FreshPorts::Utilities::CommitCountPeriod($dbh, $Interval);
 		}
-		$Command .= ' -maxdepth 1 | wc -l';
-
-#		print $Command . "\n";
-
-		my $Count = `$Command`;
-		chomp $Count;
-		$Count = FreshPorts::Utilities::trim($Count);
-		$msg .= " $queue: $Count ";
-
-		if ($Count && defined($report_non_zero{$queue})) {
-			if (!defined($CountRecent)) {
-				$CountRecent = FreshPorts::Utilities::CommitCountPeriod($dbh, $Interval);
-			}
-			if ($Count > $CountRecent) {
-				$send_report = 1;
-			}
+		if ($Count > $CountRecent) {
+			$send_report = 1;
 		}
 	}
+}
 
-	$msg .= " ";
+$msg .= " ";
 
 if ($send_report) {
 #	Sys::Syslog::syslog('notice', 'There is a problem with the FreshPorts queues');
 	SendNotice($msg);
+	$dbh->disconnect();
 	exit(1)
 } else {
 	print 'Queues are OK';
+    $dbh->disconnect();
 }
