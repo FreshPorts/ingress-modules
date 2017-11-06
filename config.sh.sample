@@ -49,7 +49,7 @@ CACHEDIR="${CACHINGROOT}"
 NEWSCACHEDIR="${CACHINGROOT}/news"
 
 # used by cache-refresh.sh & process_www_en_ports_categories.sh
-SPOOLINGDIR="${CACHINGROOT}/tmp"
+SPOOLINGDIR="${CACHINGROOT}/spooling"
 
 # What file do we set for /usr/ports/MOVED?
 
