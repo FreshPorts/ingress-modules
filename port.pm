@@ -808,7 +808,7 @@ sub _ExtractValuesFromMakefile {
 
 		chomp($generate_plist); # get rid of the trailing whitespace.
 		
-		print "12x \$generate_plist      = '$generate_plist\n";
+		print "12x \$generate_plist      = '$generate_plist\n'";
 
 		print "12 \$shortdescription     = '$shortdescription'\n";
 		print "13 \$longdescription      = '$longdescription'\n";
