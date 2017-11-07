@@ -261,7 +261,6 @@ update ports
        license_restricted   = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{license_restricted})     . ", 
        manual_package_build = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{manual_package_build})   . ", 
        license_perms        = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{license_perms})          . ", 
-       generate_plist       = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{generate_plist})         . ", 
        categories           = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{categories});
 
 
