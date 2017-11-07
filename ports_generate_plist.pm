@@ -57,9 +57,13 @@ sub save {
 	my (@lines) = split("\n", $this->{generate_plist});
 
 	for (@lines) {
-	  print "pushing '$_'\n";
-      push @sql, "( $this->{port_id}, " . $this->{dbh}->quote($_) . ')';
-    }
+	  if (!$_) {
+	    print "ignoring empty string\n";
+	  } else {
+	    print "pushing '$_'\n";
+	  }
+	  push @sql, "( $this->{port_id}, " . $this->{dbh}->quote($_) . ')';
+	}
 
     $sql .= join(',', @sql) . ';';
 
