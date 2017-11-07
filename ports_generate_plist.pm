@@ -37,19 +37,19 @@ sub save {
 	my $sql;
 	my @row;
 	
-	print "into ports_generate_plist.pm::save()\n";
-	
-	if ($this->{generate_plist} eq '') {
-	  print "nothing in generate_plist to save; leaving\n";
-	  return;
-	}
-
-	print "generate_plist is\n###\n" . $this->{generate_plist} . "\n###";
+	print "generate_plist is:\n###\n" . $this->{generate_plist} . "\n###\n";
 	$sql = 'DELETE FROM generate_plist WHERE port_id = ' . $this->{port_id} . ';';
 	print "sql is $sql\n";
 	$sth = $this->{dbh}->prepare($sql);
 	if (!$sth->execute) {
 		FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql ... maybe invalid? ". $dbh->errstr, 1);
+	}
+
+	print "into ports_generate_plist.pm::save()\n";
+	
+	if ($this->{generate_plist} eq '') {
+	  print "nothing in generate_plist to save; leaving\n";
+	  return;
 	}
 
 	$sql = 'INSERT INTO generate_plist (port_id, installed_file) VALUES ';
