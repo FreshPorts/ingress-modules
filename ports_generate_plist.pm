@@ -61,8 +61,8 @@ sub save {
 	    print "ignoring empty string\n";
 	  } else {
 	    print "pushing '$_'\n";
+	    push @sql, "( $this->{port_id}, " . $this->{dbh}->quote($_) . ')';
 	  }
-	  push @sql, "( $this->{port_id}, " . $this->{dbh}->quote($_) . ')';
 	}
 
     $sql .= join(',', @sql) . ';';
