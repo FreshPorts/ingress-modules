@@ -1299,7 +1299,19 @@ sub update_depends_helper {
   my $port_dependencies = FreshPorts::PortDependencies->new( $this->{dbh} );
 
   foreach $dependent (@depends_list) {
-    print 'adding in ' . $dependent . "\n";
+    print 'adding in ' . $dependent;
+    
+    # a dependant might be of the form:
+    #
+    # * devel/py-setuptools@py27 - a flavour, see https://wiki.freebsd.org/Ports/FlavorsTools
+    # * devel/git:configure - which says git is only needed during the configure phase - see https://www.freebsd.org/doc/en_US.ISO8859-1/books/porters-handbook/makefile-depend.html
+    # 
+    # So we need to split them on either : or @
+    #
+    ($dependent, undef) = split /[@\:]/, $dependent;
+    
+    print " which converts to '$dependent'\n";
+    
     $port_dependencies->{port_name}           = $this->{category} . '/' . $this->{name};
     $port_dependencies->{port_name_dependent} = $dependent;
     $port_dependencies->{depends_type}        = $depends_type;
