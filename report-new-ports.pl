@@ -77,12 +77,12 @@ sub CompileWatchNotifyList($;$;$;$;$;$) {
 	#               and users.id                      = 2
 
 	$sql = "
-  SELECT U.id,
-         U.email,
-         C.name AS category,
-         E.name AS port,
-         to_char(P.date_added + SystemTimeAdjust(), 'DD Mon YYYY') as date_added,
-         P.short_description as description
+  SELECT U.id     AS user_id,
+         U.email  AS user_email,
+         C.name   AS category,
+         E.name   AS port,
+         to_char(P.date_added + SystemTimeAdjust(), 'DD Mon YYYY') AS date_added,
+         P.short_description AS description
     FROM ports P JOIN element E               ON P.date_added > '$LastSent' AND
                                                  P.element_id = E.id AND
                                                  E.status     = 'A'
@@ -146,7 +146,7 @@ sub CompileWatchNotifyList($;$;$;$;$;$) {
 			$LastID        = $row->{user_id};
 			$To            = $row->{user_email};
 			$LastDateAdded = $row->{date_added};
-            $Body .= "$row->{date_added}\n\n";
+			$Body .= "$row->{date_added}\n\n";
 		}
 
 		if ($LastID != $row->{user_id}) {
