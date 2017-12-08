@@ -162,4 +162,3 @@ SELECT C.name AS category,
 
     return $i;
 }
-
