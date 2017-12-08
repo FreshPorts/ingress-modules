@@ -91,12 +91,12 @@ MAIN:
                 if ($updateRequired)
                 {
                     $fh = IO::File->new();
-                    if ($fh->open('< ' . $vulns{$v})) {
-                		$p = FreshPorts::vuxml_parsing->new(Stream        => $fh,
-                                                               DBHandle      => $dbh,
-                                                               UpdateInPlace => 1);
+                    if ($fh->open(\$vulns{$v}, '<')) {
+                        $p = FreshPorts::vuxml_parsing->new(Stream        => $fh,
+                                                            DBHandle      => $dbh,
+                                                            UpdateInPlace => 1);
 
-                		$p->parse_xml($csum);
+                	$p->parse_xml($csum);
 
                         if ($p->database_updated())
                         {
