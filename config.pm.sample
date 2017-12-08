@@ -18,6 +18,9 @@ $FreshPorts::Config::TimeAdjust			= '-10800 seconds';
 
 $FreshPorts::Config::host			= '';
 $FreshPorts::Config::dbname			= 'freshports.org';
+$FreshPorts::Config::user			= '';
+$FreshPorts::Config::password			= '';
+
 
 # there are different users for different purposes
 
@@ -144,6 +147,9 @@ $FreshPorts::Config::DB_Root_Prefix_PORTS  = '/ports';
 $FreshPorts::Config::DB_Root_Prefix_SRC    = '/base';
 
 $FreshPorts::Config::Ports_Default_Directory = $FreshPorts::Config::DB_Root_Prefix_PORTS . '/head';
+
+# scripts for the jail
+$FreshPorts::Config::JailBaseDir = '/usr/FreshPorts' . '/ports-jail';
 
 # this is the path, within the CHROOT, to where we find the SVN directories.
 $FreshPorts::Config::SVNBaseDir  = '/var/db/repos';
