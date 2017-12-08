@@ -22,12 +22,12 @@ $FreshPorts::Config::dbname			= 'freshports.org';
 # there are different users for different purposes
 
 # the first user we created...
-$FreshPorts::Config::user               = 'commits';
+$FreshPorts::Config::user			= 'commits';
 $FreshPorts::Config::password			= '';
 
 # For the fp-listen daemon
-$FreshPorts::Config::user_listening     = 'listening';
-$FreshPorts::Config::password_listening = '';
+$FreshPorts::Config::user_listening		= 'listening';
+$FreshPorts::Config::password_listening		= '';
 
 # For readonly connections
 $FreshPorts::Config::user_readonly      = 'reading';
