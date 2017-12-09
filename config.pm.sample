@@ -18,9 +18,6 @@ $FreshPorts::Config::TimeAdjust			= '-10800 seconds';
 
 $FreshPorts::Config::host			= '';
 $FreshPorts::Config::dbname			= 'freshports.org';
-$FreshPorts::Config::user			= '';
-$FreshPorts::Config::password			= '';
-
 
 # there are different users for different purposes
 
@@ -33,8 +30,8 @@ $FreshPorts::Config::user_listening		= 'listening';
 $FreshPorts::Config::password_listening		= '';
 
 # For readonly connections
-$FreshPorts::Config::user_readonly      = 'reading';
-$FreshPorts::Config::password_readonly  = '';
+$FreshPorts::Config::user_readonly		= 'reading';
+$FreshPorts::Config::password_readonly		= '';
 
 $FreshPorts::Config::BaseDir			= '/var/db/freshports';
 
