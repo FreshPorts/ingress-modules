@@ -59,6 +59,7 @@ MAIN:
 	my $dbh;
 	$dbh = FreshPorts::Database::GetDBHandle();
 	if ($dbh->{Active}) {
+        $fh = IO::File->new();
         my $vuxml = FreshPorts::vuxml->new( $dbh );
           
         eval {
@@ -90,7 +91,6 @@ MAIN:
 
                 if ($updateRequired)
                 {
-                    $fh = IO::File->new();
                     if ($fh->open(\$vulns{$v}, '<')) {
                         $p = FreshPorts::vuxml_parsing->new(Stream        => $fh,
                                                             DBHandle      => $dbh,
