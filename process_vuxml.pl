@@ -56,9 +56,9 @@ MAIN:
 
     %vulns = @vulns;
     
-	my $dbh;
-	$dbh = FreshPorts::Database::GetDBHandle();
-	if ($dbh->{Active}) {
+    my $dbh;
+    $dbh = FreshPorts::Database::GetDBHandle();
+    if ($dbh->{Active}) {
         $fh = IO::File->new();
         my $vuxml = FreshPorts::vuxml->new( $dbh );
           
@@ -68,7 +68,7 @@ MAIN:
                 # Make sure xml snippet is terminated with a newline
                 $vulns{$v} =~ s/\n*\Z/\n/s;
 
-#               print $vulns{$v};
+#       	print $vulns{$v};
 
                 my $csum = sha256_hex( $vulns{$v} );
 
@@ -76,68 +76,65 @@ MAIN:
                 my $checksum = $vuxml->FetchChecksumByVID($v);
 
                 my $updateRequired = 1;
-                if (defined($checksum))
-                {
-                    if ($csum eq $checksum && 1)
-                    {
+                if (defined($checksum)) {
+
+                    if ($csum eq $checksum && 1) {
                         $updateRequired = 0;
                     }
+
                     print "$v = '$csum' '$checksum'\n";
-                }
-                else
-                {
+                } else {
                     print "$v = '$csum' not found\n";
                 }
 
-                if ($updateRequired)
-                {
+                if ($updateRequired) {
                     if ($fh->open(\$vulns{$v}, '<')) {
                         $p = FreshPorts::vuxml_parsing->new(Stream        => $fh,
                                                             DBHandle      => $dbh,
                                                             UpdateInPlace => 1);
 
-                	$p->parse_xml($csum);
+                        $p->parse_xml($csum);
 
-                        if ($p->database_updated())
-                        {
+                        if ($p->database_updated()) {
                             print "yes, the database was updated\n";
-                        }
-                        else
-                        {
+                        } else {
                             print "no, the database was NOT updated\n";
                             next;
                         }
 
                         $fh->close;
-                    }
+                    } # if ($fh->open
+
                     # process $vulns{$v} via vuxml_processing
 
                     print 'invoking vuxml_mark_commits with ' . $v . "\n";
-        			my $CommitMarker = FreshPorts::vuxml_mark_commits->new(DBHandle => $dbh,
+                    my $CommitMarker = FreshPorts::vuxml_mark_commits->new(DBHandle => $dbh,
                                                                            vid      => $v);
                     print 'invoking ProcessEachRangeRecord'. "\n";
-		        	my $i = $CommitMarker->ProcessEachRangeRecord();
+                    my $i = $CommitMarker->ProcessEachRangeRecord();
 
                     print 'invoking ClearCachedEntries' . "\n";
-        			$CommitMarker->ClearCachedEntries($v);
-                }
-            }
-        };
+                    $CommitMarker->ClearCachedEntries($v);
+                } # if ($updateRequired)
+            } # for my $v
+        }; # eval
+
         print 'finished with eval()' . "\n";
 
         # if something went wrong in the eval, abort and don't do a commit
         if ($@) {
             print "We've got a problem.";
-        	print "$0: $@\n";
-	    	FreshPorts::CommitterOptIn::RecordErrorDetails("error processing vuxml", $0);
-        	die "$0: $@\n";
+            print "$0: $@\n";
+            FreshPorts::CommitterOptIn::RecordErrorDetails("error processing vuxml", $0);
+            die "$0: $@\n";
         }
-        print "committing\n";
-		$dbh->commit();
 
-		$dbh->disconnect();
-    }
-}
+        print "committing\n";
+        $dbh->commit();
+
+        $dbh->disconnect();
+    } # if ($dbh->{Active}
+} # MAIN
 
 system();
 
