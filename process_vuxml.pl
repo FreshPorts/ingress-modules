@@ -21,7 +21,6 @@ use Digest::SHA qw(sha256_hex);
 use autodie qw(:default);
 use IO::File;
 
-use committer_opt_in;
 use database;
 use vuxml;
 use vuxml_parsing;
