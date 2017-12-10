@@ -39,9 +39,6 @@ MAIN:
     my %vulns;
     my @vulns;
 
-    my $fh;
-    my $p;
-
     # slurp vuln.xml whole.
     local $/;
 
@@ -58,7 +55,7 @@ MAIN:
     my $dbh;
     $dbh = FreshPorts::Database::GetDBHandle();
     if ($dbh->{Active}) {
-        $fh = IO::File->new();
+        my $fh = IO::File->new();
         my $vuxml = FreshPorts::vuxml->new( $dbh );
           
         eval {
@@ -88,7 +85,7 @@ MAIN:
 
                 if ($updateRequired) {
                     if ($fh->open(\$vulns{$v}, '<')) {
-                        $p = FreshPorts::vuxml_parsing->new(Stream        => $fh,
+                        my $p = FreshPorts::vuxml_parsing->new(Stream        => $fh,
                                                             DBHandle      => $dbh,
                                                             UpdateInPlace => 1);
 
