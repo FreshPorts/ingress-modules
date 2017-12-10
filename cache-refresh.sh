@@ -7,8 +7,6 @@
 
 LOGGERTAG="cache-refresh.sh"
 
-${LOGGER} -t ${LOGGERTAG} "cache-refresh.sh needs to be rewritten to mv files to the correct places"
-
 if [ ! -f config.sh ]
 then
 	echo "config.sh not found..."
@@ -17,6 +15,8 @@ fi
 
 . config.sh
 
+${LOGGER} -t ${LOGGERTAG} "cache-refresh.sh needs to be rewritten to mv files to the correct places"
+
 if [ $OFFLINE = 1 ]
 then
 	exit 0
@@ -24,25 +24,25 @@ fi
 
 if [ "${WEBSITEURL}x" = "x" ]
 then
-	echo 'define WEBSITEURL in config.sh first'
+	${LOGGER} -t ${LOGGERTAG} 'define WEBSITEURL in config.sh first'
 	exit 1
 fi
 
 if [ "${SPOOLINGDIR}x" = "x" ]
 then
-	echo 'define SPOOLINGDIR in config.sh first'
+	${LOGGER} -t ${LOGGERTAG}  'define SPOOLINGDIR in config.sh first'
 	exit 1
 fi
 
 if [ "${CACHE_NEEDS_REFRESH}x" = 'x' ]
 then
-	echo "please set CACHE_NEEDS_REFRESH in config.sh"
+	${LOGGER} -t ${LOGGERTAG}  "please set CACHE_NEEDS_REFRESH in config.sh"
 	exit 1
 fi
 
-#echo ${NEWSCACHEDIR}
-#echo ${SPOOLINGDIR}
-#echo ${CACHE_NEEDS_REFRESH}
+echo ${NEWSCACHEDIR}
+echo ${SPOOLINGDIR}
+echo ${CACHE_NEEDS_REFRESH}
 
 if [ -r ${CACHE_NEEDS_REFRESH} ]
 then
@@ -51,12 +51,12 @@ then
 	#
 	/bin/rm -f ${NEWSCACHEDIR}/*.xml
 
-	${FETCH} ${FETCH_OPTIONS} ${SPOOLINGDIR}/index.html      ${WEBSITEURL}caching-files/index.php?numcommits=10
-	${FETCH} ${FETCH_OPTIONS} ${SPOOLINGDIR}/commits.html    ${WEBSITEURL}caching-files/index.php?numcommits=100
-	${FETCH} ${FETCH_OPTIONS} ${SPOOLINGDIR}/news.rss        ${WEBSITEURL}caching-files/news.php
-	${FETCH} ${FETCH_OPTIONS} ${SPOOLINGDIR}/ports-new.rss   ${WEBSITEURL}caching-files/ports-new.php
+	${FETCH} ${FETCH_OPTIONS} ${SPOOLINGDIR}/index.html      ${WEBSITEURL}/caching-files/index.php?numcommits=10
+	${FETCH} ${FETCH_OPTIONS} ${SPOOLINGDIR}/commits.html    ${WEBSITEURL}/caching-files/index.php?numcommits=100
+	${FETCH} ${FETCH_OPTIONS} ${SPOOLINGDIR}/news.rss        ${WEBSITEURL}/caching-files/news.php
+	${FETCH} ${FETCH_OPTIONS} ${SPOOLINGDIR}/ports-new.rss   ${WEBSITEURL}/caching-files/ports-new.php
 
-	${FETCH} ${FETCH_OPTIONS} ${SPOOLINGDIR}/categories-by-category.html    ${WEBSITEURL}caching-files/categories.php
+	${FETCH} ${FETCH_OPTIONS} ${SPOOLINGDIR}/categories-by-category.html    ${WEBSITEURL}/caching-files/categories.php
 
 	#
 	# because of these wild cards, we need to have exclusive use of SPOOLINGDIR
@@ -69,4 +69,6 @@ then
 	# remove the flag
 	#
 	/bin/rm "${CACHE_NEEDS_REFRESH}"
+else
+	${LOGGER} -t ${LOGGERTAG} ${CACHE_NEEDS_REFRESH} not set
 fi
