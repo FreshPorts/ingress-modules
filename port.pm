@@ -1291,8 +1291,9 @@ sub update_depends_helper {
 	}
 
   # this magic courtesy of Ade Lovett
+  # with a tweak on 2017.12.15 from https://gist.github.com/ktracer
   # NOTE: this removes duplicates
-  my @depends_list = uniq( map { s/^.*://;$_ } split(/ /, $depends) );
+  my @depends_list = uniq( map { s/^[^:]+://;$_ } split(/ /, $depends) );
   print "The '" . $depends_type . "' depends are: ";
   print join(' - ', @depends_list) . "\n";
 
