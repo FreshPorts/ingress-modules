@@ -776,7 +776,7 @@ sub _ExtractValuesFromMakefile {
                    }
 		}
 		chomp($pkgmessage); # get rid of the trailing whitespace.
-		
+
 		my $RealDistInfoFilePath = $this->_GetRealPath($distinfo_file);
 		# if it's defined, and it exists....
 		my $distinfo = '';
@@ -806,7 +806,7 @@ sub _ExtractValuesFromMakefile {
     	print 'Result = ' . $result . "\n";
 
 		chomp($generate_plist); # get rid of the trailing whitespace.
-		
+
 		print "12x \$generate_plist      = '$generate_plist\n'";
 
 		print "12 \$shortdescription     = '$shortdescription'\n";
