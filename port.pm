@@ -1045,6 +1045,11 @@ sub _GetFileContentsFromJail($) {
 sub _GetRealPath($) {
 	my $this = shift;
   	my $file = shift;
+  	
+  	if ($file == '') {
+	  Sys::Syslog::syslog('warning', "_GetRealPath was handed an empty file name");
+  	  return '';
+        }
 
 	# invoke realpath on the supplied filename, from within our chroot
 	my $makecommand = "/usr/local/bin/sudo /usr/sbin/chroot -u $FreshPorts::Config::JailUser $FreshPorts::Config::JailBaseDir $FreshPorts::Config::JailRealPath $file";
