@@ -14,7 +14,7 @@
 
 use strict;
 use FreshPorts::port;
-use FreshPorts::DBI;
+use DBI;
 use FreshPorts::database;
 use FreshPorts::utilities;
 

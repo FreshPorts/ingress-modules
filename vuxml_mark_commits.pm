@@ -8,7 +8,7 @@
 package FreshPorts::vuxml_mark_commits;
 
 use strict;
-use FreshPorts::DBI;
+use DBI;
 use FreshPorts::database;
 use FreshPorts::constants;
 use FreshPorts::email;
