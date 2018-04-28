@@ -9,7 +9,7 @@ package FreshPorts::Element;
 
 use strict;
 use File::Basename;
-use utilities;
+use FreshPorts::utilities;
 
 $FreshPorts::Element::Active	= 'A';
 $FreshPorts::Element::Deleted	= 'D';

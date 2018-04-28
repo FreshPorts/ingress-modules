@@ -8,11 +8,11 @@
 package FreshPorts::Caching;
 
 use strict;
-use utilities;
-use config;
-use Sys::Syslog;
+use FreshPorts::utilities;
+use FreshPorts::config;
+use Syslog;
 
-require config;
+require FreshPorts::config;
 
 sub new {
 	my $this		= {};

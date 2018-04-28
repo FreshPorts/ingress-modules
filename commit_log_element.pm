@@ -9,10 +9,9 @@
 package FreshPorts::CommitLogElement;
 
 use strict;
-use utilities;
+use FreshPorts::utilities;
 
-require constants;
-
+require FreshPorts::constants;
 
 sub new {
 	my $this		= {};

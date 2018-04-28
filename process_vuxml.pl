@@ -16,15 +16,15 @@
 
 #use 5.10.1;
 use strict;
-use warnings;
+use FreshPorts::warnings;
 use Digest::SHA qw(sha256_hex);
 use autodie qw(:default);
 use IO::File;
 
-use database;
-use vuxml;
-use vuxml_parsing;
-use vuxml_mark_commits;
+use FreshPorts::database;
+use FreshPorts::vuxml;
+use FreshPorts::vuxml_parsing;
+use FreshPorts::vuxml_mark_commits;
 
 #use feature qw(switch);
 

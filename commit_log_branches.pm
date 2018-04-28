@@ -6,7 +6,7 @@
 package FreshPorts::Commit_Log_Branches;
 
 use strict;
-use utilities;
+use FreshPorts::utilities;
 
 sub new {
 	my $this		= {};

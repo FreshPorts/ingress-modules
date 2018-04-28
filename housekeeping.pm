@@ -8,7 +8,7 @@
 package FreshPorts::Housekeeping;
 
 use strict;
-use utilities;
+use FreshPorts::utilities;
 
 sub new {
 	my $this		= {};

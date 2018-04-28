@@ -7,11 +7,11 @@
 
 use strict;
 
-use config;
-use constants;
-use database;
-use utilities;
-use status;
+use FreshPorts::config;
+use FreshPorts::constants;
+use FreshPorts::database;
+use FreshPorts::utilities;
+use FreshPorts::status;
 
 sub SendNotice($) {
 	my $Msg		= shift;

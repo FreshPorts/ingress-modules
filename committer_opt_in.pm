@@ -7,8 +7,8 @@
 
 package FreshPorts::CommitterOptIn;
 
-use email;
-use config;
+use FreshPorts::email;
+use FreshPorts::config;
 use strict;
 
 use Text::Wrap;

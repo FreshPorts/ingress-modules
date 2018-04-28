@@ -7,11 +7,11 @@
 
 use strict;
 
-use database; 
+use FreshPorts::database; 
 use DBI;
 
 require Sys::Syslog;
-require config;
+require FreshPorts::config;
 
 
 my $dbh = FreshPorts::Database::GetDBHandle();

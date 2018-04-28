@@ -7,14 +7,14 @@
 
 use strict;
 
-use port;
-use DBI;
-use database;
-use utilities;
-use commit_log_ports;
-use system_status;
-use commit_log_ports_ignore;
-use caching;
+use FreshPorts::port;
+use FreshPorts::DBI;
+use FreshPorts::database;
+use FreshPorts::utilities;
+use FreshPorts::commit_log_ports;
+use FreshPorts::system_status;
+use FreshPorts::commit_log_ports_ignore;
+use FreshPorts::caching;
 use Getopt::Long;
 
 my $dbh;

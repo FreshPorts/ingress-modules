@@ -7,14 +7,14 @@
 
 use strict;
 
-use port;
-use database; 
+use FreshPorts::port;
+use FreshPorts::database; 
 use DBI;
-use email;
-use commit_log_ports_ignore;
-use system_status;
+use FreshPorts::email;
+use FreshPorts::commit_log_ports_ignore;
+use FreshPorts::system_status;
 
-require config;
+require FreshPorts::config;
 
 
 sub SendNotice($;$;$) {

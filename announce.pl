@@ -7,9 +7,9 @@
 
 use strict;
 use DBI;
-use database;
-use constants;
-use email;
+use FreshPorts::database;
+use FreshPorts::constants;
+use FreshPorts::email;
 
 my @USERS;
 my $sql;

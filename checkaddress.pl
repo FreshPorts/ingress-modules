@@ -1,8 +1,8 @@
 #!/usr/local/bin/perl
 
 use strict;
-use constants;
-use database; 
+use FreshPorts::constants;
+use FreshPorts::database; 
 use DBI;
 
 require Sys::Syslog;

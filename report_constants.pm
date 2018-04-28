@@ -6,7 +6,7 @@
 
 package FreshPorts::ReportConstants;
 
-require config;
+require FreshPorts::config;
 
 $FreshPorts::ReportConstants::Notification	= 1;
 $FreshPorts::ReportConstants::NewPorts		= 2;

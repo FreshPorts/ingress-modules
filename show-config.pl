@@ -1,7 +1,7 @@
 #!/usr/local/bin/perl
 
-require config;
-require branches;
+require FreshPorts::config;
+require FreshPorts::branches;
 
 print "\$FreshPorts::Config::BaseDir                               = '$FreshPorts::Config::BaseDir'\n";
 print "\$FreshPorts::Config::CVS_Repository                        = '$FreshPorts::Config::CVS_Repository'\n";

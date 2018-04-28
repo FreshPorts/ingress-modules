@@ -8,7 +8,7 @@
 package FreshPorts::CommitLogPorts;
 
 use strict;
-use utilities;
+use FreshPorts::utilities;
 
 sub new {
 	my $this		= {};

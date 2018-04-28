@@ -424,7 +424,7 @@ sub update_database_vuxml
     my __PACKAGE__ $self = shift;
 	my $vuxml_org        = shift;
 
-    use vuxml;
+    use FreshPorts::vuxml;
 
 	my $vuxml_id;
 	
@@ -457,9 +457,9 @@ sub update_database_vuxml_affected
 
     my $package_count = 0;
 
-    use vuxml_affected;
-    use vuxml_names;
-    use vuxml_ranges;
+    use FreshPorts::vuxml_affected;
+    use FreshPorts::vuxml_names;
+    use FreshPorts::vuxml_ranges;
 
     my $vuxml_affected          = FreshPorts::vuxml_affected->new( $self->{db_handle} );
     my $vuxml_affected_names    = FreshPorts::vuxml_names->new   ( $self->{db_handle} );
@@ -530,7 +530,7 @@ sub update_database_vuxml_references
 
     my $reference_count = 0;
 
-    use vuxml_references;
+    use FreshPorts::vuxml_references;
 
     my $vuxml_references = FreshPorts::vuxml_references->new( $self->{db_handle} );
 

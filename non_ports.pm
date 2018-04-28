@@ -7,7 +7,7 @@
 package FreshPorts::NonPorts;
 
 use strict;
-use utilities;
+use FreshPorts::utilities;
 
 sub new {
 	my $this		= {};

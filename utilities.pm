@@ -7,10 +7,10 @@
 
 package FreshPorts::Utilities;
 
-require config;
+require FreshPorts::config;
 require Sys::Syslog;
 
-require	email;
+require FreshPorts::email;
 require Text::Wrap;
 
 # =================================

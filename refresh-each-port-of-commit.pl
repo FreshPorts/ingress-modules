@@ -13,10 +13,10 @@
 
 
 use strict;
-use port;
-use DBI;
-use database;
-use utilities;
+use FreshPorts::port;
+use FreshPorts::DBI;
+use FreshPorts::database;
+use FreshPorts::utilities;
 
 my $dbh;
 

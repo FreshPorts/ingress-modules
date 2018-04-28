@@ -30,21 +30,21 @@ use base qw( Class::Observable );
 
 require Sys::Syslog;
 
-use element;
-use verifyport;
-use config;
-use constants;
-use commit_log;
-use commit_log_branches;
-use commit_log_element;
-use db_utils;
-use database;
-use utilities;
-use cache;
-use committer_opt_in;
-use non_ports;
-use messages;
-use sanity_test_failures;
+use FreshPorts::element;
+use FreshPorts::verifyport;
+use FreshPorts::config;
+use FreshPorts::constants;
+use FreshPorts::commit_log;
+use FreshPorts::commit_log_branches;
+use FreshPorts::commit_log_element;
+use FreshPorts::db_utils;
+use FreshPorts::database;
+use FreshPorts::utilities;
+use FreshPorts::cache;
+use FreshPorts::committer_opt_in;
+use FreshPorts::non_ports;
+use FreshPorts::messages;
+use FreshPorts::sanity_test_failures;
 
 use XML::Node;
 use DBI;

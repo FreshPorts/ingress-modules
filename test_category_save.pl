@@ -6,13 +6,13 @@
 #
 use strict;
 use DBI;
-use element;
-use category;
-use database;
+use FreshPorts::element;
+use FreshPorts::category;
+use FreshPorts::database;
 
 use Sys::Syslog;
 
-require config;
+require FreshPorts::config;
 
 my ($dbh, $category, $name);
 

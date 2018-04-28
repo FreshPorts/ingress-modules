@@ -9,11 +9,11 @@
 #use 5.006;
 use warnings;
 use strict;
-use category;
+use FreshPorts::category;
 use DBI;
-use database;
-use utilities;
-use constants;
+use FreshPorts::database;
+use FreshPorts::utilities;
+use FreshPorts::constants;
 
 my $dbh;
 my $sql;

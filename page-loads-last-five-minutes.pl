@@ -8,10 +8,10 @@
 use strict;
 
 use DBI;
-use database;
+use FreshPorts::database;
 #use cache;
 #use commit_log_ports_ignore;
-use system_status;
+use FreshPorts::system_status;
 
 my $dbh;
 my @row;

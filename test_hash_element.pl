@@ -7,15 +7,15 @@
 
 use strict;
 use DBI;
-use element;
-use category;
-use port;
-use database;
+use FreshPorts::element;
+use FreshPorts::category;
+use FreshPorts::port;
+use FreshPorts::database;
 
 use File::Basename;
 use Sys::Syslog;
 
-require config;
+require FreshPorts::config;
 
 my ($dbh, $port, $name);
 

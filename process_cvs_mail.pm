@@ -10,8 +10,8 @@
 
 use strict;
 use XML::Writer;
-use constants;
-use utilities;
+use FreshPorts::constants;
+use FreshPorts::utilities;
 
 #####
 # GetMessage - Get the actual email from STDIN

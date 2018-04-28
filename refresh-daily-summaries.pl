@@ -8,10 +8,11 @@
 use strict;
 
 use DBI;
-use database;
-use cache;
-use commit_log_ports_ignore;
-use system_status;
+use FreshPorts::database;
+use FreshPorts::cache;
+use FreshPorts::commit_log_ports_ignore;
+use FreshPorts::system_status;
+
 my $dbh;
 
 my $DaysRefreshed;

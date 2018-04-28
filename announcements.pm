@@ -7,7 +7,7 @@
 
 package FreshPorts::Announcements;
 
-use utilities;
+use FreshPorts::utilities;
 
 sub new {
 	my $this			= {};

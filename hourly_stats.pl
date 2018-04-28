@@ -7,11 +7,11 @@
 
 use strict;
 
-use port;
-use database; 
+use FreshPorts::port;
+use FreshPorts::database; 
 use DBI;
-use commit_log_ports_ignore;
-use system_status;
+use FreshPorts::commit_log_ports_ignore;
+use FreshPorts::system_status;
 
 my %Queries = (
 	new         => 'select Stats_PortCount()',
@@ -34,7 +34,7 @@ my %Queries = (
 
 my %Stats;
 
-require config;
+require FreshPorts::config;
 
 sub GetStatistics($) {
 	my $dbh = shift;

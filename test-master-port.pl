@@ -12,10 +12,10 @@ use strict;
 
 require Sys::Syslog;
 
-use db_utils;
-use database;
-use utilities;
-use system_status;
+use FreshPorts::db_utils;
+use FreshPorts::database;
+use FreshPorts::utilities;
+use FreshPorts::system_status;
 
 use DBI;
 

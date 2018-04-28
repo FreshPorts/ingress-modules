@@ -8,9 +8,9 @@
 package FreshPorts::vuxml_affected;
 
 use strict;
-use utilities;
+use FreshPorts::utilities;
 
-use vuxml_package;
+use FreshPorts::vuxml_package;
 
 sub new {
 	my $this		= {};

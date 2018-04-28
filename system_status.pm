@@ -9,8 +9,8 @@
 package FreshPorts::SystemStatus;
 
 use strict;
-use utilities;
-use config;
+use FreshPorts::utilities;
+use FreshPorts::config;
 
 require constants;
 

@@ -7,17 +7,17 @@
 package FreshPorts::VerifyPort;
 
 use strict;
-use branches;
-use element;
-use category;
-use port;
-use commit_log_ports;
-use commit_log_port_elements;
-use commit_log_ports_elements;
-use utilities;
-use committer_opt_in;
-use master_slave;
-use vuxml_mark_commits;
+use FreshPorts::branches;
+use FreshPorts::element;
+use FreshPorts::category;
+use FreshPorts::port;
+use FreshPorts::commit_log_ports;
+use FreshPorts::commit_log_port_elements;
+use FreshPorts::commit_log_ports_elements;
+use FreshPorts::utilities;
+use FreshPorts::committer_opt_in;
+use FreshPorts::master_slave;
+use FreshPorts::vuxml_mark_commits;
 
 require File::Basename;
 require Sys::Syslog;

@@ -8,13 +8,13 @@
 package FreshPorts::vuxml_packages;
 
 use strict;
-use utilities;
-use constants;
+use FreshPorts::utilities;
+use FreshPorts::constants;
 
-use vuxml_affected;
-use vuxml_names;
-use vuxml_ranges;
-use vuxml_package;
+use FreshPorts::vuxml_affected;
+use FreshPorts::vuxml_names;
+use FreshPorts::vuxml_ranges;
+use FreshPorts::vuxml_package;
 
 sub new {
 	my $this		= {};

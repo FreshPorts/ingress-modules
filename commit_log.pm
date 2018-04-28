@@ -8,7 +8,7 @@
 package FreshPorts::Commit_Log;
 
 use strict;
-use utilities;
+use FreshPorts::utilities;
 use File::Basename;
 
 sub new {

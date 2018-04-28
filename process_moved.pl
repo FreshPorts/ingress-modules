@@ -12,12 +12,12 @@ use strict;
 
 require Sys::Syslog;
 
-use branches;
-use constants;
-use db_utils;
-use database;
-use utilities;
-use caching;
+use FreshPorts::branches;
+use FreshPorts::constants;
+use FreshPorts::db_utils;
+use FreshPorts::database;
+use FreshPorts::utilities;
+use FreshPorts::caching;
 
 use DBI;
 

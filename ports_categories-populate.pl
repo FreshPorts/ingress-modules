@@ -6,12 +6,12 @@
 #
 
 use strict;
-use port;
+use FreshPorts::port;
 use DBI;
-use category;
-use database;
-use utilities;
-use ports_categories;
+use FreshPorts::category;
+use FreshPorts::database;
+use FreshPorts::utilities;
+use FreshPorts::ports_categories;
 
 my $dbh;
 

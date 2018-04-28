@@ -8,9 +8,9 @@
 use strict;
 use DBI;
 
-use database;
-use commit_log_ports_ignore;
-use system_status;
+use FreshPorts::database;
+use FreshPorts::commit_log_ports_ignore;
+use FreshPorts::system_status;
 
 sub SendNotice($;$) {
    my $StartDate = shift;

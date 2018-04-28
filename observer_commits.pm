@@ -9,7 +9,7 @@
 
 package FreshPorts::ObserverCommits;
 
-use special_processing_files;
+use FreshPorts::special_processing_files;
 
 my %PortsCacheRemove;
 my %FilesCacheRemove;
@@ -64,7 +64,7 @@ sub update {
 	if ($action eq $FreshPorts::Messages::PortsRefreshed) {
 		print "Observer has noticed that ports for $params{message_id} have been refreshed.\n";
 
-		use ports_vulnerable;
+		use FreshPorts::ports_vulnerable;
 
 		$PV = FreshPorts::PortsVulnerable->new($class->{dbh});
 		$PV->PortsVulnerabilityCountAdjust($params{CommitLogPorts});
@@ -122,7 +122,7 @@ sub update {
 	if ($action eq $FreshPorts::Messages::TransactionCommitted) {
 		print "Observer has noticed that a transaction has been committed.\n";
 
-		use caching;
+		use FreshPorts::caching;
 		$Caching = FreshPorts::Caching->new($class->{dbh});
 		$Caching->RemovePortsFromCache(\%PortsCacheRemove);
 		$Caching->RemoveFilesFromCache(\%FilesCacheRemove);

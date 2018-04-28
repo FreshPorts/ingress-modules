@@ -9,9 +9,10 @@ package FreshPorts::email;
 use strict;
 use Mail::Sender;
 
-use config;
-use utilities;
+use FreshPorts::config;
+use FreshPorts::utilities;
 use Mozilla::CA;
+
 IO::Socket::SSL::set_defaults(
     SSL_ca_file => Mozilla::CA::SSL_ca_file(),
 );

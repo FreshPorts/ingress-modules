@@ -5,8 +5,8 @@
 
 package FreshPorts::Branches;
 
-require config;
-require utilities;
+require FreshPorts::config;
+require FreshPorts::utilities;
 
 # these are the mailing lists associated with those branches
 %FreshPorts::Branches::MailingLists = (

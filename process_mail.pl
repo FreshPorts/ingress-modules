@@ -9,11 +9,11 @@
 #
 
 use strict;
-use branches;
+use FreshPorts::branches;
 use XML::Writer;
-use constants;
-use utilities;
-use process_mail;
+use FreshPorts::constants;
+use FreshPorts::utilities;
+use FreshPorts::process_mail;
 
 &main;
 exit;
@@ -59,7 +59,7 @@ sub main {
     {
       $found = 1;
       my $process = $ListProperties->{'process'};
-      eval "use $process";
+      eval "use FreshPorts::$process";
     }
 
 	if (!$found) {

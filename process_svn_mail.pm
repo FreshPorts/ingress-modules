@@ -11,10 +11,10 @@
 use strict;
 use Date::Parse;
 use XML::Writer;
-use constants;
-use utilities;
-use process_mail;
-use branches;
+use FreshPorts::constants;
+use FreshPorts::utilities;
+use FreshPorts::process_mail;
+use FreshPorts::branches;
 
 #####
 # GetMessage - Get the actual email from STDIN

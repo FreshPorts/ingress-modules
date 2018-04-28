@@ -7,17 +7,17 @@
 
 use strict;
 
-use port;
-use database;
+use FreshPorts::port;
+use FreshPorts::database;
 use DBI;
-use config;
-use report_constants;
-use announcements;
-use commit_log_ports_ignore;
-use system_status;
+use FreshPorts::config;
+use FreshPorts::report_constants;
+use FreshPorts::announcements;
+use FreshPorts::commit_log_ports_ignore;
+use FreshPorts::system_status;
 
 use Text::Wrap;
-use email;
+use FreshPorts::email;
 
 my $Debug = 0;
 

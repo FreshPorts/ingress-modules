@@ -23,9 +23,9 @@
 
 use strict;
 
-use database;
-use xml_munge;
-use observer_commits;
+use FreshPorts::database;
+use FreshPorts::xml_munge;
+use FreshPorts::observer_commits;
 
 my $dbh = FreshPorts::Database::GetDBHandle();
 if ($dbh->{Active}) {

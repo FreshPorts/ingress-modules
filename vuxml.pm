@@ -8,11 +8,11 @@
 package FreshPorts::vuxml;
 
 use strict;
-use utilities;
-use constants;
-use vuxml_package;
-use database;
-use db_utils;
+use FreshPorts::utilities;
+use FreshPorts::constants;
+use FreshPorts::vuxml_package;
+use FreshPorts::database;
+use FreshPorts::db_utils;
 
 use Encode qw(decode encode);
 

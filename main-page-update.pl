@@ -6,13 +6,12 @@
 #
 
 use strict;
-use lib "$ENV{HOME}/scripts";
+#use lib "$ENV{HOME}/scripts";
 use DBI;
-use database;
-use utilities;
-use housekeeping;
-use cache;
-
+use FreshPorts::database;
+use FreshPorts::utilities;
+use FreshPorts::housekeeping;
+use FreshPorts::cache;
 
 my $dbh;
 

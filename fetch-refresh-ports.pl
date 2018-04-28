@@ -6,15 +6,15 @@
 #
 
 use strict;
-use lib '/home/freshports.org/scripts/updates';
-use port;
+#use lib '/home/freshports.org/scripts/updates';
+use FreshPorts::port;
  
 use DBI;
 
-use lib '~/tmp/scripts';
+#use lib '~/tmp/scripts';
 
-use database;
-use utilities;
+use FreshPorts::database;
+use FreshPorts::utilities;
 
 my $dbh;
 

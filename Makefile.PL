@@ -7,7 +7,7 @@ use ExtUtils::MakeMaker;
 # the contents of the Makefile that is written.
 WriteMakefile(
     'NAME'    => 'FreshPorts::Scripts',
-    'VERSION' => '%%PORTREVISION%%',
+    'VERSION' => '1.1.1',
 
     # A manually-created META.yml has all the other metadata;
     #  we don't want it overwritten

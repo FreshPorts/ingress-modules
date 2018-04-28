@@ -8,9 +8,9 @@
 package FreshPorts::SpecialProcessingFiles;
 
 use strict;
-use constants;
-use utilities;
-use config;
+use FreshPorts::constants;
+use FreshPorts::utilities;
+use FreshPorts::config;
 use File::Basename;
 
 sub Eat($;$;$;$;$) {

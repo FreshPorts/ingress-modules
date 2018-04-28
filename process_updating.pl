@@ -12,19 +12,17 @@
 # and can be dev/null'd.
 #
 
-
 use strict;
-use warnings;
+use FreshPorts::warnings;
 
 require Sys::Syslog;
 
-use branches;
-use db_utils;
-use database;
-use utilities;
-use config;
-use caching;
-
+use FreshPorts::branches;
+use FreshPorts::db_utils;
+use FreshPorts::database;
+use FreshPorts::utilities;
+use FreshPorts::config;
+use FreshPorts::caching;
 
 use DBI;
 

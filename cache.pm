@@ -8,8 +8,8 @@
 package FreshPorts::Cache;
 
 use strict;
-use config;
-use utilities;
+use FreshPorts::config;
+use FreshPorts::utilities;
 
 sub DailySummaryDateAdd($;$) {
 	my $Date	= shift;

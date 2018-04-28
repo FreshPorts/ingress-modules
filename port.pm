@@ -8,17 +8,17 @@
 
 package FreshPorts::Port;
 require Exporter;
-require config;
-require element;
-require utilities;
-require committer_opt_in;
-require port_dependencies;
-require branches;
-require ports_generate_plist;
+require FreshPorts::config;
+require FreshPorts::element;
+require FreshPorts::utilities;
+require FreshPorts::committer_opt_in;
+require FreshPorts::port_dependencies;
+require FreshPorts::branches;
+require FreshPorts::ports_generate_plist;
 
 use strict;
-use config;
-use constants;
+use FreshPorts::config;
+use FreshPorts::constants;
 
 # for Ade's special code in update_depends_helper
 use List::MoreUtils qw(uniq);
@@ -1045,11 +1045,11 @@ sub _GetFileContentsFromJail($) {
 sub _GetRealPath($) {
 	my $this = shift;
   	my $file = shift;
-  	
+
   	if ($file == '') {
-	  Sys::Syslog::syslog('warning', "_GetRealPath was handed an empty file name");
+  	  Sys::Syslog::syslog('warning', "_GetRealPath was handed an empty file name");
   	  return '';
-        }
+  	}
 
 	# invoke realpath on the supplied filename, from within our chroot
 	my $makecommand = "/usr/local/bin/sudo /usr/sbin/chroot -u $FreshPorts::Config::JailUser $FreshPorts::Config::JailBaseDir $FreshPorts::Config::JailRealPath $file";

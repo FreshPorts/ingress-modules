@@ -6,10 +6,10 @@
 #
 use strict;
 use DBI;
-use element;
-use database;
+use FreshPorts::element;
+use FreshPorts::database;
 
-require config;
+require FreshPorts::config;
 
 my ($dbh, $element, $name);
 

@@ -8,7 +8,7 @@
 package FreshPorts::Ports_generate_plist;
 
 use strict;
-use utilities;
+use FreshPorts::utilities;
 
 # =================================
 

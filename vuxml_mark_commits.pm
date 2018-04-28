@@ -8,12 +8,12 @@
 package FreshPorts::vuxml_mark_commits;
 
 use strict;
-use DBI;
-use database;
-use constants;
-use email;
-use ports_vulnerable;
-use caching;
+use FreshPorts::DBI;
+use FreshPorts::database;
+use FreshPorts::constants;
+use FreshPorts::email;
+use FreshPorts::ports_vulnerable;
+use FreshPorts::caching;
 use POSIX qw(uname);
 use Carp;
 

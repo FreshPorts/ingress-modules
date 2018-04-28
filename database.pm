@@ -8,12 +8,12 @@
 package FreshPorts::Database;
 
 use strict;
-use utilities;
+use FreshPorts::utilities;
 use DBI;
 use Sys::Syslog;
-use constants;
+use FreshPorts::constants;
 
-require config;
+require FreshPorts::config;
 
 sub GetDBHandle {
     my %opts = @_;

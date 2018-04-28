@@ -6,12 +6,13 @@
 #
 
 package FreshPorts::Category;
+
 require Exporter;
-require	config;
-require utilities;
+require FreshPorts::config;
+require FreshPorts::utilities;
 
 use strict;
-use config;
+use FreshPorts::config;
 
 # =================================
 

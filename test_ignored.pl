@@ -6,7 +6,7 @@
 #
 use strict;
 
-use constants;
+use FreshPorts::constants;
 
 my $category_name 	= 'editors';
 my $port_name		= 'em';

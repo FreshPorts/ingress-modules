@@ -8,11 +8,11 @@
 package FreshPorts::vuxml_package;
 
 use strict;
-use utilities;
+use FreshPorts::utilities;
 
-use vuxml_affected;
-use vuxml_names;
-use vuxml_ranges;
+use FreshPorts::vuxml_affected;
+use FreshPorts::vuxml_names;
+use FreshPorts::vuxml_ranges;
 
 my @Packages;
 

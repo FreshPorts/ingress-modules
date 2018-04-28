@@ -8,7 +8,7 @@
 package FreshPorts::PortsCategories;
 
 use strict;
-use utilities;
+use FreshPorts::utilities;
 
 sub new {
 	my $this			= {};
