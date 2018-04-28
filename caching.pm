@@ -10,7 +10,7 @@ package FreshPorts::Caching;
 use strict;
 use FreshPorts::utilities;
 use FreshPorts::config;
-use Syslog;
+use Sys::Syslog;
 
 require FreshPorts::config;
 
