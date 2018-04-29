@@ -1046,7 +1046,7 @@ sub _GetRealPath($) {
 	my $this = shift;
   	my $file = shift;
 
-  	if ($file == '') {
+  	if ($file eq '') {
   	  Sys::Syslog::syslog('warning', "_GetRealPath was handed an empty file name");
   	  return '';
   	}
