@@ -1276,24 +1276,24 @@ sub depends_type_long {
 }
 
 sub update_depends_helper {
-    #
-	# Take a space-separated list of depends and insert them into the database
-	# e.g. py27-setuptools>0:devel/py27-setuptools /usr/local/bin/python2.7:lang/python27
-	#
-	my $this = shift;
+  #
+  # Take a space-separated list of depends and insert them into the database
+  # e.g. py27-setuptools>0:devel/py27-setuptools /usr/local/bin/python2.7:lang/python27
+  #
+  my $this = shift;
 
-	my $CommitBranch = shift;
-	my $depends      = shift;
-	my $depends_type = shift;
+  my $CommitBranch = shift;
+  my $depends      = shift;
+  my $depends_type = shift;
 
-	my $dependent;
-	
-	print "depends with this: '$depends'\n";
-	if ( $depends eq '' )
-	{
-	  print "no depends to look for; returning\n";
-	  return;
-	}
+  my $dependent;
+
+  print "depends with this: '$depends'\n";
+  if ( $depends eq '' )
+  {
+    print "no depends to look for; returning\n";
+    return;
+  }
 
   # this magic courtesy of Ade Lovett
   # with a tweak on 2017.12.15 from https://gist.github.com/ktracer
