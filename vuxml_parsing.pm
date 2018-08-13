@@ -243,7 +243,7 @@ sub print_self
         print "    modified:  ", $self->date_modified(),  "\n"
           if defined $self->date_modified();
     }
-    print "\n-----------------------------\n";
+    print "\ndivider: -----------------------------\n";
     return $self;
 }
 
