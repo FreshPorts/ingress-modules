@@ -12,7 +12,7 @@ use strict;
 use FreshPorts::utilities;
 use FreshPorts::config;
 
-require constants;
+require FreshPorts::constants;
 
 
 sub new {
