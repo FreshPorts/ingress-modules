@@ -76,6 +76,9 @@ sub _initialize {
 	$this->{license_restricted} = '';
 	$this->{manual_package_build} = '';
 	$this->{license_perms}    	= '';
+	$this->{conflicts}	    	= '';
+	$this->{conflicts_build}    	= '';
+	$this->{conflicts_install}    	= '';
 	$this->{generate_plist}     = '';
 
 	$this->{categories}			= '';
@@ -133,6 +136,9 @@ sub _GetValuesFromRow {
 	$this->{license_restricted} = $row->{license_restricted};
 	$this->{manual_package_build} = $row->{manual_package_build};
 	$this->{license_perms}      = $row->{license_perms};
+	$this->{conflicts}          = $row->{conflicts};
+	$this->{conflicts_build}    = $row->{conflicts_build};
+	$this->{conflicts_install}  = $row->{conflicts_install};
 	$this->{generate_plist}     = $row->{generate_plist};
 
 	$this->{categories}			= $row->{categories};
@@ -261,6 +267,9 @@ update ports
        license_restricted   = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{license_restricted})     . ", 
        manual_package_build = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{manual_package_build})   . ", 
        license_perms        = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{license_perms})          . ", 
+       conflicts            = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{conflicts})              . ", 
+       conflicts_build      = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{conflicts_build})        . ", 
+       conflicts_install    = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{conflicts_install})      . ", 
        categories           = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{categories});
 
 
@@ -651,7 +660,8 @@ sub _ExtractValuesFromMakefile {
 		 my $restricted,     my $no_cdrom,           my $expiration_date,      my $is_interactive,
 		 my $only_for_archs, my $not_for_archs,      my $license,              my $fetchdepends, 
 		 my $extractdepends, my $patchdepends,       my $uses,                 my $pkgmessagepath,
-		 my $distinfo_file,  my $license_restricted, my $manual_package_build, my $license_perms) = split(/\n/s, $MakeResults);
+		 my $distinfo_file,  my $license_restricted, my $manual_package_build, my $license_perms,
+		 my $conflicts,      my $conflicts_build,    my $conflicts_install) = split(/\n/s, $MakeResults);
 
 		my $package_name = $pkgnameprefix . $portname . $pkgnamesuffix;
 
@@ -687,12 +697,6 @@ sub _ExtractValuesFromMakefile {
 
 		$master_port =~ s|$SVNDIR_CHROOT/||;
 		
-#		chomp($pkgmessagepath);
-#		chomp($distinfo_file);
-#		chomp($license_restricted);
-#		chomp($manual_package_build);
-#		chomp($license_perms);
-
 		print " portname                 = '$this->{name}'\n";
 		print " packagename              = '$portname'\n";
 		print " category                 = '$this->{category}'\n";
@@ -718,6 +722,9 @@ sub _ExtractValuesFromMakefile {
 		print " license_restricted       = '$license_restricted'\n";
 		print " manual_package_build     = '$manual_package_build'\n";
 		print " license_perms            = '$license_perms'\n";
+		print " conflicts                = '$conflicts'\n";
+		print " conflicts_build          = '$conflicts_build'\n";
+		print " conflicts_install        = '$conflicts_install'\n";
 
 		# eliminate multiple // : PR 174
 		# to compensate for bug in File::PathConvert::realpath (which is no longer used; _GetRealPath)
@@ -845,6 +852,9 @@ sub _ExtractValuesFromMakefile {
 		print "41 \$license_restricted   = '$license_restricted'\n";
 		print "42 \$manual_package_build = '$manual_package_build'\n";
 		print "43 \$license_perms        = '$license_perms'\n";
+		print "44 \$conflicts            = '$conflicts'\n";
+		print "45 \$conflicts_build      = '$conflicts_build'\n";
+		print "46 \$conflicts_install    = '$conflicts_install'\n";
 
 		print "\n ---------------------------------------- \n";
 
@@ -906,8 +916,11 @@ sub _ExtractValuesFromMakefile {
 		$this->{distinfo}           = $distinfo;
 		$this->{license_restricted} = $license_restricted;
 		$this->{manual_package_build} = $manual_package_build;
-		$this->{license_perms}      = $license_perms;
-		$this->{generate_plist}     = $generate_plist;
+		$this->{license_perms}        = $license_perms;
+		$this->{conflicts}            = $conflicts;
+		$this->{conflicts_install}    = $conflicts_install;
+		$this->{conflicts_build}      = $conflicts_build;
+		$this->{generate_plist}       = $generate_plist;
 		# convert all whitespace to a single space
 		# This arose from 200609130717.k8D7HpNc057638@repoman.freebsd.org
 		#
