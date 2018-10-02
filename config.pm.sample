@@ -16,6 +16,9 @@ $FreshPorts::Config::FreshPortsURL		= 'https://example.freshports.org/';
 
 $FreshPorts::Config::TimeAdjust			= '-10800 seconds';
 
+# Values as found at https://www.postgresql.org/docs/current/static/libpq-ssl.html
+# Possible values: disable allow prefer require verify-ca verify-ca
+$FreshPorts::Config::ssl_mode                   = 'require';
 $FreshPorts::Config::host			= '';
 $FreshPorts::Config::dbname			= 'freshports.org';
 

@@ -24,11 +24,26 @@ sub GetDBHandle {
     # was anything passed in
     my $ConnectionType = delete($opts{$FreshPorts::Constants::DB_ConnectionType});
 
-    # assign a default value
+    # was anything passed in
+    my $sslmode        = $FreshPorts::Config::ssl_mode;
+
+    # assign a default value for $ConnectionType
     if (!defined($ConnectionType)) {
         $ConnectionType = $FreshPorts::Constants::DB_ConnectionType_Commits;
     }
 
+    # assign a default value
+    if (!defined($sslmode)) {
+        $sslmode = 'require';
+    }
+
+    # check values for $sslmode
+    # as found at https://www.postgresql.org/docs/current/static/libpq-ssl.html
+    if ($sslmode ne 'disable' && $sslmode ne 'allow' && $sslmode ne 'prefer' && $sslmode ne 'rneuire' && $sslmode ne 'verify-ca	' && $sslmode ne 'verify-full') {
+        $sslmode = 'require';
+    }
+
+    # check values for $ConnectionType
     if ($ConnectionType eq $FreshPorts::Constants::DB_ConnectionType_Commits) {
         $user     = $FreshPorts::Config::user;
         $password = $FreshPorts::Config::password;
@@ -44,7 +59,7 @@ sub GetDBHandle {
          $password = $FreshPorts::Config::password_listening;
      }
        
-	my $dbh_pg = DBI->connect('DBI:Pg:dbname=' . $FreshPorts::Config::dbname . ';host=' . $FreshPorts::Config::host . ';sslmode=require', $user, $password);
+	my $dbh_pg = DBI->connect('DBI:Pg:dbname=' . $FreshPorts::Config::dbname . ';host=' . $FreshPorts::Config::host . ';sslmode=' . $sslmode, $user, $password);
 	if ($dbh_pg->{Active}) {
 		$dbh_pg->{AutoCommit} = 0;
 
