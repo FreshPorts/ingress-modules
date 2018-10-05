@@ -480,7 +480,7 @@ sub update_database_vuxml_affected
                 $vuxml_affected_names->{name}              = $name;
 
                 $vuxml_affected_names_id = $vuxml_affected_names->save();
-				$vuxml_affected_names->empty();
+		$vuxml_affected_names->empty();
             }
         }
 
