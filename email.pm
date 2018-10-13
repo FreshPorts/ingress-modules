@@ -40,7 +40,7 @@ sub SendMail($;$;$;$;$;$) {
 		host => 'cliff.int.unixathome.org', # $FreshPorts::Config::email_server,
 		port => $FreshPorts::Config::email_port,
 		ssl  => 'starttls',
-		debug => 1,
+		debug => 0,
 	});
  
 	my $email = Email::Simple->create(
