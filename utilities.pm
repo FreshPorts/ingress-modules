@@ -283,10 +283,11 @@ sub SendEmailNotice($;$) {
 	my $From         = 'FreshPorts Daemon <FreshPorts@FreshPorts.org>';
 	my $CC           = '';
 	my $Subject      = 'FreshPorts error on ' . `hostname`;
-	my $ExtraHeaders = '';
-	$ExtraHeaders   .= 'Auto-Submitted: auto-generated'      . "\n";
-	$ExtraHeaders   .= 'Precedence: bulk'                    . "\n";
-	$ExtraHeaders   .= 'X-FreshPorts-Error: oops'            . "\n";
+	my %ExtraHeaders = (
+		'Auto-Submitted'     => 'auto-generated',
+		'Precedence'         => 'bulk',
+		'X-FreshPorts-Error' => 'oops',
+	);
 
 	$Text::Wrap::columns = 72;
 
@@ -302,7 +303,7 @@ hugs+kisses
 FreshPorts Daemon
 ";
 
-	FreshPorts::email::SendMail($From, $To, $CC, $Subject, $Body, $ExtraHeaders);
+	FreshPorts::email::SendMail($From, $To, $CC, $Subject, $Body, \%ExtraHeaders);
 }
 
 sub trim {

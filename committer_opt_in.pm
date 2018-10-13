@@ -132,11 +132,13 @@ FreshPorts Daemon
 	# we must cut off the trailing newlines or the headers will not be altogether
 	chomp $Hostname;
 
-	my $ExtraHeaders = 'Auto-Submitted: auto-generated'           . "\n" .
-                       'Precedence: bulk'                         . "\n" .
-					   "X-FreshPorts-Sanity: error\n" .
-	                   "X-FreshPorts-Hostname: $Hostname\n" . 
-	                   "X-FreshPorts-Database: $FreshPorts::Config::dbname";
+	my %ExtraHeaders = (
+		'Auto-Submitted'        => 'auto-generated',
+		'Precedence'            => 'bulk',
+		'X-FreshPorts-Sanity'   => 'error',
+		'X-FreshPorts-Hostname' => $Hostname,
+		'X-FreshPorts-Database' => $FreshPorts::Config::dbname,
+	);
 
 	if ($FreshPorts::Config::CommitterNotify) {
 		if ($FreshPorts::Config::CommitterNotify && CommitterHasOptedIn($committer, $dbh)) {
@@ -152,7 +154,7 @@ FreshPorts Daemon
 		FreshPorts::Utilities::ReportError('warning', "Committer notifications are disabled.", 0);
 	}
 
-	FreshPorts::email::SendMail($From, $To, $CC, $Subject, $Body, $ExtraHeaders);
+	FreshPorts::email::SendMail($From, $To, $CC, $Subject, $Body, \%ExtraHeaders);
 }
 
 1;
