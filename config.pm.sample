@@ -12,6 +12,10 @@ use Cwd;
 # This section contains local settings.  Change them to suit your environment.
 #
 
+# if set to non-zero, report-notification.pl report-security-notice.pl report-new-ports.pl will not send email
+#
+$FreshPorts::Config::ReportDebugging		= 1;
+
 $FreshPorts::Config::FreshPortsURL		= 'https://example.freshports.org/';
 
 $FreshPorts::Config::TimeAdjust			= '-10800 seconds';
@@ -82,7 +86,6 @@ $FreshPorts::Config::path_to_ports			= Cwd::abs_path($FreshPorts::Config::path_t
 
 $FreshPorts::Config::email_server			= '127.1.0.202';
 $FreshPorts::Config::email_port				= 25;
-$FreshPorts::Config::email_client			= 'localhost';
 
 $FreshPorts::Config::SystemOwnerEmail		= 'dan@langille.org';
 
