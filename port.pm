@@ -15,6 +15,7 @@ require FreshPorts::committer_opt_in;
 require FreshPorts::port_dependencies;
 require FreshPorts::branches;
 require FreshPorts::ports_generate_plist;
+require FreshPorts::package_flavors;
 
 use strict;
 use FreshPorts::config;
@@ -89,61 +90,61 @@ sub _GetValuesFromRow {
 	my $this = shift;
 	my $row  = shift;
 
-	$this->{id} 				= $row->{id};
-	$this->{element_id}			= $row->{element_id};
+	$this->{id} 			= $row->{id};
+	$this->{element_id}		= $row->{element_id};
 	$this->{category_id}		= $row->{category_id};
-	$this->{category}			= $row->{category};
-	$this->{name}				= $row->{name};
+	$this->{category}		= $row->{category};
+	$this->{name}			= $row->{name};
 
 	$this->{short_description}	= $row->{short_description};
 	$this->{long_description}	= $row->{long_description};
-	$this->{version}			= $row->{version};
-	$this->{revision}			= $row->{revision};
-	$this->{maintainer}			= $row->{maintainer};
-	$this->{homepage}			= $row->{homepage};
+	$this->{version}		= $row->{version};
+	$this->{revision}		= $row->{revision};
+	$this->{maintainer}		= $row->{maintainer};
+	$this->{homepage}		= $row->{homepage};
 	$this->{master_sites}		= $row->{master_sites};
 	$this->{extract_suffix}		= $row->{extract_suffix};
 	$this->{package_exists}		= $row->{package_exists};
 	$this->{depends_build}		= $row->{depends_build};
 	$this->{depends_run}		= $row->{depends_run};
 	$this->{depends_lib}		= $row->{depends_lib};
-	$this->{forbidden}			= $row->{forbidden};
-	$this->{broken}				= $row->{broken};
-	$this->{deprecated}			= $row->{deprecated};
-	$this->{ignore}				= $row->{ignore};
+	$this->{forbidden}		= $row->{forbidden};
+	$this->{broken}			= $row->{broken};
+	$this->{deprecated}		= $row->{deprecated};
+	$this->{ignore}			= $row->{ignore};
 	$this->{master_port}		= $row->{master_port};
 	$this->{latest_link}		= $row->{latest_link};
 	$this->{no_latest_link}		= $row->{no_latest_link};
-	$this->{no_package}			= $row->{no_package};
+	$this->{no_package}		= $row->{no_package};
 	$this->{package_name}		= $row->{package_name};
-	$this->{portepoch}			= $row->{portepoch};
-	$this->{restricted}			= $row->{restricted};
-	$this->{no_cdrom}			= $row->{no_cdrom};
+	$this->{portepoch}		= $row->{portepoch};
+	$this->{restricted}		= $row->{restricted};
+	$this->{no_cdrom}		= $row->{no_cdrom};
 	$this->{expiration_date}	= $row->{expiration_date};
 	$this->{is_interactive}		= $row->{is_interactive};
 	
 	$this->{only_for_archs}		= $row->{only_for_archs};
 	$this->{not_for_archs}		= $row->{not_for_archs};
-	$this->{status}				= $row->{status};
-	$this->{showconfig}			= $row->{showconfig};
-	$this->{license}			= $row->{license};
+	$this->{status}			= $row->{status};
+	$this->{showconfig}		= $row->{showconfig};
+	$this->{license}		= $row->{license};
 	$this->{fetch_depends}		= $row->{fetch_depends};
 	$this->{extract_depends}	= $row->{extract_depends};
 	$this->{patch_depends}		= $row->{patch_depends};
-	$this->{uses}			    = $row->{uses};
-	$this->{pkgmessage} 	    = $row->{pkgmessage};
-	$this->{distinfo}    	    = $row->{distinfo};
-	$this->{license_restricted} = $row->{license_restricted};
-	$this->{manual_package_build} = $row->{manual_package_build};
-	$this->{license_perms}      = $row->{license_perms};
-	$this->{conflicts}          = $row->{conflicts};
-	$this->{conflicts_build}    = $row->{conflicts_build};
-	$this->{conflicts_install}  = $row->{conflicts_install};
-	$this->{generate_plist}     = $row->{generate_plist};
+	$this->{uses}			= $row->{uses};
+	$this->{pkgmessage}		= $row->{pkgmessage};
+	$this->{distinfo}    	    	= $row->{distinfo};
+	$this->{license_restricted}	= $row->{license_restricted};
+	$this->{manual_package_build}	= $row->{manual_package_build};
+	$this->{license_perms}      	= $row->{license_perms};
+	$this->{conflicts}          	= $row->{conflicts};
+	$this->{conflicts_build}    	= $row->{conflicts_build};
+	$this->{conflicts_install}  	= $row->{conflicts_install};
+	$this->{generate_plist}     	= $row->{generate_plist};
 
-	$this->{categories}			= $row->{categories};
+	$this->{categories}		= $row->{categories};
 	$this->{last_commit_id}		= $row->{last_commit_id};
-	$this->{element_pathname}   = $row->{element_pathname};
+	$this->{element_pathname}   	= $row->{element_pathname};
 }
 
 # =================================
@@ -312,12 +313,12 @@ update ports
 
 		$sql = "insert into ports (id, element_id, category_id";
 
-        # really, this should always be supplied, but we are retrofiting this, so be cautious		
+                # really, this should always be supplied, but we are retrofiting this, so be cautious		
 		if (defined($this->{last_commit_id})) {
 		    $sql .= ', last_commit_id';
 		}
 
-        $sql .= ") values ( \
+                $sql .= ") values ( \
 				$this->{id}, \
 				$this->{element_id}, \ 
 				$this->{category_id}";
@@ -326,7 +327,7 @@ update ports
 			$sql .= ', ' . $this->{last_commit_id};
 		}
 
-        $sql .= ")";
+                $sql .= ")";
 
 		print "sql is $sql\n";
 
@@ -340,6 +341,7 @@ update ports
     if ($FullSave) {
         $this->update_depends($CommitBranch);
         $this->upate_generate_plist($CommitBranch);
+        $this->update_package_flavors($CommitBranch);
     }
 
 	# after savings, return the ID
@@ -802,19 +804,37 @@ sub _ExtractValuesFromMakefile {
 		}
 		chomp($distinfo); # get rid of the trailing whitespace.
 
+
 		# extract the generate_plist contents
-     	my $configure_plist_command = "/usr/local/bin/sudo /usr/sbin/chroot -u $FreshPorts::Config::JailUser $FreshPorts::Config::JailBaseDir $FreshPorts::Config::JailConfigurePlist $SVNDIR_CHROOT $this->{category}/$this->{name} 2>$TmpFile";
+		my $configure_plist_command = "/usr/local/bin/sudo /usr/sbin/chroot -u $FreshPorts::Config::JailUser $FreshPorts::Config::JailBaseDir $FreshPorts::Config::JailConfigurePlist $SVNDIR_CHROOT $this->{category}/$this->{name} 2>$TmpFile";
 
-    	print "generate_plist_command = $configure_plist_command\n";
+		print "generate_plist_command = $configure_plist_command\n";
 
-    	my $generate_plist = `$configure_plist_command`;
-    	# save this for later reference
-    	$result = $?;
-    	print 'Result = ' . $result . "\n";
+		my $generate_plist = `$configure_plist_command`;
+		# save this for later reference ... we don't actually use it...
+		$result = $?;
+		print 'Result = ' . $result . "\n";
 
 		chomp($generate_plist); # get rid of the trailing whitespace.
 
+
+
+		# extract the package flavors
+		my $package_flavors_command = "/usr/local/bin/sudo /usr/sbin/chroot -u $FreshPorts::Config::JailUser $FreshPorts::Config::JailBaseDir $FreshPorts::Config::JailPackageFlavors $SVNDIR_CHROOT $this->{category}/$this->{name} 2>$TmpFile";
+
+		print "package_flavors_command = $package_flavors_command\n";
+
+		my $package_flavors = `$package_flavors_command`;
+		# save this for later reference ... we don't actually use it
+		$result = $?;
+		print 'Result = ' . $result . "\n";
+		chomp($package_flavors); # get rid of the trailing whitespace.
+
+
+
+		# show some results
 		print "12x \$generate_plist      = '$generate_plist\n'";
+		print "12y \$package_flavors     = '$package_flavors\n'";
 
 		print "12 \$shortdescription     = '$shortdescription'\n";
 		print "13 \$longdescription      = '$longdescription'\n";
@@ -877,54 +897,56 @@ sub _ExtractValuesFromMakefile {
 
 		# put everything into the hash...
 
-		$this->{portname}			= $portname;
+		$this->{portname}		= $portname;
 		$this->{short_description}	= $shortdescription;
 		$this->{long_description}	= $longdescription;
-		$this->{version}			= $portversion;
-		$this->{revision}			= $portrevision;
-		$this->{maintainer}			= $maintainer;
-		$this->{homepage}			= $homepage;
+		$this->{version}		= $portversion;
+		$this->{revision}		= $portrevision;
+		$this->{maintainer}		= $maintainer;
+		$this->{homepage}		= $homepage;
 		$this->{master_sites}		= $mastersites;
 		$this->{extract_suffix}		= $extractsuffix;
 		$this->{depends_build}		= $builddepends;
 		$this->{depends_run}		= $rundepends;
 		$this->{depends_lib}		= $libdepends;
-		$this->{forbidden}			= $forbidden;
-		$this->{broken}				= $broken;
-		$this->{deprecated}			= $deprecated;
-		$this->{ignore}				= $ignore;
+		$this->{forbidden}		= $forbidden;
+		$this->{broken}			= $broken;
+		$this->{deprecated}		= $deprecated;
+		$this->{ignore}			= $ignore;
 		$this->{master_port}		= $master_port;
 		$this->{latest_link}		= $latest_link;
 		$this->{no_latest_link}		= $no_latest_link;
-		$this->{no_package}			= $no_package;
+		$this->{no_package}		= $no_package;
 		$this->{package_name}		= $package_name;
-		$this->{portepoch}			= $portepoch;
-		$this->{restricted}			= $restricted;
-		$this->{no_cdrom}			= $no_cdrom;
+		$this->{portepoch}		= $portepoch;
+		$this->{restricted}		= $restricted;
+		$this->{no_cdrom}		= $no_cdrom;
 		$this->{expiration_date}	= $expiration_date;
 		$this->{is_interactive}		= $is_interactive;
 		$this->{only_for_archs}		= $only_for_archs;
 		$this->{not_for_archs}		= $not_for_archs;
 		$this->{showconfig} 		= $showconfig;
-		$this->{license}            = $license;
+		$this->{license}                = $license;
 		$this->{categories}	        = $categories;
 		$this->{fetch_depends}		= $fetchdepends;
 		$this->{extract_depends}	= $extractdepends;
 		$this->{patch_depends}		= $patchdepends;
 		$this->{uses}	    		= $uses;
 		$this->{pkgmessage} 		= $pkgmessage;
-		$this->{distinfo}           = $distinfo;
-		$this->{license_restricted} = $license_restricted;
-		$this->{manual_package_build} = $manual_package_build;
-		$this->{license_perms}        = $license_perms;
-		$this->{conflicts}            = $conflicts;
-		$this->{conflicts_install}    = $conflicts_install;
-		$this->{conflicts_build}      = $conflicts_build;
-		$this->{generate_plist}       = $generate_plist;
+		$this->{distinfo}		= $distinfo;
+		$this->{license_restricted}	= $license_restricted;
+		$this->{manual_package_build}	= $manual_package_build;
+		$this->{license_perms}		= $license_perms;
+		$this->{conflicts}		= $conflicts;
+		$this->{conflicts_install}	= $conflicts_install;
+		$this->{conflicts_build}	= $conflicts_build;
+		$this->{generate_plist}		= $generate_plist;
 		# convert all whitespace to a single space
 		# This arose from 200609130717.k8D7HpNc057638@repoman.freebsd.org
 		#
-		$this->{categories}			=~ s/\s+/ /g;
+		$this->{categories}		=~ s/\s+/ /g;
+		
+		$this->{package_flavors}	= $package_flavors;
 
 		$result = $this->_Validate();
 
@@ -940,9 +962,9 @@ sub _Validate {
 	#
 	# run some sanity checks on the data input
 	#
-	my $this		= shift;
-	my $result		= 0;
-	my $ErrorMsg	= '';
+	my $this     = shift;
+	my $result   = 0;
+	my $ErrorMsg = '';
 
 	print "_Validating....\n";
 
@@ -968,7 +990,7 @@ sub _Validate {
 	      if ($this->{category} eq $category)
 	      {
 	        $primaryCategoryFound = 1;
-            last;
+	        last;
 	      }
 	}
 	
@@ -1124,7 +1146,7 @@ sub RefreshFromFiles($;$;$;$) {
               my $SVNDIR = FreshPorts::Branches::GetPathToRepoForBranch($CommitBranch);
               
               $result = FreshPorts::Utilities::svnUpFile($SVNDIR, '', $svn_revision);
-              # match the results of _FetchFilesNeedingRefresh
+              # match the results of _FetchFilesNeedingRefresh (which no longer exists)
               if ($result == 1) 
               {
                 $result = 0;
@@ -1250,6 +1272,33 @@ sub upate_generate_plist {
   
   $generate_plist->save($this->{id}, $this->{generate_plist});
   
+}
+
+sub update_package_flavors {
+  # for each of the flavors, add a row to the table
+  my $this = shift;
+
+  my $CommitBranch = shift;
+
+  my $package_flavors = FreshPorts::PackageFlavors->new( $this->{dbh} );
+  
+  my $flavor_number = 0;
+  my (@lines) = split("\n", $this->{package_flavors});
+  foreach my $line (@lines) {
+    print "processing: $flavor_number $line\n";
+    
+    my ($flavor, $flavor_name) = split(/ /, $line);
+    
+    print "saving: $flavor_number $flavor $flavor_name\n";
+    $package_flavors->{port_id}       = $this->{id};
+    $package_flavors->{flavor}        = $flavor;
+    $package_flavors->{flavor_name}   = $flavor_name;
+    $package_flavors->{flavor_number} = $flavor_number;
+    
+    $package_flavors->add();
+    $flavor_number++;
+  }
+  #  foreach $flavor
 }
 
 sub update_depends {
