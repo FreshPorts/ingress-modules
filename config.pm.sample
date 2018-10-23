@@ -159,6 +159,7 @@ $FreshPorts::Config::JailCategoryDescrptionScript = '/make-category-comment.sh';
 $FreshPorts::Config::JailDescr                    = '/make-descr.sh';
 $FreshPorts::Config::JailDescrAndHomePage         = '/cat-descr.sh';
 $FreshPorts::Config::JailMasterSitesScript        = '/make-master-sites-all.sh';
+$FreshPorts::Config::JailPackageFlavors           = '/make-flavors-package-names.sh';
 $FreshPorts::Config::JailPortScript               = '/make-port.sh';
 $FreshPorts::Config::JailRealPath                 = '/realpath.sh';
 $FreshPorts::Config::JailShowConfigScript         = '/make-showconfig.sh';
