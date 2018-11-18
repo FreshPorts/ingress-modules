@@ -283,6 +283,10 @@ sub SendEmailNotice($;$) {
 	my $From         = 'FreshPorts Daemon <FreshPorts@FreshPorts.org>';
 	my $CC           = '';
 	my $Subject      = 'FreshPorts error on ' . `hostname`;
+
+	# chomp gets right of vertical whitepace
+	chomp($Subject);
+
 	my %ExtraHeaders = (
 		'Auto-Submitted'     => 'auto-generated',
 		'Precedence'         => 'bulk',
