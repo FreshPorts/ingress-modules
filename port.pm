@@ -1281,6 +1281,10 @@ sub update_package_flavors {
   my $CommitBranch = shift;
 
   my $package_flavors = FreshPorts::PackageFlavors->new( $this->{dbh} );
+
+  # we delete existing flavor information for this port before adding
+  $package_flavors->{port_id} = $this->{id};
+  $package_flavors->delete();
   
   my $flavor_number = 0;
   my (@lines) = split("\n", $this->{package_flavors});
