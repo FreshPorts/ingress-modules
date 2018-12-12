@@ -7,6 +7,7 @@
 package FreshPorts::email;
 
 use strict;
+use Email::Address::UseXS;
 use Email::Sender::Simple qw(sendmail);
 use Email::Simple;
 use Email::Simple::Creator;
