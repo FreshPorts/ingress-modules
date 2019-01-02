@@ -164,7 +164,7 @@ sub _CompileListOfPorts($;$;$;$) {
 							# for now, all we want is a complete list of ports.
 							#
 							if (!defined($port->{id})) {
-								print "port not retrieved with $port->{partialpathname}.  This must be a new port\n";
+								print "port not retrieved with $port->{partialpathname}.  This must be a new port.\n";
 								#
 								# these are the values needed to create a new port
 								#
@@ -759,8 +759,8 @@ sub RefreshAllSlavePortsOfPortsTouchedByCommit($;$;$;$) {
 		my $port_id = $port->FetchByPartialPathName();
 		# if no such port, then it has not yet been committed to this branch
 		if (!defined($port_id)) {
-			print 'no such port on this branch: ' . $CommitBranch . "\n";
-			print "port not retrieved with $port->{partialpathname}.  This must be a new port\n";
+			print 'no such port on this branch: ' . $CommitBranch . ".\n";
+			print "port not retrieved with $port->{partialpathname}.  This must be a new port.\n";
 
 			#
 			# these are the values needed to create a new port
