@@ -504,12 +504,12 @@ sub GetDB_RepoPrefix($) {
 }
 
 sub handle_file_end {
-	my $FileAction		= $Updates{FileAction};
-	my $FilePath		= $Updates{FilePath};
-	my $FileRevision	= $Updates{FileRevision};
-	my $DB_Root_Prefix  = GetDB_RepoPrefix($Updates{repository});
-	my $fileaction;		# the value obtained from the hash array
-						# and which will be stored into the database.
+	my $FileAction     = $Updates{FileAction};
+	my $FilePath       = $Updates{FilePath};
+	my $FileRevision   = $Updates{FileRevision};
+	my $DB_Root_Prefix = GetDB_RepoPrefix($Updates{repository});
+	my $fileaction;    # the value obtained from the hash array
+	                   # and which will be stored into the database.
 
 	# sometimes, we see . in pathnames.
 	# e.g 201205262318.q4QNI7EZ020858@repoman.freebsd.org
@@ -594,7 +594,7 @@ sub handle_file_end {
 			if ($element->{status} eq $FreshPorts::Element::Deleted) {
 				if ($FileAction eq $FreshPorts::Constants::MODIFY || $FileAction eq $FreshPorts::Constants::ADD) {
 					$element->{status} = $FreshPorts::Element::Active;
-    	            $element->save();
+					$element->save();
 				}
 			} else {
 				FreshPorts::Utilities::ReportError('warning', "Unknown element->status found.", 1);
