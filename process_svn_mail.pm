@@ -66,14 +66,33 @@ sub GetData {
 	# if this is a port commit, do we have that branch checked out?
 	if ($RepoPrefix eq $FreshPorts::Constants::PORTS && !FreshPorts::Branches::CanWeProcessThisBranch($Branch))
 	{
+		FreshPorts::Utilities::Report('notice', "No, we need to check out that branch.");
+		#
+		# Let's check that branch out, this might take more than a few minutes
+		# I originally used a system() call for this, but moved to `backticks` so I could redirect the output to /dev/null
+		# Otherwise, the output will wind up within the XML file, which is not something you want.
+		#
+		my $command = $FreshPorts::Config::ScriptDir . "/checkout-branch $Branch > /dev/null";
+		my $output = `$command`;
+		if ($? != 0) {
+			FreshPorts::Utilities::ReportErrorEmailNoPrint('err', "The checkout for this branch failed: '" . $Branch . "' with error code '$?').\n\n", 1);
+			die("what? could not check out $Branch (using repo $RepoPrefix)\n");
+		}
+	}
+
+	# if this is a port commit, do we have that branch checked out?
+	if ($RepoPrefix eq $FreshPorts::Constants::PORTS && !FreshPorts::Branches::CanWeProcessThisBranch($Branch))
+	{
 		# we will not return from this
 		FreshPorts::Utilities::ReportErrorEmailNoPrint('err', "We do not have a checked out repo for this branch ('" . $Branch . "').\n\n", 1);
 		die("what? no $Branch (using repo $RepoPrefix)\n");
 	}
 
-    FreshPorts::Utilities::Report('notice', "MessageId: '$MessageID'");
-    FreshPorts::Utilities::Report('notice', "Branch:    '$Branch'");
-    FreshPorts::Utilities::Report('notice', "Subject:   '$Message_Subject'");
+	FreshPorts::Utilities::Report('notice', "That branch is checked out.");
+
+	FreshPorts::Utilities::Report('notice', "MessageId: '$MessageID'");
+	FreshPorts::Utilities::Report('notice', "Branch:    '$Branch'");
+	FreshPorts::Utilities::Report('notice', "Subject:   '$Message_Subject'");
 
 	@Data =	[	'UPDATES', [ { Version => '1.3.2.1' },
 				'UPDATE', [ {},
