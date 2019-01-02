@@ -12,6 +12,10 @@ use Cwd;
 # This section contains local settings.  Change them to suit your environment.
 #
 
+# This configuration file is mostly for perl code, but where are our scripts
+# etc?
+$FreshPorts::Config::ScriptDir                  = '/usr/local/libexec/freshports';
+
 # if set to non-zero, report-notification.pl report-security-notice.pl report-new-ports.pl will not send email
 #
 $FreshPorts::Config::ReportDebugging		= 1;
