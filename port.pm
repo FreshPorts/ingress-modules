@@ -338,11 +338,11 @@ update ports
 		
 	}
 
-    if ($FullSave) {
-        $this->update_depends($CommitBranch);
-        $this->upate_generate_plist($CommitBranch);
-        $this->update_package_flavors($CommitBranch);
-    }
+	if ($FullSave) {
+	  $this->update_depends($CommitBranch);
+          $this->upate_generate_plist($CommitBranch);
+          $this->update_package_flavors($CommitBranch);
+        }
 
 	# after savings, return the ID
 	return $this->{id};
