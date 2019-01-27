@@ -7,11 +7,9 @@
 package FreshPorts::email;
 
 use strict;
-use Email::Address::UseXS;
 use Email::Sender::Simple qw(sendmail);
 use Email::Simple;
 use Email::Simple::Creator;
-#use Email::Sender::Transport::SMTP qw(new);
 use Email::Sender::Transport::SMTP;
 
 use FreshPorts::config;
@@ -38,7 +36,7 @@ sub SendMail($;$;$;$;$;$) {
 	
 	FreshPorts::Utilities::ReportError('LOG_ERR', "from='$From' to='$To' subject='$Subject'", 0);
 	my $transport = Email::Sender::Transport::SMTP->new({
-		host => 'cliff.int.unixathome.org', # $FreshPorts::Config::email_server,
+		host => $FreshPorts::Config::email_server,
 		port => $FreshPorts::Config::email_port,
 		ssl  => 'starttls',
 		debug => 0,
