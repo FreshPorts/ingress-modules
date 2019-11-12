@@ -496,7 +496,8 @@ sub _ExtractValuesFromMakefile {
 		# A repocopy is the process of manually moving things around within the cvs repository.
 		# This preserves commit history when a port is being renamed, but it makes life difficultJailShowConfigScript
 		# for FreshPorts, which only tracks commits.
-		FreshPorts::CommitterOptIn::RecordErrorDetails("$this->{category}/$this->{name}", "I did not find a Makefile for this port, and none was mentioned in the commit.  If a repocopy has been done, please ignore this message.");
+		# We need the trailing space because there will be another message added right after this one.
+		FreshPorts::CommitterOptIn::RecordErrorDetails("$this->{category}/$this->{name}", "I did not find a Makefile for this port, and none was mentioned in the commit.  If a repocopy has been done, please ignore this message. ");
 	}
 
 	my $TmpFile = FreshPorts::Utilities::TmpFileName("$this->{category}.$this->{name}.make-error");
@@ -728,6 +729,8 @@ sub _ExtractValuesFromMakefile {
 		print " conflicts_build          = '$conflicts_build'\n";
 		print " conflicts_install        = '$conflicts_install'\n";
 
+		print "Grabbing make -V DESCR\n";
+
 		# eliminate multiple // : PR 174
 		# to compensate for bug in File::PathConvert::realpath (which is no longer used; _GetRealPath)
 		$descrpath =~ s|//|/|g;
@@ -737,10 +740,6 @@ sub _ExtractValuesFromMakefile {
 		if (!defined($shortdescription)) {
                   die("OK, good, we have no short description");
 		}
-
-		# eliminate multiple // : PR 174
-		# to compensate for bug in File::PathConvert::realpath (which is no longer used; _GetRealPath))
-		$descrpath =~ s|//|/|g;
 
 		# if it's defined, and it exists....
 		my $longdescription = '';
@@ -753,22 +752,28 @@ sub _ExtractValuesFromMakefile {
 		else
 		{
                    if (defined($RealDescrPath) && $RealDescrPath) {
-                      print "invoking _GetDescrAndHomePage() with '$RealDescrPath'\n";
+                      print "invoking _GetDescrAndHomePage() for DESCR with '$RealDescrPath'\n";
                       ($longdescription, $homepage) = $this->_GetDescrAndHomePage($RealDescrPath);
                    }
 		}
 
 		chomp($longdescription); # get rid of the trailing whitespace.
 
+		print "Grabbing make -V PKGMESSAGE\n";
+		#
+		# make -V PKGMESSAGE
+		#
+		# [dan@dev-ingress01:/var/db/freshports/ports-jail/var/db/repos/PORTS-head/sysutils/bacula9-server] $ make -V PKGMESSAGE
+		# /var/ports/var/db/freshports/ports-jail/var/db/repos/PORTS-head/sysutils/bacula9-server/work/pkg-message.server
+		#
+
 		# eliminate multiple // : PR 174
 		# to compensate for bug in File::PathConvert::realpath (which is no longer used; _GetRealPath)
 		$pkgmessagepath =~ s|//|/|g;
 
+		print "\$pkgmessagepath='$pkgmessagepath'\n";
 		my $RealPKGMESSAGEPath = $this->_GetRealPath($pkgmessagepath);
-
-		# eliminate multiple // : PR 174
-		# to compensate for bug in File::PathConvert::realpath (which is no longer used; _GetRealPath))
-		$pkgmessagepath =~ s|//|/|g;
+		print "\$RealPKGMESSAGEPath='$RealPKGMESSAGEPath'\n";
 
 		# if it's defined, and it exists....
 		my $pkgmessage = '';
@@ -779,8 +784,9 @@ sub _ExtractValuesFromMakefile {
 	  	}
 		else
 		{
+                   print "pkgmessagepath does look like a valid file to me: '$pkgmessagepath' (result of make -V PKGMESSAGE)\n";
                    if (defined($pkgmessagepath) && $RealPKGMESSAGEPath) {
-                      print "invoking _GetFileContentsFromJail() with '$RealPKGMESSAGEPath'\n";
+                      print "invoking _GetFileContentsFromJail() for PKGMESSAGE with '$RealPKGMESSAGEPath'\n";
                       $pkgmessage = $this->_GetFileContentsFromJail($RealPKGMESSAGEPath);
                    }
 		}
@@ -791,13 +797,13 @@ sub _ExtractValuesFromMakefile {
 		my $distinfo = '';
 		if (looks_like_number($RealDistInfoFilePath))
 		{
-		          # this is never an error.  Some ports do not have dist files
-                  print "DISTINFO_FILE file does not exist: '$distinfo_file' (result of make -V DISTINFO_FILE)\n";
+		   # this is never an error.  Some ports do not have dist files
+		   print "DISTINFO_FILE file does not exist: '$distinfo_file' (result of make -V DISTINFO_FILE)\n";
 	  	}
 		else
 		{
                    if (defined($RealDistInfoFilePath) && $RealDistInfoFilePath) {
-                      print "invoking _GetFileContentsFromJail() with '$RealDistInfoFilePath'\n";
+                      print "invoking _GetFileContentsFromJail() for DISTINFO with '$RealDistInfoFilePath'\n";
                       $distinfo = $this->_GetFileContentsFromJail($RealDistInfoFilePath);
 #                      print "back from _GetFileContentsFromJail with '$distinfo'\n";
                    }
@@ -1052,7 +1058,7 @@ sub _GetFileContentsFromJail($) {
 	my $file = shift;
 	my $filecontents;
 
-#	print "about to read from " . $FreshPorts::Config::JailBaseDir . $file . "\n";
+	print "about to read from " . $FreshPorts::Config::JailBaseDir . $file . "\n";
 
 	$filecontents = "";
 	# this needs to open relative to the jail root.
@@ -1070,7 +1076,7 @@ sub _GetFileContentsFromJail($) {
           FreshPorts::CommitterOptIn::RecordErrorDetails("$this->{category}/$this->{name}", "Unable to open '$file'\n");
 	}
 
-#    print "here is what we have: $filecontents\n";	
+	print "here is what we have: $filecontents\n";	
 
 	return $filecontents;
 }

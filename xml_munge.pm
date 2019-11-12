@@ -554,6 +554,8 @@ sub handle_file_end {
 		return;
 	}
 
+	print "First step, find the element for that filename\n";
+
 	# grab the element corresponding to this filename.
 	$element = FreshPorts::Element->new($self->{dbh});
 	
@@ -564,6 +566,7 @@ sub handle_file_end {
 	$element_id = $element->FetchByName();
 
 	if (!defined($element_id)) {
+		print "I did not find an element_id for that filename\n";
 		# add the element to the tree
 		$element->{directory_file_flag} = 'F';
 
@@ -584,6 +587,7 @@ sub handle_file_end {
 		$element->FetchByName();
 		$ElementAdded = 1;
 	} else {
+		print "I found the element_id for that filename\n";
 		# sometimes the status is wrong.  This is where we correct it.
 		if ($element->{status} eq $FreshPorts::Element::Active) {
 			if ($FileAction eq $FreshPorts::Constants::REMOVE) {
@@ -677,7 +681,7 @@ sub ElementRevisionExists($;$;$) {
 	$sql = "select count(*) from element_revision where element_id = $ElementID and revision_name = $QuotedRevisionName";
 	$sth = $dbh->prepare($sql);
 	if (!$sth->execute())  {
-		FreshPorts::Utilities::ReportError('warning', "Could not execute sql", 1);
+		FreshPorts::Utilities::ReportError('warning', "Could not execute sql: $sql", 1);
 	}
 	@row = $sth->fetchrow_array();   
 	$sth->finish();

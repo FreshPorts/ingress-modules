@@ -207,14 +207,22 @@ sub FetchByName {
 
 	@row = $sth->fetchrow_array();
 
+	print "here is what that SQL returned\n";	
+	foreach (@row) {
+		print "$_ \n";
+	}
+	print "done....\n";	
+
 	$sth->finish();
 	$this->{id} = $row[0];
-
+	
 	# now that we have the ID for this name, let's fetch it...
 	#
 	if ($this->{id}) {
+		print "I found this elent id for that pathname: " . $this->{id} . "\n";
 		return $this->FetchByID();
 	} else {
+		print "I found nothing for that pathname\n";
 		return $this->{id};
 	}
 }
