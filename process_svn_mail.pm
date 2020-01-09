@@ -52,6 +52,11 @@ sub GetData {
 
 	$Log = &GetLog($message);
 
+	# re https://news.freshports.org/2020/01/09/code-point-u0005-is-not-a-valid-character-in-xml/
+	#    https://twitter.com/FreshPorts/status/1215286202691211264
+	#	
+	$Log =~ s/[^\x09\x0A\x0D\x20-\x{D7FF}\x{E000}-\x{FFFD}\x{10000}-\x{10FFFF}]//go;
+
 #print "log: '$Log'\n";
 
 	if ($Log eq '') {
