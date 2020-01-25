@@ -207,9 +207,11 @@ sub FetchByName {
 
 	@row = $sth->fetchrow_array();
 
-	print "here is what that SQL returned\n";	
+	print "Element::FetchByName - here is what that SQL returned\n";	
 	foreach (@row) {
-		print "$_ \n";
+		if (defined($_)) {
+			print "Element::FetchByName found: $_ \n";
+		}
 	}
 	print "done....\n";	
 

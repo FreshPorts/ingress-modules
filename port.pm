@@ -1286,11 +1286,17 @@ sub update_package_flavors {
 
   my $CommitBranch = shift;
 
+  print "update_package_flavors: first step, delete any existing flavors\n";
   my $package_flavors = FreshPorts::PackageFlavors->new( $this->{dbh} );
 
   # we delete existing flavor information for this port before adding
   $package_flavors->{port_id} = $this->{id};
   $package_flavors->delete();
+  
+  if (!defined($this->{package_flavors})) {
+    print "update_package_flavors: no flavors, leaving\n";
+    return;
+  }
   
   my $flavor_number = 0;
   my (@lines) = split("\n", $this->{package_flavors});
@@ -1360,12 +1366,13 @@ sub update_depends_helper {
 
   my $dependent;
 
-  print "depends with this: '$depends'\n";
-  if ( $depends eq '' )
+  if ( !defined($depends) || $depends eq '' )
   {
     print "no depends to look for; returning\n";
     return;
   }
+
+  print "depends with this: '$depends'\n";
 
   # this magic courtesy of Ade Lovett
   # with a tweak on 2017.12.15 from https://gist.github.com/ktracer
