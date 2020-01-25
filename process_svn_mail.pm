@@ -394,9 +394,10 @@ sub GetFiles {
 		$path = $line;
 		next if($path =~ /\s+-\s+/); # skip messages about file origin
 
-		# we always ignore stuff after these lines		
+		# we once ignored stuff after this lines		
+		next if($line =~ /^Directory Properties:/);
+
 		# we always ignore stuff after these lines              
-		last if($line =~ /^Directory Properties:/);
 		last if($line =~ /^Changes in other areas also in this revision::/);
 		
 #		# this removes head/, stable/ or vendor/ from the path
