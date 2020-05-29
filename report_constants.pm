@@ -8,11 +8,13 @@ package FreshPorts::ReportConstants;
 
 require FreshPorts::config;
 
+#
+# these are reports.id values
+#
 $FreshPorts::ReportConstants::Notification	= 1;
 $FreshPorts::ReportConstants::NewPorts		= 2;
 $FreshPorts::ReportConstants::Security		= 5;
-$FreshPorts::ReportConstants::NotificationNonPorts		= 6;
-$FreshPorts::ReportConstants::NotificationDirectories	= 7;
+$FreshPorts::ReportConstants::MaintainerPorts	= 6;
 
 my $WatchURL              = $FreshPorts::Config::FreshPortsURL . "watch.php";
 my $ReportSubscriptionURL = $FreshPorts::Config::FreshPortsURL . "report-subscriptions.php";
