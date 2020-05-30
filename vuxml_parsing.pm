@@ -45,6 +45,8 @@
 
 package FreshPorts::vuxml_parsing;
 
+require FreshPorts::committer_opt_in;
+
 use strict;
 use Carp;
 use XML::Parser;
