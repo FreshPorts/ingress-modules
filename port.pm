@@ -664,7 +664,7 @@ sub _ExtractValuesFromMakefile {
 		 my $only_for_archs, my $not_for_archs,      my $license,              my $fetchdepends, 
 		 my $extractdepends, my $patchdepends,       my $uses,                 my $pkgmessagepath,
 		 my $distinfo_file,  my $license_restricted, my $manual_package_build, my $license_perms,
-		 my $conflicts,      my $conflicts_build,    my $conflicts_install) = split(/\n/s, $MakeResults);
+		 my $conflicts,      my $conflicts_build,    my $conflicts_install,    my $python_pkgnameprefix) = split(/\n/s, $MakeResults);
 
 		my $package_name = $pkgnameprefix . $portname . $pkgnamesuffix;
 
