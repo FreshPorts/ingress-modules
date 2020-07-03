@@ -13,9 +13,9 @@ use strict;
 
 use Text::Wrap;
 
-$FreshPorts::CommitterOptIn::CommitMessageID      = '';
-$FreshPorts::CommitterOptIn::CommitMessageSubject = '';
-$FreshPorts::CommitterOptIn::Errors               = '';
+$FreshPorts::CommitterOptIn::CommitMessageID  = '';
+$FreshPorts::CommitterOptIn::CommitMessageLog = '';
+$FreshPorts::CommitterOptIn::Errors           = '';
 
 my %PortList;
 
@@ -38,8 +38,8 @@ sub RecordCommitMessageID {
 	$FreshPorts::CommitterOptIn::CommitMessageID .= shift;
 }
 
-sub RecordCommitMessageSubject {
-	$FreshPorts::CommitterOptIn::CommitMessageSubject .= shift;
+sub RecordCommitMessageLog {
+	$FreshPorts::CommitterOptIn::CommitMessageLog .= shift;
 }
 
 sub CommitterHasOptedIn($;$) {
@@ -80,8 +80,8 @@ sub GetErrorCount {
 }
 
 sub NotifyCommitter {
-	my $committer	= shift;
-	my $dbh			= shift;
+	my $committer = shift;
+	my $dbh       = shift;
 
 	$Text::Wrap::columns = 72;
 
@@ -91,7 +91,7 @@ You recently made this commit, which FreshPorts FreshPorts had trouble
 processing:
 
 MessageID: $FreshPorts::CommitterOptIn::CommitMessageID
-Subject  : $FreshPorts::CommitterOptIn::CommitMessageSubject
+Log      : $FreshPorts::CommitterOptIn::CommitMessageLog
 
 The following is a list of the ports which had errors:
 
