@@ -221,7 +221,7 @@ sub FetchByName {
 	# now that we have the ID for this name, let's fetch it...
 	#
 	if ($this->{id}) {
-		print "I found this elent id for that pathname: " . $this->{id} . "\n";
+		print "I found this element id for that pathname: " . $this->{id} . "\n";
 		return $this->FetchByID();
 	} else {
 		print "I found nothing for that pathname\n";
