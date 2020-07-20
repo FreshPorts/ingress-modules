@@ -45,6 +45,8 @@ $FreshPorts::Config::user_readonly		= 'reading';
 $FreshPorts::Config::password_readonly		= '';
 
 $FreshPorts::Config::BaseDir			= '/var/db/freshports';
+$FreshPorts::Config::BaseDirIngress		= '/var/db/ingress';
+#$FreshPorts::Config::DirIngressRepos		= '/var/db/ingress/repos';
 
 $FreshPorts::Config::scriptpath			= '/usr/local/libexec/freshports';
 
@@ -62,6 +64,7 @@ $FreshPorts::Config::path_to_tree		= $FreshPorts::Config::JailBaseDir . '/var/db
 
 #
 # path to ports tree. no trailing slash. This is usually HEAD
+# this is an absolute path, not useful with the port-jail chroot.
 #
 $FreshPorts::Config::path_to_ports		= $FreshPorts::Config::path_to_tree . '/PORTS-head';
 
@@ -97,14 +100,15 @@ $FreshPorts::Config::email_port				= 25;
 
 $FreshPorts::Config::SystemOwnerEmail		= 'dan@langille.org';
 
+$FreshPorts::Config::CheckGit                   = $FreshPorts::Config::BaseDir . '/signals/check_git';
 $FreshPorts::Config::JobWaiting                 = $FreshPorts::Config::BaseDir . '/signals/job_waiting';
 $FreshPorts::Config::MovedFileFlag              = $FreshPorts::Config::BaseDir . '/signals/refresh_moved';
-$FreshPorts::Config::UpdatingFileFlag           = $FreshPorts::Config::BaseDir . '/signals/refresh_updating';
-$FreshPorts::Config::VuXMLFileFlag              = $FreshPorts::Config::BaseDir . '/signals/vuxml';
-$FreshPorts::Config::RefreshCachFileFlag        = $FreshPorts::Config::BaseDir . '/signals/cache_needs_refresh';
-$FreshPorts::Config::WWWENPortsCategoriesFlag   = $FreshPorts::Config::BaseDir . '/signals/www.en.ports.categories';
 $FreshPorts::Config::NewReposReadyForImport     = $FreshPorts::Config::BaseDir . '/signals/new_repo_ready_for_import';
 $FreshPorts::Config::NewRepoImported            = $FreshPorts::Config::BaseDir . '/signals/new_repo_imported';
+$FreshPorts::Config::RefreshCachFileFlag        = $FreshPorts::Config::BaseDir . '/signals/cache_needs_refresh';
+$FreshPorts::Config::UpdatingFileFlag           = $FreshPorts::Config::BaseDir . '/signals/refresh_updating';
+$FreshPorts::Config::VuXMLFileFlag              = $FreshPorts::Config::BaseDir . '/signals/vuxml';
+$FreshPorts::Config::WWWENPortsCategoriesFlag   = $FreshPorts::Config::BaseDir . '/signals/www.en.ports.categories';
 
 $FreshPorts::Config::PortsFreezeFile            = $FreshPorts::Config::BaseDir . '/signals/PortsFreezeIsInEffect';
 
@@ -161,8 +165,8 @@ $FreshPorts::Config::DB_Root_Prefix_SRC    = '/base';
 
 $FreshPorts::Config::Ports_Default_Directory = $FreshPorts::Config::DB_Root_Prefix_PORTS . '/head';
 
-# this is the path, within the CHROOT, to where we find the SVN directories.
-$FreshPorts::Config::SVNBaseDir  = '/var/db/repos';
+# this is the path, within the CHROOT, to where we find the repo directories.
+$FreshPorts::Config::RepoBaseDir  = '/var/db/repos';
 
 $FreshPorts::Config::JailConfigurePlist           = '/make-generate-plist.sh';
 $FreshPorts::Config::JailCategoryDescrptionScript = '/make-category-comment.sh';

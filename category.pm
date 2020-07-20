@@ -201,10 +201,12 @@ sub _description_read {
 	my $ErrorMessage = '';	# stores the result of the latest make command
 	                        # in case we need it for error reporting
 	my $OtherErrors  = '';	# gets the results of the TmpFile used to collect errors.
-	
-	my $SVNDIR_CHROOT = FreshPorts::Branches::GetPathToRepoForBranchCHROOT($CommitBranch);
 
-	my $makecommand = "/usr/local/bin/sudo /usr/sbin/chroot -u $FreshPorts::Config::JailUser $FreshPorts::Config::JailBaseDir $SVNDIR_CHROOT $FreshPorts::Config::JailCategoryDescrptionScript $category 2>$TmpFile";
+	# with subversion, FreshPorts held a different working copy of the repo for the quarterly branch
+	# and another for head.	
+	my $REPODIR_CHROOT = FreshPorts::Branches::GetPathToRepoForBranchCHROOT($CommitBranch);
+
+	my $makecommand = "/usr/local/bin/sudo /usr/sbin/chroot -u $FreshPorts::Config::JailUser $FreshPorts::Config::JailBaseDir $REPODIR_CHROOT $FreshPorts::Config::JailCategoryDescrptionScript $category 2>$TmpFile";
 	print "makecommand = $makecommand\n";
 
 	my $MakeResults = `$makecommand`;
@@ -257,6 +259,7 @@ sub _description_fetch {
 	my $CommitBranch = shift;
 	my $category     = shift;
 
+	# not sure thii used, especially so now that we're moving to git
 	my $DESTDIR = "$FreshPorts::Config::path_to_ports/$category";
 	my $SRCDIR  = "ports/$category";
 	my $FILE    = "Makefile";

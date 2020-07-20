@@ -481,17 +481,25 @@ sub _ExtractValuesFromMakefile {
 	                        # in case we need it for error reporting
 	my $OtherErrors  = '';	# gets the results of the TmpFile used to collect errors.
 
-	my $SVNDIR        = FreshPorts::Branches::GetPathToRepoForBranch      ($CommitBranch);
-	my $SVNDIR_CHROOT = FreshPorts::Branches::GetPathToRepoForBranchCHROOT($CommitBranch);
-	my $MakefileDirectory = "$SVNDIR/$this->{category}/$this->{name}";
+	my $REPODIR        = FreshPorts::Branches::GetPathToRepoForBranch      ($CommitBranch);
+	my $REPODIR_CHROOT = FreshPorts::Branches::GetPathToRepoForBranchCHROOT($CommitBranch);
+	my $MakefileDirectory = "$REPODIR/$this->{category}/$this->{name}";
 
-    # this is relative to the host root, not the ports jail root
+        print "CommitBranch:   '$CommitBranch\n";	
+	print "REPODIR:        '$REPODIR'\n";
+	print "REPODIR_CHROOT: '$REPODIR_CHROOT'\n";
+
+	# this is relative to the host root, not the ports jail root
 	my $Makefile = "$MakefileDirectory/$FreshPorts::Constants::FILE_MAKEFILE";
+	
+	print "checking to make sure $MakefileDirectory/$FreshPorts::Constants::FILE_MAKEFILE exists\n";
 
 	if (-f $Makefile) {
 		# good, the Makefile actually exists.  This should be the case.  If not, something
 		# rather unusual is happening.
+		print "Phew.  It's here.  Moving on....\n";
 	} else {
+		print " * * * * not found.  WTF?\n";
 		# If the Makefile does not exist, suspect a repocopy.
 		# A repocopy is the process of manually moving things around within the cvs repository.
 		# This preserves commit history when a port is being renamed, but it makes life difficultJailShowConfigScript
@@ -517,7 +525,7 @@ sub _ExtractValuesFromMakefile {
 	# IF YOU CHANGE THE MAKE COMMAND, CHANGE THE SPLIT!!!!!!!!!!!!!!!
 	#
 	#
-	$makecommand = "/usr/local/bin/sudo /usr/sbin/chroot -u $FreshPorts::Config::JailUser $FreshPorts::Config::JailBaseDir $FreshPorts::Config::JailPortScript $SVNDIR_CHROOT $this->{category}/$this->{name} 2>$TmpFile";
+	$makecommand = "/usr/local/bin/sudo /usr/sbin/chroot -u $FreshPorts::Config::JailUser $FreshPorts::Config::JailBaseDir $FreshPorts::Config::JailPortScript $REPODIR_CHROOT $this->{category}/$this->{name} 2>$TmpFile";
 
 	print "makecommand = $makecommand\n";
 
@@ -568,7 +576,7 @@ sub _ExtractValuesFromMakefile {
 	if ($result == 0) {
         	my $TmpFile = FreshPorts::Utilities::TmpFileName("$this->{category}.$this->{name}.make-mastersites-error");
           	print "trying to get master sites.  Errors will be in '$TmpFile'\n";
-                my $mastersitescommand = "/usr/local/bin/sudo /usr/sbin/chroot -u $FreshPorts::Config::JailUser $FreshPorts::Config::JailBaseDir $FreshPorts::Config::JailMasterSitesScript $SVNDIR_CHROOT $this->{category}/$this->{name} 2>$TmpFile";
+                my $mastersitescommand = "/usr/local/bin/sudo /usr/sbin/chroot -u $FreshPorts::Config::JailUser $FreshPorts::Config::JailBaseDir $FreshPorts::Config::JailMasterSitesScript $REPODIR_CHROOT $this->{category}/$this->{name} 2>$TmpFile";
 
 		print "'$mastersitescommand'\n";
 		$mastersites = `$mastersitescommand`;
@@ -606,7 +614,7 @@ sub _ExtractValuesFromMakefile {
 	if ($result == 0) {
 		my $TmpFile = FreshPorts::Utilities::TmpFileName("$this->{category}.$this->{name}.showconfig");
 		print "trying to get showconfig.  Errors will be in '$TmpFile'\n";
-                my $showconfigcommand = "/usr/local/bin/sudo /usr/sbin/chroot -u $FreshPorts::Config::JailUser $FreshPorts::Config::JailBaseDir $FreshPorts::Config::JailShowConfigScript $SVNDIR_CHROOT $this->{category}/$this->{name} 2>$TmpFile";
+                my $showconfigcommand = "/usr/local/bin/sudo /usr/sbin/chroot -u $FreshPorts::Config::JailUser $FreshPorts::Config::JailBaseDir $FreshPorts::Config::JailShowConfigScript $REPODIR_CHROOT $this->{category}/$this->{name} 2>$TmpFile";
 
 		print "'$showconfigcommand'\n";
 		$showconfig = `$showconfigcommand`;
@@ -698,7 +706,7 @@ sub _ExtractValuesFromMakefile {
 		$patchdepends   = FreshPorts::Utilities::trim_multiple_to_single(FreshPorts::Utilities::trim($patchdepends));
 
 
-		$master_port =~ s|$SVNDIR_CHROOT/||;
+		$master_port =~ s|$REPODIR_CHROOT/||;
 		
 		print " portname                 = '$this->{name}'\n";
 		print " packagename              = '$portname'\n";
@@ -812,7 +820,7 @@ sub _ExtractValuesFromMakefile {
 
 
 		# extract the generate_plist contents
-		my $configure_plist_command = "/usr/local/bin/sudo /usr/sbin/chroot -u $FreshPorts::Config::JailUser $FreshPorts::Config::JailBaseDir $FreshPorts::Config::JailConfigurePlist $SVNDIR_CHROOT $this->{category}/$this->{name} 2>$TmpFile";
+		my $configure_plist_command = "/usr/local/bin/sudo /usr/sbin/chroot -u $FreshPorts::Config::JailUser $FreshPorts::Config::JailBaseDir $FreshPorts::Config::JailConfigurePlist $REPODIR_CHROOT $this->{category}/$this->{name} 2>$TmpFile";
 
 		print "generate_plist_command = $configure_plist_command\n";
 
@@ -826,7 +834,7 @@ sub _ExtractValuesFromMakefile {
 
 
 		# extract the package flavors
-		my $package_flavors_command = "/usr/local/bin/sudo /usr/sbin/chroot -u $FreshPorts::Config::JailUser $FreshPorts::Config::JailBaseDir $FreshPorts::Config::JailPackageFlavors $SVNDIR_CHROOT $this->{category}/$this->{name} 2>$TmpFile";
+		my $package_flavors_command = "/usr/local/bin/sudo /usr/sbin/chroot -u $FreshPorts::Config::JailUser $FreshPorts::Config::JailBaseDir $FreshPorts::Config::JailPackageFlavors $REPODIR_CHROOT $this->{category}/$this->{name} 2>$TmpFile";
 
 		print "package_flavors_command = $package_flavors_command\n";
 
@@ -1124,13 +1132,15 @@ sub RefreshFromFiles($;$;$;$) {
 # refresh this port based on the make files associated with it and the value of needs_refresh
 # returns 0 for success, 1 for failure
 #
-	my $this            = shift;
-	my $CommitBranch    = shift;
-	my $needs_refresh	= shift;
-	my $fetch_files		= shift;
-	my $svn_revision	= shift;
+	my $this          = shift;
+	my $CommitBranch  = shift;
+	my $needs_refresh = shift;
+	my $fetch_files   = shift;
+	my $svn_revision  = shift;
 
 	print "into RefreshFromFiles()\n";
+	print "working on CommitBranch='$CommitBranch'\n";
+	print "with svn_revision='$svn_revision'\n";
 	if (!defined($needs_refresh)) {
 		FreshPorts::Utilities::ReportError('warning', "needs_refresh has no value", 1);
 	}
@@ -1149,9 +1159,9 @@ sub RefreshFromFiles($;$;$;$) {
 	    {
 	      # svn up -r $svn_revision
 
-              my $SVNDIR = FreshPorts::Branches::GetPathToRepoForBranch($CommitBranch);
+              my $REPODIR = FreshPorts::Branches::GetPathToRepoForBranch($CommitBranch);
               
-              $result = FreshPorts::Utilities::svnUpFile($SVNDIR, '', $svn_revision);
+              $result = FreshPorts::Utilities::svnUpFile($REPODIR, '', $svn_revision);
               # match the results of _FetchFilesNeedingRefresh (which no longer exists)
               if ($result == 1) 
               {

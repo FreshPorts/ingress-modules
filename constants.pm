@@ -12,43 +12,55 @@ use strict;
 # Database sequence IDs
 #
 
-$FreshPorts::Constants::ports_seq					= "ports_id_seq";
-$FreshPorts::Constants::commit_log_seq				= "commit_log_id_seq";
+$FreshPorts::Constants::ports_seq			= "ports_id_seq";
+$FreshPorts::Constants::commit_log_seq			= "commit_log_id_seq";
 $FreshPorts::Constants::commit_log_elements_seq		= "commit_log_elements_id_seq";
-$FreshPorts::Constants::commit_log_seq				= "commit_log_id_seq";
-$FreshPorts::Constants::system_branch_seq			= "system_branch_id_seq";
+$FreshPorts::Constants::commit_log_seq			= "commit_log_id_seq";
+$FreshPorts::Constants::system_branch_seq		= "system_branch_id_seq";
 $FreshPorts::Constants::sanity_test_failures_seq	= "sanity_test_failures_id_seq";
 
 # for VuXML
-$FreshPorts::Constants::vuxml_seq					= "vuxml_id_seq";
-$FreshPorts::Constants::vuxml_affected_seq			= "vuxml_affected_id_seq";
-$FreshPorts::Constants::vuxml_names_seq				= "vuxml_names_id_seq";
-$FreshPorts::Constants::vuxml_ranges_seq			= "vuxml_ranges_id_seq";
+$FreshPorts::Constants::vuxml_seq			= "vuxml_id_seq";
+$FreshPorts::Constants::vuxml_affected_seq		= "vuxml_affected_id_seq";
+$FreshPorts::Constants::vuxml_names_seq			= "vuxml_names_id_seq";
+$FreshPorts::Constants::vuxml_ranges_seq		= "vuxml_ranges_id_seq";
 $FreshPorts::Constants::vuxml_references_seq		= "vuxml_references_id_seq";
 
-$FreshPorts::Constants::ADD							= 'Add';
-$FreshPorts::Constants::MODIFY						= 'Modify';
-$FreshPorts::Constants::REMOVE						= 'Remove';
+$FreshPorts::Constants::ADD				= 'Add';
+$FreshPorts::Constants::MODIFY				= 'Modify';
+$FreshPorts::Constants::REMOVE				= 'Remove';
+$FreshPorts::Constants::DELETE				= 'Delete'; # added for git
+$FreshPorts::Constants::RENAME				= 'Rename'; # added for git
 
-$FreshPorts::Constants::FreeBSD						= 'FreeBSD';
+$FreshPorts::Constants::FreeBSD				= 'FreeBSD';
 
 
-$FreshPorts::Constants::FILE_MAKEFILE				= "Makefile";
+$FreshPorts::Constants::FILE_MAKEFILE			= "Makefile";
 
 #
 # These are the entries within /usr/ports/ which we ignore
 # and /usr/ports/<category> which FreshPorts does not track
 #
 %FreshPorts::Constants::IgnoredItems = (
-	"Attic"			=> 1,
-	"distfiles"		=> 2,
-	"Mk"			=> 3,
-	"Tools"			=> 4,
-	"Templates"		=> 5,
-	"Makefile"		=> 6,
-	"Makefile.inc"	=> 7,
-	"CVSROOT"       => 8,
-	"base"          => 9,
+	"Attic"        => 1,
+	"distfiles"    => 2,
+	"Mk"           => 3,
+	"Tools"        => 4,
+	"Templates"    => 5,
+	"Makefile"     => 6,
+	"Makefile.inc" => 7,
+	"CVSROOT"      => 8,
+	"base"         => 9,
+);
+
+$FreshPorts::Constants::Subversion = 'subversion';
+$FreshPorts::Constants::Git        = 'git';
+
+# These are the valid repositories we use. This relates to the repository column of the repo table.
+# The values are not relevant.
+%FreshPorts::Constants::Repositories = (
+	$FreshPorts::Constants::Subversion => 1,
+	$FreshPorts::Constants::Git        => 2,
 );
 
 $FreshPorts::Constants::UsualPortsTreeLocation			= '/usr/ports';

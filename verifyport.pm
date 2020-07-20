@@ -193,7 +193,7 @@ sub _CompileListOfPorts($;$;$;$) {
 						# if we just deleted the Makefile for this port, there's no sense in refreshing the port.
 						# because it's been deleted.
 						#
-						if ($extra eq $FreshPorts::Constants::FILE_MAKEFILE && $action eq $FreshPorts::Constants::REMOVE ) {
+						if ($extra eq $FreshPorts::Constants::FILE_MAKEFILE && ($action eq $FreshPorts::Constants::REMOVE || $action eq $FreshPorts::Constants::DELETE)) {
 							#
 							# we are deleted (local value, never actually saved to db)
 							#
@@ -343,6 +343,40 @@ sub SaveChangesToPortsTree($;$;$;$) {
 	return %CommitLogPorts;
 }
 
+sub ScrollToThatCommit($;$;$) {
+	#
+	# At one time, we fetched individual files.
+	# Then we did: svn co -r N
+	# Now it's: git checkout N
+	#
+
+	my $branch   = shift;
+	my $git_hash = shift;
+	my $dbh      = shift;
+
+	my $FetchOK = 1;
+
+	print "into ScrollToThatCommit with: branch = '$branch' looking for commit = '$git_hash'";
+	print "do a git checkout of that hash.\n";
+
+	# if we have a hash
+	if (defined($git_hash) && $git_hash ne '')
+	{
+		my $startTime = time;
+		# this is a path to the repo directory, we still need the repo name
+		my $RepoName = FreshPorts::Branches::GetRepoNameForBranch($branch);
+		$FetchOK = FreshPorts::Utilities::gitCheckout("$FreshPorts::Config::RepoDir/$RepoName", $git_hash);
+
+		my $elapsedTime = time - $startTime;
+
+		print "Elapsed time for gitCheckout" . strftime("\%H:\%M:\%S", gmtime($elapsedTime)) . "\n";
+
+		return $FetchOK;
+	}
+
+	return $FetchOK;
+}
+
 sub FetchAllFiles($;$;$;$) {
 	#
 	# fetch all the files associated with this commit
@@ -370,13 +404,13 @@ sub FetchAllFiles($;$;$;$) {
 	print "fetching all files from this commit.\n";
 	
 	# this is where we fetch the files to disk
-	my $SVNDIR = FreshPorts::Branches::GetPathToRepoForBranch($CommitBranch);
+	my $REPODIR = FreshPorts::Branches::GetPathToRepoForBranch($CommitBranch);
 
 	# if we have a revision	
 	if (defined($svn_revision) && $svn_revision ne '')
 	{
 		my $startTime = time;
-		$FetchOK = FreshPorts::Utilities::svnUpFile($SVNDIR, '', $svn_revision);
+		$FetchOK = FreshPorts::Utilities::svnUpFile($REPODIR, '', $svn_revision);
 		
 		my $elapsedTime = time - $startTime;
 		
@@ -436,15 +470,15 @@ sub FetchAllFiles($;$;$;$) {
 		#
 		# there is no sense in fetching removed files
 		#
-		if ($action ne $FreshPorts::Constants::REMOVE) {
+		if ($action ne $FreshPorts::Constants::REMOVE && $action eq $FreshPorts::Constants::DELETE) {
 
 			#
 			# fetch this file into the ports tree
 			#
 
-			print "fetching \$SVNDIR = [$SVNDIR], \$SVNITEM = [$SVNITEM (was $filename)] \$REVISION = [$REVISION]\n";
+			print "fetching \$REPODIR = [$REPODIR], \$SVNITEM = [$SVNITEM (was $filename)] \$REVISION = [$REVISION]\n";
 
-			$FetchOK = FreshPorts::Utilities::svnUpFile($SVNDIR, $SVNITEM, $REVISION);
+			$FetchOK = FreshPorts::Utilities::svnUpFile($REPODIR, $SVNITEM, $REVISION);
 			if (!$FetchOK) {
 				FreshPorts::Utilities::ReportError('warning', "Sorry, but we couldn't fetch all the files", 0);
 				last LOOP;

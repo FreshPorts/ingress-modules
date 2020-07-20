@@ -94,7 +94,7 @@ print "after '$SRCDIR'\n";
 	my $FetchAttempts = $FreshPorts::Config::Fetch_Retry_Limit;
 
 	while ($FetchAttempts) {
-		my $command = "sh $FreshPorts::Config::scriptpath/svn-up-file.sh  SVNDIR SVNITEM REVISION $DESTDIR $SRCDIR $FILE $REVISION $SUFFIX";
+		my $command = "sh $FreshPorts::Config::scriptpath/svn-up-file.sh  REPODIR SVNITEM REVISION $DESTDIR $SRCDIR $FILE $REVISION $SUFFIX";
 		print "about to fetch = '$command'\n";
 		my $FetchResults = `$command`;
 		my $code = $?;
@@ -138,7 +138,7 @@ sub svnUpFile($;$;$) {
 	# returns 1 if fetched.
 	# zero otherwise.
 	#
-	my $SVNDIR   = shift;
+	my $REPODIR  = shift;
 	my $SVNITEM  = shift;
 	my $REVISION = shift;
 	
@@ -156,14 +156,14 @@ print "after '$SVNITEM'\n";
 		$SVNITEM = "''";
 	}
 
-#	print "svnUpFile '$SVNDIR' '$SVNITEM' '$REVISION'\n";
+#	print "svnUpFile '$REPODIR' '$SVNITEM' '$REVISION'\n";
 
 	my $result = 0;
 
 	my $numAttempts = $FreshPorts::Config::Fetch_Retry_Limit;
 
 	while ($numAttempts) {
-		my $command = "sh $FreshPorts::Config::scriptpath/svn-up-file.sh $SVNDIR $SVNITEM $REVISION";
+		my $command = "sh $FreshPorts::Config::scriptpath/svn-up-file.sh $REPODIR $SVNITEM $REVISION";
 		print "about to svn up = '$command'\n";
 		my $svnUpResults = `$command`;
 		my $code = $?;
@@ -179,7 +179,7 @@ print "after '$SVNITEM'\n";
 			# fetch failed
 			# sleep, then try again
 
-			FreshPorts::Utilities::ReportError('warning', 'sleeping for ' . ($FreshPorts::Config::Fetch_Retry_Limit - $numAttempts + 1) * $FreshPorts::Config::Fetch_Sleep_Time . " seconds after svn up failed for ($SVNDIR $SVNITEM $REVISION)");
+			FreshPorts::Utilities::ReportError('warning', 'sleeping for ' . ($FreshPorts::Config::Fetch_Retry_Limit - $numAttempts + 1) * $FreshPorts::Config::Fetch_Sleep_Time . " seconds after svn up failed for ($REPODIR $SVNITEM $REVISION)");
 			print "fetch failed, sleeping...\n";
 			# this waits less time each wait... should be longer each wait I think
 			print "\$FreshPorts::Config::Fetch_Retry_Limit='$FreshPorts::Config::Fetch_Retry_Limit'\n";
@@ -191,6 +191,62 @@ print "after '$SVNITEM'\n";
 		} else {
 			# fetch worked
 			print "That fetch worked: '$svnUpResults'\n";
+			last;
+		}
+    }
+
+	#
+	# if we succeeded in our fetch..
+	if ($numAttempts) {
+		$result = 1;
+	}
+
+	return $result;
+}
+
+sub gitCheckout($;$;$) {
+	#
+	# fetch a file
+	# into the given path
+	# returns 1 if fetched.
+	# zero otherwise.
+	#
+	my $GITDIR   = shift;
+	my $REVISION = shift;
+	
+	my $result = 0;
+
+	my $numAttempts = $FreshPorts::Config::Fetch_Retry_Limit;
+
+	while ($numAttempts) {
+		my $command = "sh $FreshPorts::Config::scriptpath/git-checkout.sh $GITDIR $REVISION";
+		print "about to git checkout = '$command'\n";
+		my $gitCheckoutResults = `$command`;
+		my $code = $?;
+		print "git checkout result = $code\n";
+		if (($code >> 8)) {
+			#
+			# This might be a nice place to retry a fetch, or send an email
+			#
+			print "that git checkout failed.  What do to?\n";
+			print "\n\n" . $gitCheckoutResults . "\n\n";
+
+			# and we're outta here
+			# fetch failed
+			# sleep, then try again
+
+			FreshPorts::Utilities::ReportError('warning', 'sleeping for ' . ($FreshPorts::Config::Fetch_Retry_Limit - $numAttempts + 1) * $FreshPorts::Config::Fetch_Sleep_Time . " seconds after git checkout failed for ($GITDIR $REVISION)");
+			print "fetch failed, sleeping...\n";
+			# this waits less time each wait... should be longer each wait I think
+			print "\$FreshPorts::Config::Fetch_Retry_Limit='$FreshPorts::Config::Fetch_Retry_Limit'\n";
+			print "\$numAttempts='$numAttempts'\n";
+			print "\$FreshPorts::Config::Fetch_Sleep_Time='$FreshPorts::Config::Fetch_Sleep_Time'\n";
+			sleep (($FreshPorts::Config::Fetch_Retry_Limit - $numAttempts + 1) * $FreshPorts::Config::Fetch_Sleep_Time);
+			$numAttempts--;
+
+		} else {
+			# fetch worked
+			print "That fetch worked: '$gitCheckoutResults'\n";
 			last;
 		}
     }
