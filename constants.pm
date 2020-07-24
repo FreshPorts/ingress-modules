@@ -63,35 +63,47 @@ $FreshPorts::Constants::Git        = 'git';
 	$FreshPorts::Constants::Git        => 2,
 );
 
-$FreshPorts::Constants::UsualPortsTreeLocation			= '/usr/ports';
-$FreshPorts::Constants::DISTDIR							= '/usr/ports/distfiles';
+$FreshPorts::Constants::UsualPortsTreeLocation		= '/usr/ports';
+$FreshPorts::Constants::DISTDIR				= '/usr/ports/distfiles';
 
-$FreshPorts::Constants::HEAD							= 'head';
-$FreshPorts::Constants::PORTS 							= 'ports';
+$FreshPorts::Constants::HEAD				= 'head';
+$FreshPorts::Constants::MASTER				= 'master';
+$FreshPorts::Constants::PORTS 				= 'ports';
+
+$FreshPorts::Constants::Repo_Docs                       = 'freebsd-docs';
+$FreshPorts::Constants::Repo_Ports                      = 'freebsd-ports';
+$FreshPorts::Constants::Repo_Src                        = 'freebsd';
+
+
+%FreshPorts::Constants::GitRepos = (
+   $FreshPorts::Constants::Repo_Docs  => $FreshPorts::Constants::Repo_Docs,
+   $FreshPorts::Constants::Repo_Ports => $FreshPorts::Constants::Repo_Ports,
+   $FreshPorts::Constants::Repo_Src   => $FreshPorts::Constants::Repo_Src,
+);
 
 $FreshPorts::Constants::ReportIDMaintainerNotification	= 3;
-$FreshPorts::Constants::ReportIDAnnouncements			= 4;
-$FreshPorts::Constants::ReportDeletedPorts				= 5;
+$FreshPorts::Constants::ReportIDAnnouncements		= 4;
+$FreshPorts::Constants::ReportDeletedPorts		= 5;
 
-$FreshPorts::Constants::VERSION_REVISION_JOINER			= '_';
+$FreshPorts::Constants::VERSION_REVISION_JOINER		= '_';
 
 $FreshPorts::Constants::VUXML_URL                       = 'https://www.vuxml.org/freebsd/';
 
-$FreshPorts::Constants::Notify_ports_moved				= 'notify_ports_moved';			# /usr/ports/MOVED
-$FreshPorts::Constants::Notify_ports_updating			= 'notify_ports_updating';		# /usr/ports/UPDATING
-$FreshPorts::Constants::Notify_port_updated				= 'notify_port_updated';		# a port has been updated
-$FreshPorts::Constants::Notify_vuxml					= 'notify_vuxml';				# vuxml has been updated
-$FreshPorts::Constants::Notify_cvsroot_approvers		= 'notify_cvsroot_approvers';	# CVSROOT/approvers has been updated
+$FreshPorts::Constants::Notify_ports_moved		= 'notify_ports_moved';			# /usr/ports/MOVED
+$FreshPorts::Constants::Notify_ports_updating		= 'notify_ports_updating';		# /usr/ports/UPDATING
+$FreshPorts::Constants::Notify_port_updated		= 'notify_port_updated';		# a port has been updated
+$FreshPorts::Constants::Notify_vuxml			= 'notify_vuxml';				# vuxml has been updated
+$FreshPorts::Constants::Notify_cvsroot_approvers	= 'notify_cvsroot_approvers';	# CVSROOT/approvers has been updated
 
 #
 # some special files
 #
-$FreshPorts::Constants::CVSROOT_Approvers				= 'CVSROOT/approvers';       # what we see in the commit msg
-$FreshPorts::Constants::CVSROOT_Ports_Approvers			= 'CVSROOT-ports/approvers'; # what we need to fetch from cvsweb
-$FreshPorts::Constants::Categories						= 'www/en/ports/categories';
-$FreshPorts::Constants::VUXML							= '/ports/head/security/vuxml/vuln.xml';
-$FreshPorts::Constants::PORTS_UPDATING					= '/ports/head/UPDATING';
-$FreshPorts::Constants::PORTS_MOVED						= '/ports/head/MOVED';
+$FreshPorts::Constants::CVSROOT_Approvers		= 'CVSROOT/approvers';       # what we see in the commit msg
+$FreshPorts::Constants::CVSROOT_Ports_Approvers		= 'CVSROOT-ports/approvers'; # what we need to fetch from cvsweb
+$FreshPorts::Constants::Categories			= 'www/en/ports/categories';
+$FreshPorts::Constants::VUXML				= '/ports/head/security/vuxml/vuln.xml';
+$FreshPorts::Constants::PORTS_UPDATING			= '/ports/head/UPDATING';
+$FreshPorts::Constants::PORTS_MOVED			= '/ports/head/MOVED';
 
 #
 # Special repositories we watch
