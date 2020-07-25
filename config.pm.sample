@@ -58,15 +58,16 @@ $FreshPorts::Config::QueueBaseDir     		= $FreshPorts::Config::BaseDir . '/messa
 $FreshPorts::Config::JailBaseDir = $FreshPorts::Config::BaseDir . '/ports-jail';
 
 #
-# where on disk is the ports tree?
+# where on disk is the repo directory? This was once a directory to the ports tree.
 #
-$FreshPorts::Config::path_to_tree		= $FreshPorts::Config::JailBaseDir . '/var/db/repos';
+$FreshPorts::Config::RepoDir			= $FreshPorts::Config::JailBaseDir . '/var/db/repos';
 
 #
 # path to ports tree. no trailing slash. This is usually HEAD
 # this is an absolute path, not useful with the port-jail chroot.
 #
-$FreshPorts::Config::path_to_ports		= $FreshPorts::Config::path_to_tree . '/PORTS-head';
+# I think this is only used by category.pm::_description_fetch and I'm not convinced that's used now.
+$FreshPorts::Config::path_to_ports		= $FreshPorts::Config::RepoDir . '/PORTS-head';
 
 #
 # where in the cvs tree are ports?
@@ -88,7 +89,7 @@ $FreshPorts::Config::NotifyAdmin        = 1;	# Notify me
 # otherwise we'll have trouble with determining relative pathnames
 #
 $FreshPorts::Config::scriptpath				= Cwd::abs_path($FreshPorts::Config::scriptpath);
-$FreshPorts::Config::path_to_tree			= Cwd::abs_path($FreshPorts::Config::path_to_tree);	
+$FreshPorts::Config::RepoDir				= Cwd::abs_path($FreshPorts::Config::RepoDir);	
 $FreshPorts::Config::path_to_ports			= Cwd::abs_path($FreshPorts::Config::path_to_ports);
 
 #
@@ -100,7 +101,11 @@ $FreshPorts::Config::email_port				= 25;
 
 $FreshPorts::Config::SystemOwnerEmail		= 'dan@langille.org';
 
-$FreshPorts::Config::CheckGit                   = $FreshPorts::Config::BaseDir . '/signals/check_git';
+# ingress signals
+$FreshPorts::Config::JobWaiting                 = $FreshPorts::Config::BaseDirIngress . '/signals/job_waiting';
+$FreshPorts::Config::CheckGit                   = $FreshPorts::Config::BaseDirIngress . '/signals/check_git';
+
+# freshports signals
 $FreshPorts::Config::JobWaiting                 = $FreshPorts::Config::BaseDir . '/signals/job_waiting';
 $FreshPorts::Config::MovedFileFlag              = $FreshPorts::Config::BaseDir . '/signals/refresh_moved';
 $FreshPorts::Config::NewReposReadyForImport     = $FreshPorts::Config::BaseDir . '/signals/new_repo_ready_for_import';
@@ -144,7 +149,7 @@ $FreshPorts::Config::Debug_FetchBeforeSavingPort = 0;
 # for debugging....
 #
 #print "\$FreshPorts::Config::scriptpath    '$FreshPorts::Config::scriptpath'\n";
-#print "\$FreshPorts::Config::path_to_tree  '$FreshPorts::Config::path_to_tree'\n";
+#print "\$FreshPorts::Config::RepoDir       '$FreshPorts::Config::RepoDir'\n";
 #print "\$FreshPorts::Config::path_to_ports '$FreshPorts::Config::path_to_ports'\n";
 
 # number of times to retry a failed fetch from cvsweb
