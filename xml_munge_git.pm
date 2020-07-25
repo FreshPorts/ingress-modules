@@ -936,6 +936,7 @@ sub SaveUpdateToDB {
 	$commit_log->{committer}	= $committer;
 	$commit_log->{description}	= $description;
 	$commit_log->{system_id}	= $SystemID;
+	$commit_log->{commit_hash_short}= $Updates{commit_hash_short};
 	$commit_log->{repo}	 	= $Updates{repository};
 	$commit_log->{revision} 	= $revision;
 
