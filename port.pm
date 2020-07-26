@@ -88,63 +88,63 @@ sub _initialize {
 
 sub _GetValuesFromRow {
 	my $this = shift;
-	my $row  = shift;
+	my $row  = shift;=
 
-	$this->{id} 			= $row->{id};
-	$this->{element_id}		= $row->{element_id};
-	$this->{category_id}		= $row->{category_id};
-	$this->{category}		= $row->{category};
-	$this->{name}			= $row->{name};
+	$this->{id}                    = $row->{id};
+	$this->{element_id}            = $row->{element_id};
+	$this->{category_id}           = $row->{category_id};
+	$this->{category}              = $row->{category};
+	$this->{name}                  = $row->{name};
 
-	$this->{short_description}	= $row->{short_description};
-	$this->{long_description}	= $row->{long_description};
-	$this->{version}		= $row->{version};
-	$this->{revision}		= $row->{revision};
-	$this->{maintainer}		= $row->{maintainer};
-	$this->{homepage}		= $row->{homepage};
-	$this->{master_sites}		= $row->{master_sites};
-	$this->{extract_suffix}		= $row->{extract_suffix};
-	$this->{package_exists}		= $row->{package_exists};
-	$this->{depends_build}		= $row->{depends_build};
-	$this->{depends_run}		= $row->{depends_run};
-	$this->{depends_lib}		= $row->{depends_lib};
-	$this->{forbidden}		= $row->{forbidden};
-	$this->{broken}			= $row->{broken};
-	$this->{deprecated}		= $row->{deprecated};
-	$this->{ignore}			= $row->{ignore};
-	$this->{master_port}		= $row->{master_port};
-	$this->{latest_link}		= $row->{latest_link};
-	$this->{no_latest_link}		= $row->{no_latest_link};
-	$this->{no_package}		= $row->{no_package};
-	$this->{package_name}		= $row->{package_name};
-	$this->{portepoch}		= $row->{portepoch};
-	$this->{restricted}		= $row->{restricted};
-	$this->{no_cdrom}		= $row->{no_cdrom};
-	$this->{expiration_date}	= $row->{expiration_date};
-	$this->{is_interactive}		= $row->{is_interactive};
+	$this->{short_description}     = $row->{short_description};
+	$this->{long_description}      = $row->{long_description};
+	$this->{version}               = $row->{version};
+	$this->{revision}              = $row->{revision};
+	$this->{maintainer}            = $row->{maintainer};
+	$this->{homepage}              = $row->{homepage};
+	$this->{master_sites}          = $row->{master_sites};
+	$this->{extract_suffix}        = $row->{extract_suffix};
+	$this->{package_exists}        = $row->{package_exists};
+	$this->{depends_build}         = $row->{depends_build};
+	$this->{depends_run}           = $row->{depends_run};
+	$this->{depends_lib}           = $row->{depends_lib};
+	$this->{forbidden}             = $row->{forbidden};
+	$this->{broken}                = $row->{broken};
+	$this->{deprecated}            = $row->{deprecated};
+	$this->{ignore}                = $row->{ignore};
+	$this->{master_port}           = $row->{master_port};
+	$this->{latest_link}           = $row->{latest_link};
+	$this->{no_latest_link}        = $row->{no_latest_link};
+	$this->{no_package}            = $row->{no_package};
+	$this->{package_name}          = $row->{package_name};
+	$this->{portepoch}             = $row->{portepoch};
+	$this->{restricted}            = $row->{restricted};
+	$this->{no_cdrom}              = $row->{no_cdrom};
+	$this->{expiration_date}       = $row->{expiration_date};
+	$this->{is_interactive}        = $row->{is_interactive};
 	
-	$this->{only_for_archs}		= $row->{only_for_archs};
-	$this->{not_for_archs}		= $row->{not_for_archs};
-	$this->{status}			= $row->{status};
-	$this->{showconfig}		= $row->{showconfig};
-	$this->{license}		= $row->{license};
-	$this->{fetch_depends}		= $row->{fetch_depends};
-	$this->{extract_depends}	= $row->{extract_depends};
-	$this->{patch_depends}		= $row->{patch_depends};
-	$this->{uses}			= $row->{uses};
-	$this->{pkgmessage}		= $row->{pkgmessage};
-	$this->{distinfo}    	    	= $row->{distinfo};
-	$this->{license_restricted}	= $row->{license_restricted};
-	$this->{manual_package_build}	= $row->{manual_package_build};
-	$this->{license_perms}      	= $row->{license_perms};
-	$this->{conflicts}          	= $row->{conflicts};
-	$this->{conflicts_build}    	= $row->{conflicts_build};
-	$this->{conflicts_install}  	= $row->{conflicts_install};
-	$this->{generate_plist}     	= $row->{generate_plist};
+	$this->{only_for_archs}        = $row->{only_for_archs};
+	$this->{not_for_archs}         = $row->{not_for_archs};
+	$this->{status}                = $row->{status};
+	$this->{showconfig}            = $row->{showconfig};
+	$this->{license}               = $row->{license};
+	$this->{fetch_depends}         = $row->{fetch_depends};
+	$this->{extract_depends}       = $row->{extract_depends};
+	$this->{patch_depends}         = $row->{patch_depends};
+	$this->{uses}                  = $row->{uses};
+	$this->{pkgmessage}            = $row->{pkgmessage};
+	$this->{distinfo}              = $row->{distinfo};
+	$this->{license_restricted}    = $row->{license_restricted};
+	$this->{manual_package_build}  = $row->{manual_package_build};
+	$this->{license_perms}         = $row->{license_perms};
+	$this->{conflicts}             = $row->{conflicts};
+	$this->{conflicts_build}       = $row->{conflicts_build};
+	$this->{conflicts_install}     = $row->{conflicts_install};
+	$this->{generate_plist}        = $row->{generate_plist};
 
-	$this->{categories}		= $row->{categories};
-	$this->{last_commit_id}		= $row->{last_commit_id};
-	$this->{element_pathname}   	= $row->{element_pathname};
+	$this->{categories}            = $row->{categories};
+	$this->{last_commit_id}        = $row->{last_commit_id};
+	$this->{element_pathname}      = $row->{element_pathname};
 }
 
 # =================================
@@ -414,7 +414,9 @@ sub FetchByPartialPathName {
 
 	$tmp = $dbh->quote($this->{name});
 
-	$sql = "
+	# I enountered trouble with existing data, which would not come back as UTF-8
+	# UTF-8 is set on the connection
+	$sql = "SET CLIENT_ENCODING TO 'SQL_ASCII';
    select ports.*,
           categories.name as category,
           element.name    as name,
