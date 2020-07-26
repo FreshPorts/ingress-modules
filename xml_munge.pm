@@ -272,6 +272,12 @@ sub handle_os_end {
 	print "\n --- end of OS --- \n";
 
 	print "OS is '$Updates{os}' : branch = '$Updates{branch};\n";
+	
+	if ($Updates{branch} eq $FreshPorts::Constants::UNKNOWN) {
+		FreshPorts::Utilities::ReportError('warning', "No SystemBranchID found for OS = '$Updates{branch}' in $inputfile", 1);
+		$! = 4;
+		die "Branch is " . $FreshPorts::Constants::UNKNOWN;
+	}
 
 	# We know what branch this message is updating. Let's grab the IDs we will need.
 	$SystemID = SystemIDGet($Updates{os}, $self->{dbh});

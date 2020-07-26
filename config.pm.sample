@@ -149,7 +149,10 @@ $FreshPorts::Config::Fetch_Retry_Limit = 10;
 # sleep this number of seconds between retries
 $FreshPorts::Config::Fetch_Sleep_Time  = 120;
 
+#
 # various repo names that we follow
+# see the X-SVN-Commit-Repository header in incoming emails
+#
 $FreshPorts::Config::Repo_DOC    = 'doc';
 $FreshPorts::Config::Repo_PORTS  = 'ports';
 $FreshPorts::Config::Repo_SRC    = 'src';

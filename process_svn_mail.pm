@@ -46,6 +46,7 @@ sub GetData {
 	my $RepoPrefix = &GetOS_RepoPrefix($message);
 	my $Branch     = &GetOS_Branch($message);
 
+
 	$Message_Subject = &GetMessage_Subject($message);
 
 #print "subject: '$Message_Subject'\n";
@@ -77,6 +78,9 @@ sub GetData {
 		# I originally used a system() call for this, but moved to `backticks` so I could redirect the output to /dev/null
 		# Otherwise, the output will wind up within the XML file, which is not something you want.
 		#
+		
+		# on error, we should sleep and try again.
+
 		my $command = $FreshPorts::Config::ScriptDir . "/checkout-branch $Branch > /dev/null";
 		my $output = `$command`;
 		if ($? != 0) {
@@ -486,12 +490,18 @@ sub GetOS_Branch {
 	my ($branch);
 	
 	my $Message_Subject = &GetMessage_Subject($message);
+	my $Commit_Repo     = &GetMessage_Commit_Repo($message);
 
-	if ($Message_Subject =~ m@\s+head/|\s+head$|\s+head:\s+@) {
+	# commit docs, are always to head. We only record the commit. We don't do any processing from the repo.
+	# same with src commits.	
+	if ($Commit_Repo eq $FreshPorts::Config::Repo_DOC || $Message_Subject =~ m@\s+head/|\s+head$|\s+head:\s+@) {
 		$branch = $FreshPorts::Constants::HEAD;
 	}
 	elsif ($Message_Subject =~ m@\s+stable/(\d+)@) {
-		$branch = "RELENG_$1";
+		$branch = "stable_$1";
+	}
+	elsif ($Message_Subject =~ m@\s+stable: (\d+)@) {
+		$branch = "stable_$1";
 	}
 	elsif ($Message_Subject =~ m@\s+branches/(RELENG[_\d]+)[/]*@) {
 		$branch = "$1";
@@ -505,8 +515,11 @@ sub GetOS_Branch {
 	elsif ($Message_Subject =~ m@\s+vendor/@) {
 		$branch = "VENDOR";
 	}
+	elsif ($Commit_Repo eq 'base') {
+		$branch = $FreshPorts::Constants::HEAD;
+	}
 	else {
-		$branch = "UNKNOWN";
+		$branch = $FreshPorts::Constants::UNKNOWN;
 	}
 
 	return $branch;
@@ -767,6 +780,20 @@ sub GetMessage_Subject {
 
 	return $SubjectHead;
 }
+
+sub GetMessage_Commit_Repo {
+#
+
+	my ($message) = @_;
+	my ($Subject);
+
+	my %arg;
+	my $email = Email::Simple->new($message, \%arg);
+	my $SubjectHead = $email->header("X-SVN-Commit-Repository");
+
+	return $SubjectHead;
+}
+
 
 
 1;

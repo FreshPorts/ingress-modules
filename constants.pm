@@ -56,6 +56,7 @@ $FreshPorts::Constants::DISTDIR							= '/usr/ports/distfiles';
 
 $FreshPorts::Constants::HEAD							= 'head';
 $FreshPorts::Constants::PORTS 							= 'ports';
+$FreshPorts::Constants::UNKNOWN							= 'UNKNOWN';
 
 $FreshPorts::Constants::ReportIDMaintainerNotification	= 3;
 $FreshPorts::Constants::ReportIDAnnouncements			= 4;
