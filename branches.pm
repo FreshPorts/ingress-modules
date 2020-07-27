@@ -199,6 +199,4 @@ sub SetBranchInDB($$) {
 
 FreshPorts::Utilities::InitSyslog();
 
-
-
 1;
