@@ -560,9 +560,9 @@ sub _RecordPortFilesTouchedByThatCommit($;$;$;$) {
 					#
 					# record which files go with what port...
 					#
-					$commit_log_port_elements->{commit_log_id}			= $commit_log_id;
-					$commit_log_port_elements->{port_id}				= $port->{id};
-					$commit_log_port_elements->{commit_log_element_id}	= $commit_log_element_id;
+					$commit_log_port_elements->{commit_log_id}         = $commit_log_id;
+					$commit_log_port_elements->{port_id}               = $port->{id};
+					$commit_log_port_elements->{commit_log_element_id} = $commit_log_element_id;
 					$commit_log_port_elements->save();
 				} else {
 					print "... but is on the list of IgnoredItems!\n\n";
