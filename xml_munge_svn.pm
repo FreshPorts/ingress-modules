@@ -804,7 +804,7 @@ sub SaveUpdateToDB {
 
 	my $commit_log = FreshPorts::Commit_Log->new($self->{dbh});
 
-	print "load_xml_into_db.pl::SaveUpdateToDB --- start\n";
+	print "xml_munge_svn.pm::SaveUpdateToDB --- start\n";
 
 	my $message_id = id();
 
@@ -886,7 +886,7 @@ sub SaveUpdateToDB {
 
 	$self->notify_observers($FreshPorts::Messages::CommitSaved, (commit_log_id => $id, message_id => $message_id) );
 
-	print "load_xml_into_db.pl::SaveUpdateToDB --- finish\n";
+	print "xml_munge_svn.pm::SaveUpdateToDB --- finish\n";
 
 	return $id;
 }
