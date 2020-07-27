@@ -57,15 +57,15 @@ my $refresh_ports           = 1;  # refresh any ports touched by a commit
 my $fetch_before_refresh    = 1;  # by default, we fetch files from cvs 
                                   # before refreshing from them
 
-my $SystemID;			# the system id for this update.  Usually 'FreeBSD' => 1
-my $SystemBranchID;		# the system version id for this update.  Usually 'head' => 1
+my $SystemID;                     # the system id for this update.  Usually 'FreeBSD' => 1
+my $SystemBranchID;               # the system version id for this update.  Usually 'head' => 1
 
-my @Files;			# files affected by this commit
+my @Files;                        # files affected by this commit
 
-my $id;				# this will get the message id once we know it.
-				# impelemented only for observable class
+my $id;                           # this will get the message id once we know it.
+                                  # impelemented only for observable class
 
-my $_RollbackNeeded         = 0;	# set by Rollback_Needed()
+my $_RollbackNeeded         = 0;  # set by Rollback_Needed()
 
 #
 # a file can be added to the repository, deleted (removed) from the repository,
@@ -83,10 +83,10 @@ my %Updates;
 my $self;	# for use by functions that cannot get this value (i.e. handler_*)
 
 sub new {
-	my $this		= {};
-	my $class		= shift;
+	my $this     = {};
+	my $class    = shift;
 
-	$this->{dbh}    = shift;
+	$this->{dbh} = shift;
 
 	bless $this;
 
@@ -196,69 +196,45 @@ sub SetupParser($) {
 
 	my $p = shift;
 
-	$p->register(">UPDATES",                                               "start" => \&handle_updates_start);
-	$p->register(">UPDATES>UPDATE",                                        "start" => \&handle_update_start);
+	$p->register(">UPDATES",                               "start" => \&handle_updates_start);
+	$p->register(">UPDATES>UPDATE",                        "start" => \&handle_update_start);
 
-	$p->register(">UPDATES>UPDATE>DATE:Year",				"attr"  => \$Updates{dateyear});
-	$p->register(">UPDATES>UPDATE>DATE:Month",				"attr"  => \$Updates{datemonth});
-	$p->register(">UPDATES>UPDATE>DATE:Day",				"attr"  => \$Updates{dateday});
+	$p->register(">UPDATES>UPDATE>DATE:Year",              "attr"  => \$Updates{dateyear});
+	$p->register(">UPDATES>UPDATE>DATE:Month",             "attr"  => \$Updates{datemonth});
+	$p->register(">UPDATES>UPDATE>DATE:Day",               "attr"  => \$Updates{dateday});
 
-	$p->register(">UPDATES>UPDATE>TIME:Hour",				"attr"  => \$Updates{timehour});
-	$p->register(">UPDATES>UPDATE>TIME:Minute",				"attr"  => \$Updates{timeminute});
-	$p->register(">UPDATES>UPDATE>TIME:Second",				"attr"  => \$Updates{timesecond});
-	$p->register(">UPDATES>UPDATE>TIME:Timezone",				"attr"  => \$Updates{timezone});
+	$p->register(">UPDATES>UPDATE>TIME:Hour",              "attr"  => \$Updates{timehour});
+	$p->register(">UPDATES>UPDATE>TIME:Minute",            "attr"  => \$Updates{timeminute});
+	$p->register(">UPDATES>UPDATE>TIME:Second",            "attr"  => \$Updates{timesecond});
+	$p->register(">UPDATES>UPDATE>TIME:Timezone",          "attr"  => \$Updates{timezone});
 
-	$p->register(">UPDATES>UPDATE>OS:Id",					"attr"  => \$Updates{os});
+	$p->register(">UPDATES>UPDATE>OS:Id",                  "attr"  => \$Updates{os});
 
 	# for git, let's put branch in branch-git
 	# will will populate $Updates{branch} with the converted value. e.g. master -> head
-	$p->register(">UPDATES>UPDATE>OS:Branch",				"attr"  => \$Updates{branch_git});
-	$p->register(">UPDATES>UPDATE>OS",					"end"   => \&handle_os_end);
+	$p->register(">UPDATES>UPDATE>OS:Branch",              "attr"  => \$Updates{branch_git});
+	$p->register(">UPDATES>UPDATE>OS",                     "end"   => \&handle_os_end);
         
-	$p->register(">UPDATES>UPDATE>LOG",					"char"  => \$Updates{log});
+	$p->register(">UPDATES>UPDATE>LOG",                    "char"  => \$Updates{log});
 
-	$p->register(">UPDATES>UPDATE>PEOPLE>UPDATER:Handle",                   "attr"  => \$Updates{committer});
-	$p->register(">UPDATES>UPDATE>PEOPLE>UPDATER",                          "end"   => \&handle_updater_end);
+	$p->register(">UPDATES>UPDATE>PEOPLE>UPDATER:Handle",  "attr"  => \$Updates{committer});
+	$p->register(">UPDATES>UPDATE>PEOPLE>UPDATER",         "end"   => \&handle_updater_end);
 
-	$p->register(">UPDATES>UPDATE>COMMIT:Hash",                             "attr"   => \$Updates{commit_hash});
-	$p->register(">UPDATES>UPDATE>COMMIT:HashShort",                        "attr"   => \$Updates{commit_hash_short});
-	$p->register(">UPDATES>UPDATE>COMMIT:Subject",                          "attr"   => \$Updates{MessageSubject});
-	$p->register(">UPDATES>UPDATE>COMMIT:EncodingLosses",                   "attr"   => \$Updates{MessageEncodingLosses});
-	$p->register(">UPDATES>UPDATE>COMMIT:Repository",                       "attr"   => \$Updates{repository});
-	$p->register(">UPDATES>UPDATE>COMMIT",                                  "end"    => \&handle_message_end);
+	$p->register(">UPDATES>UPDATE>COMMIT:Hash",            "attr"   => \$Updates{commit_hash});
+	$p->register(">UPDATES>UPDATE>COMMIT:HashShort",       "attr"   => \$Updates{commit_hash_short});
+	$p->register(">UPDATES>UPDATE>COMMIT:Subject",         "attr"   => \$Updates{MessageSubject});
+	$p->register(">UPDATES>UPDATE>COMMIT:EncodingLosses",  "attr"   => \$Updates{MessageEncodingLosses});
+	$p->register(">UPDATES>UPDATE>COMMIT:Repository",      "attr"   => \$Updates{repository});
+	$p->register(">UPDATES>UPDATE>COMMIT",                 "end"    => \&handle_message_end);
 
-#	$p->register(">UPDATES>UPDATE>MESSAGE:Id",					"attr"  => \$Updates{MessageId});
-#	$p->register(">UPDATES>UPDATE>MESSAGE:Subject",				"attr"  => \$Updates{MessageSubject});
-#	$p->register(">UPDATES>UPDATE>MESSAGE:EncodingLosses",		"attr"  => \$Updates{MessageEncodingLosses});
-#
-#
-#	$p->register(">UPDATES>UPDATE>MESSAGE>DATE:Year",			"attr"  => \$Updates{messageyear});
-#	$p->register(">UPDATES>UPDATE>MESSAGE>DATE:Month",			"attr"  => \$Updates{messagemonth});
-#
-#	$p->register(">UPDATES>UPDATE>MESSAGE>DATE:Day",			"attr"  => \$Updates{messageday});
-#
-#	$p->register(">UPDATES>UPDATE>MESSAGE>TIME:Hour",			"attr"  => \$Updates{messagehour});
-#	$p->register(">UPDATES>UPDATE>MESSAGE>TIME:Minute",			"attr"  => \$Updates{messageminute});
-#	$p->register(">UPDATES>UPDATE>MESSAGE>TIME:Second",			"attr"  => \$Updates{messagesecond});
-#	$p->register(">UPDATES>UPDATE>MESSAGE>TIME:Timezone",		"attr"  => \$Updates{messagezone});
-#
-#	$p->register(">UPDATES>UPDATE>MESSAGE>TO:Email",			"attr"  => \$Updates{MessageTo});
-#	$p->register(">UPDATES>UPDATE>MESSAGE>TO",					"end"   => \&handle_messageto_end);
-#
-#	$p->register(">UPDATES>UPDATE>MESSAGE>REPOSITORY",			"char"  => \$Updates{repository});
-#	$p->register(">UPDATES>UPDATE>MESSAGE>REVISION",			"char"  => \$Updates{revision});
-#
-#	$p->register(">UPDATES>UPDATE>MESSAGE",						"end"   => \&handle_message_end);
+	$p->register(">UPDATES>UPDATE>FILES>FILE:Path",        "attr"  => \$Updates{FilePath});
+	$p->register(">UPDATES>UPDATE>FILES>FILE:Action",      "attr"  => \$Updates{FileAction});
 
-	$p->register(">UPDATES>UPDATE>FILES>FILE:Path",				"attr"  => \$Updates{FilePath});
-	$p->register(">UPDATES>UPDATE>FILES>FILE:Action",			"attr"  => \$Updates{FileAction});
-#	$p->register(">UPDATES>UPDATE>FILES>FILE:Revision",			"attr"  => \$Updates{FileRevision});
-
-	$p->register(">UPDATES>UPDATE>FILES>FILE",					"end"   => \&handle_file_end);
+	$p->register(">UPDATES>UPDATE>FILES>FILE",             "end"   => \&handle_file_end);
 
 
-	$p->register(">UPDATES>UPDATE",								"end"   => \&handle_update_end);
-	$p->register(">UPDATES",									"end"   => \&handle_updates_end);
+	$p->register(">UPDATES>UPDATE",                        "end"   => \&handle_update_end);
+	$p->register(">UPDATES",                               "end"   => \&handle_updates_end);
 
 	print "finished setting up the Parser\n";
 }
@@ -573,7 +549,8 @@ sub handle_file_end {
 	print "FileRevision          = '$FileRevision'\n";
 	
 	# XXX with git, we had no repository name, perhaps we need to add that in.
-	$Updates{repository} = 'ports';
+	# XXX this has been added in.
+	#$Updates{repository} = 'ports';
 
 	my $DB_Root_Prefix = GetDB_RepoPrefix($Updates{repository});
 	my $fileaction;    # the value obtained from the hash array
@@ -878,7 +855,7 @@ sub SaveUpdateToDB {
 	my $commit_log = FreshPorts::Commit_Log->new($self->{dbh});
 	$commit_log->setRepo($FreshPorts::Constants::Git);
 
-	print "load_xml_into_db.pl::SaveUpdateToDB --- start\n";
+	print "xml_munge_git.pm::SaveUpdateToDB --- start\n";
 
 	my $message_id = id();
 
@@ -961,7 +938,7 @@ sub SaveUpdateToDB {
 
 	$self->notify_observers($FreshPorts::Messages::CommitSaved, (commit_log_id => $id, message_id => $message_id) );
 
-	print "load_xml_into_db.pl::SaveUpdateToDB --- finish\n";
+	print "xml_munge_git.pm::SaveUpdateToDB --- finish\n";
 
 	return $id;
 }
