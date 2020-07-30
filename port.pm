@@ -88,7 +88,7 @@ sub _initialize {
 
 sub _GetValuesFromRow {
 	my $this = shift;
-	my $row  = shift;=
+	my $row  = shift;
 
 	$this->{id}                    = $row->{id};
 	$this->{element_id}            = $row->{element_id};
