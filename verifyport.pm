@@ -168,9 +168,9 @@ sub _CompileListOfPorts($;$;$;$) {
 								#
 								# these are the values needed to create a new port
 								#
-								$port->{category_id}	= $category->{id};
-								$port->{name}			= $port_name;
-								$port->{category}		= $category_name;
+								$port->{category_id} = $category->{id};
+								$port->{name}        = $port_name;
+								$port->{category}    = $category_name;
 
 								#
 								# we are creating a new port (probably), so we make it active.
@@ -194,6 +194,10 @@ sub _CompileListOfPorts($;$;$;$) {
 						# because it's been deleted.
 						#
 						if ($extra eq $FreshPorts::Constants::FILE_MAKEFILE && ($action eq $FreshPorts::Constants::REMOVE || $action eq $FreshPorts::Constants::DELETE)) {
+							#
+							# EDIT 2020-07-30 - for git processing, we want to delete the parent of $extra when we detect that the
+							# port Makefile is being deleted. see https://news.freshports.org/2020/07/29/git-changing-libraries-gave-us-new-xml-options/
+							# This should be straight forward.
 							#
 							# we are deleted (local value, never actually saved to db)
 							#
@@ -306,9 +310,9 @@ sub SaveChangesToPortsTree($;$;$;$) {
 			#
 			$commit_log_ports = FreshPorts::CommitLogPorts->new($dbh);
 
-			$commit_log_ports->{commit_log_id}	= $commit_log_id;
-			$commit_log_ports->{port_id}		= $port->{id};
-			$commit_log_ports->{needs_refresh}	= $needs_refresh;
+			$commit_log_ports->{commit_log_id} = $commit_log_id;
+			$commit_log_ports->{port_id}       = $port->{id};
+			$commit_log_ports->{needs_refresh} = $needs_refresh;
 
 			if ($commit_log_ports->{needs_refresh} == -1) {
 				FreshPorts::Utilities::ReportError('warning', "Cannot GetNeedsRefreshForNewPort.  Fetch failed", 1);
@@ -322,8 +326,8 @@ sub SaveChangesToPortsTree($;$;$;$) {
 			# and then zero out needs_refresh.
 			# messy.  Perhaps there is a neater way.
 			#
-			$commit_log_ports->{port}	= $port;
-			$CommitLogPorts{$portname}	= $commit_log_ports;
+			$commit_log_ports->{port}  = $port;
+			$CommitLogPorts{$portname} = $commit_log_ports;
 
 			print "size of %CommitLogPorts for " . $portname . " is '" . scalar(keys %CommitLogPorts) . "'\n";
 		}
@@ -496,16 +500,16 @@ sub _RecordPortFilesTouchedByThatCommit($;$;$;$) {
 	#
 	# This function will populate the commit_log_port_element table.
 	#
-	my $commit_log_id	= shift;
-	my $Files			= shift;
-	my $PortsRef		= shift;
-	my $dbh				= shift;
+	my $commit_log_id = shift;
+	my $Files         = shift;
+	my $PortsRef      = shift;
+	my $dbh           = shift;
 
-	my %Ports 			= %{$PortsRef};
+	my %Ports         = %{$PortsRef};
 
-	my $portname;					# of the form "$category/$port"
-	my $port;						# of type FreshPorts::Element
-	my $commit_log_port_elements;	# of type FreshPorts::CommitLogPortElements
+	my $portname;                 # of the form "$category/$port"
+	my $port;                     # of type FreshPorts::Element
+	my $commit_log_port_elements; # of type FreshPorts::CommitLogPortElements
 
 	my $action;
 	my $filename;
@@ -580,18 +584,18 @@ sub _RecordPortsAndElements($;$;$;$) {
 	#
 	# This function will populate the commit_log_ports_elements table.
 	#
-	my $commit_log_id		= shift;
-	my $Files				= shift;
-	my $CommitLogPortsRef	= shift;
-	my $dbh					= shift;
+	my $commit_log_id     = shift;
+	my $Files             = shift;
+	my $CommitLogPortsRef = shift;
+	my $dbh               = shift;
 
-	my %CommitLogPorts		= %{$CommitLogPortsRef};
+	my %CommitLogPorts    = %{$CommitLogPortsRef};
 
-	my %CommitLogPortElements  = (); # list of all elements touched by this commit; used to avoid duplicates.
+	my %CommitLogPortElements = (); # list of all elements touched by this commit; used to avoid duplicates.
 
-	my $portname;					# of the form "$category/$port"
-	my $port;						# of type FreshPorts::Element
-	my $commit_log_ports_elements;	# of type FreshPorts::CommitLogPortsExtra
+	my $portname;                  # of the form "$category/$port"
+	my $port;                      # of type FreshPorts::Element
+	my $commit_log_ports_elements; # of type FreshPorts::CommitLogPortsExtra
 	my $commit_log_ports;
 
 	my $action;
@@ -643,8 +647,8 @@ sub _RecordPortsAndElements($;$;$;$) {
 				#
 				# record which files go with what port...
 				#
-				$commit_log_ports_elements->{commit_log_id}	= $commit_log_id;
-				$commit_log_ports_elements->{element_id}	= $element_id;
+				$commit_log_ports_elements->{commit_log_id} = $commit_log_id;
+				$commit_log_ports_elements->{element_id}    = $element_id;
 				$commit_log_ports_elements->save();
 			}
 		}
@@ -662,8 +666,8 @@ sub _RecordPortsAndElements($;$;$;$) {
 			print "That element_id ($element_id) has already been recorded against this commit\n";
 		} else {
 			$CommitLogPortElements{$commit_log_id . '||' . $port->{element_id}} = 1;
-			$commit_log_ports_elements->{commit_log_id}	= $commit_log_id;
-			$commit_log_ports_elements->{element_id}	= $port->{element_id};
+			$commit_log_ports_elements->{commit_log_id} = $commit_log_id;
+			$commit_log_ports_elements->{element_id}    = $port->{element_id};
 			$commit_log_ports_elements->save();
 		}
 	}
@@ -720,10 +724,10 @@ sub RefreshAllPortsTouchedByCommit($;$;$;$;$) {
 
 			# and then update the commit_log_ports
 
-			$commit_log_ports->{needs_refresh}	= 0;
-			$commit_log_ports->{port_version}	= $port->{version};
-			$commit_log_ports->{port_revision}	= $port->{revision};
-			$commit_log_ports->{port_epoch}		= $port->{portepoch};
+			$commit_log_ports->{needs_refresh} = 0;
+			$commit_log_ports->{port_version}  = $port->{version};
+			$commit_log_ports->{port_revision} = $port->{revision};
+			$commit_log_ports->{port_epoch}    = $port->{portepoch};
 
 			$commit_log_ports->save();
 		} else {
@@ -831,10 +835,10 @@ sub MarkVulnerableCommits($;$;$) {
 	#
 
 
-	my $CommitLogPortsRef		= shift;
-	my %CommitLogPorts			= %{$CommitLogPortsRef};
-	my $fetch_before_refresh	= shift;
-	my $dbh						= shift;
+	my $CommitLogPortsRef    = shift;
+	my %CommitLogPorts       = %{$CommitLogPortsRef};
+	my $fetch_before_refresh = shift;
+	my $dbh                  = shift;
 
 	my $port;
 	my $error;
@@ -872,11 +876,11 @@ sub _DeleteDeletedPorts($;$) {
 	# For each deleted port, delete the element which corresponds to that port
 	#
 
-	my $PortsRef	= shift;
-	my %Ports		= %{$PortsRef};
-	my $dbh			= shift;
+	my $PortsRef = shift;
+	my %Ports    = %{$PortsRef};
+	my $dbh      = shift;
 
-	my $element		= FreshPorts::Element->new($dbh);
+	my $element  = FreshPorts::Element->new($dbh);
 
 	#
 	# refresh each and every port we are told about
@@ -906,12 +910,12 @@ sub _UndeleteResurrectedPorts($;$;$) {
 	# in this case, but you get the point....
 	#
 
-	my $PortsRef	= shift;
-	my %Ports		= %{$PortsRef};
-	my $Files		= shift;
-	my $dbh			= shift;
+	my $PortsRef = shift;
+	my %Ports    = %{$PortsRef};
+	my $Files    = shift;
+	my $dbh      = shift;
 
-	my $element		= FreshPorts::Element->new($dbh);
+	my $element  = FreshPorts::Element->new($dbh);
 
 	my $value;
 
