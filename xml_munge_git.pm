@@ -520,7 +520,7 @@ sub GetDB_RepoPrefix($) {
 	
 	if ($myRepoPrefix eq '')
 	{
-	   die('unkonwn RepoName: ' . $RepoName);
+	   die('unknown RepoName: ' . $RepoName);
 	}
 	
 	return $myRepoPrefix;
