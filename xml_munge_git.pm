@@ -548,10 +548,6 @@ sub handle_file_end {
 	print "Updates{FileRevision} = '$Updates{FileRevision}'\n";
 	print "FileRevision          = '$FileRevision'\n";
 	
-	# XXX with git, we had no repository name, perhaps we need to add that in.
-	# XXX this has been added in.
-	#$Updates{repository} = 'ports';
-
 	my $DB_Root_Prefix = GetDB_RepoPrefix($Updates{repository});
 	my $fileaction;    # the value obtained from the hash array
 	                   # and which will be stored into the database.
