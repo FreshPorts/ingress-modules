@@ -757,11 +757,7 @@ sub handle_message_end {
 	# we have the end of the main part of the mail message.  All that's left are the files.
 	# let's commit this stuff so we have a commit_log_id.
 
-	# XXX hardcode these values for now, they are not in the XML yet.
-#	$Updates{commit_hash}  = 'f2bfe60090b840b6d99a3288c0b745843cefcfe1';
-#	$Updates{repo}         = 'ports';
-#	$Updates{FileRevision} = $Updates{commit_hash};
-	$Updates{revision}     = $Updates{commit_hash};
+	$Updates{revision} = $Updates{commit_hash};
 
 	# But for the first edition of FreshPorts2,
 	# we only want ports. nothing but ports.
