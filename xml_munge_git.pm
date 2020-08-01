@@ -259,7 +259,7 @@ sub handle_update_start {
 sub handle_os_end {
 	print "\n --- end of OS --- \n";
 
-	print "OS is '$Updates{os}' : branch = '$Updates{branch_git}'for git\n";
+	print "OS is '$Updates{os}' : branch = '$Updates{branch_git}' for git\n";
 	
 	# When we moved from subversion to git, we needed to convert branch from
 	# master to head, because everything we need here is based on head.
@@ -269,7 +269,7 @@ sub handle_os_end {
 
 	$Updates{branch} = ConvertGitBranch($Updates{branch_git});
 	print "OS is '$Updates{os}' : branch = '$Updates{branch}'\n";
-	print "OS is '$Updates{os}' : branch = '$Updates{branch_git}'for git\n";
+	print "OS is '$Updates{os}' : branch = '$Updates{branch_git}' for git\n";
 
 	# We know what branch this message is updating. Let's grab the IDs we will need.
 	$SystemID = SystemIDGet($Updates{os}, $self->{dbh});
