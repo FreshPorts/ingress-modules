@@ -70,15 +70,37 @@ $FreshPorts::Constants::HEAD				= 'head';
 $FreshPorts::Constants::MASTER				= 'master';
 $FreshPorts::Constants::PORTS 				= 'ports';
 
-$FreshPorts::Constants::Repo_Docs                       = 'freebsd-docs';
+#
+# these are the values to be used in the Repository field of the incoming XML files
+#
+$FreshPorts::Constants::Repo_Label_Ports                = 'ports';
+$FreshPorts::Constants::Repo_Label_Ports_Quarterly      = 'ports-quarterly';
+$FreshPorts::Constants::Repo_Label_Src                  = 'src';
+$FreshPorts::Constants::Repo_Label_Doc                  = 'doc';
+
+
+# These names relate to the directory name in which we find that repo
+# They were taken from the repository names found at https://github.com/freebsd/
+# in July 2020. They do not need to be kept up to date. They just have to reflect
+# the directories used on disk.
+# Interesting fact: we don't need this. We do not need to access the repo for
+# doc and src commits.
+#
+$FreshPorts::Constants::Repo_Doc                        = 'freebsd-doc';
 $FreshPorts::Constants::Repo_Ports                      = 'freebsd-ports';
+$FreshPorts::Constants::Repo_Ports_Quarterly            = 'freebsd-ports-quarterly';
 $FreshPorts::Constants::Repo_Src                        = 'freebsd';
 
-
+#
+# How to translate the label (doc) to the repo directory (freebsd-doc)
+# Well, we don't have to do this often, or at all, because we only access
+# the repo for port commits, nothing else.
+#
 %FreshPorts::Constants::GitRepos = (
-   $FreshPorts::Constants::Repo_Docs  => $FreshPorts::Constants::Repo_Docs,
-   $FreshPorts::Constants::Repo_Ports => $FreshPorts::Constants::Repo_Ports,
-   $FreshPorts::Constants::Repo_Src   => $FreshPorts::Constants::Repo_Src,
+   $FreshPorts::Constants::Repo_Label_Doc             => $FreshPorts::Constants::Repo_Doc,
+   $FreshPorts::Constants::Repo_Label_Ports           => $FreshPorts::Constants::Repo_Ports,
+   $FreshPorts::Constants::Repo_Label_Ports_Quarterly => $FreshPorts::Constants::Repo_Ports_Quarterly,
+   $FreshPorts::Constants::Repo_Label_Src             => $FreshPorts::Constants::Repo_Src,
 );
 
 $FreshPorts::Constants::ReportIDMaintainerNotification	= 3;
@@ -89,11 +111,11 @@ $FreshPorts::Constants::VERSION_REVISION_JOINER		= '_';
 
 $FreshPorts::Constants::VUXML_URL                       = 'https://www.vuxml.org/freebsd/';
 
-$FreshPorts::Constants::Notify_ports_moved		= 'notify_ports_moved';			# /usr/ports/MOVED
-$FreshPorts::Constants::Notify_ports_updating		= 'notify_ports_updating';		# /usr/ports/UPDATING
-$FreshPorts::Constants::Notify_port_updated		= 'notify_port_updated';		# a port has been updated
-$FreshPorts::Constants::Notify_vuxml			= 'notify_vuxml';				# vuxml has been updated
-$FreshPorts::Constants::Notify_cvsroot_approvers	= 'notify_cvsroot_approvers';	# CVSROOT/approvers has been updated
+$FreshPorts::Constants::Notify_ports_moved              = 'notify_ports_moved';       # /usr/ports/MOVED
+$FreshPorts::Constants::Notify_ports_updating           = 'notify_ports_updating';    # /usr/ports/UPDATING
+$FreshPorts::Constants::Notify_port_updated             = 'notify_port_updated';      # a port has been updated
+$FreshPorts::Constants::Notify_vuxml                    = 'notify_vuxml';             # vuxml has been updated
+$FreshPorts::Constants::Notify_cvsroot_approvers        = 'notify_cvsroot_approvers'; # CVSROOT/approvers has been updated
 
 #
 # some special files

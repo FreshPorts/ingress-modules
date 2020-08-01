@@ -191,7 +191,7 @@ sub FetchByName {
 # =================================
 
 sub _description_read {
-	my $$Repository  = shift;
+	my $Repository   = shift;
 	my $CommitBranch = shift;
 	my $category     = shift;
 

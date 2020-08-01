@@ -332,7 +332,7 @@ sub handle_update_end {
 	# we only fetch stuff for the ports repository
 	print "this commit is from the '" . $Updates{repository} . "' repository.\n";
 	
-	if (($Updates{repository} eq $FreshPorts::Config::Repo_PORTS) && $fetch_before_refresh) {
+	if (($Updates{repository} eq $FreshPorts::Config::Repo_PORTS || $Updates{repository} eq $FreshPorts::Config::Repo_PORTS_QUARTERLY) && $fetch_before_refresh) {
 		print "oh, the script goes to fetch...\n";
 		$FetchOK = FreshPorts::VerifyPort::FetchAllFiles($Updates{repository}, $Updates{branch}, \@Files, $Updates{revision}, $self->{dbh});
 		if ($FetchOK) {
@@ -353,7 +353,7 @@ sub handle_update_end {
 			$ErrorFound = FreshPorts::VerifyPort::RefreshAllPortsTouchedByCommit($Updates{repository}, $Updates{branch}, \%CommitLogPorts, 0, '', $self->{dbh});
 
 			if (!$ErrorFound) {
-				$ErrorFound = FreshPorts::VerifyPort::RefreshAllSlavePortsOfPortsTouchedByCommit($Updates{branch}, \%CommitLogPorts, 0, $self->{dbh});
+				$ErrorFound = FreshPorts::VerifyPort::RefreshAllSlavePortsOfPortsTouchedByCommit($Updates{repository}, $Updates{branch}, \%CommitLogPorts, 0, $self->{dbh});
 			}
 
 			if (!$ErrorFound) {

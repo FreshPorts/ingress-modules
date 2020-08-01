@@ -742,11 +742,12 @@ sub RefreshAllPortsTouchedByCommit($;$;$;$;$;$) {
 	return $ErrorFound;
 }
 
-sub RefreshAllSlavePortsOfPortsTouchedByCommit($;$;$;$) {
+sub RefreshAllSlavePortsOfPortsTouchedByCommit($;$;$;$;$) {
 	#
 	# given the ports touched by this commit,
 	# refresh any slaves
 	#
+	my $Repository           = shift;
 	my $CommitBranch         = shift;
 	my $CommitLogPortsRef    = shift;
 	my %CommitLogPorts       = %{$CommitLogPortsRef};
@@ -816,7 +817,7 @@ sub RefreshAllSlavePortsOfPortsTouchedByCommit($;$;$;$) {
 
 		#  refresh it
 		#  XXX WE ARE REFRESHING WITHOUT FIRST DOING AN SVN UP
-		$port->RefreshFromFiles($CommitBranch, 1, 0, ''); # refresh the port, don't fetch the files
+		$port->RefreshFromFiles($Repository, $CommitBranch, 1, 0, ''); # refresh the port, don't fetch the files
 
 		#  save it
 		$port->save($CommitBranch);

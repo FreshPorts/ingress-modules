@@ -331,7 +331,7 @@ sub handle_update_end {
 	print "this commit is from the '" . $Updates{repository} . "' repository.\n";
 	
 	# XXX - I am quite sure we don't have to do any fetching any more
-	if (($Updates{repository} eq $FreshPorts::Config::Repo_PORTS) && $fetch_before_refresh) {
+	if (($Updates{repository} eq $FreshPorts::Config::Repo_PORTS || $Updates{repository} eq $FreshPorts::Config::Repo_PORTS_QUARTERLY) && $fetch_before_refresh) {
 		print "oh, the script goes to fetch...\n";
 		# subversion revision numbers are short, git commit hashes are long
 		if (length($Updates{revision}) < 10) {
@@ -359,7 +359,7 @@ sub handle_update_end {
 			$ErrorFound = FreshPorts::VerifyPort::RefreshAllPortsTouchedByCommit($Updates{repository}, $Updates{branch_git}, \%CommitLogPorts, 0, '', $self->{dbh});
 
 			if (!$ErrorFound) {
-				$ErrorFound = FreshPorts::VerifyPort::RefreshAllSlavePortsOfPortsTouchedByCommit($Updates{branch_git}, \%CommitLogPorts, 0, $self->{dbh});
+				$ErrorFound = FreshPorts::VerifyPort::RefreshAllSlavePortsOfPortsTouchedByCommit($Updates{repository}, $Updates{branch_git}, \%CommitLogPorts, 0, $self->{dbh});
 			}
 
 			if (!$ErrorFound) {
@@ -504,9 +504,10 @@ sub GetDB_RepoPrefix($) {
 	my $myRepoPrefix = '';
 
 	my %KnownRepos = (
-		$FreshPorts::Config::Repo_SRC   => $FreshPorts::Config::DB_Root_Prefix_SRC,
-		$FreshPorts::Config::Repo_DOC   => $FreshPorts::Config::DB_Root_Prefix_DOC,
-		$FreshPorts::Config::Repo_PORTS => $FreshPorts::Config::DB_Root_Prefix_PORTS
+		$FreshPorts::Config::Repo_DOC             => $FreshPorts::Config::DB_Root_Prefix_DOC,
+		$FreshPorts::Config::Repo_PORTS           => $FreshPorts::Config::DB_Root_Prefix_PORTS,
+		$FreshPorts::Config::Repo_PORTS_QUARTERLY => $FreshPorts::Config::DB_Root_Prefix_PORTS_QUARTERLY,
+		$FreshPorts::Config::Repo_SRC             => $FreshPorts::Config::DB_Root_Prefix_SRC,
 	);
 	
 	while (my ($myRepoName, $DB_RepoPrefix) = each %KnownRepos)

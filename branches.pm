@@ -8,6 +8,8 @@ package FreshPorts::Branches;
 require FreshPorts::config;
 require FreshPorts::utilities;
 
+#use Switch;
+
 # these are the mailing lists associated with those branches
 %FreshPorts::Branches::MailingLists = (
   '"SVN commit messages for the entire src tree \(except for &quot;' => {
@@ -56,12 +58,6 @@ require FreshPorts::utilities;
      },
 );
 
-%FreshPorts::Branches::Repos = (
-    'ports_master'    => 'freebsd-ports',
-    'ports_quarterly' => 'freebsd-ports-quarterly',
-);
-
-
 #
 # given a list id, grab the properties for it
 #
@@ -85,10 +81,11 @@ sub ListProperties($)
 #
 sub GetRepoNameForBranch($;$)
 {
-  my $Repository   = shift
+  my $Repository   = shift;
   my $CommitBranch = shift;
 
-  my $RepoName     = $FreshPorts::Branches::Repos{$Repository . '_' . $CommitBranch};
+  # yes, we are not using branch.
+  my $RepoName = $FreshPorts::Constants::GitRepos{$Repository};
 
   if (!defined($RepoName)) {
      FreshPorts::Utilities::ReportError('warning', "Could not find RepoName for Repository='$Repository' & CommitBranch='$CommitBranch'", 1);

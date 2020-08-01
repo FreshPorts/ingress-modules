@@ -475,7 +475,7 @@ sub _ExtractValuesFromMakefile {
 	#
 
 	my $this         = shift;
-	my $$Repository  = shift;
+	my $Repository   = shift;
 	my $CommitBranch = shift;
 
 	my $result;
@@ -1163,7 +1163,7 @@ sub RefreshFromFiles($;$;$;$;$) {
 	    {
 	      # svn up -r $svn_revision
 
-              my $REPODIR = FreshPorts::Branches::GetPathToRepoForBranch(GetPathToRepoForBranch, $CommitBranch);
+              my $REPODIR = FreshPorts::Branches::GetPathToRepoForBranch($Repository, $CommitBranch);
               
               $result = FreshPorts::Utilities::svnUpFile($REPODIR, '', $svn_revision);
               # match the results of _FetchFilesNeedingRefresh (which no longer exists)
