@@ -83,16 +83,15 @@ sub ListProperties($)
 # for a given branch name, return the repo name. This is a directory.
 # it is not fully qualfied.
 #
-sub GetRepoNameForBranch($)
+sub GetRepoNameForBranch($;$)
 {
+  my $Repository   = shift
   my $CommitBranch = shift;
 
-  my $Repo         = 'ports';
-
-  my $RepoName     = $FreshPorts::Branches::Repos{$Repo . '_' . $CommitBranch};
+  my $RepoName     = $FreshPorts::Branches::Repos{$Repository . '_' . $CommitBranch};
 
   if (!defined($RepoName)) {
-     FreshPorts::Utilities::ReportError('warning', "Could not find RepoName for CommitBranch='$CommitBranch'", 1);
+     FreshPorts::Utilities::ReportError('warning', "Could not find RepoName for Repository='$Repository' & CommitBranch='$CommitBranch'", 1);
      $RepoName = 'freebsd-ports';
   }
   
@@ -103,12 +102,13 @@ sub GetRepoNameForBranch($)
 # branches and trunk are now in the same direcvtory
 # This is relative to the chroot at FreshPorts::Config::JailBaseDir
 #
-sub GetPathToRepoForBranchCHROOT($)
+sub GetPathToRepoForBranchCHROOT($;$)
 {
+  my $Repository   = shift;
   my $CommitBranch = shift;
   my $Path;
 
-  my $RepoName = GetRepoNameForBranch($CommitBranch);
+  my $RepoName = GetRepoNameForBranch($Repository, $CommitBranch);
 
   # typically '/var/db/repos/freebsd-ports'
   $Path = "$FreshPorts::Config::RepoBaseDir/$RepoName";
@@ -121,21 +121,24 @@ sub GetPathToRepoForBranchCHROOT($)
 # We assume this is a ports commit, which we can't do once we start processing
 # git commits for src and doc.
 #
-sub GetPathToRepoForBranch($)
+sub GetPathToRepoForBranch($;$)
 {
+  my $Repository   = shift;
   my $CommitBranch = shift;
 
-  $Path = GetPathToRepoForBranchCHROOT($CommitBranch);
+  $Path = GetPathToRepoForBranchCHROOT($Repository, $CommitBranch);
   
   return "$FreshPorts::Config::JailBaseDir$Path";
 }
 
 # can we process this branch?
-sub CanWeProcessThisBranch($)
+# XXX I think this is only used by svn processing at present.  We need that for git processing too.
+sub CanWeProcessThisBranch($;$)
 {
+  my $Repository   = shift;
   my $CommitBranch = shift;
   
-  my $RepoPath = GetPathToRepoForBranch($CommitBranch);
+  my $RepoPath = GetPathToRepoForBranch($Repository, $CommitBranch);
   
   FreshPorts::Utilities::Report('notice', "Let us verify that RepoPath ('$RepoPath') for Branch '$CommitBranch' actually exists on disk.");
 

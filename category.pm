@@ -191,6 +191,7 @@ sub FetchByName {
 # =================================
 
 sub _description_read {
+	my $$Repository  = shift;
 	my $CommitBranch = shift;
 	my $category     = shift;
 
@@ -204,7 +205,7 @@ sub _description_read {
 
 	# with subversion, FreshPorts held a different working copy of the repo for the quarterly branch
 	# and another for head.	
-	my $REPODIR_CHROOT = FreshPorts::Branches::GetPathToRepoForBranchCHROOT($CommitBranch);
+	my $REPODIR_CHROOT = FreshPorts::Branches::GetPathToRepoForBranchCHROOT($Repository, $CommitBranch);
 
 	my $makecommand = "/usr/local/bin/sudo /usr/sbin/chroot -u $FreshPorts::Config::JailUser $FreshPorts::Config::JailBaseDir $REPODIR_CHROOT $FreshPorts::Config::JailCategoryDescrptionScript $category 2>$TmpFile";
 	print "makecommand = $makecommand\n";
@@ -325,9 +326,10 @@ sub FetchAll {
 # XXX not sure this is used by anyone
 sub RefreshDescription {
 	my $this         = shift;
+	my $Repository   = shift;
 	my $CommitBranch = shift;
 
-	$this->{description} = FreshPorts::Category::_description_read($CommitBranch, $this->{name});
+	$this->{description} = FreshPorts::Category::_description_read($Repository, $CommitBranch, $this->{name});
 }
 
 1;

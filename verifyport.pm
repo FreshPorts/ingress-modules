@@ -347,13 +347,14 @@ sub SaveChangesToPortsTree($;$;$;$) {
 	return %CommitLogPorts;
 }
 
-sub ScrollToThatCommit($;$;$) {
+sub ScrollToThatCommit($;$;$;$) {
 	#
 	# At one time, we fetched individual files.
 	# Then we did: svn co -r N
 	# Now it's: git checkout N
 	#
 
+	my $repo     = shift;
 	my $branch   = shift;
 	my $git_hash = shift;
 	my $dbh      = shift;
@@ -368,7 +369,7 @@ sub ScrollToThatCommit($;$;$) {
 	{
 		my $startTime = time;
 		# this is a path to the repo directory, we still need the repo name
-		my $RepoName = FreshPorts::Branches::GetRepoNameForBranch($branch);
+		my $RepoName = FreshPorts::Branches::GetRepoNameForBranch($repo, $branch);
 		$FetchOK = FreshPorts::Utilities::gitCheckout("$FreshPorts::Config::RepoDir/$RepoName", $git_hash);
 
 		my $elapsedTime = time - $startTime;
@@ -381,12 +382,13 @@ sub ScrollToThatCommit($;$;$) {
 	return $FetchOK;
 }
 
-sub FetchAllFiles($;$;$;$) {
+sub FetchAllFiles($;$;$;$;$) {
 	#
 	# fetch all the files associated with this commit
 	# Actually, it's only files within the ports tree.
 	#
 
+	my $Repository   = shift;
 	my $CommitBranch = shift;
 	my $Files        = shift;
 	my $svn_revision = shift;
@@ -408,7 +410,7 @@ sub FetchAllFiles($;$;$;$) {
 	print "fetching all files from this commit.\n";
 	
 	# this is where we fetch the files to disk
-	my $REPODIR = FreshPorts::Branches::GetPathToRepoForBranch($CommitBranch);
+	my $REPODIR = FreshPorts::Branches::GetPathToRepoForBranch($Repository, $CommitBranch);
 
 	# if we have a revision	
 	if (defined($svn_revision) && $svn_revision ne '')
@@ -675,12 +677,13 @@ sub _RecordPortsAndElements($;$;$;$) {
 	print "done _RecordPortsAndElements\n";
 }
 
-sub RefreshAllPortsTouchedByCommit($;$;$;$;$) {
+sub RefreshAllPortsTouchedByCommit($;$;$;$;$;$) {
 	#
 	# given the ports touched by this commit
 	# refresh each of them
 	#
 
+	my $Repository           = shift;
 	my $CommitBranch         = shift;
 	my $CommitLogPortsRef    = shift;
 	my %CommitLogPorts       = %{$CommitLogPortsRef};
@@ -706,7 +709,7 @@ sub RefreshAllPortsTouchedByCommit($;$;$;$;$) {
 		# If we don't need to refresh it, we don't need to save it.
 		#
 		if ($port->IsActive()) {
-			$error = $port->RefreshFromFiles($CommitBranch, $commit_log_ports->{needs_refresh}, $fetch_before_refresh, $svn_revision);
+			$error = $port->RefreshFromFiles($Repository, $CommitBranch, $commit_log_ports->{needs_refresh}, $fetch_before_refresh, $svn_revision);
 		} else {
 			print "This port is deleted: not refreshing.\n";
 			$error = 0;

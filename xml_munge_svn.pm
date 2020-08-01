@@ -334,7 +334,7 @@ sub handle_update_end {
 	
 	if (($Updates{repository} eq $FreshPorts::Config::Repo_PORTS) && $fetch_before_refresh) {
 		print "oh, the script goes to fetch...\n";
-		$FetchOK = FreshPorts::VerifyPort::FetchAllFiles($Updates{branch}, \@Files, $Updates{revision}, $self->{dbh});
+		$FetchOK = FreshPorts::VerifyPort::FetchAllFiles($Updates{repository}, $Updates{branch}, \@Files, $Updates{revision}, $self->{dbh});
 		if ($FetchOK) {
 			$self->notify_observers($FreshPorts::Messages::FilesFetched);
 		} else {
@@ -350,7 +350,7 @@ sub handle_update_end {
 	
 	if ($FetchOK) {
 		if ($refresh_ports) {
-			$ErrorFound = FreshPorts::VerifyPort::RefreshAllPortsTouchedByCommit($Updates{branch}, \%CommitLogPorts, 0, '', $self->{dbh});
+			$ErrorFound = FreshPorts::VerifyPort::RefreshAllPortsTouchedByCommit($Updates{repository}, $Updates{branch}, \%CommitLogPorts, 0, '', $self->{dbh});
 
 			if (!$ErrorFound) {
 				$ErrorFound = FreshPorts::VerifyPort::RefreshAllSlavePortsOfPortsTouchedByCommit($Updates{branch}, \%CommitLogPorts, 0, $self->{dbh});

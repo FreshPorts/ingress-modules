@@ -337,9 +337,9 @@ sub handle_update_end {
 		if (length($Updates{revision}) < 10) {
 			# this doesn't actually fetch files.
 			# it does a svn up
-			$FetchOK = FreshPorts::VerifyPort::FetchAllFiles($Updates{branch_git}, \@Files, $Updates{revision}, $self->{dbh});
+			$FetchOK = FreshPorts::VerifyPort::FetchAllFiles($Updates{repository}, $Updates{branch_git}, \@Files, $Updates{revision}, $self->{dbh});
 		} else {
-			$FetchOK = FreshPorts::VerifyPort::ScrollToThatCommit($Updates{branch_git}, $Updates{revision}, $self->{dbh});
+			$FetchOK = FreshPorts::VerifyPort::ScrollToThatCommit($Updates{repository}, $Updates{branch_git}, $Updates{revision}, $self->{dbh});
 		}
 		if ($FetchOK) {
 			$self->notify_observers($FreshPorts::Messages::FilesFetched);
@@ -356,7 +356,7 @@ sub handle_update_end {
 	
 	if ($FetchOK) {
 		if ($refresh_ports) {
-			$ErrorFound = FreshPorts::VerifyPort::RefreshAllPortsTouchedByCommit($Updates{branch_git}, \%CommitLogPorts, 0, '', $self->{dbh});
+			$ErrorFound = FreshPorts::VerifyPort::RefreshAllPortsTouchedByCommit($Updates{repository}, $Updates{branch_git}, \%CommitLogPorts, 0, '', $self->{dbh});
 
 			if (!$ErrorFound) {
 				$ErrorFound = FreshPorts::VerifyPort::RefreshAllSlavePortsOfPortsTouchedByCommit($Updates{branch_git}, \%CommitLogPorts, 0, $self->{dbh});

@@ -475,6 +475,7 @@ sub _ExtractValuesFromMakefile {
 	#
 
 	my $this         = shift;
+	my $$Repository  = shift;
 	my $CommitBranch = shift;
 
 	my $result;
@@ -483,8 +484,8 @@ sub _ExtractValuesFromMakefile {
 	                        # in case we need it for error reporting
 	my $OtherErrors  = '';	# gets the results of the TmpFile used to collect errors.
 
-	my $REPODIR        = FreshPorts::Branches::GetPathToRepoForBranch      ($CommitBranch);
-	my $REPODIR_CHROOT = FreshPorts::Branches::GetPathToRepoForBranchCHROOT($CommitBranch);
+	my $REPODIR        = FreshPorts::Branches::GetPathToRepoForBranch      ($Repository, $CommitBranch);
+	my $REPODIR_CHROOT = FreshPorts::Branches::GetPathToRepoForBranchCHROOT($Repository, $CommitBranch);
 	my $MakefileDirectory = "$REPODIR/$this->{category}/$this->{name}";
 
         print "CommitBranch:   '$CommitBranch\n";	
@@ -1129,12 +1130,13 @@ sub _GetRealPath($) {
 
 
 
-sub RefreshFromFiles($;$;$;$) {
+sub RefreshFromFiles($;$;$;$;$) {
 #
 # refresh this port based on the make files associated with it and the value of needs_refresh
 # returns 0 for success, 1 for failure
 #
 	my $this          = shift;
+	my $Repository    = shift;
 	my $CommitBranch  = shift;
 	my $needs_refresh = shift;
 	my $fetch_files   = shift;
@@ -1161,7 +1163,7 @@ sub RefreshFromFiles($;$;$;$) {
 	    {
 	      # svn up -r $svn_revision
 
-              my $REPODIR = FreshPorts::Branches::GetPathToRepoForBranch($CommitBranch);
+              my $REPODIR = FreshPorts::Branches::GetPathToRepoForBranch(GetPathToRepoForBranch, $CommitBranch);
               
               $result = FreshPorts::Utilities::svnUpFile($REPODIR, '', $svn_revision);
               # match the results of _FetchFilesNeedingRefresh (which no longer exists)
@@ -1201,7 +1203,7 @@ sub RefreshFromFiles($;$;$;$) {
 
 	# if we didn't use up all of our fetch attempts...
 	if ($FetchAttempts) {
-		$error = $this->_ExtractValuesFromMakefile($CommitBranch);
+		$error = $this->_ExtractValuesFromMakefile($Repository, $CommitBranch);
 	}
 
 	if (!$FetchAttempts || $error) {
