@@ -6,6 +6,7 @@
 package FreshPorts::Branches;
 
 require FreshPorts::config;
+require FreshPorts::constants;
 require FreshPorts::utilities;
 
 #use Switch;
