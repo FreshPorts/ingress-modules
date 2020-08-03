@@ -1137,7 +1137,7 @@ sub RefreshFromFiles($;$;$;$;$) {
 #
 	my $this          = shift;
 	my $Repository    = shift;
-	my $CommitBranch  = shift;
+	my $CommitBranch  = shift; # something like: head or branches/2020Q3
 	my $needs_refresh = shift;
 	my $fetch_files   = shift;
 	my $svn_revision  = shift;

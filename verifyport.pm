@@ -748,12 +748,15 @@ sub RefreshAllSlavePortsOfPortsTouchedByCommit($;$;$;$;$) {
 	# refresh any slaves
 	#
 	my $Repository           = shift;
-	my $CommitBranch         = shift;
+	my $CommitBranch         = shift; # something like head or branches/2020Q3
 	my $CommitLogPortsRef    = shift;
 	my %CommitLogPorts       = %{$CommitLogPortsRef};
 	my $fetch_before_refresh = shift;
 	my $dbh                  = shift;
 
+
+	# head or 2020Q3
+	my $BranchStripped = FreshPorts::Branches::stripBranchesToGetBranchName($CommitBranch);
 
 	my $ErrorFound = 0;
 	my $MasterSlave;
@@ -788,27 +791,27 @@ sub RefreshAllSlavePortsOfPortsTouchedByCommit($;$;$;$;$) {
 
 		# we have to fetch from the branch
 		$port->{partialpathname} = $FreshPorts::Config::Ports_Default_Directory . '/' . $PortName;
-		if ($CommitBranch eq $FreshPorts::Constants::HEAD)
+		if ($BranchStripped eq $FreshPorts::Constants::HEAD)
 		{
 		  $pathname = $FreshPorts::Config::DB_Root_Prefix_PORTS . '/head/' . $PortName;
 		}
 		else
 		{
-		  $pathname = $FreshPorts::Config::DB_Root_Prefix_PORTS . '/branches/' . $CommitBranch . '/' . $PortName;
+		  $pathname = $FreshPorts::Config::DB_Root_Prefix_PORTS . '/branches/' . $BranchStripped . '/' . $PortName;
 		}
 
         $port->{partialpathname} = $pathname;
 		my $port_id = $port->FetchByPartialPathName();
 		# if no such port, then it has not yet been committed to this branch
 		if (!defined($port_id)) {
-			print 'no such port on this branch: ' . $CommitBranch . ".\n";
+			print 'no such port on this branch: ' . $BranchStripped . ".\n";
 			print "port not retrieved with $port->{partialpathname}.  This must be a new port.\n";
 
 			#
 			# these are the values needed to create a new port
 			#
 			my ($category_name, $port_name) = split/\//,$PortName, 2;
-			$port->CreatePortOnBranch($category_name, $port_name, $CommitBranch);
+			$port->CreatePortOnBranch($category_name, $port_name, $BranchStripped);
 
 			print "new port created with port id = " . $port->{id} . "\n";
 			
@@ -817,10 +820,10 @@ sub RefreshAllSlavePortsOfPortsTouchedByCommit($;$;$;$;$) {
 
 		#  refresh it
 		#  XXX WE ARE REFRESHING WITHOUT FIRST DOING AN SVN UP
-		$port->RefreshFromFiles($Repository, $CommitBranch, 1, 0, ''); # refresh the port, don't fetch the files
+		$port->RefreshFromFiles($Repository, $BranchStripped, 1, 0, ''); # refresh the port, don't fetch the files
 
 		#  save it
-		$port->save($CommitBranch);
+		$port->save($BranchStripped);
 
 		print "refreshed " . $port->{category} . '/' . $port->{name} . "\n";
 

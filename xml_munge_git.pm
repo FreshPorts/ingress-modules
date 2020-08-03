@@ -1,3 +1,5 @@
+#!/usr/local/bin/perl
+
 # 
 # $Id: xml_munge.pm,v 1.18 2012-10-23 16:31:04 dan Exp $
 #
@@ -32,6 +34,7 @@ require Sys::Syslog;
 
 use FreshPorts::element;
 use FreshPorts::verifyport;
+use FreshPorts::branches;
 use FreshPorts::config;
 use FreshPorts::constants;
 use FreshPorts::commit_log;
@@ -210,8 +213,11 @@ sub SetupParser($) {
 
 	$p->register(">UPDATES>UPDATE>OS:Id",                  "attr"  => \$Updates{os});
 
+	#
 	# for git, let's put branch in branch-git
 	# will will populate $Updates{branch} with the converted value. e.g. master -> head
+	# and branches/2020Q3 -> 2020Q3
+	#
 	$p->register(">UPDATES>UPDATE>OS:Branch",              "attr"  => \$Updates{branch_git});
 	$p->register(">UPDATES>UPDATE>OS",                     "end"   => \&handle_os_end);
         
@@ -258,16 +264,29 @@ sub handle_update_start {
 
 sub handle_os_end {
 	print "\n --- end of OS --- \n";
+	
+	#
+	# we want to remove any leading 'branches/' from the string.
+	# we want just 2020Q3, for example
+	#
+
+# XXX delete
+#	my $branch_name = FreshPorts::Branches::stripBranchesToGetBranchName($BranchName);
+#	$Update{branch_name} = $branch_name;
 
 	print "OS is '$Updates{os}' : branch = '$Updates{branch_git}' for git\n";
 	
 	# When we moved from subversion to git, we needed to convert branch from
 	# master to head, because everything we need here is based on head.
 	#
-	# $Updates{branch}     : for database related actions (finding a port)
+	# $Updates{branch}     : for database related actions (finding a port) e.g. head or 2020Q3
 	# $Updates{branch_git} : for repository related actions (git checkout)
 
 	$Updates{branch} = ConvertGitBranch($Updates{branch_git});
+	
+	print "after converting '\$Updates{branch_git}' we have '$Updates{branch_git}'\n";
+	print "next we need to strip any leading 'branches/' prefix\n";
+	$Updates{branch} = FreshPorts::Branches::stripBranchesToGetBranchName($Updates{branch});
 	print "OS is '$Updates{os}' : branch = '$Updates{branch}'\n";
 	print "OS is '$Updates{os}' : branch = '$Updates{branch_git}' for git\n";
 
@@ -278,7 +297,8 @@ sub handle_os_end {
 		FreshPorts::Utilities::ReportError('warning', "No SystemID found for OS = '$Updates{os}'", 1)
 	}
 
-	if ($Updates{branch} ne '') {  
+	if ($Updates{branch} ne '') {
+		# we invoke GetBranchFromPathName to convert branches/2020Q3 to 2020Q3
 		$SystemBranchID = SystemBranchIDGetOrCreate($SystemID, $Updates{branch}, $self->{dbh});
 		if (!defined($SystemBranchID)) {
 			$! = 4;
@@ -454,8 +474,11 @@ sub FileActionValid($) {
 
 sub ConvertGitBranch($) {
 	my $GitBranch = shift;
-
+	
+	#
+	# this converts master to head
 	# if there is no conversion value, use what we were given.
+	#
 	my $Branch =  $BranchConversions{$GitBranch};
 
 	if (!defined($Branch)) {
@@ -567,7 +590,7 @@ sub handle_file_end {
 	my $element;
 	my $element_id;
 	# This is where we add in the repo name to the path
-	my $filename     = $DB_Root_Prefix . '/' . $Updates{branch} . '/' . $FilePath;
+	my $filename     = $DB_Root_Prefix . '/' . $Updates{branch_git} . '/' . $FilePath;
 	my $revisionname = $FileRevision;
 	my $commit_log_element;
 	
@@ -770,7 +793,6 @@ sub handle_message_end {
 	print "Branch         = [$Updates{branch}]\n";
 	print "Committer      = [$Updates{committerAll}]\n";
 	print "Date           = [" . sprintf "%04u/%02u/%02u %02u:%02u:%02u %s", $Updates{dateyear}, $Updates{datemonth}, $Updates{dateday}, $Updates{timehour}, $Updates{timeminute}, $Updates{timesecond}, $Updates{timezone} . "]\n";
-	print "Log            = [$Updates{log}]\n";
 	if (defined($Updates{repository})) {
 		print "Repository     = [$Updates{repository}]\n";
 	} else {
@@ -784,12 +806,10 @@ sub handle_message_end {
 	}
 
 	print "MessageId      = [$Updates{commit_hash}]\n";
-
-#	print "MessageDate    = [" . sprintf "%04u/%02u/%02u %02u:%02u:%02u %s", $Updates{messageyear}, $Updates{messagemonth}, $Updates{messageday}, $Updates{messagehour}, $Updates{messageminute}, $Updates{messagesecond}, $Updates{messagezone} . "]\n";
-#	print "MessageTo      = [$Updates{MessageToAll}]\n";
-	print "Subject        = [$Updates{MessageSubject}]\n";
 	print "short hash     = [$Updates{commit_hash_short}]\n";
 
+	print "Subject        = [$Updates{MessageSubject}]\n";
+	print "Log            = [$Updates{log}]\n";
 	# use this information to update the database
 	print "into handle_message_end, let's save that message now!\n\n";
 
@@ -962,14 +982,23 @@ sub GetExistingMessageID($;$) {
 sub SystemBranchIDGetOrCreate($;$;$) {   
 	# obtain the system_branch_id for the given version of this system
 	my $system_id	= shift;
-	my $branch_name	= shift;
-	my $dbh			= shift;
+	my $BranchName	= shift;
+	my $dbh         = shift;
 
 	my $sql;
 	my $sth;
 	my @row;
 
 	my $SystemBranchID;
+
+	#
+	# we want to remove any leading 'branches/' from the string.
+	# we want just 2020Q3, for example
+	#
+	
+	my $branch_name = FreshPorts::Branches::stripBranchesToGetBranchName($BranchName);
+	
+	print "SystemBranchIDGetOrCreate has convert '$BranchName' to '$branch_name' which will be used in the database\n";
 
 	$sql = "select SystemBranchIDGet($system_id, " . $dbh->quote($branch_name) . ")";
 

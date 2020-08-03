@@ -75,6 +75,20 @@ sub ListProperties($)
  return $hash;
 }
 
+#
+# convert branches/quarter to just quarter
+# e.g. branches/2020Q3 becomes 2020Q3
+#
+
+sub stripBranchesToGetBranchName($)
+{
+  my $branch = shift;
+
+  $branch =~ s/^branches\///;
+  
+  return $branch;
+}
+
 
 #
 # for a given branch name, return the repo name. This is a directory.
