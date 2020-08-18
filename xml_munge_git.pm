@@ -590,7 +590,7 @@ sub handle_file_end {
 	my $element;
 	my $element_id;
 	# This is where we add in the repo name to the path
-	my $filename     = $DB_Root_Prefix . '/' . $Updates{branch_git} . '/' . $FilePath;
+	my $filename     = $DB_Root_Prefix . '/' . $Updates{branch} . '/' . $FilePath;
 	my $revisionname = $FileRevision;
 	my $commit_log_element;
 	
