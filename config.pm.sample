@@ -92,7 +92,7 @@ $FreshPorts::Config::path_to_ports			= Cwd::abs_path($FreshPorts::Config::path_t
 # FreshPorts::Config::email_server must be a hostname, not an IP address, otherwise TLS verification
 # of the certificate will fail.  re https://news.freshports.org/2019/01/27/mail-sending-failures/
 #
-$FreshPorts::Config::email_server			= '127.1.0.202';
+$FreshPorts::Config::email_server			= 'myhost.example.org';
 $FreshPorts::Config::email_port				= 25;
 
 $FreshPorts::Config::SystemOwnerEmail		= 'dan@langille.org';
