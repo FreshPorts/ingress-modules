@@ -158,9 +158,8 @@ sub WriteXML {
 
 	my $output = '';
 	# Use XML::Writer to create the XML
-	my ($writer) = new XML::Writer( OUTPUT      => $output,
-					DATA_INDENT => 4,
-					DATA_MODE   => 1 );
+	my ($writer) = XML::Writer->new(DATA_INDENT => 4,
+	                                DATA_MODE   => 1 );
 
 	# Add the main XML tag
 	$writer->xmlDecl("ISO-8859-1");
