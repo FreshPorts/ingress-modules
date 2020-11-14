@@ -550,6 +550,26 @@ sub GetDB_RepoPrefix($) {
 	return $myRepoPrefix;
 }
 
+sub ConvertRepoLabelToGitRepoName($) {
+#
+# Given the repo name label from XML, obtain the FreeBSD repo name.
+#
+
+	my $Repo_XML_Label = shift;
+	
+	if (!defined($Repo_XML_Label)) {
+		die('no value set for incoming Repo_XML_Label');
+	}
+	
+	my $myRepoPrefixGitRepoName = $FreshPorts::Constants::RepoLabelsToGitRepoNames{$Repo_XML_Label};
+
+	if (!defined($myRepoPrefixGitRepoName)) {
+		die("'$Repo_XML_Label' was not found in \$FreshPorts::Constants::RepoLabelsToGitRepoNames\n");
+	}
+	
+	return $myRepoPrefixGitRepoName;
+}
+
 sub handle_file_end {
 	# for svn we have:
 	#      <FILE Action="Modify" Revision="512343" Path="head/net/tightvnc/Makefile"></FILE>
@@ -927,7 +947,7 @@ sub SaveUpdateToDB {
 	$commit_log->{description}	= $description;
 	$commit_log->{system_id}	= $SystemID;
 	$commit_log->{commit_hash_short}= $Updates{commit_hash_short};
-	$commit_log->{repo}	 	= $Updates{repository};
+	$commit_log->{repo}	 	= ConvertRepoLabelToGitRepoName($Updates{repository});
 	$commit_log->{revision} 	= $revision;
 
 	#

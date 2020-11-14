@@ -71,37 +71,74 @@ $FreshPorts::Constants::MASTER				= 'master';
 $FreshPorts::Constants::PORTS 				= 'ports';
 
 #
-# these are the values to be used in the Repository field of the incoming XML files
+# FreshPorts database repo names
 #
-$FreshPorts::Constants::Repo_Label_Ports                = 'ports';
-$FreshPorts::Constants::Repo_Label_Ports_Quarterly      = 'ports-quarterly';
-$FreshPorts::Constants::Repo_Label_Src                  = 'src';
-$FreshPorts::Constants::Repo_Label_Doc                  = 'doc';
+# These are the names of the FreeBSD repos found within the FreshPorts database
+# These the valid values in the repo.name field
+#
+$FreshPorts::Constants::Repo_DB_Doc                       = 'doc';
+$FreshPorts::Constants::Repo_DB_Ports                     = 'ports';
+$FreshPorts::Constants::Repo_DB_Src                       = 'src';
 
 
-# These names relate to the directory name in which we find that repo
+#
+# These are the values to be used in the Repository field of the incoming XML files
+# They reflect the different working copies of repos we are processing.
+# It also helps us know what we are working on.
+#
+$FreshPorts::Constants::Repo_XML_Label_Doc                = 'doc';
+$FreshPorts::Constants::Repo_XML_Label_Ports              = 'ports';
+$FreshPorts::Constants::Repo_XML_Label_Ports_Quarterly    = 'ports-quarterly';
+$FreshPorts::Constants::Repo_XML_Label_Src                = 'src';
+
+#
+# These names relate to the directory in which we find that repo on disk.
 # They were taken from the repository names found at https://github.com/freebsd/
 # in July 2020. They do not need to be kept up to date. They just have to reflect
 # the directories used on disk.
 # Interesting fact: we don't need this. We do not need to access the repo for
-# doc and src commits.
+# doc and src commits. We have doc and src listed to be complete.
+# $ ls ~freshports/ports-jail/var/db/repos/
+# PORTS-2020Q2            PORTS-2020Q3            freebsd                 freebsd-ports
+# PORTS-2020Q2-git        PORTS-head              freebsd-doc             freebsd-ports-quarterly
 #
-$FreshPorts::Constants::Repo_Doc                        = 'freebsd-doc';
-$FreshPorts::Constants::Repo_Ports                      = 'freebsd-ports';
-$FreshPorts::Constants::Repo_Ports_Quarterly            = 'freebsd-ports-quarterly';
-$FreshPorts::Constants::Repo_Src                        = 'freebsd';
+$FreshPorts::Constants::Repo_Dir_Name_Doc                 = 'freebsd-doc';
+$FreshPorts::Constants::Repo_Dir_Name_Ports               = 'freebsd-ports';
+$FreshPorts::Constants::Repo_Dir_Name_Ports_Quarterly     = 'freebsd-ports-quarterly';
+$FreshPorts::Constants::Repo_Dir_Name_Src                 = 'freebsd';
 
 #
 # How to translate the label (doc) to the repo directory (freebsd-doc)
 # Well, we don't have to do this often, or at all, because we only access
 # the repo for port commits, nothing else.
+# This is how we relate an incoming XML file to a particular working copy of the repo.
 #
 %FreshPorts::Constants::GitRepos = (
-   $FreshPorts::Constants::Repo_Label_Doc             => $FreshPorts::Constants::Repo_Doc,
-   $FreshPorts::Constants::Repo_Label_Ports           => $FreshPorts::Constants::Repo_Ports,
-   $FreshPorts::Constants::Repo_Label_Ports_Quarterly => $FreshPorts::Constants::Repo_Ports_Quarterly,
-   $FreshPorts::Constants::Repo_Label_Src             => $FreshPorts::Constants::Repo_Src,
+   $FreshPorts::Constants::Repo_XML_Label_Doc             => $FreshPorts::Constants::Repo_Dir_Name_Doc,
+   $FreshPorts::Constants::Repo_XML_Label_Ports           => $FreshPorts::Constants::Repo_Dir_Name_Ports,
+   $FreshPorts::Constants::Repo_XML_Label_Ports_Quarterly => $FreshPorts::Constants::Repo_Dir_Name_Ports_Quarterly,
+   $FreshPorts::Constants::Repo_XML_Label_Src             => $FreshPorts::Constants::Repo_Dir_Name_Src,
 );
+
+#
+# With the GitRepos, the repo name on disk and the label we assign for XML both do not match the
+# repo we want to use.
+#
+# freebsd-ports and freebsd-ports-quarterly both map to the ports tree.
+#
+# That relationship (XML label to name in the FreshPorts repo table) is mapped here.
+# The repo table knows only: doc ports src
+#
+# On the left, we have the incoming values in the XML file.
+# On the right, we have the name we use at https://github.com/freebsd/X
+#
+%FreshPorts::Constants::RepoLabelsToGitRepoNames = (
+   $FreshPorts::Constants::Repo_XML_Label_Doc             => $FreshPorts::Constants::Repo_DB_Doc,
+   $FreshPorts::Constants::Repo_XML_Label_Ports           => $FreshPorts::Constants::Repo_DB_Ports,
+   $FreshPorts::Constants::Repo_XML_Label_Ports_Quarterly => $FreshPorts::Constants::Repo_DB_Ports,
+   $FreshPorts::Constants::Repo_XML_Label_Src             => $FreshPorts::Constants::Repo_DB_Src,
+ );
+
 
 $FreshPorts::Constants::ReportIDMaintainerNotification	= 3;
 $FreshPorts::Constants::ReportIDAnnouncements		= 4;
