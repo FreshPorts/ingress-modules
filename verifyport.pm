@@ -937,12 +937,18 @@ sub _UndeleteResurrectedPorts($;$;$) {
 
 			foreach $value (@{$Files}) {
 				my ($action, $filename, $revision, $commit_log_element_id, $element_id) = @$value;
-		
-				my ($subtree, $category_name, $port_name, $extra) = split/\//,$filename, 4;
+
+				#
+				# these look like: /ports/head/lang/yap/Makefile
+				#        might be: /ports/branches/2020Q4/emulators/citra/Makefile
+				#
+				
+				my $filename_stripped = $element->strip_ports_dir($filename);
+				my ($category_name, $port_name, $extra) = split/\//,$filename_stripped, 3;
 				if (!defined($extra)) {
 					$extra = '';
 				}
-				print "  inspecting: '$action', '$filename', '$revision', '$subtree', '$category_name', '$extra'\n";
+				print "  inspecting: '$action', '$filename', '$filename_stripped', '$revision', '$category_name', '$port_name', '$extra'\n";
 
 				if ($category_name eq $port->{category} && $port->{name} eq $port_name) {
 					print "  ...found a file from that port\n";
@@ -953,7 +959,10 @@ sub _UndeleteResurrectedPorts($;$;$) {
 						$element->{id}     = $port->{element_id};
 						$element->{status} = $FreshPorts::Element::Active;
 						$element->update_status();
-						print "  ........ done!\n";
+						print "  ........ resurrection done!\n";
+						print "  we will not examine any more files for this port!\n";
+						# we are looping through files for a single port, only resurrect once.
+						last;
 					}
 				}
 			}
