@@ -214,8 +214,11 @@ sub SetupParser($) {
 	$p->register(">UPDATES>UPDATE>OS:Id",                  "attr"  => \$Updates{os});
 
 	#
-	# for git, let's put branch in branch-git
-	# will will populate $Updates{branch} with the converted value. e.g. master -> head
+	# EDIT 2020-11-17 - Updates{branch_git} is the branch name supplied by git.  e.g. master, branches/20202Q4
+	# EDIT 2020-11-17 - removing all references to $Updates{branch} 
+	#
+	# for git, let's put branch in branch_git
+	# will will populate $Updates{} with the converted value. e.g. master -> head
 	# and branches/2020Q3 -> 2020Q3
 	#
 	$p->register(">UPDATES>UPDATE>OS:Branch",              "attr"  => \$Updates{branch_git});
@@ -272,23 +275,49 @@ sub handle_os_end {
 
 # XXX delete
 #	my $branch_name = FreshPorts::Branches::stripBranchesToGetBranchName($BranchName);
-#	$Update{branch_name} = $branch_name;
+#	$Updates{branch_name} = $branch_name;
 
 	print "OS is '$Updates{os}' : branch = '$Updates{branch_git}' for git\n";
 	
 	# When we moved from subversion to git, we needed to convert branch from
 	# master to head, because everything we need here is based on head.
 	#
-	# $Updates{branch}     : for database related actions (finding a port) e.g. head or 2020Q3
-	# $Updates{branch_git} : for repository related actions (git checkout)
+	# $Updates{branch_for_files} : for database related actions (finding a port) e.g. head or 2020Q3
+	# $Updates{branch_git}       : for repository related actions (git checkout)
+	#
+	# In the system_branch.branch_name column, we have values such as 2020Q4 and
+	# the prefix 'branches' is not included.
+	# 
+	# But for files, the prefix is included:
+	#  freshports.dev=# select * from element_pathname where pathname like '/ports/branches/2019Q3/%' limit 5;
+	#   element_id |                    pathname                     
+	#  ------------+-------------------------------------------------
+	#       960349 | /ports/branches/2019Q3/MOVED
+	#       954142 | /ports/branches/2019Q3/Mk
+	#       954143 | /ports/branches/2019Q3/Mk/Scripts
+	#       954144 | /ports/branches/2019Q3/Mk/Scripts/do-depends.sh
+	#       956066 | /ports/branches/2019Q3/Mk/Uses
+	# (5 rows)
+        # freshports.dev=# 
+        #
+        #
+        # So we have the following values:
+        #
+        # $Updates{branch_git}           - value supplied in XML
+        # $Updates{branch_database_name} - for use in system_branch.branch_name
+        # $Updates{branch_for_files}     - for use in filenames
+        #
 
-	$Updates{branch} = ConvertGitBranch($Updates{branch_git});
+        # this converts master to head, and leaves everything else unchanged
+        #
+	$Updates{branch_for_files} = ConvertGitBranchNameToFreshPortsName($Updates{branch_git});
 	
-	print "after converting '\$Updates{branch_git}' we have '$Updates{branch_git}'\n";
+	print "after converting '\$Updates{branch_git}' we have '$Updates{branch_for_files}'\n";
 	print "next we need to strip any leading 'branches/' prefix\n";
-	$Updates{branch} = FreshPorts::Branches::stripBranchesToGetBranchName($Updates{branch});
-	print "OS is '$Updates{os}' : branch = '$Updates{branch}'\n";
+	$Updates{branch_database_name} = FreshPorts::Branches::stripBranchesToGetBranchName($Updates{branch_for_files});
 	print "OS is '$Updates{os}' : branch = '$Updates{branch_git}' for git\n";
+	print "OS is '$Updates{os}' : branch = '$Updates{branch_for_files}' for git\n";
+	print "OS is '$Updates{os}' : branch = '$Updates{branch_database_name}' for database names\n";
 
 	# We know what branch this message is updating. Let's grab the IDs we will need.
 	$SystemID = SystemIDGet($Updates{os}, $self->{dbh});
@@ -297,12 +326,12 @@ sub handle_os_end {
 		FreshPorts::Utilities::ReportError('warning', "No SystemID found for OS = '$Updates{os}'", 1)
 	}
 
-	if ($Updates{branch} ne '') {
+	if ($Updates{branch_database_name} ne '') {
 		# we invoke GetBranchFromPathName to convert branches/2020Q3 to 2020Q3
-		$SystemBranchID = SystemBranchIDGetOrCreate($SystemID, $Updates{branch}, $self->{dbh});
+		$SystemBranchID = SystemBranchIDGetOrCreate($SystemID, $Updates{branch_database_name}, $self->{dbh});
 		if (!defined($SystemBranchID)) {
 			$! = 4;
-			FreshPorts::Utilities::ReportError('warning', "No SystemBranchID found for OS = '$Updates{branch}'", 1);
+			FreshPorts::Utilities::ReportError('warning', "No SystemBranchID found for OS = '$Updates{branch_database_name}'", 1);
 		} else {
 			$Updates{branch_id} = $SystemBranchID;
 		}
@@ -312,7 +341,7 @@ sub handle_os_end {
 		die   "Branch was empty.  Probably imported sources.  Ignoring message $inputfile\n";
 	}
    
-	print "OS is '$Updates{os}' ($SystemID) : branch = $Updates{branch} ($SystemBranchID)\n";
+	print "OS is '$Updates{os}' ($SystemID) : branch = $Updates{branch_database_name} ($SystemBranchID)\n";
 }
 
 
@@ -338,7 +367,7 @@ sub handle_update_end {
 		FreshPorts::Utilities::ReportError('Err', "No files found in commit '$Updates{commit_hash}'.  Has someone done a cvs import instead of addport?", 0)
 	}
 
-	%CommitLogPorts = FreshPorts::VerifyPort::SaveChangesToPortsTree($Updates{branch}, commit_log_id(), \@Files, $self->{dbh});
+	%CommitLogPorts = FreshPorts::VerifyPort::SaveChangesToPortsTree($Updates{branch_database_name}, commit_log_id(), \@Files, $self->{dbh});
 
 	#
 	# commit what we have now, and that starts a new transaction.
@@ -429,7 +458,9 @@ sub handle_update_end {
 
 	# we don't clear these values until the end of the update
 	undef $Updates{os};
-	undef $Updates{branch};
+	undef $Updates{branch_git};
+	undef $Updates{branch_database_name};
+	undef $Updates{branch_for_files};
 	undef $Updates{committerAll};
 	undef $Updates{dateyear};
 	undef $Updates{datemonth};
@@ -472,7 +503,7 @@ sub FileActionValid($) {
 	return $ValidFileActions{$FileAction};
 }
 
-sub ConvertGitBranch($) {
+sub ConvertGitBranchNameToFreshPortsName($) {
 	my $GitBranch = shift;
 	
 	#
@@ -610,7 +641,7 @@ sub handle_file_end {
 	my $element;
 	my $element_id;
 	# This is where we add in the repo name to the path
-	my $filename     = $DB_Root_Prefix . '/' . $Updates{branch} . '/' . $FilePath;
+	my $filename     = $DB_Root_Prefix . '/' . $Updates{branch_for_files} . '/' . $FilePath;
 	my $revisionname = $FileRevision;
 	my $commit_log_element;
 	
@@ -808,11 +839,12 @@ sub handle_message_end {
 	# The criteria for that is the subject must start with
 	# "cvs commit: ports/".
 
-	print "OS             = [$Updates{os}]\n";
-	print "Branch git     = [$Updates{branch_git}]\n";
-	print "Branch         = [$Updates{branch}]\n";
-	print "Committer      = [$Updates{committerAll}]\n";
-	print "Date           = [" . sprintf "%04u/%02u/%02u %02u:%02u:%02u %s", $Updates{dateyear}, $Updates{datemonth}, $Updates{dateday}, $Updates{timehour}, $Updates{timeminute}, $Updates{timesecond}, $Updates{timezone} . "]\n";
+	print "OS                   = [$Updates{os}]\n";
+	print "Branch git           = [$Updates{branch_git}]\n";
+	print "branch_database_name = [$Updates{branch_database_name}]\n";
+	print "branch_for_files     = [$Updates{branch_for_files}]\n";
+	print "Committer            = [$Updates{committerAll}]\n";
+	print "Date                 = [" . sprintf "%04u/%02u/%02u %02u:%02u:%02u %s", $Updates{dateyear}, $Updates{datemonth}, $Updates{dateday}, $Updates{timehour}, $Updates{timeminute}, $Updates{timesecond}, $Updates{timezone} . "]\n";
 	if (defined($Updates{repository})) {
 		print "Repository     = [$Updates{repository}]\n";
 	} else {
@@ -835,7 +867,7 @@ sub handle_message_end {
 
 	# First thing we must do, is tell the database what Branch to use...
 	# XXX why does this not use branches::SetBranchInDB() ?
-	my $sql = 'select freshports_branch_set(' . $self->{dbh}->quote($Updates{branch}) . ')';
+	my $sql = 'select freshports_branch_set(' . $self->{dbh}->quote($Updates{branch_database_name}) . ')';
 	my $sth = $self->{dbh}->prepare($sql);
 	if (!$sth->execute())  {
 		FreshPorts::Utilities::ReportError('warning', "Could not set branch", 1);
