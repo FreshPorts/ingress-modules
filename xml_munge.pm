@@ -28,29 +28,11 @@
 
 package FreshPorts::XML_Munge;
 
-use base qw( Class::Observable );
-
 require Sys::Syslog;
 
-#use FreshPorts::element;
-#use FreshPorts::verifyport;
-#use FreshPorts::branches;
-#use FreshPorts::config;
-#use FreshPorts::constants;
-#use FreshPorts::commit_log;
-#use FreshPorts::commit_log_branches;
-#use FreshPorts::commit_log_element;
-#use FreshPorts::db_utils;
-#use FreshPorts::database;
 use FreshPorts::utilities;
-#use FreshPorts::cache;
-#use FreshPorts::committer_opt_in;
-#use FreshPorts::non_ports;
-#use FreshPorts::messages;
-#use FreshPorts::sanity_test_failures;
 
 use XML::Node;
-#use DBI;
 
 
 my $commit_log_id           = 0;
@@ -74,13 +56,6 @@ my $_RollbackNeeded         = 0;  # set by Rollback_Needed()
 # a file can be added to the repository, deleted (removed) from the repository,
 # or modified in the repository.
 #
-my %ValidFileActions = ( $FreshPorts::Constants::ADD    => "A",
-                         $FreshPorts::Constants::DELETE => "R", # matches the Remove for subversion commits
-                         $FreshPorts::Constants::MODIFY => "M",
-                         $FreshPorts::Constants::RENAME => "r");
-
-my %BranchConversions = ( 'master' => 'head' );
-
 my %Updates;
 
 my $self;	# for use by functions that cannot get this value (i.e. handler_*)
@@ -88,8 +63,6 @@ my $self;	# for use by functions that cannot get this value (i.e. handler_*)
 sub new {
 	my $this     = {};
 	my $class    = shift;
-
-	$this->{dbh} = shift;
 
 	bless $this;
 
@@ -118,11 +91,8 @@ sub process {
 sub usage {
 	my $this = shift;
 
-	print "USAGE : $0 INPUTFILE [-D] [-O] [-r] [-R]\n";
+	print "USAGE : $0 INPUTFILE [-D]\n";
 	print "   -D : debug\n";
-	print "   -O : overwrite any existing commit with the same message id\n";
-	print "   -r : do not fetch from CVS before refreshing database\n";
-	print "   -R : do not refresh the port at all\n";
 }
 
 #####
@@ -151,27 +121,6 @@ sub main {
 				next;
 			}
 
-			if ($ARGV[$i] eq '-O') {
-				print "overwriting....\n";
-				$overwrite = 1;
-				next;
-			}
-
-			if ($ARGV[$i] eq '-r') {
-				# useful if we only want to use
-				# what's on disk.
-				print "not fetching before refresh....\n";
-				$fetch_before_refresh = 0;
-				next;
-			}
-
-			if ($ARGV[$i] eq '-R') {
-				# do not refresh the ports.  just process the commit
-				print "not refreshing at all....\n";
-				$refresh_ports = 0;
-				next;
-			}
-
 			# we have found arguments we know nothing about
 			print 'unknown argument ' . $ARGV[$i] . "\n";
 			$this->usage();
@@ -182,12 +131,9 @@ sub main {
 		exit 1;
 	}
 
-	$self->notify_observers($FreshPorts::Messages::ProcessingBegins);
 	$this->SetupParser($p);
 
 	print "Processing file [$inputfile]...\n";
-
-	print "dbname = $FreshPorts::Config::dbname\n";
 
 	print "parsing file now\n";
 
@@ -215,7 +161,6 @@ sub handle_updates_start {
 	
 sub handle_updates_end {
 	print "\n\n *** end of all updates *** \n";
-	$self->notify_observers($FreshPorts::Messages::ProcessingDone);
 }
 
 sub getType {
