@@ -99,7 +99,7 @@ sub GetData {
 	FreshPorts::Utilities::Report('notice', "Branch:    '$Branch'");
 	FreshPorts::Utilities::Report('notice', "Subject:   '$Message_Subject'");
 
-	@Data =	[	'UPDATES', [ { Version => '1.3.2.1' },
+	@Data =	[	'UPDATES', [ { Version => '1.3.2.2', Source => 'subversion'},
 				'UPDATE', [ {},
 					'DATE', [ &GetDate($message)
 					],
@@ -152,10 +152,8 @@ sub GetData {
 sub WriteXML {
 	my ($data_ref) = shift;
 
-	my $output = '';
 	# Use XML::Writer to create the XML
-	my ($writer) = new XML::Writer( OUTPUT      => $output,
-					DATA_INDENT => 4,
+	my ($writer) = new XML::Writer( DATA_INDENT => 4,
 					DATA_MODE   => 1 );
 
 	# Add the main XML tag

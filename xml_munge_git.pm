@@ -26,7 +26,7 @@
 # use strict;
 
 
-package FreshPorts::XML_Munge;
+package FreshPorts::XML_Munge_git;
 
 use base qw( Class::Observable );
 
@@ -229,12 +229,12 @@ sub SetupParser($) {
 	$p->register(">UPDATES>UPDATE>PEOPLE>UPDATER:Handle",  "attr"  => \$Updates{committer});
 	$p->register(">UPDATES>UPDATE>PEOPLE>UPDATER",         "end"   => \&handle_updater_end);
 
-	$p->register(">UPDATES>UPDATE>COMMIT:Hash",            "attr"   => \$Updates{commit_hash});
-	$p->register(">UPDATES>UPDATE>COMMIT:HashShort",       "attr"   => \$Updates{commit_hash_short});
-	$p->register(">UPDATES>UPDATE>COMMIT:Subject",         "attr"   => \$Updates{MessageSubject});
-	$p->register(">UPDATES>UPDATE>COMMIT:EncodingLosses",  "attr"   => \$Updates{MessageEncodingLosses});
-	$p->register(">UPDATES>UPDATE>COMMIT:Repository",      "attr"   => \$Updates{repository});
-	$p->register(">UPDATES>UPDATE>COMMIT",                 "end"    => \&handle_message_end);
+	$p->register(">UPDATES>UPDATE>COMMIT:Hash",            "attr"  => \$Updates{commit_hash});
+	$p->register(">UPDATES>UPDATE>COMMIT:HashShort",       "attr"  => \$Updates{commit_hash_short});
+	$p->register(">UPDATES>UPDATE>COMMIT:Subject",         "attr"  => \$Updates{MessageSubject});
+	$p->register(">UPDATES>UPDATE>COMMIT:EncodingLosses",  "attr"  => \$Updates{MessageEncodingLosses});
+	$p->register(">UPDATES>UPDATE>COMMIT:Repository",      "attr"  => \$Updates{repository});
+	$p->register(">UPDATES>UPDATE>COMMIT",                 "end"   => \&handle_message_end);
 
 	$p->register(">UPDATES>UPDATE>FILES>FILE:Path",        "attr"  => \$Updates{FilePath});
 	$p->register(">UPDATES>UPDATE>FILES>FILE:Action",      "attr"  => \$Updates{FileAction});
@@ -367,71 +367,65 @@ sub handle_update_end {
 		FreshPorts::Utilities::ReportError('Err', "No files found in commit '$Updates{commit_hash}'.  Has someone done a cvs import instead of addport?", 0)
 	}
 
-	%CommitLogPorts = FreshPorts::VerifyPort::SaveChangesToPortsTree($Updates{branch_database_name}, commit_log_id(), \@Files, $self->{dbh});
+	# some things, we do only for port commits
+	if (($Updates{repository} eq $FreshPorts::Config::Repo_PORTS || $Updates{repository} eq $FreshPorts::Config::Repo_PORTS_QUARTERLY)) {
+		%CommitLogPorts = FreshPorts::VerifyPort::SaveChangesToPortsTree($Updates{branch_database_name}, commit_log_id(), \@Files, $self->{dbh}, 'git');
 
-	#
-	# commit what we have now, and that starts a new transaction.
-	#
-	$self->{dbh}->commit();
+		#
+		# commit what we have now, and that starts a new transaction.
+		#
+		$self->{dbh}->commit();
 
-	print "\n --- end of this update --- \n";
+		print "\n --- end of this update --- \n";
 
-	# we only fetch stuff for the ports repository
-	print "this commit is from the '" . $Updates{repository} . "' repository.\n";
+		# we only fetch stuff for the ports repository
+		print "this commit is from the '" . $Updates{repository} . "' repository.\n";
 	
-	# XXX - I am quite sure we don't have to do any fetching any more
-	if (($Updates{repository} eq $FreshPorts::Config::Repo_PORTS || $Updates{repository} eq $FreshPorts::Config::Repo_PORTS_QUARTERLY) && $fetch_before_refresh) {
-		print "oh, the script goes to fetch...\n";
-		# subversion revision numbers are short, git commit hashes are long
-		if (length($Updates{revision}) < 10) {
-			# this doesn't actually fetch files.
-			# it does a svn up
-			$FetchOK = FreshPorts::VerifyPort::FetchAllFiles($Updates{repository}, $Updates{branch_git}, \@Files, $Updates{revision}, $self->{dbh});
-		} else {
+		# XXX - I am quite sure we don't have to do any fetching any more
+		if (($Updates{repository} eq $FreshPorts::Config::Repo_PORTS || $Updates{repository} eq $FreshPorts::Config::Repo_PORTS_QUARTERLY) && $fetch_before_refresh) {
+			print "oh, the script goes to fetch...\n";
 			$FetchOK = FreshPorts::VerifyPort::ScrollToThatCommit($Updates{repository}, $Updates{branch_git}, $Updates{revision}, $self->{dbh});
-		}
-		if ($FetchOK) {
-			$self->notify_observers($FreshPorts::Messages::FilesFetched);
+			if ($FetchOK) {
+				$self->notify_observers($FreshPorts::Messages::FilesFetched);
+			} else {
+				print "There was a problem fetching, so I won't be telling the Observer that files have been fetched\n";
+			}
 		} else {
-			print "There was a problem fetching, so I won't be telling the Observer that files have been fetched\n";
+			$FetchOK = 1;
+			print "We are not fetching before refreshing\n";
 		}
-	} else {
-		$FetchOK = 1;
-		print "We are not fetching before refreshing\n";
-	}
 
-	# now we should refresh all the ports associated with this commit
-	# as each port is refreshed, it will be committed
+		# now we should refresh all the ports associated with this commit
+		# as each port is refreshed, it will be committed
 	
-	if ($FetchOK) {
-		if ($refresh_ports) {
-			$ErrorFound = FreshPorts::VerifyPort::RefreshAllPortsTouchedByCommit($Updates{repository}, $Updates{branch_git}, \%CommitLogPorts, 0, '', $self->{dbh});
+		if ($FetchOK) {
+			if ($refresh_ports) {
+				$ErrorFound = FreshPorts::VerifyPort::RefreshAllPortsTouchedByCommit($Updates{repository}, $Updates{branch_git}, \%CommitLogPorts, 0, '', $self->{dbh});
 
-			if (!$ErrorFound) {
-				$ErrorFound = FreshPorts::VerifyPort::RefreshAllSlavePortsOfPortsTouchedByCommit($Updates{repository}, $Updates{branch_git}, \%CommitLogPorts, 0, $self->{dbh});
+				if (!$ErrorFound) {
+					$ErrorFound = FreshPorts::VerifyPort::RefreshAllSlavePortsOfPortsTouchedByCommit($Updates{repository}, $Updates{branch_git}, \%CommitLogPorts, 0, $self->{dbh}, 'git');
+				}
+
+				if (!$ErrorFound) {
+					$ErrorFound = FreshPorts::VerifyPort::MarkVulnerableCommits(\%CommitLogPorts, 0, $self->{dbh});
+				}
+
+				$self->notify_observers($FreshPorts::Messages::PortsRefreshed, (message_id => $Updates{commit_hash}, CommitLogPorts => \%CommitLogPorts) );
+
 			}
+		}
 
-			if (!$ErrorFound) {
-				$ErrorFound = FreshPorts::VerifyPort::MarkVulnerableCommits(\%CommitLogPorts, 0, $self->{dbh});
-			}
+		if (scalar(keys %CommitLogPorts)) {
+			print "adding that commit date to the daily summary refresh list\n";
 
-	    $self->notify_observers($FreshPorts::Messages::PortsRefreshed, 
-				(message_id => $Updates{commit_hash}, CommitLogPorts => \%CommitLogPorts) );
+		    my $commit_date = sprintf "%04u-%02u-%02u", $Updates{dateyear}, $Updates{datemonth}, $Updates{dateday};
 
+			FreshPorts::Cache::DailySummaryDateAdd($commit_date, $self->{dbh})
+		} else {
+			print "that was not a port, so not adding to daily summary refresh list\n";
+			FreshPorts::NonPorts::RecordPortsTreeButNonPortCommits(commit_log_id(), \@Files, $self->{dbh})
 		}
 	}
-
-	if (scalar(keys %CommitLogPorts)) {
-		print "adding that commit date to the daily summary refresh list\n";
-
-	    my $commit_date = sprintf "%04u-%02u-%02u", $Updates{dateyear}, $Updates{datemonth}, $Updates{dateday};
-
-		FreshPorts::Cache::DailySummaryDateAdd($commit_date, $self->{dbh})
-	} else {
-		print "that was not a port, so not adding to daily summary refresh list\n";
-		FreshPorts::NonPorts::RecordPortsTreeButNonPortCommits(commit_log_id(), \@Files, $self->{dbh})
-	}
-
 
 	# we used to just look for errors found in the above code.
 	# but now, many underlying functions can record errors.

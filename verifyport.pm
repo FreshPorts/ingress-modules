@@ -33,11 +33,12 @@ sub InitialiseNewMessage() {
 	# kept in case needed in future
 }
 
-sub _CompileListOfPorts($;$;$;$) {
+sub _CompileListOfPorts($;$;$;$;$) {
 	my $CommitBranch  = shift; # which branch is this on? head? RELENG_9_1_0
 	my $commit_log_id = shift;
 	my $Files         = shift;
 	my $dbh           = shift;
+	my $RepoType      = shift;
 
 	my %ListOfPorts;	# returned from this function
 	my %CategoriesChecked;	# contains category class objects.
@@ -144,7 +145,7 @@ sub _CompileListOfPorts($;$;$;$) {
 					if (defined($extra)) {
 						if (!$port) {
 							print "* * * not found in existing cache.  we'll have to load/create that port!\n";
-							$port = FreshPorts::Port->new($dbh);
+							$port = FreshPorts::Port->new($dbh, $RepoType);
 
 							# this is all that's needed to retrieve a port which exists
 							if ($CommitBranch eq $FreshPorts::Constants::HEAD)
@@ -224,11 +225,12 @@ sub _CompileListOfPorts($;$;$;$) {
 }
 
 
-sub SaveChangesToPortsTree($;$;$;$) {
+sub SaveChangesToPortsTree($;$;$;$;$) {
 	my $CommitBranch  = shift;  # e.g. head or RELENG_9_1_0 or RELENG_10
 	my $commit_log_id = shift;
 	my $Files         = shift;
 	my $dbh           = shift;
+	my $RepoType      = shift;
 
 	my %ListOfPorts;
 	my %CommitLogPorts;	# hash of commit_log_ports objects
@@ -255,7 +257,7 @@ sub SaveChangesToPortsTree($;$;$;$) {
 	# This list of ports may not all be in the database.
 	# We'll deal with that as we go along.
 	#
-	%ListOfPorts = _CompileListOfPorts($CommitBranch, $commit_log_id, $Files, $dbh);
+	%ListOfPorts = _CompileListOfPorts($CommitBranch, $commit_log_id, $Files, $dbh, $RepoType);
 	
 	print "into SaveChangesToPortsTree()\n";
 
@@ -382,7 +384,7 @@ sub ScrollToThatCommit($;$;$;$) {
 	return $FetchOK;
 }
 
-sub FetchAllFiles($;$;$;$;$) {
+sub FetchAllFiles($;$;$;$;$;$) {
 	#
 	# fetch all the files associated with this commit
 	# Actually, it's only files within the ports tree.
@@ -393,6 +395,7 @@ sub FetchAllFiles($;$;$;$;$) {
 	my $Files        = shift;
 	my $svn_revision = shift;
 	my $dbh          = shift;
+	my $RepoType     = shift;
 
 	
 	my $action;
@@ -408,9 +411,16 @@ sub FetchAllFiles($;$;$;$;$) {
 	my $FetchOK = 1;
 
 	print "fetching all files from this commit.\n";
+	print "Repository='$Repository'\n";
+	print "CommitBranch='$CommitBranch'\n";
+	print "svn_revision='$svn_revision'\n";
 	
 	# this is where we fetch the files to disk
-	my $REPODIR = FreshPorts::Branches::GetPathToRepoForBranch($Repository, $CommitBranch);
+	# we are dealing only with svn here.
+	# we have only one repo. 
+
+        # this is where we fetch the files to disk
+        my $REPODIR = FreshPorts::Branches::GetPathToRepoForBranchSVN($CommitBranch);
 
 	# if we have a revision	
 	if (defined($svn_revision) && $svn_revision ne '')
@@ -742,7 +752,7 @@ sub RefreshAllPortsTouchedByCommit($;$;$;$;$;$) {
 	return $ErrorFound;
 }
 
-sub RefreshAllSlavePortsOfPortsTouchedByCommit($;$;$;$;$) {
+sub RefreshAllSlavePortsOfPortsTouchedByCommit($;$;$;$;$;$;$) {
 	#
 	# given the ports touched by this commit,
 	# refresh any slaves
@@ -753,6 +763,7 @@ sub RefreshAllSlavePortsOfPortsTouchedByCommit($;$;$;$;$) {
 	my %CommitLogPorts       = %{$CommitLogPortsRef};
 	my $fetch_before_refresh = shift;
 	my $dbh                  = shift;
+	my $RepoType             = shift;
 
 
 	# head or 2020Q3
@@ -767,7 +778,7 @@ sub RefreshAllSlavePortsOfPortsTouchedByCommit($;$;$;$;$) {
 
 	# For each port in this commit
 
-	$MasterSlave = FreshPorts::MasterSlave->new($dbh);
+	$MasterSlave = FreshPorts::MasterSlave->new($dbh, $RepoType);
 
 	while (my ($portname, $commit_log_ports) = each %CommitLogPorts) {
 		my $port = $commit_log_ports->{port};
@@ -785,7 +796,7 @@ sub RefreshAllSlavePortsOfPortsTouchedByCommit($;$;$;$;$) {
 	# For each slave port
 	while (my ($PortName, $ignore) = each %Slaves) {
 		# fetch it
-		my $port = FreshPorts::Port->new($dbh);
+		my $port = FreshPorts::Port->new($dbh, $RepoType);
 		
 		my $pathname;
 

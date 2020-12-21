@@ -35,55 +35,55 @@ use POSIX qw/strftime/;
 sub _initialize {
 	my $this = shift;
 
-	$this->{portname}			= '';
-	$this->{name}				= '';
-	$this->{short_description}	= '';
-	$this->{long_description}	= '';
-	$this->{version}			= '';
-	$this->{revision}			= '';
-	$this->{maintainer}			= '';
-	$this->{homepage}			= '';
-	$this->{master_sites}		= '';
-	$this->{extract_suffix}		= '';
-	$this->{package_exists}		= '';
-	$this->{depends_build}		= '';
-	$this->{depends_run}		= '';
-	$this->{depends_lib}		= '';
-	$this->{forbidden}			= '';
-	$this->{broken}				= '';
-	$this->{deprecated}			= '';
-	$this->{ignore}				= '';
-	$this->{master_port}		= '';
-	$this->{latest_link}		= '';
-	$this->{no_latest_link}		= '';
-	$this->{no_package}			= '';
-	$this->{package_name}		= '';
-	$this->{portepoch}			= '';
-	$this->{restricted}			= '';
-	$this->{no_cdrom}			= '';
-	$this->{expiration_date}	= '';
-	$this->{is_interactive}		= '';
-	$this->{only_for_archs}		= '';
-	$this->{not_for_archs}		= '';
-	$this->{status}				= '';
-	$this->{showconfig}			= '';
-	$this->{license}			= '';
-	$this->{fetch_depends}		= '';
-	$this->{extract_depends}	= '';
-	$this->{patch_depends}		= '';
-	$this->{uses}			    = '';
-	$this->{pkgmessage} 	    = '';
-	$this->{distinfo}    	    = '';
-	$this->{license_restricted} = '';
+	$this->{portname}             = '';
+	$this->{name}                 = '';
+	$this->{short_description}    = '';
+	$this->{long_description}     = '';
+	$this->{version}              = '';
+	$this->{revision}             = '';
+	$this->{maintainer}           = '';
+	$this->{homepage}             = '';
+	$this->{master_sites}         = '';
+	$this->{extract_suffix}       = '';
+	$this->{package_exists}       = '';
+	$this->{depends_build}        = '';
+	$this->{depends_run}          = '';
+	$this->{depends_lib}          = '';
+	$this->{forbidden}            = '';
+	$this->{broken}               = '';
+	$this->{deprecated}           = '';
+	$this->{ignore}               = '';
+	$this->{master_port}          = '';
+	$this->{latest_link}          = '';
+	$this->{no_latest_link}       = '';
+	$this->{no_package}           = '';
+	$this->{package_name}         = '';
+	$this->{portepoch}            = '';
+	$this->{restricted}           = '';
+	$this->{no_cdrom}             = '';
+	$this->{expiration_date}      = '';
+	$this->{is_interactive}       = '';
+	$this->{only_for_archs}       = '';
+	$this->{not_for_archs}        = '';
+	$this->{status}               = '';
+	$this->{showconfig}           = '';
+	$this->{license}              = '';
+	$this->{fetch_depends}        = '';
+	$this->{extract_depends}      = '';
+	$this->{patch_depends}        = '';
+	$this->{uses}                 = '';
+	$this->{pkgmessage}           = '';
+	$this->{distinfo}             = '';
+	$this->{license_restricted}   = '';
 	$this->{manual_package_build} = '';
-	$this->{license_perms}    	= '';
-	$this->{conflicts}	    	= '';
-	$this->{conflicts_build}    	= '';
-	$this->{conflicts_install}    	= '';
-	$this->{generate_plist}     = '';
+	$this->{license_perms}        = '';
+	$this->{conflicts}            = '';
+	$this->{conflicts_build}      = '';
+	$this->{conflicts_install}    = '';
+	$this->{generate_plist}       = '';
 
-	$this->{categories}			= '';
-	$this->{element_pathname}   = '';
+	$this->{categories}           = '';
+	$this->{element_pathname}     = '';
 }
 
 sub _GetValuesFromRow {
@@ -150,10 +150,11 @@ sub _GetValuesFromRow {
 # =================================
 
 sub new {
-	my $this		= {};
-	my $class		= shift;
+	my $this          = {};
+	my $class         = shift;
 
-	$this->{dbh}	= shift;
+	$this->{dbh}      = shift;
+	$this->{RepoType} = shift;
 
 	bless $this;
 
@@ -484,8 +485,25 @@ sub _ExtractValuesFromMakefile {
 	                        # in case we need it for error reporting
 	my $OtherErrors  = '';	# gets the results of the TmpFile used to collect errors.
 
-	my $REPODIR        = FreshPorts::Branches::GetPathToRepoForBranch      ($Repository, $CommitBranch);
-	my $REPODIR_CHROOT = FreshPorts::Branches::GetPathToRepoForBranchCHROOT($Repository, $CommitBranch);
+	my $REPODIR;
+  	my $REPODIR_CHROOT;
+
+	print "RepoType='$this->{RepoType}'\n";
+	print "Repository='$Repository'\n";
+	print "CommitBranch='$CommitBranch'\n";
+	if ($this->{RepoType}    eq 'git') {
+	  print "calling FreshPorts::Branches::GetPathToRepoForBranch\n";
+	  $REPODIR        = FreshPorts::Branches::GetPathToRepoForBranch      ($Repository, $CommitBranch);
+  	  $REPODIR_CHROOT = FreshPorts::Branches::GetPathToRepoForBranchCHROOT($Repository, $CommitBranch);
+        }
+        elsif ($this->{RepoType} eq 'svn') {
+	  print "calling FreshPorts::Branches::GetPathToRepoForBranchSVN\n";
+	  $REPODIR        = FreshPorts::Branches::GetPathToRepoForBranchSVN      ($CommitBranch);
+  	  $REPODIR_CHROOT = FreshPorts::Branches::GetPathToRepoForBranchCHROOTSVN($CommitBranch);
+        } else {
+          die("Unknown RepoType='$this->{RepoType}'");
+        }
+
 	my $MakefileDirectory = "$REPODIR/$this->{category}/$this->{name}";
 
         print "CommitBranch:   '$CommitBranch\n";	
@@ -847,6 +865,17 @@ sub _ExtractValuesFromMakefile {
 		print 'Result = ' . $result . "\n";
 		chomp($package_flavors); # get rid of the trailing whitespace.
 
+		print 'size is ' . -s $TmpFile;
+		print "\n";
+
+
+		if (-s $TmpFile > 0) {
+			print "getting error message from temp file\n";
+			$ErrorMessage = "Error message is: " . `cat $TmpFile`;
+		}
+
+		# remove that error collection file
+		unlink($TmpFile);
 
 
 		# show some results
@@ -1130,7 +1159,7 @@ sub _GetRealPath($) {
 
 
 
-sub RefreshFromFiles($;$;$;$;$) {
+sub RefreshFromFiles($;$;$;$;$;$) {
 #
 # refresh this port based on the make files associated with it and the value of needs_refresh
 # returns 0 for success, 1 for failure
@@ -1138,11 +1167,12 @@ sub RefreshFromFiles($;$;$;$;$) {
 	my $this          = shift;
 	my $Repository    = shift;
 	my $CommitBranch  = shift; # something like: head or branches/2020Q3
-	my $needs_refresh = shift;
+  	my $needs_refresh = shift;
 	my $fetch_files   = shift;
 	my $svn_revision  = shift;
 
 	print "into RefreshFromFiles()\n";
+	print "working with repo='$Repository'\n";
 	print "working on CommitBranch='$CommitBranch'\n";
 	print "with svn_revision='$svn_revision'\n";
 	if (!defined($needs_refresh)) {

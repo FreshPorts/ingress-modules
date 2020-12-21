@@ -89,6 +89,34 @@ sub stripBranchesToGetBranchName($)
   return $branch;
 }
 
+# SVN
+# for a given branch name, return the full path.  Including the CHROOT path.
+sub GetPathToRepoForBranchSVN($)
+{
+  my $CommitBranch = shift;
+
+  return "$FreshPorts::Config::RepoDir/PORTS-$CommitBranch";
+}
+
+# SVN
+# for a given branch name, return the chroot'd full path.
+# branches and trunk are now in the same direcvtory
+# This is relative to the chroot at FreshPorts::Config::JailBaseDir
+#
+sub GetPathToRepoForBranchCHROOTSVN($)
+{
+  my $CommitBranch = shift;
+  my $Path;
+
+  # typically '/var/db/repos/PORTS-head' for svn
+  $Path = "$FreshPorts::Config::RepoBaseDir/PORTS-$CommitBranch";
+  
+  return $Path
+}
+
+
+
+
 
 #
 # for a given branch name, return the repo name. This is a directory.
@@ -109,6 +137,7 @@ sub GetRepoNameForBranch($;$)
   
   return $RepoName
 }
+
 #
 # for a given branch name, return the chroot'd full path.
 # branches and trunk are now in the same direcvtory
@@ -122,7 +151,7 @@ sub GetPathToRepoForBranchCHROOT($;$)
 
   my $RepoName = GetRepoNameForBranch($Repository, $CommitBranch);
 
-  # typically '/var/db/repos/freebsd-ports'
+  # typically '/var/db/repos/freebsd-ports' for git
   $Path = "$FreshPorts::Config::RepoBaseDir/$RepoName";
   
   return $Path
