@@ -546,6 +546,7 @@ sub _ExtractValuesFromMakefile {
 	# IF YOU CHANGE THE MAKE COMMAND, CHANGE THE SPLIT!!!!!!!!!!!!!!!
 	#
 	#
+	# looks like:   /usr/local/bin/sudo /usr/sbin/chroot -u freshports /var/db/freshports/ports-jail /make-port.sh /var/db/repos/PORTS-head www/qt5-webkit 2>/tmp/FreshPorts.www.qt5-webkit.make-error.2021.1.3.22
 	$makecommand = "/usr/local/bin/sudo /usr/sbin/chroot -u $FreshPorts::Config::JailUser $FreshPorts::Config::JailBaseDir $FreshPorts::Config::JailPortScript $REPODIR_CHROOT $this->{category}/$this->{name} 2>$TmpFile";
 
 	print "makecommand = $makecommand\n";
