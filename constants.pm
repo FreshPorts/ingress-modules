@@ -107,6 +107,11 @@ $FreshPorts::Constants::Repo_Dir_Name_Ports               = 'freebsd-ports';
 $FreshPorts::Constants::Repo_Dir_Name_Ports_Quarterly     = 'freebsd-ports-quarterly';
 $FreshPorts::Constants::Repo_Dir_Name_Src                 = 'freebsd';
 
+# and we have svn repos
+
+# not sure this is used.
+#$FreshPorts::Constants::SVN_Repo_Dir_Name_Ports            = 'ports-HEAD';
+
 #
 # How to translate the label (doc) to the repo directory (freebsd-doc)
 # Well, we don't have to do this often, or at all, because we only access
