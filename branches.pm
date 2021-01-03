@@ -173,13 +173,14 @@ sub GetPathToRepoForBranch($;$)
 }
 
 # can we process this branch?
-# XXX I think this is only used by svn processing at present.  We need that for git processing too.
+# I think this is only used by svn processing at present.  This function is invoked
+# only from within process_svn_mail.pm
+#
 sub CanWeProcessThisBranch($;$)
 {
-  my $Repository   = shift;
   my $CommitBranch = shift;
   
-  my $RepoPath = GetPathToRepoForBranch($Repository, $CommitBranch);
+  my $RepoPath = GetPathToRepoForBranchSVN($CommitBranch);
   
   FreshPorts::Utilities::Report('notice', "Let us verify that RepoPath ('$RepoPath') for Branch '$CommitBranch' actually exists on disk.");
 

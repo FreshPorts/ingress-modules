@@ -69,7 +69,7 @@ sub GetData {
 	}
 
 	# if this is a port commit, do we have that branch checked out?
-	if ($RepoPrefix eq $FreshPorts::Constants::PORTS && !FreshPorts::Branches::CanWeProcessThisBranch($FreshPorts::Constants::PORTS, $Branch))
+	if ($RepoPrefix eq $FreshPorts::Constants::PORTS && !FreshPorts::Branches::CanWeProcessThisBranch($Branch))
 	{
 		FreshPorts::Utilities::Report('notice', "No, we need to check out that branch.");
 		#
@@ -86,7 +86,7 @@ sub GetData {
 	}
 
 	# if this is a port commit, do we have that branch checked out?
-	if ($RepoPrefix eq $FreshPorts::Constants::PORTS && !FreshPorts::Branches::CanWeProcessThisBranch($FreshPorts::Constants::PORTS, $Branch))
+	if ($RepoPrefix eq $FreshPorts::Constants::PORTS && !FreshPorts::Branches::CanWeProcessThisBranch($Branch))
 	{
 		# we will not return from this
 		FreshPorts::Utilities::ReportErrorEmailNoPrint('err', "We do not have a checked out repo for this branch ('" . $Branch . "').\n\n", 1);
