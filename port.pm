@@ -836,6 +836,17 @@ sub _ExtractValuesFromMakefile {
 		print 'Result = ' . $result . "\n";
 		chomp($package_flavors); # get rid of the trailing whitespace.
 
+		print 'size is ' . -s $TmpFile;
+		print "\n";
+
+
+		if (-s $TmpFile > 0) {
+			print "getting error message from temp file\n";
+			$ErrorMessage = "Error message is: " . `cat $TmpFile`;
+		}
+
+		# remove that error collection file
+		unlink($TmpFile);
 
 
 		# show some results
@@ -1131,6 +1142,8 @@ sub RefreshFromFiles($;$;$;$) {
 	my $svn_revision	= shift;
 
 	print "into RefreshFromFiles()\n";
+ 	print "working on CommitBranch='$CommitBranch'\n";
+ 	print "with svn_revision='$svn_revision'\n";
 	if (!defined($needs_refresh)) {
 		FreshPorts::Utilities::ReportError('warning', "needs_refresh has no value", 1);
 	}
