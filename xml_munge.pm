@@ -57,13 +57,13 @@ my $refresh_ports           = 1;  # refresh any ports touched by a commit
 my $fetch_before_refresh    = 1;  # by default, we fetch files from cvs 
 									# before refreshing from them
 
-my $SystemID;						# the system id for this update.  Usually 'FreeBSD' => 1
-my $SystemBranchID;					# the system version id for this update.  Usually 'head' => 1
+my $SystemID;             # the system id for this update.  Usually 'FreeBSD' => 1
+my $SystemBranchID;       # the system version id for this update.  Usually 'head' => 1
 
-my @Files;							# files affected by this commit
+my @Files;                # files affected by this commit
 
-my $id;								# this will get the message id once we know it.
-									# impelemented only for observable class
+my $id;                   # this will get the message id once we know it.
+                          # impelemented only for observable class
 
 my $_RollbackNeeded         = 0;	# set by Rollback_Needed()
 
@@ -194,30 +194,30 @@ sub SetupParser($) {
 
 	my $p = shift;
 
-	$p->register(">UPDATES",									"start" => \&handle_updates_start);
-	$p->register(">UPDATES>UPDATE",								"start" => \&handle_update_start);
+	$p->register(">UPDATES",						"start" => \&handle_updates_start);
+	$p->register(">UPDATES>UPDATE",						"start" => \&handle_update_start);
 
-	$p->register(">UPDATES>UPDATE>DATE:Year",					"attr"  => \$Updates{dateyear});
-	$p->register(">UPDATES>UPDATE>DATE:Month",					"attr"  => \$Updates{datemonth});
-	$p->register(">UPDATES>UPDATE>DATE:Day",					"attr"  => \$Updates{dateday});
+	$p->register(">UPDATES>UPDATE>DATE:Year",				"attr"  => \$Updates{dateyear});
+	$p->register(">UPDATES>UPDATE>DATE:Month",				"attr"  => \$Updates{datemonth});
+	$p->register(">UPDATES>UPDATE>DATE:Day",				"attr"  => \$Updates{dateday});
 
-	$p->register(">UPDATES>UPDATE>TIME:Hour",					"attr"  => \$Updates{timehour});
-	$p->register(">UPDATES>UPDATE>TIME:Minute",					"attr"  => \$Updates{timeminute});
-	$p->register(">UPDATES>UPDATE>TIME:Second",					"attr"  => \$Updates{timesecond});
+	$p->register(">UPDATES>UPDATE>TIME:Hour",				"attr"  => \$Updates{timehour});
+	$p->register(">UPDATES>UPDATE>TIME:Minute",				"attr"  => \$Updates{timeminute});
+	$p->register(">UPDATES>UPDATE>TIME:Second",				"attr"  => \$Updates{timesecond});
 	$p->register(">UPDATES>UPDATE>TIME:Timezone",				"attr"  => \$Updates{timezone});
 
-	$p->register(">UPDATES>UPDATE>OS:Id",						"attr"  => \$Updates{os});
-	$p->register(">UPDATES>UPDATE>OS:Branch",					"attr"  => \$Updates{branch});
-	$p->register(">UPDATES>UPDATE>OS",							"end"   => \&handle_os_end);
+	$p->register(">UPDATES>UPDATE>OS:Id",					"attr"  => \$Updates{os});
+	$p->register(">UPDATES>UPDATE>OS:Branch",				"attr"  => \$Updates{branch});
+	$p->register(">UPDATES>UPDATE>OS",					"end"   => \&handle_os_end);
         
-	$p->register(">UPDATES>UPDATE>LOG",							"char"  => \$Updates{log});
+	$p->register(">UPDATES>UPDATE>LOG",					"char"  => \$Updates{log});
 
-	$p->register(">UPDATES>UPDATE>PEOPLE>UPDATER:Handle",		"attr"  => \$Updates{committer});
+	$p->register(">UPDATES>UPDATE>PEOPLE>UPDATER:Handle",			"attr"  => \$Updates{committer});
 	$p->register(">UPDATES>UPDATE>PEOPLE>UPDATER",				"end"   => \&handle_updater_end);
 
-	$p->register(">UPDATES>UPDATE>MESSAGE:Id",					"attr"  => \$Updates{MessageId});
+	$p->register(">UPDATES>UPDATE>MESSAGE:Id",				"attr"  => \$Updates{MessageId});
 	$p->register(">UPDATES>UPDATE>MESSAGE:Subject",				"attr"  => \$Updates{MessageSubject});
-	$p->register(">UPDATES>UPDATE>MESSAGE:EncodingLosses",		"attr"  => \$Updates{MessageEncodingLosses});
+	$p->register(">UPDATES>UPDATE>MESSAGE:EncodingLosses",			"attr"  => \$Updates{MessageEncodingLosses});
 
 
 	$p->register(">UPDATES>UPDATE>MESSAGE>DATE:Year",			"attr"  => \$Updates{messageyear});
@@ -228,25 +228,25 @@ sub SetupParser($) {
 	$p->register(">UPDATES>UPDATE>MESSAGE>TIME:Hour",			"attr"  => \$Updates{messagehour});
 	$p->register(">UPDATES>UPDATE>MESSAGE>TIME:Minute",			"attr"  => \$Updates{messageminute});
 	$p->register(">UPDATES>UPDATE>MESSAGE>TIME:Second",			"attr"  => \$Updates{messagesecond});
-	$p->register(">UPDATES>UPDATE>MESSAGE>TIME:Timezone",		"attr"  => \$Updates{messagezone});
+	$p->register(">UPDATES>UPDATE>MESSAGE>TIME:Timezone",			"attr"  => \$Updates{messagezone});
 
 	$p->register(">UPDATES>UPDATE>MESSAGE>TO:Email",			"attr"  => \$Updates{MessageTo});
-	$p->register(">UPDATES>UPDATE>MESSAGE>TO",					"end"   => \&handle_messageto_end);
+	$p->register(">UPDATES>UPDATE>MESSAGE>TO",				"end"   => \&handle_messageto_end);
 
 	$p->register(">UPDATES>UPDATE>MESSAGE>REPOSITORY",			"char"  => \$Updates{repository});
 	$p->register(">UPDATES>UPDATE>MESSAGE>REVISION",			"char"  => \$Updates{revision});
 
-	$p->register(">UPDATES>UPDATE>MESSAGE",						"end"   => \&handle_message_end);
+	$p->register(">UPDATES>UPDATE>MESSAGE",					"end"   => \&handle_message_end);
 
 	$p->register(">UPDATES>UPDATE>FILES>FILE:Path",				"attr"  => \$Updates{FilePath});
 	$p->register(">UPDATES>UPDATE>FILES>FILE:Action",			"attr"  => \$Updates{FileAction});
 	$p->register(">UPDATES>UPDATE>FILES>FILE:Revision",			"attr"  => \$Updates{FileRevision});
 
-	$p->register(">UPDATES>UPDATE>FILES>FILE",					"end"   => \&handle_file_end);
+	$p->register(">UPDATES>UPDATE>FILES>FILE",				"end"   => \&handle_file_end);
 
 
-	$p->register(">UPDATES>UPDATE",								"end"   => \&handle_update_end);
-	$p->register(">UPDATES",									"end"   => \&handle_updates_end);
+	$p->register(">UPDATES>UPDATE",						"end"   => \&handle_update_end);
+	$p->register(">UPDATES",						"end"   => \&handle_updates_end);
 
 	print "finished setting up the Parser\n";
 }
@@ -366,16 +366,22 @@ sub handle_update_end {
 				$ErrorFound = FreshPorts::VerifyPort::MarkVulnerableCommits(\%CommitLogPorts, 0, $self->{dbh});
 			}
 
-	    $self->notify_observers($FreshPorts::Messages::PortsRefreshed, 
-				(message_id => $Updates{MessageId}, CommitLogPorts => \%CommitLogPorts) );
+			$self->notify_observers($FreshPorts::Messages::PortsRefreshed, (message_id => $Updates{MessageId}, CommitLogPorts => \%CommitLogPorts) );
 
 		}
+	} else {
+		# This get into both the .loading log file and into the freshports log file.
+		# this should terminate the processing
+		FreshPorts::Utilities::ReportError('Err', "FetchOK is not true. FATAL ERROR. Processing of this commit (" . $Updates{MessageId} . ") needs to be redone: It seems the repo we are fetching from is a little lagged. Or perhaps there is another problem.", 0);
+
+		# but we do an exit anyway
+		exit 1;
 	}
 
 	if (scalar(keys %CommitLogPorts)) {
 		print "adding that commit date to the daily summary refresh list\n";
 
-	    my $commit_date = sprintf "%04u-%02u-%02u", $Updates{dateyear}, $Updates{datemonth}, $Updates{dateday};
+		my $commit_date = sprintf "%04u-%02u-%02u", $Updates{dateyear}, $Updates{datemonth}, $Updates{dateday};
 
 		FreshPorts::Cache::DailySummaryDateAdd($commit_date, $self->{dbh})
 	} else {
@@ -404,8 +410,7 @@ sub handle_update_end {
 	}
 	
 	$self->{dbh}->commit();
-	$self->notify_observers($FreshPorts::Messages::UpdateEnds, 
-			(message_id => $Updates{MessageId}, CommitLogPorts => \%CommitLogPorts, Files => \@Files));
+	$self->notify_observers($FreshPorts::Messages::UpdateEnds, (message_id => $Updates{MessageId}, CommitLogPorts => \%CommitLogPorts, Files => \@Files));
 
 	# we don't clear these values until the end of the update
 	undef $Updates{os};
