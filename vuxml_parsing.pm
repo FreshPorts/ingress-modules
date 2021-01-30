@@ -167,7 +167,7 @@ sub new
         croak "new(): Argument is not a filehandle: Stream => $args{Stream}"
           unless ( ref \$args{Stream} eq 'GLOB'
             || ref $args{Stream} eq 'GLOB'
-            || $args{Stream}->isa("IO::Handle") );
+            || $args{Stream}->isa("IO::String") );
         $self->{input} = $args{Stream};
     } else {
         $self->{input} = *STDIN;
