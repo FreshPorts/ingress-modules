@@ -418,6 +418,11 @@ sub NULLIfEmpty {
 	return $result;
 }
 
+#
+# CommitCountPeriod() was used by queue-status.pl
+# On 2021-02-18, the code was changed to look for items in the queue which were older than N minutes
+# Thus, this function is no longer used. It can be removed from this code after 2021-05-01
+#
 sub CommitCountPeriod {
     my $dbh      = shift;
     my $interval = shift;
