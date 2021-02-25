@@ -51,7 +51,7 @@ use FreshPorts::sanity_test_failures;
 
 use XML::Node;
 use DBI;
-
+use Email::Address::XS qw(split_address);
 
 my $commit_log_id           = 0;
 my $debug                   = 0;
@@ -226,8 +226,13 @@ sub SetupParser($) {
         
 	$p->register(">UPDATES>UPDATE>LOG",                    "char"  => \$Updates{log});
 
-	$p->register(">UPDATES>UPDATE>PEOPLE>UPDATER:Handle",  "attr"  => \$Updates{committer});
-	$p->register(">UPDATES>UPDATE>PEOPLE>UPDATER",         "end"   => \&handle_updater_end);
+	$p->register(">UPDATES>UPDATE>PEOPLE>COMMITTER:CommitterName",  "attr"  => \$Updates{committerName});
+	$p->register(">UPDATES>UPDATE>PEOPLE>COMMITTER:CommitterEmail", "attr"  => \$Updates{committerEmail});
+	$p->register(">UPDATES>UPDATE>PEOPLE>COMMITTER",                "end"   => \&handle_committer_end);
+
+	$p->register(">UPDATES>UPDATE>PEOPLE>AUTHOR:AuthorName",        "attr"  => \$Updates{authorName});
+	$p->register(">UPDATES>UPDATE>PEOPLE>AUTHOR:AuthorEmail",       "attr"  => \$Updates{authorEmail});
+	$p->register(">UPDATES>UPDATE>PEOPLE>AUTHOR",                   "end"   => \&handle_author_end);
 
 	$p->register(">UPDATES>UPDATE>COMMIT:Hash",            "attr"  => \$Updates{commit_hash});
 	$p->register(">UPDATES>UPDATE>COMMIT:HashShort",       "attr"  => \$Updates{commit_hash_short});
@@ -440,8 +445,8 @@ sub handle_update_end {
 		$SanityTestFailure->SetErrorText($Msg);
 		my $STFID = $SanityTestFailure->Save();
 		print "saved as STFID $STFID\n";
-		print "sending NotifyCommitter to $Updates{committerAll}\n";
-		FreshPorts::CommitterOptIn::NotifyCommitter($Updates{committerAll}, $self->{dbh});
+		print "sending NotifyCommitter to $Updates{committer}\n";
+		FreshPorts::CommitterOptIn::NotifyCommitter($Updates{committer}, $self->{dbh});
 	} else {
 		print "No errors found during that commit\n";
 	}
@@ -455,7 +460,9 @@ sub handle_update_end {
 	undef $Updates{branch_git};
 	undef $Updates{branch_database_name};
 	undef $Updates{branch_for_files};
-	undef $Updates{committerAll};
+	undef $Updates{committerName};
+	undef $Updates{committerEmail};
+	undef $Updates{committer};
 	undef $Updates{dateyear};
 	undef $Updates{datemonth};
 	undef $Updates{dateday};
@@ -837,7 +844,7 @@ sub handle_message_end {
 	print "Branch git           = [$Updates{branch_git}]\n";
 	print "branch_database_name = [$Updates{branch_database_name}]\n";
 	print "branch_for_files     = [$Updates{branch_for_files}]\n";
-	print "Committer            = [$Updates{committerAll}]\n";
+	print "Committer            = [$Updates{committer}]\n";
 	print "Date                 = [" . sprintf "%04u/%02u/%02u %02u:%02u:%02u %s", $Updates{dateyear}, $Updates{datemonth}, $Updates{dateday}, $Updates{timehour}, $Updates{timeminute}, $Updates{timesecond}, $Updates{timezone} . "]\n";
 	if (defined($Updates{repository})) {
 		print "Repository     = [$Updates{repository}]\n";
@@ -877,13 +884,20 @@ sub handle_message_end {
 	}
 }
 
-sub handle_updater_end {
-    if (defined($Updates{committerAll})) {
-       $Updates{committerAll} .= ", " . $Updates{committer};   
-    } else {
-       $Updates{committerAll} = $Updates{committer};   
-    }
-    print "found Committer= [$Updates{committerAll}]\n";
+sub handle_committer_end {
+    # extract the commiter (user)  from the email address
+    my $address = Email::Address::XS->parse($Updates{committerEmail});
+    $Updates{committer} = $address->user();
+    
+    print "found Committer= [$Updates{committer}]\n";
+}
+
+sub handle_author_end {
+    # extract the author (user)  from the email address
+    my $address = Email::Address::XS->parse($Updates{authorEmail});
+    $Updates{author} = $address->user();
+    
+    print "found Author= [$Updates{author}]\n";
 }
 
 sub handle_messageto_end {
