@@ -167,7 +167,7 @@ sub new
         croak "new(): Argument is not a filehandle: Stream => $args{Stream}"
           unless ( ref \$args{Stream} eq 'GLOB'
             || ref $args{Stream} eq 'GLOB'
-            || $args{Stream}->isa("IO::Handle") );
+            || $args{Stream}->isa("IO::String") );
         $self->{input} = $args{Stream};
     } else {
         $self->{input} = *STDIN;
@@ -305,7 +305,7 @@ sub parse_xml
 
     $self->{checksum} = $checksum;
          
-    $self->{xml_parser}->parse( $self->{input} );
+    $self->{xml_parser}->parse( $self->{input}, ProtocolEncoding => 'ISO-8859-1' );
 
     return $self;
 }
@@ -352,10 +352,10 @@ sub update_database
 		$vuxml->DeleteByVID($self->vid());
 	}
 
-    print "Shall we update?\n";
+        print "Shall we update?\n";
 	if ($self->{update_in_place} && !defined $self->cancelled()) {
-        # updates in place are awkward... it gets complex.
-        # let's just delete and then do a full insert
+		# updates in place are awkward... it gets complex.
+		# let's just delete and then do a full insert
 
 		my $vuxml = FreshPorts::vuxml->new( $self->{db_handle} );
 
@@ -365,17 +365,17 @@ sub update_database
 	else
 	{
 	    print "no.  We are not updating\n";
-    }
+	}
 
-    if ($FullInsert) {
-        my $vuxml_id = $self->update_database_vuxml(undef);
-        $self->update_database_vuxml_affected  ($vuxml_id);
-        $self->update_database_vuxml_references($vuxml_id);
+	if ($FullInsert) {
+		my $vuxml_id = $self->update_database_vuxml(undef);
+		$self->update_database_vuxml_affected  ($vuxml_id);
+		$self->update_database_vuxml_references($vuxml_id);
 		$self->{database_updated} = 1;
-    }
+	}
 
 
-    return $self;
+	return $self;
 }
 
 sub DateLessThanDate {
@@ -408,8 +408,8 @@ sub RecentlyAdded {
 # now deprecated, we don't use this any more.  can be deleted.
 sub vuxml_differs
 {
-    my __PACKAGE__ $self = shift;
-    my $vuxml            = shift;
+	my __PACKAGE__ $self = shift;
+	my $vuxml            = shift;
 
 	my $differs = 0;  # for now, always different
 
@@ -423,68 +423,68 @@ sub vuxml_differs
 
 sub update_database_vuxml
 {
-    my __PACKAGE__ $self = shift;
+	my __PACKAGE__ $self = shift;
 	my $vuxml_org        = shift;
 
-    use FreshPorts::vuxml;
+	use FreshPorts::vuxml;
 
 	my $vuxml_id;
 	
 	print "into update_database_vuxml\n";
 
-    my $vuxml = FreshPorts::vuxml->new( $self->{db_handle} );
+	my $vuxml = FreshPorts::vuxml->new( $self->{db_handle} );
 
 	if (defined($vuxml_org)) {
 		$vuxml->{id}     = $vuxml_org->{id};
 		$vuxml->{status} = $vuxml_org->{status};
 	}
 
-    $vuxml->{vid}            = $self->vid();
-    $vuxml->{topic}          = $self->topic();
-    $vuxml->{description}    = $self->description();
-    $vuxml->{date_discovery} = $self->date_discovery();
-    $vuxml->{date_entry}     = $self->date_entry();
-    $vuxml->{date_modified}  = $self->date_modified();
-    $vuxml->{checksum}       = $self->{checksum};
+	$vuxml->{vid}            = $self->vid();
+	$vuxml->{topic}          = $self->topic();
+	$vuxml->{description}    = $self->description();
+	$vuxml->{date_discovery} = $self->date_discovery();
+	$vuxml->{date_entry}     = $self->date_entry();
+	$vuxml->{date_modified}  = $self->date_modified();
+	$vuxml->{checksum}       = $self->{checksum};
 
-    $vuxml_id = $vuxml->save();
+	$vuxml_id = $vuxml->save();
 
-    return $vuxml_id;
+	return $vuxml_id;
 }
 
 sub update_database_vuxml_affected
 {
-    my __PACKAGE__ $self = shift;
-    my $vuxml_id         = shift;
+	my __PACKAGE__ $self = shift;
+	my $vuxml_id         = shift;
 
-    my $package_count = 0;
+	my $package_count = 0;
 
-    use FreshPorts::vuxml_affected;
-    use FreshPorts::vuxml_names;
-    use FreshPorts::vuxml_ranges;
+	use FreshPorts::vuxml_affected;
+	use FreshPorts::vuxml_names;
+	use FreshPorts::vuxml_ranges;
 
-    my $vuxml_affected          = FreshPorts::vuxml_affected->new( $self->{db_handle} );
-    my $vuxml_affected_names    = FreshPorts::vuxml_names->new   ( $self->{db_handle} );
-    my $vuxml_affected_ranges   = FreshPorts::vuxml_ranges->new  ( $self->{db_handle} );
+	my $vuxml_affected          = FreshPorts::vuxml_affected->new( $self->{db_handle} );
+	my $vuxml_affected_names    = FreshPorts::vuxml_names->new   ( $self->{db_handle} );
+	my $vuxml_affected_ranges   = FreshPorts::vuxml_ranges->new  ( $self->{db_handle} );
 
 	my $vuxml_affected_names_id;
 
-    for my $package ( $self->packages() ) {
-        $vuxml_affected->{vuxml_id} = $vuxml_id;
-        # when/if we start storing system vuxml information, this changes
-        $vuxml_affected->{type}     = 'package';
+	for my $package ( $self->packages() ) {
+        	$vuxml_affected->{vuxml_id} = $vuxml_id;
+        	# when/if we start storing system vuxml information, this changes
+        	$vuxml_affected->{type}     = 'package';
 
-        my $vuxml_affected_id = $vuxml_affected->save();
+        	my $vuxml_affected_id = $vuxml_affected->save();
 
-        if ( $package->name() ) {
-            for my $name ( $package->name() ) {
-                $vuxml_affected_names->{vuxml_affected_id} = $vuxml_affected_id;
-                $vuxml_affected_names->{name}              = $name;
+        	if ( $package->name() ) {
+        	       	for my $name ( $package->name() ) {
+        	       		$vuxml_affected_names->{vuxml_affected_id} = $vuxml_affected_id;
+        	       		$vuxml_affected_names->{name}              = $name;
 
-                $vuxml_affected_names_id = $vuxml_affected_names->save();
-		$vuxml_affected_names->empty();
-            }
-        }
+        	       		$vuxml_affected_names_id = $vuxml_affected_names->save();
+        	       		$vuxml_affected_names->empty();
+                        }
+                 }
 
         if ( $package->category() ) {
             print "    category:\n";
