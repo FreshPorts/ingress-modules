@@ -460,6 +460,8 @@ sub handle_update_end {
 	undef $Updates{branch_git};
 	undef $Updates{branch_database_name};
 	undef $Updates{branch_for_files};
+	undef $Updates{authorName};
+	undef $Updates{authorEmail};
 	undef $Updates{committerName};
 	undef $Updates{committerEmail};
 	undef $Updates{committer};
@@ -893,11 +895,15 @@ sub handle_committer_end {
 }
 
 sub handle_author_end {
-    # extract the author (user)  from the email address
-    my $address = Email::Address::XS->parse($Updates{authorEmail});
-    $Updates{author} = $address->user();
-    
-    print "found Author= [$Updates{author}]\n";
+    # see commit 9bae4ce661c59be88fec89b2531148e36dd1a23e
+    # re https://cgit.freebsd.org/src/commit/?id=9bae4ce661c59be88fec89b2531148e36dd1a23e
+    # AuthorEmail="danq1222_gmail.com"
+    # Se we print AuthoName, not the user as is done with committer.
+    print "found Author= [";
+    if (defined($Updates{authorName})) {
+    	print $Updates{authorName};
+    }
+    print "]\n";
 }
 
 sub handle_messageto_end {
@@ -984,6 +990,10 @@ sub SaveUpdateToDB {
 	$commit_log->{date_added}	= $date_added;
 	$commit_log->{commit_date}	= $commit_date;
 	$commit_log->{committer}	= $committer;
+	$commit_log->{committer_name}	= $Updates{committerName};
+	$commit_log->{committer_email}	= $Updates{committerEmail};
+	$commit_log->{author_name}	= $Updates{authorName};
+	$commit_log->{author_email}	= $Updates{authorEmail};
 	$commit_log->{description}	= $description;
 	$commit_log->{system_id}	= $SystemID;
 	$commit_log->{commit_hash_short}= $Updates{commit_hash_short};

@@ -57,6 +57,10 @@ sub _GetValuesFromRow {
 	$this->{date_added}         = $row->{date_added};
 	$this->{commit_date}        = $row->{commit_date};
 	$this->{committer}          = $row->{committer};
+	$this->{committer_name}     = $row->{committer_name};
+	$this->{committer_email}    = $row->{committer_email};
+	$this->{author_name}        = $row->{author_name};
+	$this->{author_email}       = $row->{author_email};
 	$this->{description}        = $row->{description};
 	$this->{encoding_losses}    = $row->{encoding_losses};
 	$this->{system_id}          = $row->{system_id};
@@ -84,12 +88,16 @@ sub save {
 	print $dbh->quote($this->{repo}) . " and repository = " . $dbh->quote($this->{repository}) . ")";
 	
 	$sql = "insert into commit_log (id, message_id, message_date, message_subject, date_added, commit_date, 
-	          committer, description, system_id, svn_revision, repo_id, encoding_losses, commit_hash_short) values ( 
+	          committer, committer_name, committer_email, author_name, author_email, description, system_id, svn_revision, repo_id, encoding_losses, commit_hash_short) values ( 
 				?,
 				?,
 				?,
 				?,
 				now(),
+				?,
+				?,
+				?,
+				?,
 				?,
 				?,
 				?,
@@ -108,6 +116,10 @@ sub save {
 				$this->{message_subject},
 				$this->{commit_date},
 				$this->{committer},
+				$this->{committer_name},
+				$this->{committer_email},
+				$this->{author_name},
+				$this->{author_email},
 				$this->{description},
 				$this->{system_id},
 				$this->{revision},
