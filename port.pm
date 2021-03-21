@@ -80,6 +80,7 @@ sub _initialize {
 	$this->{conflicts}            = '';
 	$this->{conflicts_build}      = '';
 	$this->{conflicts_install}    = '';
+	$this->{options_name}         = '';
 	$this->{generate_plist}       = '';
 
 	$this->{categories}           = '';
@@ -140,6 +141,7 @@ sub _GetValuesFromRow {
 	$this->{conflicts}             = $row->{conflicts};
 	$this->{conflicts_build}       = $row->{conflicts_build};
 	$this->{conflicts_install}     = $row->{conflicts_install};
+	$this->{options_name}          = $row->{options_name};
 	$this->{generate_plist}        = $row->{generate_plist};
 
 	$this->{categories}            = $row->{categories};
@@ -272,6 +274,7 @@ update ports
        conflicts            = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{conflicts})              . ", 
        conflicts_build      = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{conflicts_build})        . ", 
        conflicts_install    = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{conflicts_install})      . ", 
+       options_name         = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{options_name})           . ", 
        categories           = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{categories});
 
 
@@ -694,7 +697,7 @@ sub _ExtractValuesFromMakefile {
 		 my $only_for_archs, my $not_for_archs,      my $license,              my $fetchdepends, 
 		 my $extractdepends, my $patchdepends,       my $uses,                 my $pkgmessagepath,
 		 my $distinfo_file,  my $license_restricted, my $manual_package_build, my $license_perms,
-		 my $conflicts,      my $conflicts_build,    my $conflicts_install) = split(/\n/s, $MakeResults);
+		 my $conflicts,      my $conflicts_build,    my $conflicts_install,    my $options_name) = split(/\n/s, $MakeResults);
 
 		my $package_name = $pkgnameprefix . $portname . $pkgnamesuffix;
 
@@ -758,6 +761,7 @@ sub _ExtractValuesFromMakefile {
 		print " conflicts                = '$conflicts'\n";
 		print " conflicts_build          = '$conflicts_build'\n";
 		print " conflicts_install        = '$conflicts_install'\n";
+		print " options_name             = '$options_name'\n";
 
 		print "Grabbing make -V DESCR\n";
 
@@ -922,6 +926,7 @@ sub _ExtractValuesFromMakefile {
 		print "44 \$conflicts            = '$conflicts'\n";
 		print "45 \$conflicts_build      = '$conflicts_build'\n";
 		print "46 \$conflicts_install    = '$conflicts_install'\n";
+		print "47 \$options_name         = '$options_name'\n";
 
 		print "\n ---------------------------------------- \n";
 
@@ -986,6 +991,7 @@ sub _ExtractValuesFromMakefile {
 		$this->{license_perms}		= $license_perms;
 		$this->{conflicts}		= $conflicts;
 		$this->{conflicts_install}	= $conflicts_install;
+		$this->{options_name}	        = $options_name;
 		$this->{conflicts_build}	= $conflicts_build;
 		$this->{generate_plist}		= $generate_plist;
 		# convert all whitespace to a single space
