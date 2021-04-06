@@ -48,6 +48,7 @@ sub _CompileListOfPorts($;$;$;$;$) {
 	my $port;
 
 	print "STARTING _CompileListOfPorts ................................\n";
+	print "for a commit on 'branch': '$CommitBranch'\n";
 
 	foreach $value (@{$Files}) {
 		my ($action, $filename, $revision, $commit_log_element_id, $element_id) = @$value;
@@ -65,13 +66,16 @@ sub _CompileListOfPorts($;$;$;$;$) {
 		# depending on which branch we are one, we need to split this path differently
 		if ($CommitBranch eq $FreshPorts::Constants::HEAD)
 		{
+		  print "this commit is on head\n";
 		  ($emptyLeadingSlash, $subtree,            $branch, $category_name, $port_name, $extra) = split/\//,$filename, 6;
 		}
 		else
 		{
+		  print "this commit is NOT ON head\n";
 		  ($emptyLeadingSlash, $subtree, $branches, $branch, $category_name, $port_name, $extra) = split/\//,$filename, 7;
 		}
 		# FILE ==: Modify, /ports/head/ftp/vsftpd/Makefile, 303756, , head, ftp, vsftpd/Makefile, 1935356
+		# for README, GUIs, UIDs: category_name will be empty.
 		print "FILE ==: $action, $filename, $revision, $subtree, $category_name, ";
 		if (defined($port_name)) {
 			print "$port_name, ";

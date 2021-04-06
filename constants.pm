@@ -102,15 +102,17 @@ $FreshPorts::Constants::Repo_XML_Label_Src                = 'src';
 # PORTS-2020Q2            PORTS-2020Q3            freebsd                 freebsd-ports
 # PORTS-2020Q2-git        PORTS-head              freebsd-doc             freebsd-ports-quarterly
 #
-$FreshPorts::Constants::Repo_Dir_Name_Doc                 = 'freebsd-doc';
-$FreshPorts::Constants::Repo_Dir_Name_Ports               = 'freebsd-ports';
-$FreshPorts::Constants::Repo_Dir_Name_Ports_Quarterly     = 'freebsd-ports-quarterly';
-$FreshPorts::Constants::Repo_Dir_Name_Src                 = 'freebsd';
+# 2021-04-06 - The FreeBSD ports tree via git became active earlier today.
+# It seems these four constants are all all used by ingress commit processing.
+# Only port commits receive the additional processing which requires a repo
+# for the frehsports user. However, we have these four defined. Let's keep them
+# and correct them for now. - Dan Langille
+$FreshPorts::Constants::Repo_Dir_Name_Doc                 = 'doc';
+$FreshPorts::Constants::Repo_Dir_Name_Ports               = 'ports';
+$FreshPorts::Constants::Repo_Dir_Name_Ports_Quarterly     = 'ports-quarterly';
+$FreshPorts::Constants::Repo_Dir_Name_Src                 = 'src';
 
 # and we have svn repos
-
-# not sure this is used.
-#$FreshPorts::Constants::SVN_Repo_Dir_Name_Ports            = 'ports-HEAD';
 
 #
 # How to translate the label (doc) to the repo directory (freebsd-doc)

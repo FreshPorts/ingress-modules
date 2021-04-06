@@ -79,7 +79,7 @@ my %ValidFileActions = ( $FreshPorts::Constants::ADD    => "A",
                          $FreshPorts::Constants::MODIFY => "M",
                          $FreshPorts::Constants::RENAME => "r");
 
-my %BranchConversions = ( 'master' => 'head' );
+my %BranchConversions = ( 'main' => 'head' );
 
 my %Updates;
 
@@ -214,11 +214,11 @@ sub SetupParser($) {
 	$p->register(">UPDATES>UPDATE>OS:Id",                  "attr"  => \$Updates{os});
 
 	#
-	# EDIT 2020-11-17 - Updates{branch_git} is the branch name supplied by git.  e.g. master, branches/20202Q4
+	# EDIT 2020-11-17 - Updates{branch_git} is the branch name supplied by git.  e.g. main, branches/20202Q4
 	# EDIT 2020-11-17 - removing all references to $Updates{branch} 
 	#
 	# for git, let's put branch in branch_git
-	# will will populate $Updates{} with the converted value. e.g. master -> head
+	# will will populate $Updates{} with the converted value. e.g. main -> head
 	# and branches/2020Q3 -> 2020Q3
 	#
 	$p->register(">UPDATES>UPDATE>OS:Branch",              "attr"  => \$Updates{branch_git});
@@ -285,7 +285,7 @@ sub handle_os_end {
 	print "OS is '$Updates{os}' : branch = '$Updates{branch_git}' for git\n";
 	
 	# When we moved from subversion to git, we needed to convert branch from
-	# master to head, because everything we need here is based on head.
+	# main to head, because everything we need here is based on head.
 	#
 	# $Updates{branch_for_files} : for database related actions (finding a port) e.g. head or 2020Q3
 	# $Updates{branch_git}       : for repository related actions (git checkout)
@@ -313,7 +313,7 @@ sub handle_os_end {
         # $Updates{branch_for_files}     - for use in filenames
         #
 
-        # this converts master to head, and leaves everything else unchanged
+        # this converts main to head, and leaves everything else unchanged
         #
 	$Updates{branch_for_files} = ConvertGitBranchNameToFreshPortsName($Updates{branch_git});
 	
@@ -510,7 +510,7 @@ sub ConvertGitBranchNameToFreshPortsName($) {
 	my $GitBranch = shift;
 	
 	#
-	# this converts master to head
+	# this converts main to head
 	# if there is no conversion value, use what we were given.
 	#
 	my $Branch =  $BranchConversions{$GitBranch};
@@ -611,7 +611,7 @@ sub handle_file_end {
 	# for git we have
 	#       <FILE Action="Modify" Path="net-mgmt/unifi5/Makefile"/>
 	#
-	# the git pat must be prefixed with ports/head/
+	# the git path must be prefixed with ports/head/
 	# With subversion, it is prefixed with only ports/
 
 	my $FileAction     = $Updates{FileAction};

@@ -46,7 +46,6 @@ $FreshPorts::Config::password_readonly          = '';
 
 $FreshPorts::Config::BaseDir                    = '/var/db/freshports';
 $FreshPorts::Config::BaseDirIngress             = '/var/db/ingress';
-#$FreshPorts::Config::DirIngressRepos           = '/var/db/ingress/repos';
 
 $FreshPorts::Config::scriptpath                 = '/usr/local/libexec/freshports';
 
@@ -62,12 +61,25 @@ $FreshPorts::Config::JailBaseDir                = $FreshPorts::Config::BaseDir .
 #
 $FreshPorts::Config::RepoDir                    = $FreshPorts::Config::JailBaseDir . '/var/db/repos';
 
+# various repo names that we follow
+$FreshPorts::Config::Repo_DOC             = 'doc';
+$FreshPorts::Config::Repo_PORTS           = 'ports';
+$FreshPorts::Config::Repo_PORTS_QUARTERLY = 'ports-quarterly';
+$FreshPorts::Config::Repo_SRC             = 'src';
+
+# the database file name root prefix for each repo.
+# these are internal to the FreshPorts database.
+$FreshPorts::Config::DB_Root_Prefix_DOC             = '/doc';
+$FreshPorts::Config::DB_Root_Prefix_PORTS           = '/ports';
+$FreshPorts::Config::DB_Root_Prefix_PORTS_QUARTERLY = '/ports'; # this matches DB_Root_Prefix_PORTS because 'branches/2020Q3' (for example) will be appended
+$FreshPorts::Config::DB_Root_Prefix_SRC             = '/base';
+
 #
 # path to ports tree. no trailing slash. This is usually HEAD
 # this is an absolute path, not useful with the port-jail chroot.
 #
 # I think this is only used by category.pm::_description_fetch and I'm not convinced that's used now.
-$FreshPorts::Config::path_to_ports              = $FreshPorts::Config::RepoDir . '/PORTS-head';
+$FreshPorts::Config::path_to_ports              = $FreshPorts::Config::RepoDir . '/' . $FreshPorts::Config::Repo_PORTS;
 
 #
 # where in the cvs tree are ports?
@@ -153,23 +165,10 @@ $FreshPorts::Config::Debug_FetchBeforeSavingPort = 0;
 #print "\$FreshPorts::Config::path_to_ports '$FreshPorts::Config::path_to_ports'\n";
 
 # number of times to retry a failed fetch from cvsweb
-$FreshPorts::Config::Fetch_Retry_Limit = 10;
+$FreshPorts::Config::Fetch_Retry_Limit = 100000000;
 
 # sleep this number of seconds between retries
 $FreshPorts::Config::Fetch_Sleep_Time  = 120;
-
-# various repo names that we follow
-$FreshPorts::Config::Repo_DOC             = 'doc';
-$FreshPorts::Config::Repo_PORTS           = 'ports';
-$FreshPorts::Config::Repo_PORTS_QUARTERLY = 'ports-quarterly';
-$FreshPorts::Config::Repo_SRC             = 'src';
-
-# the database file name root prefix for each repo.
-# these are internal to the FreshPorts database.
-$FreshPorts::Config::DB_Root_Prefix_DOC             = '/doc';
-$FreshPorts::Config::DB_Root_Prefix_PORTS           = '/ports';
-$FreshPorts::Config::DB_Root_Prefix_PORTS_QUARTERLY = '/ports'; # this matches DB_Root_Prefix_PORTS because 'branches/2020Q3' (for example) will be appended
-$FreshPorts::Config::DB_Root_Prefix_SRC             = '/base';
 
 $FreshPorts::Config::Ports_Default_Directory = $FreshPorts::Config::DB_Root_Prefix_PORTS . '/head';
 
