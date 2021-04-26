@@ -63,14 +63,14 @@ sub FetchFileURL($;$;$;$;$;$) {
 	# returns 1 if fetched.
 	# zero otherwise.
 	#
-	my $URL			= shift;
-	my $DESTDIR		= shift;
-	my $SRCDIR		= shift;
-	my $FILE		= shift;
-	my $REVISION	= shift;
-	my $SUFFIX      = shift;
-	
-	my $REPO        = 'ports';
+	my $URL	     = shift;
+	my $DESTDIR  = shift;
+	my $SRCDIR   = shift;
+	my $FILE     = shift;
+	my $REVISION = shift;
+	my $SUFFIX   = shift;
+
+	my $REPO     = 'ports';
 
 print "before '$SRCDIR'\n";
 	$SRCDIR =~ s!^/?ports/!!;
