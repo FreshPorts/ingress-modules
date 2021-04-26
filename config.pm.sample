@@ -176,6 +176,7 @@ $FreshPorts::Config::Ports_Default_Directory = $FreshPorts::Config::DB_Root_Pref
 $FreshPorts::Config::RepoBaseDir  = '/var/db/repos';
 
 $FreshPorts::Config::JailConfigurePlist           = '/make-generate-plist.sh';
+$FreshPorts::Config::JailApplySList               = '/make-apply-slist.sh';
 $FreshPorts::Config::JailCategoryDescrptionScript = '/make-category-comment.sh';
 $FreshPorts::Config::JailDescr                    = '/make-descr.sh';
 $FreshPorts::Config::JailDescrAndHomePage         = '/cat-descr.sh';
