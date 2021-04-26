@@ -819,11 +819,26 @@ sub _ExtractValuesFromMakefile {
 		else
 		{
                    print "pkgmessagepath does look like a valid file to me: '$pkgmessagepath' (result of make -V PKGMESSAGE)\n";
-                   if (defined($pkgmessagepath) && $RealPKGMESSAGEPath) {
+                   if ($RealPKGMESSAGEPath) {
                       print "invoking _GetFileContentsFromJail() for PKGMESSAGE with '$RealPKGMESSAGEPath'\n";
                       $pkgmessage = $this->_GetFileContentsFromJail($RealPKGMESSAGEPath);
-                   }
-		}
+                   } else {
+                      print "but _GetRealPath() claims that file does not exist. Perhaps it is '*/work/pkg-message.server' or similar\n";
+                      if (index($pkgmessagepath, '/work/') != -1 ) {
+                         print "Yes, yes it does contain '/work/' - let's try a make apply-slist\n";
+                         $makecommand = "/usr/local/bin/sudo /usr/sbin/chroot -u $FreshPorts::Config::JailUser $FreshPorts::Config::JailBaseDir $FreshPorts::Config::JailApplySList $REPODIR_CHROOT $this->{category}/$this->{name} $pkgmessagepath 2>$TmpFile";
+                         print "makecommand = $makecommand\n";
+                         $pkgmessage=`$makecommand`;
+                         $result = $?;
+                         print 'Result = ' . $result . "\n";
+                         
+                         if ($result == 0) {
+                           print "success, we have\n'$pkgmessage'\n";
+                         }
+                      } # in /work/
+                   } # else not RealPKGMESSAGEPath
+		} # pkgmessagepath is not a number
+
 		chomp($pkgmessage); # get rid of the trailing whitespace.
 
 		my $RealDistInfoFilePath = $this->_GetRealPath($distinfo_file);
