@@ -94,7 +94,7 @@ print "after '$SRCDIR'\n";
 	my $FetchAttempts = $FreshPorts::Config::Fetch_Retry_Limit;
 
 	while ($FetchAttempts) {
-		my $command = "sh $FreshPorts::Config::scriptpath/svn-up-file.sh  REPODIR SVNITEM REVISION $DESTDIR $SRCDIR $FILE $REVISION $SUFFIX";
+		my $command = "sh $FreshPorts::Config::ScriptDir/svn-up-file.sh  REPODIR SVNITEM REVISION $DESTDIR $SRCDIR $FILE $REVISION $SUFFIX";
 		print "about to fetch = '$command'\n";
 		my $FetchResults = `$command`;
 		my $code = $?;
@@ -163,7 +163,7 @@ print "after '$SVNITEM'\n";
 	my $numAttempts = $FreshPorts::Config::Fetch_Retry_Limit;
 
 	while ($numAttempts) {
-		my $command = "sh $FreshPorts::Config::scriptpath/svn-up-file.sh $REPODIR $SVNITEM $REVISION";
+		my $command = "sh $FreshPorts::Config::ScriptDir/svn-up-file.sh $REPODIR $SVNITEM $REVISION";
 		print "about to svn up = '$command'\n";
 		my $svnUpResults = `$command`;
 		my $code = $?;
@@ -220,7 +220,7 @@ sub gitCheckout($;$;$) {
 
 	while ($numAttempts) {
 		# we do 2>&1 to redirect stderr to std out so we capture the git stuff into the .loading log file
-		my $command = "/bin/sh $FreshPorts::Config::scriptpath/git-checkout.sh $GITDIR $REVISION 2>&1";
+		my $command = "/bin/sh $FreshPorts::Config::ScriptDir/git-checkout.sh $GITDIR $REVISION 2>&1";
 		print "about to git checkout = '$command'\n";
 		my $gitCheckoutResults = `$command`;
 		my $code = $?;
@@ -317,7 +317,7 @@ sub _ReportErrorHelper($;$;$;$;$) {
 	my $die		= shift;
 	my $print	= shift;
 
-	my $suffix = $FreshPorts::Config::scriptpath;
+	my $suffix = $FreshPorts::Config::ScriptDir;
 
 	Sys::Syslog::syslog($level, $message . " ($suffix)");
 	if ($print) {

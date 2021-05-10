@@ -29,7 +29,7 @@ sub _initialize {
 sub Online {
 	my $this = shift;
 
-	if (-e "$FreshPorts::Config::scriptpath/OFFLINE") {
+	if (-e "$FreshPorts::Config::ScriptDir/OFFLINE") {
 		return 0;
 	} else {
 		return 1;

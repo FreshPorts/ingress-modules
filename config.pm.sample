@@ -47,8 +47,6 @@ $FreshPorts::Config::password_readonly          = '';
 $FreshPorts::Config::BaseDir                    = '/var/db/freshports';
 $FreshPorts::Config::BaseDirIngress             = '/var/db/ingress';
 
-$FreshPorts::Config::scriptpath                 = '/usr/local/libexec/freshports';
-
 $FreshPorts::Config::mkdir_pkg                  = 0;
 
 $FreshPorts::Config::QueueBaseDir               = $FreshPorts::Config::BaseDir . '/message-queues';
@@ -100,7 +98,7 @@ $FreshPorts::Config::NotifyAdmin                = 1;    # Notify me
 # ensure we have the real path names here...
 # otherwise we'll have trouble with determining relative pathnames
 #
-$FreshPorts::Config::scriptpath                          = Cwd::abs_path($FreshPorts::Config::scriptpath);
+$FreshPorts::Config::ScriptDir                           = Cwd::abs_path($FreshPorts::Config::ScriptDir);
 $FreshPorts::Config::RepoDir                             = Cwd::abs_path($FreshPorts::Config::RepoDir);
 $FreshPorts::Config::path_to_ports                       = Cwd::abs_path($FreshPorts::Config::path_to_ports);
 
@@ -160,7 +158,7 @@ $FreshPorts::Config::Debug_FetchBeforeSavingPort = 0;
 #
 # for debugging....
 #
-#print "\$FreshPorts::Config::scriptpath    '$FreshPorts::Config::scriptpath'\n";
+#print "\$FreshPorts::Config::ScriptDir     '$FreshPorts::Config::ScriptDir'\n";
 #print "\$FreshPorts::Config::RepoDir       '$FreshPorts::Config::RepoDir'\n";
 #print "\$FreshPorts::Config::path_to_ports '$FreshPorts::Config::path_to_ports'\n";
 

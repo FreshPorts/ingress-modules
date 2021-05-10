@@ -267,7 +267,7 @@ sub _description_fetch {
 
 	my $description;
 
-#	print "FreshPorts::Config::scriptpath=$FreshPorts::Config::scriptpath\n";
+#	print "FreshPorts::Config::ScriptDir=$FreshPorts::Config::ScriptDir\n";
 	print "DESTDIR=$DESTDIR\n";
 	print "SRCDIR =$SRCDIR\n";
 	print "FILE   =$FILE\n";
