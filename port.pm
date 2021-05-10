@@ -1196,7 +1196,11 @@ sub RefreshFromFiles($;$;$;$;$;$) {
 	print "into RefreshFromFiles()\n";
 	print "working with repo='$Repository'\n";
 	print "working on CommitBranch='$CommitBranch'\n";
-	print "with svn_revision='$svn_revision'\n";
+	if (defined($svn_revision)) {
+	  print "with svn_revision='$svn_revision'\n";
+        } else { 
+	  print "with svn_revision='NOT DEFINED'\n";
+        }
 	if (!defined($needs_refresh)) {
 		FreshPorts::Utilities::ReportError('warning', "needs_refresh has no value", 1);
 	}
