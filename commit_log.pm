@@ -85,7 +85,7 @@ sub save {
 	# repo is one of ports, doc, src, etc. It relates to the repo.name column
 	# repository is one of git, subversion. It relates to the repo.repository column
 	
-	print $dbh->quote($this->{repo}) . " and repository = " . $dbh->quote($this->{repository}) . ")";
+	print "Quoting the above we get:\n" . $dbh->quote($this->{repo}) . " and repository = " . $dbh->quote($this->{repository}) . "\n";
 	
 	$sql = "insert into commit_log (id, message_id, message_date, message_subject, date_added, commit_date, 
 	          committer, committer_name, committer_email, author_name, author_email, description, system_id, svn_revision, repo_id, encoding_losses, commit_hash_short) values ( 
