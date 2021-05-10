@@ -1,6 +1,4 @@
 #
-# $Id: observer_commits.pm,v 1.6 2012-10-23 16:31:04 dan Exp $
-#
 # Copyright (c) 2004-2006 DVL Software
 #
 
@@ -10,6 +8,9 @@
 package FreshPorts::ObserverCommits;
 
 use FreshPorts::special_processing_files;
+use FreshPorts::categories;
+
+use List::MoreUtils 'any';
 
 my %PortsCacheRemove;
 my %FilesCacheRemove;
@@ -89,7 +90,7 @@ sub update {
 		my %CommitLogPorts = %{$params{CommitLogPorts}};
 
 		while (my ($portname, $commit_log_ports) = each %CommitLogPorts) {
-			$CommitLogPorts{$portname}	= $commit_log_ports;
+			$CommitLogPorts{$portname} = $commit_log_ports;
 
 			$port = $commit_log_ports->{port};
 			print "$port->{category}/$port->{name}\n";
@@ -97,14 +98,17 @@ sub update {
 			$PortsCacheRemove{"$port->{category}/$port->{name}"}	= "$port->{category}/$port->{name}";
 		}
 
+		# right here, verify that $category_name is not a valid category.
+		# first, fetch them all.
+
 		print "Observer will clear the following files from cache after the commit:\n";
 		my @Files = @{$params{Files}};
 		foreach $value (@Files) {
 			my ($action, $filename, $revision, $commit_log_element_id, $element_id) = @$value;
 			my ($subtree, $category_name, $port_name, $extra) = split/\//,$filename, 4;
 
-			# look for special files outside a port, such as LEGAL, GIDs, UIDs
-			if ($subtree eq $FreshPorts::Config::ports_prefix && defined($FreshPorts::Constants::IgnoredItems{$category_name})) {
+			# look for special files outside a port, such as LEGAL, GIDs, UIDs, .hooks
+			if ( ! any {/$category_name/} @FreshPorts::Categories::categories ) {
 				# take a copy of that filename and remove the subtree prefix. Add that to the queue for removal
 				my $FileCacheItem = $filename;
 				$FileCacheItem =~ s|^$FreshPorts::Config::ports_prefix/||g;
@@ -129,5 +133,7 @@ sub update {
 	}
 
 }
+
+FreshPorts::categories::FetchAll();
 
 1;

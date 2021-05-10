@@ -18,10 +18,12 @@ use FreshPorts::utilities;
 use FreshPorts::committer_opt_in;
 use FreshPorts::master_slave;
 use FreshPorts::vuxml_mark_commits;
+use FreshPorts::categories;
 
 require File::Basename;
 require Sys::Syslog;
 use POSIX qw{strftime};
+use List::MoreUtils 'any';
 
 #
 # WARNING: this hash is filled up during the processing of a single
@@ -89,10 +91,12 @@ sub _CompileListOfPorts($;$;$;$;$) {
 
 		# is this file is in the ports tree?
 		# e.g. ports/LEGAL won't get through here because $port_name will not be defined.
+		
 		if ($subtree eq $FreshPorts::Config::ports_prefix && defined($category_name) && defined($port_name)) {
 			print "YES, this file is in the ports tree\n";
 
-			if (!defined($FreshPorts::Constants::IgnoredItems{$category_name}) && !defined($FreshPorts::Constants::IgnoredItems{$port_name})) {
+			# if this is a valid category
+			if ( any {/$category_name/} @FreshPorts::Categories::categories ) {
 				# find the port for this filename....
 				if ($ListOfPorts{"$category_name/$port_name"}) {
 					print "but we have already seen the port $category_name/$port_name\n\n";
@@ -216,7 +220,7 @@ sub _CompileListOfPorts($;$;$;$;$) {
 					}
 				}
 			} else {
-				print "... but is on the list of IgnoredItems!\n\n";
+				print "... but is not a file in a category on disk!\n\n";
 			}
 		} else {
 			print "that file isn't in the ports tree\n";
@@ -570,7 +574,7 @@ sub _RecordPortFilesTouchedByThatCommit($;$;$;$) {
 			if ($subtree eq $FreshPorts::Config::ports_prefix && defined($category_name) && defined($port_name)) {
 				print "yes, this file is in the ports tree\n";
 
-				if (!defined($FreshPorts::Constants::IgnoredItems{$category_name}) && !defined($FreshPorts::Constants::IgnoredItems{$port_name})) {
+				if ( any {/$category_name/} @FreshPorts::Categories::categories ) {
 					# find the port for this filename....
 					$port = $Ports{"$category_name/$port_name"};
 					if (!$port) {
@@ -585,7 +589,7 @@ sub _RecordPortFilesTouchedByThatCommit($;$;$;$) {
 					$commit_log_port_elements->{commit_log_element_id} = $commit_log_element_id;
 					$commit_log_port_elements->save();
 				} else {
-					print "... but is on the list of IgnoredItems!\n\n";
+					print "... but is not a file in a category on disk!\n\n";
 				}
 			}
 		}
@@ -987,6 +991,7 @@ sub _UndeleteResurrectedPorts($;$;$) {
 	print "# # # # Finished resurrecting deleted ports # # # #\n\n";
 }
 
+FreshPorts::categories::FetchAll();
 FreshPorts::Utilities::InitSyslog();
 
 1;

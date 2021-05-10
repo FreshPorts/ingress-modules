@@ -37,22 +37,6 @@ $FreshPorts::Constants::FreeBSD				= 'FreeBSD';
 
 $FreshPorts::Constants::FILE_MAKEFILE			= "Makefile";
 
-#
-# These are the entries within /usr/ports/ which we ignore
-# and /usr/ports/<category> which FreshPorts does not track
-#
-%FreshPorts::Constants::IgnoredItems = (
-	"Attic"        => 1,
-	"distfiles"    => 2,
-	"Mk"           => 3,
-	"Tools"        => 4,
-	"Templates"    => 5,
-	"Makefile"     => 6,
-	"Makefile.inc" => 7,
-	"CVSROOT"      => 8,
-	"base"         => 9,
-);
-
 $FreshPorts::Constants::Subversion = 'subversion';
 $FreshPorts::Constants::Git        = 'git';
 
