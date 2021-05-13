@@ -20,6 +20,7 @@ $FreshPorts::Config::ScriptDir                  = '/usr/local/libexec/freshports
 #
 $FreshPorts::Config::ReportDebugging           = 1;
 
+# this must have a trailing /
 $FreshPorts::Config::FreshPortsURL             = 'https://example.freshports.org/';
 
 $FreshPorts::Config::TimeAdjust                = '-10800 seconds';
