@@ -276,16 +276,16 @@ sub InitSyslog() {
 
 
 sub Report($;$) {
-	my $level	= shift;
-	my $message	= shift;
+	my $level   = shift;
+	my $message = shift;
 
 	_ReportErrorHelper($level, $message, 0, 0, 0);
 }
 
 sub ReportError($;$;$) {
-	my $level	= shift;
-	my $message	= shift;
-	my $die		= shift;
+	my $level   = shift;
+	my $message = shift;
+	my $die	    = shift;
 
 	my $email   = $die;
 
@@ -293,29 +293,29 @@ sub ReportError($;$;$) {
 }
 
 sub ReportErrorEmail($;$;$;$) {
-	my $level	= shift;
-	my $message	= shift;
+	my $level   = shift;
+	my $message = shift;
 	my $email   = shift;
-	my $die		= shift;
+	my $die     = shift;
 
 	_ReportErrorHelper($level, $message, $email, $die, 1);
 }
 
 sub ReportErrorEmailNoPrint($;$;$;$) {
-	my $level	= shift;
-	my $message	= shift;
+	my $level   = shift;
+	my $message = shift;
 	my $email   = shift;
-	my $die		= shift;
+	my $die     = shift;
 
 	_ReportErrorHelper($level, $message, $email, $die, 0);
 }
 
 sub _ReportErrorHelper($;$;$;$;$) {
-	my $level	= shift;
-	my $message	= shift;
-	my $email	= shift;
-	my $die		= shift;
-	my $print	= shift;
+	my $level   = shift;
+	my $message = shift;
+	my $email   = shift;
+	my $die	    = shift;
+	my $print   = shift;
 
 	my $suffix = $FreshPorts::Config::ScriptDir;
 
