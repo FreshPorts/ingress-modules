@@ -5,6 +5,7 @@
 package FreshPorts::categories;
 
 require FreshPorts::config;
+require FreshPorts::utilities;
 
 use strict;
 
@@ -46,9 +47,12 @@ sub FetchAll {
 	
 	print "grabbing categories from disk\n";
 	my $categories_1line = `$FreshPorts::Config::ScriptDir/get-list-of-current-categories.sh`;
+	if ($?) {
+		FreshPorts::Utilities::ReportErrorEmail('ERR', "could not get list of categories", 1, 1);
+	}
 	chomp $categories_1line;
 
-	#print "'$categories_1line'\n";
+	print "'$categories_1line'\n";
 
 	@FreshPorts::Categories::categories = split / /, $categories_1line;
 
