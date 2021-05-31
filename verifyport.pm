@@ -10,6 +10,7 @@ use strict;
 use FreshPorts::branches;
 use FreshPorts::element;
 use FreshPorts::category;
+use FreshPorts::categories;
 use FreshPorts::port;
 use FreshPorts::commit_log_ports;
 use FreshPorts::commit_log_port_elements;
@@ -18,7 +19,6 @@ use FreshPorts::utilities;
 use FreshPorts::committer_opt_in;
 use FreshPorts::master_slave;
 use FreshPorts::vuxml_mark_commits;
-use FreshPorts::categories;
 
 require File::Basename;
 require Sys::Syslog;
@@ -91,6 +91,8 @@ sub _CompileListOfPorts($;$;$;$;$) {
 
 		# is this file is in the ports tree?
 		# e.g. ports/LEGAL won't get through here because $port_name will not be defined.
+		
+		
 		
 		if ($subtree eq $FreshPorts::Config::ports_prefix && defined($category_name) && defined($port_name)) {
 			print "YES, this file is in the ports tree\n";
@@ -220,7 +222,7 @@ sub _CompileListOfPorts($;$;$;$;$) {
 					}
 				}
 			} else {
-				print "... but is not a file in a category on disk!\n\n";
+				print "... but this file is not part of a physical category on disk!\n\n";
 			}
 		} else {
 			print "that file isn't in the ports tree\n";
@@ -371,7 +373,7 @@ sub ScrollToThatCommit($;$;$;$) {
 
 	my $FetchOK = 1;
 
-	print "into ScrollToThatCommit with: branch = '$branch' looking for commit = '$git_hash'";
+	print "into ScrollToThatCommit with: branch = '$branch' looking for commit = '$git_hash'\n";
 	print "do a git checkout of that hash.\n";
 
 	# if we have a hash
@@ -658,7 +660,7 @@ sub _RecordPortsAndElements($;$;$;$) {
 		}
 		
 		if ($ExtraElement) {
-			print "That file is outside any port\n";
+			print "That file is not part of a port already seen in this commit.\n";
 
 			if ($CommitLogPortElements{$commit_log_id . '||' . $element_id}) {
 				print "That element_id ($element_id) has already been recorded against this commit\n";
