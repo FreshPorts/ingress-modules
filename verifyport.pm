@@ -966,10 +966,11 @@ sub _UndeleteResurrectedPorts($;$;$) {
 				
 				my $filename_stripped = $element->strip_ports_dir($filename);
 				my ($category_name, $port_name, $extra) = split/\//,$filename_stripped, 3;
-				if (!defined($extra)) {
-					$extra = '';
-				}
-				print "  inspecting: '$action', '$filename', '$filename_stripped', '$revision', '$category_name', '$port_name', '$extra'\n";
+				# ensure each of these has a value, if just blank
+				$category_name = $category_name // '';
+				$port_name     = $port_name     // '';
+				$extra         = $extra         // '';
+				print "  inspecting: '$action' , '$filename' , '$filename_stripped' , '$revision' , '$category_name' , '$port_name' , '$extra'\n";
 
 				if ($category_name eq $port->{category} && $port->{name} eq $port_name) {
 					print "  ...found a file from that port\n";
