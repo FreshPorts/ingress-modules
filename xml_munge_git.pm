@@ -3,7 +3,7 @@
 # 
 # $Id: xml_munge.pm,v 1.18 2012-10-23 16:31:04 dan Exp $
 #
-# Copyright (c) 2001-2006 DVL Software
+# Copyright (c) 2001-2021 DVL Software
 #
 # Parse cvs messages in XML format so they can be put into a database
 # Version 4 - uses DTD version 0.12
@@ -611,7 +611,7 @@ sub handle_file_end {
 	# for git we have
 	#       <FILE Action="Modify" Path="net-mgmt/unifi5/Makefile"/>
 	#
-	# the git path must be prefixed with ports/head/
+	# the git path must be prefixed with ports/head/, or perhaps ports/branches/2021Q2
 	# With subversion, it is prefixed with only ports/
 
 	my $FileAction     = $Updates{FileAction};
@@ -643,8 +643,16 @@ sub handle_file_end {
 	my $NewRevision		= 0;
 	my $element;
 	my $element_id;
+	my $filename;
 	# This is where we add in the repo name to the path
-	my $filename     = $DB_Root_Prefix . '/' . $Updates{branch_for_files} . '/' . $FilePath;
+	# At one time, I think, $Updates{branch_for_files} was to be either head or branches/2021Q2 (or example).
+	# As of 2021.06.20, it is either head or 2021Q2 (no branches).
+	# I think the best thing to do is to check $Updates{branch_for_files} here and add in braches when required.
+	if ($Updates{branch_for_files} eq $FreshPorts::Constants::HEAD) {
+		$filename = $DB_Root_Prefix . '/' .          $Updates{branch_for_files} . '/' . $FilePath;
+	} else {
+		$filename = $DB_Root_Prefix . '/branches/' . $Updates{branch_for_files} . '/' . $FilePath;
+	}	
 	my $revisionname = $FileRevision;
 	my $commit_log_element;
 	
@@ -1068,7 +1076,7 @@ sub SystemBranchIDGetOrCreate($;$;$) {
 	
 	my $branch_name = FreshPorts::Branches::stripBranchesToGetBranchName($BranchName);
 	
-	print "SystemBranchIDGetOrCreate has convert '$BranchName' to '$branch_name' which will be used in the database\n";
+	print "SystemBranchIDGetOrCreate has converted '$BranchName' to '$branch_name' which will be used in the database\n";
 
 	$sql = "select SystemBranchIDGet($system_id, " . $dbh->quote($branch_name) . ")";
 
