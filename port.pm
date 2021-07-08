@@ -199,7 +199,7 @@ sub _save {
 	my $CommitBranch = shift;
 	my $FullSave     = shift;
 
-	print "into FreshPorts::Port::save\n";
+	print "into FreshPorts::Port::_save\n";
 
 	#
 	# to save, element_id and category_id must be valid
@@ -349,6 +349,26 @@ update ports
         }
 
 	# after savings, return the ID
+	return $this->{id};
+}
+
+sub Undelete {
+	my $this = shift;
+	my $dbh  = shift;
+
+	print "into FreshPorts::Port::Undelete\n";
+	my $element  = FreshPorts::Element->new($dbh);
+
+	$element->{id}     = $this->{element_id};
+	$element->{status} = $FreshPorts::Element::Active;
+
+	$element->update_status();
+
+	# For later, when we are updating ports, mark this port as active.
+	$this->SetActive();
+
+	print "leaving FreshPorts::Port::Undelete\n";
+
 	return $this->{id};
 }
 

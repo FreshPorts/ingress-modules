@@ -952,7 +952,7 @@ sub _UndeleteResurrectedPorts($;$;$) {
 	#
 	print "# # # # Resurrecting deleted ports # # # #\n\n";
 	while (my ($portname, $port) = each %Ports) {
-		if ($port->{status} eq $FreshPorts::Element::Deleted) {
+		if ($port->IsDeleted()) {
 			print "found a deleted port: port='$port->{name}', port_id='$port->{id}', element_id='$port->{element_id}'\n";
 			print "now looking for files which were modified...\n";
 
@@ -972,17 +972,19 @@ sub _UndeleteResurrectedPorts($;$;$) {
 				$extra         = $extra         // '';
 				print "  inspecting: '$action' , '$filename' , '$filename_stripped' , '$revision' , '$category_name' , '$port_name' , '$extra'\n";
 
+				# instead of doing this through $element, perhaps do it through $port
+				# when then invokes $element and then sets $port->{status}.
 				if ($category_name eq $port->{category} && $port->{name} eq $port_name) {
 					print "  ...found a file from that port\n";
 					if ($action eq $FreshPorts::Constants::ADD || $action eq $FreshPorts::Constants::MODIFY) {
 						print "  ...hmmm, we are modifying a file for a port which is deleted...";
 						print "  ........ I will resurrect that port for you\n";
 						FreshPorts::Utilities::ReportError('notice', "Port $category_name/$port_name needs to be Resurrected", 0);
-						$element->{id}     = $port->{element_id};
-						$element->{status} = $FreshPorts::Element::Active;
-						$element->update_status();
+						$port->Undelete($dbh);
+
 						print "  ........ resurrection done!\n";
 						print "  we will not examine any more files for this port!\n";
+
 						# we are looping through files for a single port, only resurrect once.
 						last;
 					}
