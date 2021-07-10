@@ -25,7 +25,7 @@ sub GetDBHandle {
     my $ConnectionType = delete($opts{$FreshPorts::Constants::DB_ConnectionType});
 
     # was anything passed in
-    my $sslmode        = $FreshPorts::Config::ssl_mode;
+    my $sslmode = $FreshPorts::Config::ssl_mode;
 
     # assign a default value for $ConnectionType
     if (!defined($ConnectionType)) {
@@ -47,28 +47,28 @@ sub GetDBHandle {
     if ($ConnectionType eq $FreshPorts::Constants::DB_ConnectionType_Commits) {
         $user     = $FreshPorts::Config::user;
         $password = $FreshPorts::Config::password;
-     }
+    }
 
-     if ($ConnectionType eq $FreshPorts::Constants::DB_ConnectionType_ReadOnly) {
-         $user     = $FreshPorts::Config::user_readonly;
-         $password = $FreshPorts::Config::password_readonly;
-     }
+    if ($ConnectionType eq $FreshPorts::Constants::DB_ConnectionType_ReadOnly) {
+        $user     = $FreshPorts::Config::user_readonly;
+        $password = $FreshPorts::Config::password_readonly;
+    }
 
-     if ($ConnectionType eq $FreshPorts::Constants::DB_ConnectionType_Listener) {
-         $user     = $FreshPorts::Config::user_listening;
-         $password = $FreshPorts::Config::password_listening;
-     }
+    if ($ConnectionType eq $FreshPorts::Constants::DB_ConnectionType_Listener) {
+        $user     = $FreshPorts::Config::user_listening;
+        $password = $FreshPorts::Config::password_listening;
+    }
        
-	my $dbh_pg = DBI->connect('DBI:Pg:dbname=' . $FreshPorts::Config::dbname . ';host=' . $FreshPorts::Config::host . ';sslmode=' . $sslmode . ';client_encoding=UTF8', $user, $password);
-	if ($dbh_pg->{Active}) {
-		$dbh_pg->{AutoCommit} = 0;
+    my $dbh_pg = DBI->connect('DBI:Pg:dbname=' . $FreshPorts::Config::dbname . ';host=' . $FreshPorts::Config::host . ';sslmode=' . $sslmode . ';client_encoding=UTF8', $user, $password);
+    if ($dbh_pg->{Active}) {
+        $dbh_pg->{AutoCommit} = 0;
 
-		if (!$dbh_pg) {
-			FreshPorts::Utilities::ReportError('warning', "could not connect to $FreshPorts::Config::dbname", 1);
-		}
-	}
+        if (!$dbh_pg) {
+            FreshPorts::Utilities::ReportError('warning', "could not connect to $FreshPorts::Config::dbname", 1);
+        }
+    }
 
-	return $dbh_pg;
+    return $dbh_pg;
 }
 
 1;
