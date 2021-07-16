@@ -122,6 +122,7 @@ $FreshPorts::Config::NewRepoImported            = $FreshPorts::Config::BaseDir .
 $FreshPorts::Config::RefreshCachFileFlag        = $FreshPorts::Config::BaseDir . '/signals/cache_needs_refresh';
 $FreshPorts::Config::UpdatingFileFlag           = $FreshPorts::Config::BaseDir . '/signals/refresh_updating';
 $FreshPorts::Config::VuXMLFileFlag              = $FreshPorts::Config::BaseDir . '/signals/vuxml';
+$FreshPorts::Config::CheckPortsCategoriesFlag   = $FreshPorts::Config::BaseDir . '/signals/check_port_categories';
 $FreshPorts::Config::WWWENPortsCategoriesFlag   = $FreshPorts::Config::BaseDir . '/signals/www.en.ports.categories';
 
 $FreshPorts::Config::PortsFreezeFile            = $FreshPorts::Config::BaseDir . '/signals/PortsFreezeIsInEffect';
