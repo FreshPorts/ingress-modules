@@ -826,7 +826,9 @@ sub _ExtractValuesFromMakefile {
 		$pkgmessagepath =~ s|//|/|g;
 
 		print "\$pkgmessagepath='$pkgmessagepath'\n";
-		my $RealPKGMESSAGEPath = $this->_GetRealPath($pkgmessagepath);
+		print "\$FreshPorts::Config::JailBaseDir . \$pkgmessagepath='$FreshPorts::Config::JailBaseDir$pkgmessagepath'\n";
+		# $pkgmessagepath is relative to the jail directory, so we need to prefix that here.
+		my $RealPKGMESSAGEPath = $this->_GetRealPath($FreshPorts::Config::JailBaseDir . $pkgmessagepath);
 		print "\$RealPKGMESSAGEPath='$RealPKGMESSAGEPath'\n";
 
 		# if it's defined, and it exists....
@@ -843,10 +845,11 @@ sub _ExtractValuesFromMakefile {
                       print "invoking _GetFileContentsFromJail() for PKGMESSAGE with '$RealPKGMESSAGEPath'\n";
                       $pkgmessage = $this->_GetFileContentsFromJail($RealPKGMESSAGEPath);
                    } else {
-                      print "but _GetRealPath() claims that file does not exist. Perhaps it is '*/work/pkg-message.server' or similar\n";
-                      if (index($pkgmessagepath, '/work/') != -1 ) {
-                         print "Yes, yes it does contain '/work/' - let's try a make apply-slist\n";
-                         $makecommand = "/usr/local/bin/sudo /usr/sbin/chroot -u $FreshPorts::Config::JailUser $FreshPorts::Config::JailBaseDir $FreshPorts::Config::JailApplySList $REPODIR_CHROOT $this->{category}/$this->{name} $pkgmessagepath 2>$TmpFile";
+                      print "but _GetRealPath() claims that file does not exist. Perhaps it is '*/work/pkg-message.in' or similar\n";
+                      # we are looking for /work/ or /work-default/, etc, the 'default' is various package flavors 
+                      if ($pkgmessagepath =~ '/work(?:-.*)?/') {
+                         print "Yes, yes it does contain '/work/' - let's try a make configure\n";
+                         $makecommand = "/usr/local/bin/sudo /usr/sbin/chroot -u $FreshPorts::Config::JailUser $FreshPorts::Config::JailBaseDir $FreshPorts::Config::JailPkgMessage $REPODIR_CHROOT $this->{category}/$this->{name} $pkgmessagepath 2>$TmpFile";
                          print "makecommand = $makecommand\n";
                          $pkgmessage=`$makecommand`;
                          $result = $?;
@@ -854,8 +857,12 @@ sub _ExtractValuesFromMakefile {
                          
                          if ($result == 0) {
                            print "success, we have\n'$pkgmessage'\n";
+                         } else {
+                           print "FAILUSER, we could not locate\n'$pkgmessage'\n";
                          }
-                      } # in /work/
+                      } else {
+                         print "No, that is not a /work/ pkg-message. There is no pkg-message for this port at all\n";
+                      }# in /work/
                    } # else not RealPKGMESSAGEPath
 		} # pkgmessagepath is not a number
 
