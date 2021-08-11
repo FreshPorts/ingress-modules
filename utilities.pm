@@ -220,7 +220,7 @@ sub gitCheckout($;$;$) {
 
 	while ($numAttempts) {
 		# we do 2>&1 to redirect stderr to std out so we capture the git stuff into the .loading log file
-		my $command = "/bin/sh $FreshPorts::Config::ScriptDir/git-checkout.sh $GITDIR $REVISION 2>&1";
+		my $command = "/usr/local/bin/sudo $FreshPorts::Config::ScriptDir/git-checkout.sh $GITDIR $REVISION 2>&1";
 		print "about to git checkout = '$command'\n";
 		my $gitCheckoutResults = `$command`;
 		my $code = $?;

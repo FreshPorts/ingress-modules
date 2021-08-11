@@ -278,10 +278,6 @@ sub handle_os_end {
 	# we want just 2020Q3, for example
 	#
 
-# XXX delete
-#	my $branch_name = FreshPorts::Branches::stripBranchesToGetBranchName($BranchName);
-#	$Updates{branch_name} = $branch_name;
-
 	print "OS is '$Updates{os}' : branch = '$Updates{branch_git}' for git\n";
 	
 	# When we moved from subversion to git, we needed to convert branch from
@@ -405,14 +401,14 @@ sub handle_update_end {
 	
 		if ($FetchOK) {
 			if ($refresh_ports) {
-				$ErrorFound = FreshPorts::VerifyPort::RefreshAllPortsTouchedByCommit($Updates{repository}, $Updates{branch_git}, \%CommitLogPorts, 0, '', $self->{dbh});
+				$ErrorFound = FreshPorts::VerifyPort::RefreshAllPortsTouchedByCommit($Updates{repository}, $Updates{branch_git}, \%CommitLogPorts, $self->{dbh});
 
 				if (!$ErrorFound) {
-					$ErrorFound = FreshPorts::VerifyPort::RefreshAllSlavePortsOfPortsTouchedByCommit($Updates{repository}, $Updates{branch_git}, \%CommitLogPorts, 0, $self->{dbh}, 'git');
+					$ErrorFound = FreshPorts::VerifyPort::RefreshAllSlavePortsOfPortsTouchedByCommit($Updates{repository}, $Updates{branch_git}, \%CommitLogPorts, $self->{dbh}, 'git');
 				}
 
 				if (!$ErrorFound) {
-					$ErrorFound = FreshPorts::VerifyPort::MarkVulnerableCommits(\%CommitLogPorts, 0, $self->{dbh});
+					$ErrorFound = FreshPorts::VerifyPort::MarkVulnerableCommits(\%CommitLogPorts, $self->{dbh});
 				}
 
 				$self->notify_observers($FreshPorts::Messages::PortsRefreshed, (message_id => $Updates{commit_hash}, CommitLogPorts => \%CommitLogPorts) );

@@ -87,9 +87,9 @@ $FreshPorts::Constants::Repo_XML_Label_Src                = 'src';
 # PORTS-2020Q2-git        PORTS-head              freebsd-doc             freebsd-ports-quarterly
 #
 # 2021-04-06 - The FreeBSD ports tree via git became active earlier today.
-# It seems these four constants are all all used by ingress commit processing.
+# It seems these four constants are used only by ingress commit processing.
 # Only port commits receive the additional processing which requires a repo
-# for the frehsports user. However, we have these four defined. Let's keep them
+# for the freshports user. However, we have these four defined. Let's keep them
 # and correct them for now. - Dan Langille
 $FreshPorts::Constants::Repo_Dir_Name_Doc                 = 'doc';
 $FreshPorts::Constants::Repo_Dir_Name_Ports               = 'ports';

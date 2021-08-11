@@ -205,9 +205,9 @@ sub _description_read {
 
 	# with subversion, FreshPorts held a different working copy of the repo for the quarterly branch
 	# and another for head.	
-	my $REPODIR_CHROOT = FreshPorts::Branches::GetPathToRepoForBranchCHROOT($Repository, $CommitBranch);
+	my $REPODIR_CHROOT = $FreshPorts::Config::PortsDir;
 
-	my $makecommand = "/usr/local/bin/sudo /usr/sbin/chroot -u $FreshPorts::Config::JailUser $FreshPorts::Config::JailBaseDir $REPODIR_CHROOT $FreshPorts::Config::JailCategoryDescrptionScript $category 2>$TmpFile";
+	my $makecommand = "/usr/local/bin/sudo /usr/sbin/jexec $FreshPorts::Config::JailName $REPODIR_CHROOT $FreshPorts::Config::JailCategoryDescrptionScript $category 2>$TmpFile";
 	print "makecommand = $makecommand\n";
 
 	my $MakeResults = `$makecommand`;
@@ -260,8 +260,8 @@ sub _description_fetch {
 	my $CommitBranch = shift;
 	my $category     = shift;
 
-	# not sure thii used, especially so now that we're moving to git
-	my $DESTDIR = "$FreshPorts::Config::path_to_ports/$category";
+	# not sure this used, especially so now that we're moving to git
+	my $DESTDIR = "$FreshPorts::Config::PortsDir/$category";
 	my $SRCDIR  = "ports/$category";
 	my $FILE    = "Makefile";
 

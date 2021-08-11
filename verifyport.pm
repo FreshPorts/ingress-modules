@@ -382,7 +382,8 @@ sub ScrollToThatCommit($;$;$;$) {
 		my $startTime = time;
 		# this is a path to the repo directory, we still need the repo name
 		my $RepoName = FreshPorts::Branches::GetRepoNameForBranch($repo, $branch);
-		$FetchOK = FreshPorts::Utilities::gitCheckout("$FreshPorts::Config::RepoDir/$RepoName", $git_hash);
+		# gitCheckout does not do a chroot, and therefore needs the full path to the repo.
+		$FetchOK = FreshPorts::Utilities::gitCheckout($FreshPorts::Config::JailBaseDir . $FreshPorts::Config::PortsDir, $git_hash);
 
 		my $elapsedTime = time - $startTime;
 
@@ -398,6 +399,7 @@ sub FetchAllFiles($;$;$;$;$;$) {
 	#
 	# fetch all the files associated with this commit
 	# Actually, it's only files within the ports tree.
+	# This is only invoked from xml_munge_svn.pm
 	#
 
 	my $Repository   = shift;
@@ -697,7 +699,7 @@ sub _RecordPortsAndElements($;$;$;$) {
 	print "done _RecordPortsAndElements\n";
 }
 
-sub RefreshAllPortsTouchedByCommit($;$;$;$;$;$) {
+sub RefreshAllPortsTouchedByCommit($;$;$;$) {
 	#
 	# given the ports touched by this commit
 	# refresh each of them
@@ -707,8 +709,6 @@ sub RefreshAllPortsTouchedByCommit($;$;$;$;$;$) {
 	my $CommitBranch         = shift;
 	my $CommitLogPortsRef    = shift;
 	my %CommitLogPorts       = %{$CommitLogPortsRef};
-	my $fetch_before_refresh = shift;
-	my $svn_revision         = shift;
 	my $dbh                  = shift;
 
 	my $port;
@@ -729,7 +729,7 @@ sub RefreshAllPortsTouchedByCommit($;$;$;$;$;$) {
 		# If we don't need to refresh it, we don't need to save it.
 		#
 		if ($port->IsActive()) {
-			$error = $port->RefreshFromFiles($Repository, $CommitBranch, $commit_log_ports->{needs_refresh}, $fetch_before_refresh, $svn_revision);
+			$error = $port->RefreshFromFiles($Repository, $CommitBranch);
 		} else {
 			print "This port is deleted: not refreshing.\n";
 			$error = 0;
@@ -762,7 +762,7 @@ sub RefreshAllPortsTouchedByCommit($;$;$;$;$;$) {
 	return $ErrorFound;
 }
 
-sub RefreshAllSlavePortsOfPortsTouchedByCommit($;$;$;$;$;$;$) {
+sub RefreshAllSlavePortsOfPortsTouchedByCommit($;$;$;$;$;$) {
 	#
 	# given the ports touched by this commit,
 	# refresh any slaves
@@ -771,7 +771,6 @@ sub RefreshAllSlavePortsOfPortsTouchedByCommit($;$;$;$;$;$;$) {
 	my $CommitBranch         = shift; # something like head or branches/2020Q3
 	my $CommitLogPortsRef    = shift;
 	my %CommitLogPorts       = %{$CommitLogPortsRef};
-	my $fetch_before_refresh = shift;
 	my $dbh                  = shift;
 	my $RepoType             = shift;
 
@@ -840,8 +839,7 @@ sub RefreshAllSlavePortsOfPortsTouchedByCommit($;$;$;$;$;$;$) {
 		}
 
 		#  refresh it
-		#  XXX WE ARE REFRESHING WITHOUT FIRST DOING AN SVN UP
-		$port->RefreshFromFiles($Repository, $BranchStripped, 1, 0, ''); # refresh the port, don't fetch the files
+		$port->RefreshFromFiles($Repository, $BranchStripped); # , 1, 0, '');
 
 		#  save it
 		$port->save($BranchStripped);
@@ -856,7 +854,7 @@ sub RefreshAllSlavePortsOfPortsTouchedByCommit($;$;$;$;$;$;$) {
 	return $ErrorFound;
 }
 
-sub MarkVulnerableCommits($;$;$) {
+sub MarkVulnerableCommits($;$) {
 	#
 	# given the ports touched by this commit
 	# mark any commits that are vulnerable
@@ -865,7 +863,6 @@ sub MarkVulnerableCommits($;$;$) {
 
 	my $CommitLogPortsRef    = shift;
 	my %CommitLogPorts       = %{$CommitLogPortsRef};
-	my $fetch_before_refresh = shift;
 	my $dbh                  = shift;
 
 	my $port;

@@ -50,13 +50,10 @@ $FreshPorts::Config::mkdir_pkg                  = 0;
 
 $FreshPorts::Config::QueueBaseDir               = $FreshPorts::Config::BaseDir . '/message-queues';
 
-# This is where we chroot.  It also contains scripts for that jail.
-$FreshPorts::Config::JailBaseDir                = $FreshPorts::Config::BaseDir . '/ports-jail';
-
 #
-# where on disk is the repo directory? This was once a directory to the ports tree.
+# where on disk is the repo directory? This is a ports tree directory.
 #
-$FreshPorts::Config::RepoDir                    = $FreshPorts::Config::JailBaseDir . '/var/db/repos';
+$FreshPorts::Config::PortsDir                  = '/usr/ports';
 
 # various repo names that we follow
 $FreshPorts::Config::Repo_DOC             = 'doc';
@@ -72,14 +69,7 @@ $FreshPorts::Config::DB_Root_Prefix_PORTS_QUARTERLY = '/ports'; # this matches D
 $FreshPorts::Config::DB_Root_Prefix_SRC             = '/base';
 
 #
-# path to ports tree. no trailing slash. This is usually HEAD
-# this is an absolute path, not useful with the port-jail chroot.
-#
-# I think this is only used by category.pm::_description_fetch and I'm not convinced that's used now.
-$FreshPorts::Config::path_to_ports              = $FreshPorts::Config::RepoDir . '/' . $FreshPorts::Config::Repo_PORTS;
-
-#
-# where in the cvs tree are ports?
+# where in the tree are ports?
 #
 $FreshPorts::Config::ports_prefix               = 'ports';
 
@@ -98,8 +88,6 @@ $FreshPorts::Config::NotifyAdmin                = 1;    # Notify me
 # otherwise we'll have trouble with determining relative pathnames
 #
 $FreshPorts::Config::ScriptDir                           = Cwd::abs_path($FreshPorts::Config::ScriptDir);
-$FreshPorts::Config::RepoDir                             = Cwd::abs_path($FreshPorts::Config::RepoDir);
-$FreshPorts::Config::path_to_ports                       = Cwd::abs_path($FreshPorts::Config::path_to_ports);
 
 #
 # FreshPorts::Config::email_server must be a hostname, not an IP address, otherwise TLS verification
@@ -159,8 +147,6 @@ $FreshPorts::Config::Debug_FetchBeforeSavingPort = 0;
 # for debugging....
 #
 #print "\$FreshPorts::Config::ScriptDir     '$FreshPorts::Config::ScriptDir'\n";
-#print "\$FreshPorts::Config::RepoDir       '$FreshPorts::Config::RepoDir'\n";
-#print "\$FreshPorts::Config::path_to_ports '$FreshPorts::Config::path_to_ports'\n";
 
 # number of times to retry a failed fetch from cvsweb
 $FreshPorts::Config::Fetch_Retry_Limit = 100000000;
@@ -169,9 +155,6 @@ $FreshPorts::Config::Fetch_Retry_Limit = 100000000;
 $FreshPorts::Config::Fetch_Sleep_Time  = 120;
 
 $FreshPorts::Config::Ports_Default_Directory = $FreshPorts::Config::DB_Root_Prefix_PORTS . '/head';
-
-# this is the path, within the CHROOT, to where we find the repo directories.
-$FreshPorts::Config::RepoBaseDir  = '/var/db/repos';
 
 $FreshPorts::Config::JailConfigurePlist           = '/make-generate-plist.sh';
 $FreshPorts::Config::JailCategoryDescrptionScript = '/make-category-comment.sh';
@@ -183,6 +166,9 @@ $FreshPorts::Config::JailPkgMessage               = '/make-pkg-message-in.sh';
 $FreshPorts::Config::JailPortScript               = '/make-port.sh';
 $FreshPorts::Config::JailRealPath                 = '/realpath.sh';
 $FreshPorts::Config::JailShowConfigScript         = '/make-showconfig.sh';
-$FreshPorts::Config::JailUser                     = 'freshports';
+$FreshPorts::Config::JailName                     = 'freshports';
+
+# This is where we chroot.  It also contains scripts for that jail.
+$FreshPorts::Config::JailBaseDir                = "/jails/$FreshPorts::Config::JailName";
 
 1;

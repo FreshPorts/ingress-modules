@@ -108,8 +108,8 @@ sub GetPathToRepoForBranchCHROOTSVN($)
   my $CommitBranch = shift;
   my $Path;
 
-  # typically '/var/db/repos/PORTS-head' for svn
-  $Path = "$FreshPorts::Config::RepoBaseDir/PORTS-$CommitBranch";
+  # typically '/usr/ports' for git
+  $Path = "$FreshPorts::Config::PortsDir";
   
   return $Path
 }
@@ -151,8 +151,8 @@ sub GetPathToRepoForBranchCHROOT($;$)
 
   my $RepoName = GetRepoNameForBranch($Repository, $CommitBranch);
 
-  # typically '/var/db/repos/freebsd-ports' for git
-  $Path = "$FreshPorts::Config::RepoBaseDir/$RepoName";
+  # typically '/usr/ports' for git
+  $Path = "$FreshPorts::Config::PortsDir";
   
   return $Path
 }

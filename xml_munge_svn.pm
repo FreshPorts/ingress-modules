@@ -355,14 +355,14 @@ sub handle_update_end {
 	
 		if ($FetchOK) {
 			if ($refresh_ports) {
-				$ErrorFound = FreshPorts::VerifyPort::RefreshAllPortsTouchedByCommit($Updates{repository}, $Updates{branch}, \%CommitLogPorts, 0, '', $self->{dbh});
+				$ErrorFound = FreshPorts::VerifyPort::RefreshAllPortsTouchedByCommit($Updates{repository}, $Updates{branch}, \%CommitLogPorts, $self->{dbh});
 
 				if (!$ErrorFound) {
-					$ErrorFound = FreshPorts::VerifyPort::RefreshAllSlavePortsOfPortsTouchedByCommit($Updates{repository}, $Updates{branch}, \%CommitLogPorts, 0, $self->{dbh}, 'svn');
+					$ErrorFound = FreshPorts::VerifyPort::RefreshAllSlavePortsOfPortsTouchedByCommit($Updates{repository}, $Updates{branch}, \%CommitLogPorts, $self->{dbh}, 'svn');
 				}
 
 				if (!$ErrorFound) {
-					$ErrorFound = FreshPorts::VerifyPort::MarkVulnerableCommits(\%CommitLogPorts, 0, $self->{dbh});
+					$ErrorFound = FreshPorts::VerifyPort::MarkVulnerableCommits(\%CommitLogPorts, $self->{dbh});
 				}
 
 				$self->notify_observers($FreshPorts::Messages::PortsRefreshed, (message_id => $Updates{MessageId}, CommitLogPorts => \%CommitLogPorts) );

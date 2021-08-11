@@ -516,8 +516,8 @@ sub _ExtractValuesFromMakefile {
 	print "CommitBranch='$CommitBranch'\n";
 	if ($this->{RepoType}    eq 'git') {
 	  print "calling FreshPorts::Branches::GetPathToRepoForBranch\n";
-	  $REPODIR        = FreshPorts::Branches::GetPathToRepoForBranch      ($Repository, $CommitBranch);
-  	  $REPODIR_CHROOT = FreshPorts::Branches::GetPathToRepoForBranchCHROOT($Repository, $CommitBranch);
+	  $REPODIR        = $FreshPorts::Config::PortsDir;
+  	  $REPODIR_CHROOT = $FreshPorts::Config::PortsDir;
         }
         elsif ($this->{RepoType} eq 'svn') {
 	  print "calling FreshPorts::Branches::GetPathToRepoForBranchSVN\n";
@@ -527,7 +527,8 @@ sub _ExtractValuesFromMakefile {
           die("Unknown RepoType='$this->{RepoType}'");
         }
 
-	my $MakefileDirectory = "$REPODIR/$this->{category}/$this->{name}";
+        # this is a full pathname (i.e. not chroot'd)
+	my $MakefileDirectory = "$FreshPorts::Config::JailBaseDir$REPODIR/$this->{category}/$this->{name}";
 
         print "CommitBranch:   '$CommitBranch\n";	
 	print "REPODIR:        '$REPODIR'\n";
@@ -569,8 +570,8 @@ sub _ExtractValuesFromMakefile {
 	# IF YOU CHANGE THE MAKE COMMAND, CHANGE THE SPLIT!!!!!!!!!!!!!!!
 	#
 	#
-	# looks like:   /usr/local/bin/sudo /usr/sbin/chroot -u freshports /var/db/freshports/ports-jail /make-port.sh /var/db/repos/PORTS-head www/qt5-webkit 2>/tmp/FreshPorts.www.qt5-webkit.make-error.2021.1.3.22
-	$makecommand = "/usr/local/bin/sudo /usr/sbin/chroot -u $FreshPorts::Config::JailUser $FreshPorts::Config::JailBaseDir $FreshPorts::Config::JailPortScript $REPODIR_CHROOT $this->{category}/$this->{name} 2>$TmpFile";
+	# looks like:   /usr/local/bin/sudo /usr/sbin/jexec /jails/freshports /make-port.sh /usr/ports www/qt5-webkit 2>/tmp/FreshPorts.www.qt5-webkit.make-error.2021.1.3.22
+	$makecommand = "/usr/local/bin/sudo /usr/sbin/jexec $FreshPorts::Config::JailName $FreshPorts::Config::JailPortScript $REPODIR_CHROOT $this->{category}/$this->{name} 2>$TmpFile";
 
 	print "makecommand = $makecommand\n";
 
@@ -621,7 +622,7 @@ sub _ExtractValuesFromMakefile {
 	if ($result == 0) {
         	my $TmpFile = FreshPorts::Utilities::TmpFileName("$this->{category}.$this->{name}.make-mastersites-error");
           	print "trying to get master sites.  Errors will be in '$TmpFile'\n";
-                my $mastersitescommand = "/usr/local/bin/sudo /usr/sbin/chroot -u $FreshPorts::Config::JailUser $FreshPorts::Config::JailBaseDir $FreshPorts::Config::JailMasterSitesScript $REPODIR_CHROOT $this->{category}/$this->{name} 2>$TmpFile";
+                my $mastersitescommand = "/usr/local/bin/sudo /usr/sbin/jexec $FreshPorts::Config::JailName $FreshPorts::Config::JailMasterSitesScript $REPODIR_CHROOT $this->{category}/$this->{name} 2>$TmpFile";
 
 		print "'$mastersitescommand'\n";
 		$mastersites = `$mastersitescommand`;
@@ -659,7 +660,7 @@ sub _ExtractValuesFromMakefile {
 	if ($result == 0) {
 		my $TmpFile = FreshPorts::Utilities::TmpFileName("$this->{category}.$this->{name}.showconfig");
 		print "trying to get showconfig.  Errors will be in '$TmpFile'\n";
-                my $showconfigcommand = "/usr/local/bin/sudo /usr/sbin/chroot -u $FreshPorts::Config::JailUser $FreshPorts::Config::JailBaseDir $FreshPorts::Config::JailShowConfigScript $REPODIR_CHROOT $this->{category}/$this->{name} 2>$TmpFile";
+                my $showconfigcommand = "/usr/local/bin/sudo /usr/sbin/jexec $FreshPorts::Config::JailName $FreshPorts::Config::JailShowConfigScript $REPODIR_CHROOT $this->{category}/$this->{name} 2>$TmpFile";
 
 		print "'$showconfigcommand'\n";
 		$showconfig = `$showconfigcommand`;
@@ -817,8 +818,9 @@ sub _ExtractValuesFromMakefile {
 		#
 		# make -V PKGMESSAGE
 		#
-		# [dan@dev-ingress01:/var/db/freshports/ports-jail/var/db/repos/PORTS-head/sysutils/bacula9-server] $ make -V PKGMESSAGE
-		# /var/ports/var/db/freshports/ports-jail/var/db/repos/PORTS-head/sysutils/bacula9-server/work/pkg-message.server
+		# [dan@dev-ingress01:/var/db/freshports/ports-jail/usr/ports/sysutils/bacula9-server] $ make -V PKGMESSAGE
+		# /var/db/freshports/ports-jail/usr/ports/sysutils/bacula9-server/work/pkg-message.server
+
 		#
 
 		# eliminate multiple // : PR 174
@@ -849,7 +851,7 @@ sub _ExtractValuesFromMakefile {
                       # we are looking for /work/ or /work-default/, etc, the 'default' is various package flavors 
                       if ($pkgmessagepath =~ '/work(?:-.*)?/') {
                          print "Yes, yes it does contain '/work/' - let's try a make configure\n";
-                         $makecommand = "/usr/local/bin/sudo /usr/sbin/chroot -u $FreshPorts::Config::JailUser $FreshPorts::Config::JailBaseDir $FreshPorts::Config::JailPkgMessage $REPODIR_CHROOT $this->{category}/$this->{name} $pkgmessagepath 2>$TmpFile";
+                         $makecommand = "/usr/local/bin/sudo /usr/sbin/jexec $FreshPorts::Config::JailName $FreshPorts::Config::JailPkgMessage $REPODIR_CHROOT $this->{category}/$this->{name} $pkgmessagepath 2>$TmpFile";
                          print "makecommand = $makecommand\n";
                          $pkgmessage=`$makecommand`;
                          $result = $?;
@@ -888,7 +890,7 @@ sub _ExtractValuesFromMakefile {
 
 
 		# extract the generate_plist contents
-		my $configure_plist_command = "/usr/local/bin/sudo /usr/sbin/chroot -u $FreshPorts::Config::JailUser $FreshPorts::Config::JailBaseDir $FreshPorts::Config::JailConfigurePlist $REPODIR_CHROOT $this->{category}/$this->{name} 2>$TmpFile";
+		my $configure_plist_command = "/usr/local/bin/sudo /usr/sbin/jexec $FreshPorts::Config::JailName $FreshPorts::Config::JailConfigurePlist $REPODIR_CHROOT $this->{category}/$this->{name} 2>$TmpFile";
 
 		print "generate_plist_command = $configure_plist_command\n";
 
@@ -902,7 +904,7 @@ sub _ExtractValuesFromMakefile {
 
 
 		# extract the package flavors
-		my $package_flavors_command = "/usr/local/bin/sudo /usr/sbin/chroot -u $FreshPorts::Config::JailUser $FreshPorts::Config::JailBaseDir $FreshPorts::Config::JailPackageFlavors $REPODIR_CHROOT $this->{category}/$this->{name} 2>$TmpFile";
+		my $package_flavors_command = "/usr/local/bin/sudo /usr/sbin/jexec $FreshPorts::Config::JailName $FreshPorts::Config::JailPackageFlavors $REPODIR_CHROOT $this->{category}/$this->{name} 2>$TmpFile";
 
 		print "package_flavors_command = $package_flavors_command\n";
 
@@ -1182,7 +1184,7 @@ sub _GetRealPath($) {
   	}
 
 	# invoke realpath on the supplied filename, from within our chroot
-	my $makecommand = "/usr/local/bin/sudo /usr/sbin/chroot -u $FreshPorts::Config::JailUser $FreshPorts::Config::JailBaseDir $FreshPorts::Config::JailRealPath $file";
+	my $makecommand = "/usr/local/bin/sudo /usr/sbin/jexec $FreshPorts::Config::JailName $FreshPorts::Config::JailRealPath $file";
 
         print "about to invoke '$makecommand'\n";
         
@@ -1208,17 +1210,15 @@ sub _GetRealPath($) {
 
 
 
-sub RefreshFromFiles($;$;$;$;$;$) {
+sub RefreshFromFiles($;$;$) {
 #
-# refresh this port based on the make files associated with it and the value of needs_refresh
+# refresh this port based on the files associated with it.
+# $fetch_files must be 0
 # returns 0 for success, 1 for failure
 #
 	my $this          = shift;
 	my $Repository    = shift;
 	my $CommitBranch  = shift; # something like: head or branches/2020Q3
-  	my $needs_refresh = shift;
-	my $fetch_files   = shift;
-	my $svn_revision  = shift;
 
 	print "into RefreshFromFiles()\n";
 	print "working with repo='$Repository'\n";
@@ -1228,6 +1228,12 @@ sub RefreshFromFiles($;$;$;$;$;$) {
         } else { 
 	  print "with svn_revision='NOT DEFINED'\n";
         }
+        
+        if ($fetch_files) {
+		# see https://github.com/FreshPorts/freshports/issues/325
+		FreshPorts::Utilities::ReportError('warning', "fetch_files is set true. We ain't got no time for that.", 1);
+        }
+
 	if (!defined($needs_refresh)) {
 		FreshPorts::Utilities::ReportError('warning', "needs_refresh has no value", 1);
 	}
@@ -1235,61 +1241,9 @@ sub RefreshFromFiles($;$;$;$;$;$) {
 	my $result = 0;
 	my $error;
 
-	my $FetchAttempts = $FreshPorts::Config::Fetch_Retry_Limit;
+	$error = $this->_ExtractValuesFromMakefile($Repository, $CommitBranch);
 
-	#
-	# fetch the files needed
-	#
-	if ($needs_refresh > 0 && $fetch_files) {
-	  while ($FetchAttempts) {
-	    if (defined($svn_revision) && $svn_revision ne '')
-	    {
-	      # svn up -r $svn_revision
-
-              my $REPODIR = FreshPorts::Branches::GetPathToRepoForBranch($Repository, $CommitBranch);
-              
-              $result = FreshPorts::Utilities::svnUpFile($REPODIR, '', $svn_revision);
-              # match the results of _FetchFilesNeedingRefresh (which no longer exists)
-              if ($result == 1) 
-              {
-                $result = 0;
-              }
-              else
-              {
-                $result = 1;
-              }
-            }
-            else
-            {
-               die('I have no idea what I am doing here in RefreshFromFiles....');
-            }
-			if ($result == -1) {
-				$FetchAttempts = 0;
-				$error = 1;
-			} else {
-				if ($result == 0) {
-					last;
-				} else {
-					print "fetch result = $result\n";
-					# fetch failed
-					# sleep, then try again
-					Sys::Syslog::syslog('warning', "sleeping after fetch failed for ($this->{id}, $this->{category}, $this->{name}, $needs_refresh), result = $result");
-					print "fetch failed, sleeping...\n";
-					sleep $FreshPorts::Config::Fetch_Sleep_Time;
-					$FetchAttempts--;
-				}
-			}
-		}
-	} else {
-		print "this port *** EITHER *** does not need a refresh *** OR *** we were told not to fetch\n";
-	}
-
-	# if we didn't use up all of our fetch attempts...
-	if ($FetchAttempts) {
-		$error = $this->_ExtractValuesFromMakefile($Repository, $CommitBranch);
-	}
-
-	if (!$FetchAttempts || $error) {
+	if ($error) {
 		$result = 1;
 	}
 
