@@ -10,6 +10,7 @@ use strict;
 use FreshPorts::branches;
 use FreshPorts::element;
 use FreshPorts::category;
+use FreshPorts::categories;
 use FreshPorts::port;
 use FreshPorts::commit_log_ports;
 use FreshPorts::commit_log_port_elements;
@@ -22,6 +23,7 @@ use FreshPorts::vuxml_mark_commits;
 require File::Basename;
 require Sys::Syslog;
 use POSIX qw{strftime};
+use List::MoreUtils 'any';
 
 #
 # WARNING: this hash is filled up during the processing of a single
@@ -33,11 +35,12 @@ sub InitialiseNewMessage() {
 	# kept in case needed in future
 }
 
-sub _CompileListOfPorts($;$;$;$) {
+sub _CompileListOfPorts($;$;$;$;$) {
 	my $CommitBranch  = shift; # which branch is this on? head? RELENG_9_1_0
 	my $commit_log_id = shift;
 	my $Files         = shift;
 	my $dbh           = shift;
+	my $RepoType      = shift;
 
 	my %ListOfPorts;	# returned from this function
 	my %CategoriesChecked;	# contains category class objects.
@@ -47,6 +50,7 @@ sub _CompileListOfPorts($;$;$;$) {
 	my $port;
 
 	print "STARTING _CompileListOfPorts ................................\n";
+	print "for a commit on 'branch': '$CommitBranch'\n";
 
 	foreach $value (@{$Files}) {
 		my ($action, $filename, $revision, $commit_log_element_id, $element_id) = @$value;
@@ -64,13 +68,16 @@ sub _CompileListOfPorts($;$;$;$) {
 		# depending on which branch we are one, we need to split this path differently
 		if ($CommitBranch eq $FreshPorts::Constants::HEAD)
 		{
+		  print "this commit is on head\n";
 		  ($emptyLeadingSlash, $subtree,            $branch, $category_name, $port_name, $extra) = split/\//,$filename, 6;
 		}
 		else
 		{
+		  print "this commit is NOT ON head\n";
 		  ($emptyLeadingSlash, $subtree, $branches, $branch, $category_name, $port_name, $extra) = split/\//,$filename, 7;
 		}
 		# FILE ==: Modify, /ports/head/ftp/vsftpd/Makefile, 303756, , head, ftp, vsftpd/Makefile, 1935356
+		# for README, GUIs, UIDs: category_name will be empty.
 		print "FILE ==: $action, $filename, $revision, $subtree, $category_name, ";
 		if (defined($port_name)) {
 			print "$port_name, ";
@@ -84,10 +91,14 @@ sub _CompileListOfPorts($;$;$;$) {
 
 		# is this file is in the ports tree?
 		# e.g. ports/LEGAL won't get through here because $port_name will not be defined.
+		
+		
+		
 		if ($subtree eq $FreshPorts::Config::ports_prefix && defined($category_name) && defined($port_name)) {
 			print "YES, this file is in the ports tree\n";
 
-			if (!defined($FreshPorts::Constants::IgnoredItems{$category_name}) && !defined($FreshPorts::Constants::IgnoredItems{$port_name})) {
+			# if this is a valid category
+			if ( any {/$category_name/} @FreshPorts::Categories::categories ) {
 				# find the port for this filename....
 				if ($ListOfPorts{"$category_name/$port_name"}) {
 					print "but we have already seen the port $category_name/$port_name\n\n";
@@ -144,7 +155,7 @@ sub _CompileListOfPorts($;$;$;$) {
 					if (defined($extra)) {
 						if (!$port) {
 							print "* * * not found in existing cache.  we'll have to load/create that port!\n";
-							$port = FreshPorts::Port->new($dbh);
+							$port = FreshPorts::Port->new($dbh, $RepoType);
 
 							# this is all that's needed to retrieve a port which exists
 							if ($CommitBranch eq $FreshPorts::Constants::HEAD)
@@ -168,9 +179,9 @@ sub _CompileListOfPorts($;$;$;$) {
 								#
 								# these are the values needed to create a new port
 								#
-								$port->{category_id}	= $category->{id};
-								$port->{name}			= $port_name;
-								$port->{category}		= $category_name;
+								$port->{category_id} = $category->{id};
+								$port->{name}        = $port_name;
+								$port->{category}    = $category_name;
 
 								#
 								# we are creating a new port (probably), so we make it active.
@@ -193,7 +204,11 @@ sub _CompileListOfPorts($;$;$;$) {
 						# if we just deleted the Makefile for this port, there's no sense in refreshing the port.
 						# because it's been deleted.
 						#
-						if ($extra eq $FreshPorts::Constants::FILE_MAKEFILE && $action eq $FreshPorts::Constants::REMOVE ) {
+						if ($extra eq $FreshPorts::Constants::FILE_MAKEFILE && ($action eq $FreshPorts::Constants::REMOVE || $action eq $FreshPorts::Constants::DELETE)) {
+							#
+							# EDIT 2020-07-30 - for git processing, we want to delete the parent of $extra when we detect that the
+							# port Makefile is being deleted. see https://news.freshports.org/2020/07/29/git-changing-libraries-gave-us-new-xml-options/
+							# This should be straight forward.
 							#
 							# we are deleted (local value, never actually saved to db)
 							#
@@ -207,7 +222,7 @@ sub _CompileListOfPorts($;$;$;$) {
 					}
 				}
 			} else {
-				print "... but is on the list of IgnoredItems!\n\n";
+				print "... but this file is not part of a physical category on disk!\n\n";
 			}
 		} else {
 			print "that file isn't in the ports tree\n";
@@ -220,11 +235,12 @@ sub _CompileListOfPorts($;$;$;$) {
 }
 
 
-sub SaveChangesToPortsTree($;$;$;$) {
+sub SaveChangesToPortsTree($;$;$;$;$) {
 	my $CommitBranch  = shift;  # e.g. head or RELENG_9_1_0 or RELENG_10
 	my $commit_log_id = shift;
 	my $Files         = shift;
 	my $dbh           = shift;
+	my $RepoType      = shift;
 
 	my %ListOfPorts;
 	my %CommitLogPorts;	# hash of commit_log_ports objects
@@ -251,7 +267,7 @@ sub SaveChangesToPortsTree($;$;$;$) {
 	# This list of ports may not all be in the database.
 	# We'll deal with that as we go along.
 	#
-	%ListOfPorts = _CompileListOfPorts($CommitBranch, $commit_log_id, $Files, $dbh);
+	%ListOfPorts = _CompileListOfPorts($CommitBranch, $commit_log_id, $Files, $dbh, $RepoType);
 	
 	print "into SaveChangesToPortsTree()\n";
 
@@ -306,9 +322,9 @@ sub SaveChangesToPortsTree($;$;$;$) {
 			#
 			$commit_log_ports = FreshPorts::CommitLogPorts->new($dbh);
 
-			$commit_log_ports->{commit_log_id}	= $commit_log_id;
-			$commit_log_ports->{port_id}		= $port->{id};
-			$commit_log_ports->{needs_refresh}	= $needs_refresh;
+			$commit_log_ports->{commit_log_id} = $commit_log_id;
+			$commit_log_ports->{port_id}       = $port->{id};
+			$commit_log_ports->{needs_refresh} = $needs_refresh;
 
 			if ($commit_log_ports->{needs_refresh} == -1) {
 				FreshPorts::Utilities::ReportError('warning', "Cannot GetNeedsRefreshForNewPort.  Fetch failed", 1);
@@ -322,8 +338,8 @@ sub SaveChangesToPortsTree($;$;$;$) {
 			# and then zero out needs_refresh.
 			# messy.  Perhaps there is a neater way.
 			#
-			$commit_log_ports->{port}	= $port;
-			$CommitLogPorts{$portname}	= $commit_log_ports;
+			$commit_log_ports->{port}  = $port;
+			$CommitLogPorts{$portname} = $commit_log_ports;
 
 			print "size of %CommitLogPorts for " . $portname . " is '" . scalar(keys %CommitLogPorts) . "'\n";
 		}
@@ -343,16 +359,55 @@ sub SaveChangesToPortsTree($;$;$;$) {
 	return %CommitLogPorts;
 }
 
-sub FetchAllFiles($;$;$;$) {
+sub ScrollToThatCommit($;$;$;$) {
+	#
+	# At one time, we fetched individual files.
+	# Then we did: svn co -r N
+	# Now it's: git checkout N
+	#
+
+	my $repo     = shift;
+	my $branch   = shift;
+	my $git_hash = shift;
+	my $dbh      = shift;
+
+	my $FetchOK = 1;
+
+	print "into ScrollToThatCommit with: branch = '$branch' looking for commit = '$git_hash'\n";
+	print "do a git checkout of that hash.\n";
+
+	# if we have a hash
+	if (defined($git_hash) && $git_hash ne '')
+	{
+		my $startTime = time;
+		# this is a path to the repo directory, we still need the repo name
+		my $RepoName = FreshPorts::Branches::GetRepoNameForBranch($repo, $branch);
+		# gitCheckout does not do a chroot, and therefore needs the full path to the repo.
+		$FetchOK = FreshPorts::Utilities::gitCheckout($FreshPorts::Config::JailBaseDir . $FreshPorts::Config::PortsDir, $git_hash);
+
+		my $elapsedTime = time - $startTime;
+
+		print "Elapsed time for gitCheckout" . strftime("\%H:\%M:\%S", gmtime($elapsedTime)) . "\n";
+
+		return $FetchOK;
+	}
+
+	return $FetchOK;
+}
+
+sub FetchAllFiles($;$;$;$;$;$) {
 	#
 	# fetch all the files associated with this commit
 	# Actually, it's only files within the ports tree.
+	# This is only invoked from xml_munge_svn.pm
 	#
 
+	my $Repository   = shift;
 	my $CommitBranch = shift;
 	my $Files        = shift;
 	my $svn_revision = shift;
 	my $dbh          = shift;
+	my $RepoType     = shift;
 
 	
 	my $action;
@@ -368,15 +423,22 @@ sub FetchAllFiles($;$;$;$) {
 	my $FetchOK = 1;
 
 	print "fetching all files from this commit.\n";
+	print "Repository='$Repository'\n";
+	print "CommitBranch='$CommitBranch'\n";
+	print "svn_revision='$svn_revision'\n";
 	
 	# this is where we fetch the files to disk
-	my $SVNDIR = FreshPorts::Branches::GetPathToRepoForBranch($CommitBranch);
+	# we are dealing only with svn here.
+	# we have only one repo. 
+
+        # this is where we fetch the files to disk
+        my $REPODIR = FreshPorts::Branches::GetPathToRepoForBranchSVN($CommitBranch);
 
 	# if we have a revision	
 	if (defined($svn_revision) && $svn_revision ne '')
 	{
 		my $startTime = time;
-		$FetchOK = FreshPorts::Utilities::svnUpFile($SVNDIR, '', $svn_revision);
+		$FetchOK = FreshPorts::Utilities::svnUpFile($REPODIR, '', $svn_revision);
 		
 		my $elapsedTime = time - $startTime;
 		
@@ -436,15 +498,15 @@ sub FetchAllFiles($;$;$;$) {
 		#
 		# there is no sense in fetching removed files
 		#
-		if ($action ne $FreshPorts::Constants::REMOVE) {
+		if ($action ne $FreshPorts::Constants::REMOVE && $action eq $FreshPorts::Constants::DELETE) {
 
 			#
 			# fetch this file into the ports tree
 			#
 
-			print "fetching \$SVNDIR = [$SVNDIR], \$SVNITEM = [$SVNITEM (was $filename)] \$REVISION = [$REVISION]\n";
+			print "fetching \$REPODIR = [$REPODIR], \$SVNITEM = [$SVNITEM (was $filename)] \$REVISION = [$REVISION]\n";
 
-			$FetchOK = FreshPorts::Utilities::svnUpFile($SVNDIR, $SVNITEM, $REVISION);
+			$FetchOK = FreshPorts::Utilities::svnUpFile($REPODIR, $SVNITEM, $REVISION);
 			if (!$FetchOK) {
 				FreshPorts::Utilities::ReportError('warning', "Sorry, but we couldn't fetch all the files", 0);
 				last LOOP;
@@ -462,16 +524,16 @@ sub _RecordPortFilesTouchedByThatCommit($;$;$;$) {
 	#
 	# This function will populate the commit_log_port_element table.
 	#
-	my $commit_log_id	= shift;
-	my $Files			= shift;
-	my $PortsRef		= shift;
-	my $dbh				= shift;
+	my $commit_log_id = shift;
+	my $Files         = shift;
+	my $PortsRef      = shift;
+	my $dbh           = shift;
 
-	my %Ports 			= %{$PortsRef};
+	my %Ports         = %{$PortsRef};
 
-	my $portname;					# of the form "$category/$port"
-	my $port;						# of type FreshPorts::Element
-	my $commit_log_port_elements;	# of type FreshPorts::CommitLogPortElements
+	my $portname;                 # of the form "$category/$port"
+	my $port;                     # of type FreshPorts::Element
+	my $commit_log_port_elements; # of type FreshPorts::CommitLogPortElements
 
 	my $action;
 	my $filename;
@@ -516,7 +578,7 @@ sub _RecordPortFilesTouchedByThatCommit($;$;$;$) {
 			if ($subtree eq $FreshPorts::Config::ports_prefix && defined($category_name) && defined($port_name)) {
 				print "yes, this file is in the ports tree\n";
 
-				if (!defined($FreshPorts::Constants::IgnoredItems{$category_name}) && !defined($FreshPorts::Constants::IgnoredItems{$port_name})) {
+				if ( any {/$category_name/} @FreshPorts::Categories::categories ) {
 					# find the port for this filename....
 					$port = $Ports{"$category_name/$port_name"};
 					if (!$port) {
@@ -526,12 +588,12 @@ sub _RecordPortFilesTouchedByThatCommit($;$;$;$) {
 					#
 					# record which files go with what port...
 					#
-					$commit_log_port_elements->{commit_log_id}			= $commit_log_id;
-					$commit_log_port_elements->{port_id}				= $port->{id};
-					$commit_log_port_elements->{commit_log_element_id}	= $commit_log_element_id;
+					$commit_log_port_elements->{commit_log_id}         = $commit_log_id;
+					$commit_log_port_elements->{port_id}               = $port->{id};
+					$commit_log_port_elements->{commit_log_element_id} = $commit_log_element_id;
 					$commit_log_port_elements->save();
 				} else {
-					print "... but is on the list of IgnoredItems!\n\n";
+					print "... but is not a file in a category on disk!\n\n";
 				}
 			}
 		}
@@ -546,18 +608,18 @@ sub _RecordPortsAndElements($;$;$;$) {
 	#
 	# This function will populate the commit_log_ports_elements table.
 	#
-	my $commit_log_id		= shift;
-	my $Files				= shift;
-	my $CommitLogPortsRef	= shift;
-	my $dbh					= shift;
+	my $commit_log_id     = shift;
+	my $Files             = shift;
+	my $CommitLogPortsRef = shift;
+	my $dbh               = shift;
 
-	my %CommitLogPorts		= %{$CommitLogPortsRef};
+	my %CommitLogPorts    = %{$CommitLogPortsRef};
 
-	my %CommitLogPortElements  = (); # list of all elements touched by this commit; used to avoid duplicates.
+	my %CommitLogPortElements = (); # list of all elements touched by this commit; used to avoid duplicates.
 
-	my $portname;					# of the form "$category/$port"
-	my $port;						# of type FreshPorts::Element
-	my $commit_log_ports_elements;	# of type FreshPorts::CommitLogPortsExtra
+	my $portname;                  # of the form "$category/$port"
+	my $port;                      # of type FreshPorts::Element
+	my $commit_log_ports_elements; # of type FreshPorts::CommitLogPortsExtra
 	my $commit_log_ports;
 
 	my $action;
@@ -600,7 +662,7 @@ sub _RecordPortsAndElements($;$;$;$) {
 		}
 		
 		if ($ExtraElement) {
-			print "That file is outside any port\n";
+			print "That file is not part of a port already seen in this commit.\n";
 
 			if ($CommitLogPortElements{$commit_log_id . '||' . $element_id}) {
 				print "That element_id ($element_id) has already been recorded against this commit\n";
@@ -609,8 +671,8 @@ sub _RecordPortsAndElements($;$;$;$) {
 				#
 				# record which files go with what port...
 				#
-				$commit_log_ports_elements->{commit_log_id}	= $commit_log_id;
-				$commit_log_ports_elements->{element_id}	= $element_id;
+				$commit_log_ports_elements->{commit_log_id} = $commit_log_id;
+				$commit_log_ports_elements->{element_id}    = $element_id;
 				$commit_log_ports_elements->save();
 			}
 		}
@@ -628,8 +690,8 @@ sub _RecordPortsAndElements($;$;$;$) {
 			print "That element_id ($element_id) has already been recorded against this commit\n";
 		} else {
 			$CommitLogPortElements{$commit_log_id . '||' . $port->{element_id}} = 1;
-			$commit_log_ports_elements->{commit_log_id}	= $commit_log_id;
-			$commit_log_ports_elements->{element_id}	= $port->{element_id};
+			$commit_log_ports_elements->{commit_log_id} = $commit_log_id;
+			$commit_log_ports_elements->{element_id}    = $port->{element_id};
 			$commit_log_ports_elements->save();
 		}
 	}
@@ -637,17 +699,16 @@ sub _RecordPortsAndElements($;$;$;$) {
 	print "done _RecordPortsAndElements\n";
 }
 
-sub RefreshAllPortsTouchedByCommit($;$;$;$;$) {
+sub RefreshAllPortsTouchedByCommit($;$;$;$) {
 	#
 	# given the ports touched by this commit
 	# refresh each of them
 	#
 
+	my $Repository           = shift;
 	my $CommitBranch         = shift;
 	my $CommitLogPortsRef    = shift;
 	my %CommitLogPorts       = %{$CommitLogPortsRef};
-	my $fetch_before_refresh = shift;
-	my $svn_revision         = shift;
 	my $dbh                  = shift;
 
 	my $port;
@@ -668,7 +729,7 @@ sub RefreshAllPortsTouchedByCommit($;$;$;$;$) {
 		# If we don't need to refresh it, we don't need to save it.
 		#
 		if ($port->IsActive()) {
-			$error = $port->RefreshFromFiles($CommitBranch, $commit_log_ports->{needs_refresh}, $fetch_before_refresh, $svn_revision);
+			$error = $port->RefreshFromFiles($Repository, $CommitBranch);
 		} else {
 			print "This port is deleted: not refreshing.\n";
 			$error = 0;
@@ -686,10 +747,10 @@ sub RefreshAllPortsTouchedByCommit($;$;$;$;$) {
 
 			# and then update the commit_log_ports
 
-			$commit_log_ports->{needs_refresh}	= 0;
-			$commit_log_ports->{port_version}	= $port->{version};
-			$commit_log_ports->{port_revision}	= $port->{revision};
-			$commit_log_ports->{port_epoch}		= $port->{portepoch};
+			$commit_log_ports->{needs_refresh} = 0;
+			$commit_log_ports->{port_version}  = $port->{version};
+			$commit_log_ports->{port_revision} = $port->{revision};
+			$commit_log_ports->{port_epoch}    = $port->{portepoch};
 
 			$commit_log_ports->save();
 		} else {
@@ -701,17 +762,21 @@ sub RefreshAllPortsTouchedByCommit($;$;$;$;$) {
 	return $ErrorFound;
 }
 
-sub RefreshAllSlavePortsOfPortsTouchedByCommit($;$;$;$) {
+sub RefreshAllSlavePortsOfPortsTouchedByCommit($;$;$;$;$;$) {
 	#
 	# given the ports touched by this commit,
 	# refresh any slaves
 	#
-	my $CommitBranch         = shift;
+	my $Repository           = shift;
+	my $CommitBranch         = shift; # something like head or branches/2020Q3
 	my $CommitLogPortsRef    = shift;
 	my %CommitLogPorts       = %{$CommitLogPortsRef};
-	my $fetch_before_refresh = shift;
 	my $dbh                  = shift;
+	my $RepoType             = shift;
 
+
+	# head or 2020Q3
+	my $BranchStripped = FreshPorts::Branches::stripBranchesToGetBranchName($CommitBranch);
 
 	my $ErrorFound = 0;
 	my $MasterSlave;
@@ -722,7 +787,7 @@ sub RefreshAllSlavePortsOfPortsTouchedByCommit($;$;$;$) {
 
 	# For each port in this commit
 
-	$MasterSlave = FreshPorts::MasterSlave->new($dbh);
+	$MasterSlave = FreshPorts::MasterSlave->new($dbh, $RepoType);
 
 	while (my ($portname, $commit_log_ports) = each %CommitLogPorts) {
 		my $port = $commit_log_ports->{port};
@@ -740,33 +805,33 @@ sub RefreshAllSlavePortsOfPortsTouchedByCommit($;$;$;$) {
 	# For each slave port
 	while (my ($PortName, $ignore) = each %Slaves) {
 		# fetch it
-		my $port = FreshPorts::Port->new($dbh);
+		my $port = FreshPorts::Port->new($dbh, $RepoType);
 		
 		my $pathname;
 
 		# we have to fetch from the branch
 		$port->{partialpathname} = $FreshPorts::Config::Ports_Default_Directory . '/' . $PortName;
-		if ($CommitBranch eq $FreshPorts::Constants::HEAD)
+		if ($BranchStripped eq $FreshPorts::Constants::HEAD)
 		{
 		  $pathname = $FreshPorts::Config::DB_Root_Prefix_PORTS . '/head/' . $PortName;
 		}
 		else
 		{
-		  $pathname = $FreshPorts::Config::DB_Root_Prefix_PORTS . '/branches/' . $CommitBranch . '/' . $PortName;
+		  $pathname = $FreshPorts::Config::DB_Root_Prefix_PORTS . '/branches/' . $BranchStripped . '/' . $PortName;
 		}
 
         $port->{partialpathname} = $pathname;
 		my $port_id = $port->FetchByPartialPathName();
 		# if no such port, then it has not yet been committed to this branch
 		if (!defined($port_id)) {
-			print 'no such port on this branch: ' . $CommitBranch . ".\n";
+			print 'no such port on this branch: ' . $BranchStripped . ".\n";
 			print "port not retrieved with $port->{partialpathname}.  This must be a new port.\n";
 
 			#
 			# these are the values needed to create a new port
 			#
 			my ($category_name, $port_name) = split/\//,$PortName, 2;
-			$port->CreatePortOnBranch($category_name, $port_name, $CommitBranch);
+			$port->CreatePortOnBranch($category_name, $port_name, $BranchStripped);
 
 			print "new port created with port id = " . $port->{id} . "\n";
 			
@@ -774,11 +839,10 @@ sub RefreshAllSlavePortsOfPortsTouchedByCommit($;$;$;$) {
 		}
 
 		#  refresh it
-		#  XXX WE ARE REFRESHING WITHOUT FIRST DOING AN SVN UP
-		$port->RefreshFromFiles($CommitBranch, 1, 0, ''); # refresh the port, don't fetch the files
+		$port->RefreshFromFiles($Repository, $BranchStripped); # , 1, 0, '');
 
 		#  save it
-		$port->save($CommitBranch);
+		$port->save($BranchStripped);
 
 		print "refreshed " . $port->{category} . '/' . $port->{name} . "\n";
 
@@ -790,17 +854,16 @@ sub RefreshAllSlavePortsOfPortsTouchedByCommit($;$;$;$) {
 	return $ErrorFound;
 }
 
-sub MarkVulnerableCommits($;$;$) {
+sub MarkVulnerableCommits($;$) {
 	#
 	# given the ports touched by this commit
 	# mark any commits that are vulnerable
 	#
 
 
-	my $CommitLogPortsRef		= shift;
-	my %CommitLogPorts			= %{$CommitLogPortsRef};
-	my $fetch_before_refresh	= shift;
-	my $dbh						= shift;
+	my $CommitLogPortsRef    = shift;
+	my %CommitLogPorts       = %{$CommitLogPortsRef};
+	my $dbh                  = shift;
 
 	my $port;
 	my $error;
@@ -838,11 +901,11 @@ sub _DeleteDeletedPorts($;$) {
 	# For each deleted port, delete the element which corresponds to that port
 	#
 
-	my $PortsRef	= shift;
-	my %Ports		= %{$PortsRef};
-	my $dbh			= shift;
+	my $PortsRef = shift;
+	my %Ports    = %{$PortsRef};
+	my $dbh      = shift;
 
-	my $element		= FreshPorts::Element->new($dbh);
+	my $element  = FreshPorts::Element->new($dbh);
 
 	#
 	# refresh each and every port we are told about
@@ -872,12 +935,12 @@ sub _UndeleteResurrectedPorts($;$;$) {
 	# in this case, but you get the point....
 	#
 
-	my $PortsRef	= shift;
-	my %Ports		= %{$PortsRef};
-	my $Files		= shift;
-	my $dbh			= shift;
+	my $PortsRef = shift;
+	my %Ports    = %{$PortsRef};
+	my $Files    = shift;
+	my $dbh      = shift;
 
-	my $element		= FreshPorts::Element->new($dbh);
+	my $element  = FreshPorts::Element->new($dbh);
 
 	my $value;
 
@@ -886,29 +949,41 @@ sub _UndeleteResurrectedPorts($;$;$) {
 	#
 	print "# # # # Resurrecting deleted ports # # # #\n\n";
 	while (my ($portname, $port) = each %Ports) {
-		if ($port->{status} eq $FreshPorts::Element::Deleted) {
+		if ($port->IsDeleted()) {
 			print "found a deleted port: port='$port->{name}', port_id='$port->{id}', element_id='$port->{element_id}'\n";
 			print "now looking for files which were modified...\n";
 
 			foreach $value (@{$Files}) {
 				my ($action, $filename, $revision, $commit_log_element_id, $element_id) = @$value;
-		
-				my ($subtree, $category_name, $port_name, $extra) = split/\//,$filename, 4;
-				if (!defined($extra)) {
-					$extra = '';
-				}
-				print "  inspecting: '$action', '$filename', '$revision', '$subtree', '$category_name', '$extra'\n";
 
+				#
+				# these look like: /ports/head/lang/yap/Makefile
+				#        might be: /ports/branches/2020Q4/emulators/citra/Makefile
+				#
+				
+				my $filename_stripped = $element->strip_ports_dir($filename);
+				my ($category_name, $port_name, $extra) = split/\//,$filename_stripped, 3;
+				# ensure each of these has a value, if just blank
+				$category_name = $category_name // '';
+				$port_name     = $port_name     // '';
+				$extra         = $extra         // '';
+				print "  inspecting: '$action' , '$filename' , '$filename_stripped' , '$revision' , '$category_name' , '$port_name' , '$extra'\n";
+
+				# instead of doing this through $element, perhaps do it through $port
+				# when then invokes $element and then sets $port->{status}.
 				if ($category_name eq $port->{category} && $port->{name} eq $port_name) {
 					print "  ...found a file from that port\n";
 					if ($action eq $FreshPorts::Constants::ADD || $action eq $FreshPorts::Constants::MODIFY) {
 						print "  ...hmmm, we are modifying a file for a port which is deleted...";
 						print "  ........ I will resurrect that port for you\n";
 						FreshPorts::Utilities::ReportError('notice', "Port $category_name/$port_name needs to be Resurrected", 0);
-						$element->{id}     = $port->{element_id};
-						$element->{status} = $FreshPorts::Element::Active;
-						$element->update_status();
-						print "  ........ done!\n";
+						$port->Undelete($dbh);
+
+						print "  ........ resurrection done!\n";
+						print "  we will not examine any more files for this port!\n";
+
+						# we are looping through files for a single port, only resurrect once.
+						last;
 					}
 				}
 			}
@@ -918,6 +993,7 @@ sub _UndeleteResurrectedPorts($;$;$) {
 	print "# # # # Finished resurrecting deleted ports # # # #\n\n";
 }
 
+FreshPorts::categories::FetchAll();
 FreshPorts::Utilities::InitSyslog();
 
 1;

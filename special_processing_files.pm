@@ -49,7 +49,7 @@ sub Eat($;$;$;$;$) {
 		`/usr/bin/touch $FreshPorts::Config::JobWaiting`;
 	}
 
- 	if ($File eq $FreshPorts::Constants::VUXML) {
+ 	if ($File =~ $FreshPorts::Constants::VUXML) {
  		# no need to fetch this file, it's in the ports tree.
  		# fetching such files is part of the usual process.
 		print "applying special processing to $File\n";

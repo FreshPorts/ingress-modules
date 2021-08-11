@@ -35,125 +35,128 @@ use POSIX qw/strftime/;
 sub _initialize {
 	my $this = shift;
 
-	$this->{portname}			= '';
-	$this->{name}				= '';
-	$this->{short_description}	= '';
-	$this->{long_description}	= '';
-	$this->{version}			= '';
-	$this->{revision}			= '';
-	$this->{maintainer}			= '';
-	$this->{homepage}			= '';
-	$this->{master_sites}		= '';
-	$this->{extract_suffix}		= '';
-	$this->{package_exists}		= '';
-	$this->{depends_build}		= '';
-	$this->{depends_run}		= '';
-	$this->{depends_lib}		= '';
-	$this->{forbidden}			= '';
-	$this->{broken}				= '';
-	$this->{deprecated}			= '';
-	$this->{ignore}				= '';
-	$this->{master_port}		= '';
-	$this->{latest_link}		= '';
-	$this->{no_latest_link}		= '';
-	$this->{no_package}			= '';
-	$this->{package_name}		= '';
-	$this->{portepoch}			= '';
-	$this->{restricted}			= '';
-	$this->{no_cdrom}			= '';
-	$this->{expiration_date}	= '';
-	$this->{is_interactive}		= '';
-	$this->{only_for_archs}		= '';
-	$this->{not_for_archs}		= '';
-	$this->{status}				= '';
-	$this->{showconfig}			= '';
-	$this->{license}			= '';
-	$this->{fetch_depends}		= '';
-	$this->{extract_depends}	= '';
-	$this->{patch_depends}		= '';
-	$this->{uses}			    = '';
-	$this->{pkgmessage} 	    = '';
-	$this->{distinfo}    	    = '';
-	$this->{license_restricted} = '';
+	$this->{portname}             = '';
+	$this->{name}                 = '';
+	$this->{short_description}    = '';
+	$this->{long_description}     = '';
+	$this->{version}              = '';
+	$this->{revision}             = '';
+	$this->{maintainer}           = '';
+	$this->{homepage}             = '';
+	$this->{master_sites}         = '';
+	$this->{extract_suffix}       = '';
+	$this->{package_exists}       = '';
+	$this->{depends_build}        = '';
+	$this->{depends_run}          = '';
+	$this->{depends_lib}          = '';
+	$this->{forbidden}            = '';
+	$this->{broken}               = '';
+	$this->{deprecated}           = '';
+	$this->{ignore}               = '';
+	$this->{master_port}          = '';
+	$this->{latest_link}          = '';
+	$this->{no_latest_link}       = '';
+	$this->{no_package}           = '';
+	$this->{package_name}         = '';
+	$this->{portepoch}            = '';
+	$this->{restricted}           = '';
+	$this->{no_cdrom}             = '';
+	$this->{expiration_date}      = '';
+	$this->{is_interactive}       = '';
+	$this->{only_for_archs}       = '';
+	$this->{not_for_archs}        = '';
+	$this->{status}               = '';
+	$this->{showconfig}           = '';
+	$this->{license}              = '';
+	$this->{fetch_depends}        = '';
+	$this->{extract_depends}      = '';
+	$this->{patch_depends}        = '';
+	$this->{uses}                 = '';
+	$this->{pkgmessage}           = '';
+	$this->{distinfo}             = '';
+	$this->{license_restricted}   = '';
 	$this->{manual_package_build} = '';
-	$this->{license_perms}    	= '';
-	$this->{conflicts}	    	= '';
-	$this->{conflicts_build}    	= '';
-	$this->{conflicts_install}    	= '';
-	$this->{generate_plist}     = '';
+	$this->{license_perms}        = '';
+	$this->{conflicts}            = '';
+	$this->{conflicts_build}      = '';
+	$this->{conflicts_install}    = '';
+	$this->{options_name}         = '';
+	$this->{generate_plist}       = '';
 
-	$this->{categories}			= '';
-	$this->{element_pathname}   = '';
+	$this->{categories}           = '';
+	$this->{element_pathname}     = '';
 }
 
 sub _GetValuesFromRow {
 	my $this = shift;
 	my $row  = shift;
 
-	$this->{id} 			= $row->{id};
-	$this->{element_id}		= $row->{element_id};
-	$this->{category_id}		= $row->{category_id};
-	$this->{category}		= $row->{category};
-	$this->{name}			= $row->{name};
+	$this->{id}                    = $row->{id};
+	$this->{element_id}            = $row->{element_id};
+	$this->{category_id}           = $row->{category_id};
+	$this->{category}              = $row->{category};
+	$this->{name}                  = $row->{name};
 
-	$this->{short_description}	= $row->{short_description};
-	$this->{long_description}	= $row->{long_description};
-	$this->{version}		= $row->{version};
-	$this->{revision}		= $row->{revision};
-	$this->{maintainer}		= $row->{maintainer};
-	$this->{homepage}		= $row->{homepage};
-	$this->{master_sites}		= $row->{master_sites};
-	$this->{extract_suffix}		= $row->{extract_suffix};
-	$this->{package_exists}		= $row->{package_exists};
-	$this->{depends_build}		= $row->{depends_build};
-	$this->{depends_run}		= $row->{depends_run};
-	$this->{depends_lib}		= $row->{depends_lib};
-	$this->{forbidden}		= $row->{forbidden};
-	$this->{broken}			= $row->{broken};
-	$this->{deprecated}		= $row->{deprecated};
-	$this->{ignore}			= $row->{ignore};
-	$this->{master_port}		= $row->{master_port};
-	$this->{latest_link}		= $row->{latest_link};
-	$this->{no_latest_link}		= $row->{no_latest_link};
-	$this->{no_package}		= $row->{no_package};
-	$this->{package_name}		= $row->{package_name};
-	$this->{portepoch}		= $row->{portepoch};
-	$this->{restricted}		= $row->{restricted};
-	$this->{no_cdrom}		= $row->{no_cdrom};
-	$this->{expiration_date}	= $row->{expiration_date};
-	$this->{is_interactive}		= $row->{is_interactive};
+	$this->{short_description}     = $row->{short_description};
+	$this->{long_description}      = $row->{long_description};
+	$this->{version}               = $row->{version};
+	$this->{revision}              = $row->{revision};
+	$this->{maintainer}            = $row->{maintainer};
+	$this->{homepage}              = $row->{homepage};
+	$this->{master_sites}          = $row->{master_sites};
+	$this->{extract_suffix}        = $row->{extract_suffix};
+	$this->{package_exists}        = $row->{package_exists};
+	$this->{depends_build}         = $row->{depends_build};
+	$this->{depends_run}           = $row->{depends_run};
+	$this->{depends_lib}           = $row->{depends_lib};
+	$this->{forbidden}             = $row->{forbidden};
+	$this->{broken}                = $row->{broken};
+	$this->{deprecated}            = $row->{deprecated};
+	$this->{ignore}                = $row->{ignore};
+	$this->{master_port}           = $row->{master_port};
+	$this->{latest_link}           = $row->{latest_link};
+	$this->{no_latest_link}        = $row->{no_latest_link};
+	$this->{no_package}            = $row->{no_package};
+	$this->{package_name}          = $row->{package_name};
+	$this->{portepoch}             = $row->{portepoch};
+	$this->{restricted}            = $row->{restricted};
+	$this->{no_cdrom}              = $row->{no_cdrom};
+	$this->{expiration_date}       = $row->{expiration_date};
+	$this->{is_interactive}        = $row->{is_interactive};
 	
-	$this->{only_for_archs}		= $row->{only_for_archs};
-	$this->{not_for_archs}		= $row->{not_for_archs};
-	$this->{status}			= $row->{status};
-	$this->{showconfig}		= $row->{showconfig};
-	$this->{license}		= $row->{license};
-	$this->{fetch_depends}		= $row->{fetch_depends};
-	$this->{extract_depends}	= $row->{extract_depends};
-	$this->{patch_depends}		= $row->{patch_depends};
-	$this->{uses}			= $row->{uses};
-	$this->{pkgmessage}		= $row->{pkgmessage};
-	$this->{distinfo}    	    	= $row->{distinfo};
-	$this->{license_restricted}	= $row->{license_restricted};
-	$this->{manual_package_build}	= $row->{manual_package_build};
-	$this->{license_perms}      	= $row->{license_perms};
-	$this->{conflicts}          	= $row->{conflicts};
-	$this->{conflicts_build}    	= $row->{conflicts_build};
-	$this->{conflicts_install}  	= $row->{conflicts_install};
-	$this->{generate_plist}     	= $row->{generate_plist};
+	$this->{only_for_archs}        = $row->{only_for_archs};
+	$this->{not_for_archs}         = $row->{not_for_archs};
+	$this->{status}                = $row->{status};
+	$this->{showconfig}            = $row->{showconfig};
+	$this->{license}               = $row->{license};
+	$this->{fetch_depends}         = $row->{fetch_depends};
+	$this->{extract_depends}       = $row->{extract_depends};
+	$this->{patch_depends}         = $row->{patch_depends};
+	$this->{uses}                  = $row->{uses};
+	$this->{pkgmessage}            = $row->{pkgmessage};
+	$this->{distinfo}              = $row->{distinfo};
+	$this->{license_restricted}    = $row->{license_restricted};
+	$this->{manual_package_build}  = $row->{manual_package_build};
+	$this->{license_perms}         = $row->{license_perms};
+	$this->{conflicts}             = $row->{conflicts};
+	$this->{conflicts_build}       = $row->{conflicts_build};
+	$this->{conflicts_install}     = $row->{conflicts_install};
+	$this->{options_name}          = $row->{options_name};
+	$this->{generate_plist}        = $row->{generate_plist};
 
-	$this->{categories}		= $row->{categories};
-	$this->{last_commit_id}		= $row->{last_commit_id};
-	$this->{element_pathname}   	= $row->{element_pathname};
+	$this->{categories}            = $row->{categories};
+	$this->{last_commit_id}        = $row->{last_commit_id};
+	$this->{element_pathname}      = $row->{element_pathname};
 }
 
 # =================================
 
 sub new {
-	my $this		= {};
-	my $class		= shift;
+	my $this          = {};
+	my $class         = shift;
 
-	$this->{dbh}	= shift;
+	$this->{dbh}      = shift;
+	$this->{RepoType} = shift;
 
 	bless $this;
 
@@ -196,7 +199,7 @@ sub _save {
 	my $CommitBranch = shift;
 	my $FullSave     = shift;
 
-	print "into FreshPorts::Port::save\n";
+	print "into FreshPorts::Port::_save\n";
 
 	#
 	# to save, element_id and category_id must be valid
@@ -271,6 +274,7 @@ update ports
        conflicts            = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{conflicts})              . ", 
        conflicts_build      = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{conflicts_build})        . ", 
        conflicts_install    = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{conflicts_install})      . ", 
+       options_name         = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{options_name})           . ", 
        categories           = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{categories});
 
 
@@ -348,6 +352,26 @@ update ports
 	return $this->{id};
 }
 
+sub Undelete {
+	my $this = shift;
+	my $dbh  = shift;
+
+	print "into FreshPorts::Port::Undelete\n";
+	my $element  = FreshPorts::Element->new($dbh);
+
+	$element->{id}     = $this->{element_id};
+	$element->{status} = $FreshPorts::Element::Active;
+
+	$element->update_status();
+
+	# For later, when we are updating ports, mark this port as active.
+	$this->SetActive();
+
+	print "leaving FreshPorts::Port::Undelete\n";
+
+	return $this->{id};
+}
+
 sub FetchByID {
 	my $this	= shift;
 
@@ -414,7 +438,9 @@ sub FetchByPartialPathName {
 
 	$tmp = $dbh->quote($this->{name});
 
-	$sql = "
+	# I enountered trouble with existing data, which would not come back as UTF-8
+	# UTF-8 is set on the connection
+	$sql = "SET CLIENT_ENCODING TO 'SQL_ASCII';
    select ports.*,
           categories.name as category,
           element.name    as name,
@@ -473,6 +499,7 @@ sub _ExtractValuesFromMakefile {
 	#
 
 	my $this         = shift;
+	my $Repository   = shift;
 	my $CommitBranch = shift;
 
 	my $result;
@@ -481,17 +508,43 @@ sub _ExtractValuesFromMakefile {
 	                        # in case we need it for error reporting
 	my $OtherErrors  = '';	# gets the results of the TmpFile used to collect errors.
 
-	my $SVNDIR        = FreshPorts::Branches::GetPathToRepoForBranch      ($CommitBranch);
-	my $SVNDIR_CHROOT = FreshPorts::Branches::GetPathToRepoForBranchCHROOT($CommitBranch);
-	my $MakefileDirectory = "$SVNDIR/$this->{category}/$this->{name}";
+	my $REPODIR;
+  	my $REPODIR_CHROOT;
 
-    # this is relative to the host root, not the ports jail root
+	print "RepoType='$this->{RepoType}'\n";
+	print "Repository='$Repository'\n";
+	print "CommitBranch='$CommitBranch'\n";
+	if ($this->{RepoType}    eq 'git') {
+	  print "calling FreshPorts::Branches::GetPathToRepoForBranch\n";
+	  $REPODIR        = $FreshPorts::Config::PortsDir;
+  	  $REPODIR_CHROOT = $FreshPorts::Config::PortsDir;
+        }
+        elsif ($this->{RepoType} eq 'svn') {
+	  print "calling FreshPorts::Branches::GetPathToRepoForBranchSVN\n";
+	  $REPODIR        = FreshPorts::Branches::GetPathToRepoForBranchSVN      ($CommitBranch);
+  	  $REPODIR_CHROOT = FreshPorts::Branches::GetPathToRepoForBranchCHROOTSVN($CommitBranch);
+        } else {
+          die("Unknown RepoType='$this->{RepoType}'");
+        }
+
+        # this is a full pathname (i.e. not chroot'd)
+	my $MakefileDirectory = "$FreshPorts::Config::JailBaseDir$REPODIR/$this->{category}/$this->{name}";
+
+        print "CommitBranch:   '$CommitBranch\n";	
+	print "REPODIR:        '$REPODIR'\n";
+	print "REPODIR_CHROOT: '$REPODIR_CHROOT'\n";
+
+	# this is relative to the host root, not the ports jail root
 	my $Makefile = "$MakefileDirectory/$FreshPorts::Constants::FILE_MAKEFILE";
+	
+	print "checking to make sure $MakefileDirectory/$FreshPorts::Constants::FILE_MAKEFILE exists\n";
 
 	if (-f $Makefile) {
 		# good, the Makefile actually exists.  This should be the case.  If not, something
 		# rather unusual is happening.
+		print "Phew.  It's here.  Moving on....\n";
 	} else {
+		print " * * * * not found.  WTF?\n";
 		# If the Makefile does not exist, suspect a repocopy.
 		# A repocopy is the process of manually moving things around within the cvs repository.
 		# This preserves commit history when a port is being renamed, but it makes life difficultJailShowConfigScript
@@ -517,7 +570,8 @@ sub _ExtractValuesFromMakefile {
 	# IF YOU CHANGE THE MAKE COMMAND, CHANGE THE SPLIT!!!!!!!!!!!!!!!
 	#
 	#
-	$makecommand = "/usr/local/bin/sudo /usr/sbin/chroot -u $FreshPorts::Config::JailUser $FreshPorts::Config::JailBaseDir $FreshPorts::Config::JailPortScript $SVNDIR_CHROOT $this->{category}/$this->{name} 2>$TmpFile";
+	# looks like:   /usr/local/bin/sudo /usr/sbin/jexec /jails/freshports /make-port.sh /usr/ports www/qt5-webkit 2>/tmp/FreshPorts.www.qt5-webkit.make-error.2021.1.3.22
+	$makecommand = "/usr/local/bin/sudo /usr/sbin/jexec $FreshPorts::Config::JailName $FreshPorts::Config::JailPortScript $REPODIR_CHROOT $this->{category}/$this->{name} 2>$TmpFile";
 
 	print "makecommand = $makecommand\n";
 
@@ -568,7 +622,7 @@ sub _ExtractValuesFromMakefile {
 	if ($result == 0) {
         	my $TmpFile = FreshPorts::Utilities::TmpFileName("$this->{category}.$this->{name}.make-mastersites-error");
           	print "trying to get master sites.  Errors will be in '$TmpFile'\n";
-                my $mastersitescommand = "/usr/local/bin/sudo /usr/sbin/chroot -u $FreshPorts::Config::JailUser $FreshPorts::Config::JailBaseDir $FreshPorts::Config::JailMasterSitesScript $SVNDIR_CHROOT $this->{category}/$this->{name} 2>$TmpFile";
+                my $mastersitescommand = "/usr/local/bin/sudo /usr/sbin/jexec $FreshPorts::Config::JailName $FreshPorts::Config::JailMasterSitesScript $REPODIR_CHROOT $this->{category}/$this->{name} 2>$TmpFile";
 
 		print "'$mastersitescommand'\n";
 		$mastersites = `$mastersitescommand`;
@@ -606,7 +660,7 @@ sub _ExtractValuesFromMakefile {
 	if ($result == 0) {
 		my $TmpFile = FreshPorts::Utilities::TmpFileName("$this->{category}.$this->{name}.showconfig");
 		print "trying to get showconfig.  Errors will be in '$TmpFile'\n";
-                my $showconfigcommand = "/usr/local/bin/sudo /usr/sbin/chroot -u $FreshPorts::Config::JailUser $FreshPorts::Config::JailBaseDir $FreshPorts::Config::JailShowConfigScript $SVNDIR_CHROOT $this->{category}/$this->{name} 2>$TmpFile";
+                my $showconfigcommand = "/usr/local/bin/sudo /usr/sbin/jexec $FreshPorts::Config::JailName $FreshPorts::Config::JailShowConfigScript $REPODIR_CHROOT $this->{category}/$this->{name} 2>$TmpFile";
 
 		print "'$showconfigcommand'\n";
 		$showconfig = `$showconfigcommand`;
@@ -664,7 +718,7 @@ sub _ExtractValuesFromMakefile {
 		 my $only_for_archs, my $not_for_archs,      my $license,              my $fetchdepends, 
 		 my $extractdepends, my $patchdepends,       my $uses,                 my $pkgmessagepath,
 		 my $distinfo_file,  my $license_restricted, my $manual_package_build, my $license_perms,
-		 my $conflicts,      my $conflicts_build,    my $conflicts_install,    my $python_pkgnameprefix) = split(/\n/s, $MakeResults);
+		 my $conflicts,      my $conflicts_build,    my $conflicts_install,    my $options_name) = split(/\n/s, $MakeResults);
 
 		my $package_name = $pkgnameprefix . $portname . $pkgnamesuffix;
 
@@ -698,7 +752,7 @@ sub _ExtractValuesFromMakefile {
 		$patchdepends   = FreshPorts::Utilities::trim_multiple_to_single(FreshPorts::Utilities::trim($patchdepends));
 
 
-		$master_port =~ s|$SVNDIR_CHROOT/||;
+		$master_port =~ s|$REPODIR_CHROOT/||;
 		
 		print " portname                 = '$this->{name}'\n";
 		print " packagename              = '$portname'\n";
@@ -728,6 +782,7 @@ sub _ExtractValuesFromMakefile {
 		print " conflicts                = '$conflicts'\n";
 		print " conflicts_build          = '$conflicts_build'\n";
 		print " conflicts_install        = '$conflicts_install'\n";
+		print " options_name             = '$options_name'\n";
 
 		print "Grabbing make -V DESCR\n";
 
@@ -763,8 +818,9 @@ sub _ExtractValuesFromMakefile {
 		#
 		# make -V PKGMESSAGE
 		#
-		# [dan@dev-ingress01:/var/db/freshports/ports-jail/var/db/repos/PORTS-head/sysutils/bacula9-server] $ make -V PKGMESSAGE
-		# /var/ports/var/db/freshports/ports-jail/var/db/repos/PORTS-head/sysutils/bacula9-server/work/pkg-message.server
+		# [dan@freshports:/usr/ports/sysutils/bacula9-server] $ make -V PKGMESSAGE
+		# /usr/ports/sysutils/bacula9-server/work/pkg-message.server
+
 		#
 
 		# eliminate multiple // : PR 174
@@ -772,7 +828,9 @@ sub _ExtractValuesFromMakefile {
 		$pkgmessagepath =~ s|//|/|g;
 
 		print "\$pkgmessagepath='$pkgmessagepath'\n";
-		my $RealPKGMESSAGEPath = $this->_GetRealPath($pkgmessagepath);
+		print "\$FreshPorts::Config::JailBaseDir . \$pkgmessagepath='$FreshPorts::Config::JailBaseDir$pkgmessagepath'\n";
+		# $pkgmessagepath is relative to the jail directory, so we need to prefix that here.
+		my $RealPKGMESSAGEPath = $this->_GetRealPath($FreshPorts::Config::JailBaseDir . $pkgmessagepath);
 		print "\$RealPKGMESSAGEPath='$RealPKGMESSAGEPath'\n";
 
 		# if it's defined, and it exists....
@@ -785,11 +843,31 @@ sub _ExtractValuesFromMakefile {
 		else
 		{
                    print "pkgmessagepath does look like a valid file to me: '$pkgmessagepath' (result of make -V PKGMESSAGE)\n";
-                   if (defined($pkgmessagepath) && $RealPKGMESSAGEPath) {
+                   if ($RealPKGMESSAGEPath) {
                       print "invoking _GetFileContentsFromJail() for PKGMESSAGE with '$RealPKGMESSAGEPath'\n";
                       $pkgmessage = $this->_GetFileContentsFromJail($RealPKGMESSAGEPath);
-                   }
-		}
+                   } else {
+                      print "but _GetRealPath() claims that file does not exist. Perhaps it is '*/work/pkg-message.in' or similar\n";
+                      # we are looking for /work/ or /work-default/, etc, the 'default' is various package flavors 
+                      if ($pkgmessagepath =~ '/work(?:-.*)?/') {
+                         print "Yes, yes it does contain '/work/' - let's try a make configure\n";
+                         $makecommand = "/usr/local/bin/sudo /usr/sbin/jexec $FreshPorts::Config::JailName $FreshPorts::Config::JailPkgMessage $REPODIR_CHROOT $this->{category}/$this->{name} $pkgmessagepath 2>$TmpFile";
+                         print "makecommand = $makecommand\n";
+                         $pkgmessage=`$makecommand`;
+                         $result = $?;
+                         print 'Result = ' . $result . "\n";
+                         
+                         if ($result == 0) {
+                           print "success, we have\n'$pkgmessage'\n";
+                         } else {
+                           print "FAILUSER, we could not locate\n'$pkgmessage'\n";
+                         }
+                      } else {
+                         print "No, that is not a /work/ pkg-message. There is no pkg-message for this port at all\n";
+                      }# in /work/
+                   } # else not RealPKGMESSAGEPath
+		} # pkgmessagepath is not a number
+
 		chomp($pkgmessage); # get rid of the trailing whitespace.
 
 		my $RealDistInfoFilePath = $this->_GetRealPath($distinfo_file);
@@ -812,7 +890,7 @@ sub _ExtractValuesFromMakefile {
 
 
 		# extract the generate_plist contents
-		my $configure_plist_command = "/usr/local/bin/sudo /usr/sbin/chroot -u $FreshPorts::Config::JailUser $FreshPorts::Config::JailBaseDir $FreshPorts::Config::JailConfigurePlist $SVNDIR_CHROOT $this->{category}/$this->{name} 2>$TmpFile";
+		my $configure_plist_command = "/usr/local/bin/sudo /usr/sbin/jexec $FreshPorts::Config::JailName $FreshPorts::Config::JailConfigurePlist $REPODIR_CHROOT $this->{category}/$this->{name} 2>$TmpFile";
 
 		print "generate_plist_command = $configure_plist_command\n";
 
@@ -826,7 +904,7 @@ sub _ExtractValuesFromMakefile {
 
 
 		# extract the package flavors
-		my $package_flavors_command = "/usr/local/bin/sudo /usr/sbin/chroot -u $FreshPorts::Config::JailUser $FreshPorts::Config::JailBaseDir $FreshPorts::Config::JailPackageFlavors $SVNDIR_CHROOT $this->{category}/$this->{name} 2>$TmpFile";
+		my $package_flavors_command = "/usr/local/bin/sudo /usr/sbin/jexec $FreshPorts::Config::JailName $FreshPorts::Config::JailPackageFlavors $REPODIR_CHROOT $this->{category}/$this->{name} 2>$TmpFile";
 
 		print "package_flavors_command = $package_flavors_command\n";
 
@@ -892,6 +970,7 @@ sub _ExtractValuesFromMakefile {
 		print "44 \$conflicts            = '$conflicts'\n";
 		print "45 \$conflicts_build      = '$conflicts_build'\n";
 		print "46 \$conflicts_install    = '$conflicts_install'\n";
+		print "47 \$options_name         = '$options_name'\n";
 
 		print "\n ---------------------------------------- \n";
 
@@ -956,6 +1035,7 @@ sub _ExtractValuesFromMakefile {
 		$this->{license_perms}		= $license_perms;
 		$this->{conflicts}		= $conflicts;
 		$this->{conflicts_install}	= $conflicts_install;
+		$this->{options_name}	        = $options_name;
 		$this->{conflicts_build}	= $conflicts_build;
 		$this->{generate_plist}		= $generate_plist;
 		# convert all whitespace to a single space
@@ -1104,7 +1184,7 @@ sub _GetRealPath($) {
   	}
 
 	# invoke realpath on the supplied filename, from within our chroot
-	my $makecommand = "/usr/local/bin/sudo /usr/sbin/chroot -u $FreshPorts::Config::JailUser $FreshPorts::Config::JailBaseDir $FreshPorts::Config::JailRealPath $file";
+	my $makecommand = "/usr/local/bin/sudo /usr/sbin/jexec $FreshPorts::Config::JailName $FreshPorts::Config::JailRealPath $file";
 
         print "about to invoke '$makecommand'\n";
         
@@ -1130,82 +1210,28 @@ sub _GetRealPath($) {
 
 
 
-sub RefreshFromFiles($;$;$;$) {
+sub RefreshFromFiles($;$;$) {
 #
-# refresh this port based on the make files associated with it and the value of needs_refresh
+# refresh this port based on the files associated with it.
+# $fetch_files must be 0
 # returns 0 for success, 1 for failure
 #
-	my $this            = shift;
-	my $CommitBranch    = shift;
-	my $needs_refresh	= shift;
-	my $fetch_files		= shift;
-	my $svn_revision	= shift;
+	my $this          = shift;
+	my $Repository    = shift;
+	my $CommitBranch  = shift; # something like: head or branches/2020Q3
 
 	print "into RefreshFromFiles()\n";
- 	print "working on CommitBranch='$CommitBranch'\n";
- 	print "with svn_revision='$svn_revision'\n";
-	if (!defined($needs_refresh)) {
-		FreshPorts::Utilities::ReportError('warning', "needs_refresh has no value", 1);
-	}
-
+	print "working with repo='$Repository'\n";
+	print "working on CommitBranch='$CommitBranch'\n";
+	
+	# this function used to do a lot more than it does now.
+        
 	my $result = 0;
 	my $error;
 
-	my $FetchAttempts = $FreshPorts::Config::Fetch_Retry_Limit;
+	$error = $this->_ExtractValuesFromMakefile($Repository, $CommitBranch);
 
-	#
-	# fetch the files needed
-	#
-	if ($needs_refresh > 0 && $fetch_files) {
-	  while ($FetchAttempts) {
-	    if (defined($svn_revision) && $svn_revision ne '')
-	    {
-	      # svn up -r $svn_revision
-
-              my $SVNDIR = FreshPorts::Branches::GetPathToRepoForBranch($CommitBranch);
-              
-              $result = FreshPorts::Utilities::svnUpFile($SVNDIR, '', $svn_revision);
-              # match the results of _FetchFilesNeedingRefresh (which no longer exists)
-              if ($result == 1) 
-              {
-                $result = 0;
-              }
-              else
-              {
-                $result = 1;
-              }
-            }
-            else
-            {
-               die('I have no idea what I am doing here in RefreshFromFiles....');
-            }
-			if ($result == -1) {
-				$FetchAttempts = 0;
-				$error = 1;
-			} else {
-				if ($result == 0) {
-					last;
-				} else {
-					print "fetch result = $result\n";
-					# fetch failed
-					# sleep, then try again
-					Sys::Syslog::syslog('warning', "sleeping after fetch failed for ($this->{id}, $this->{category}, $this->{name}, $needs_refresh), result = $result");
-					print "fetch failed, sleeping...\n";
-					sleep $FreshPorts::Config::Fetch_Sleep_Time;
-					$FetchAttempts--;
-				}
-			}
-		}
-	} else {
-		print "this port *** EITHER *** does not need a refresh *** OR *** we were told not to fetch\n";
-	}
-
-	# if we didn't use up all of our fetch attempts...
-	if ($FetchAttempts) {
-		$error = $this->_ExtractValuesFromMakefile($CommitBranch);
-	}
-
-	if (!$FetchAttempts || $error) {
+	if ($error) {
 		$result = 1;
 	}
 

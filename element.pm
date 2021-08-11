@@ -221,12 +221,52 @@ sub FetchByName {
 	# now that we have the ID for this name, let's fetch it...
 	#
 	if ($this->{id}) {
-		print "I found this elent id for that pathname: " . $this->{id} . "\n";
+		print "I found this element id for that pathname: " . $this->{id} . "\n";
 		return $this->FetchByID();
 	} else {
 		print "I found nothing for that pathname\n";
 		return $this->{id};
 	}
 }
+
+sub strip_ports_dir($) {
+
+	# take an element name, and remove the leading /ports/head or /ports/branches/foo from the path name
+	# for example: /ports/head/lang/yap/Makefile
+	#              /ports/head/lang/yap/files/patch-Makefile.in
+	#              /ports/head/lang/yap/pkg-descr
+	# in all three cases, the return strings are:
+	
+
+	my $this	= shift;
+
+	# split the incoming path up by /
+	# This will have a leading /, so we wind up with
+	#
+	# 1 = '';
+	# 2 = 'ports';
+	# 3 = 'head';
+	#
+	# for example.
+	#
+	my @path = split '/', shift;
+	
+	# shift off elements until it 'ports'
+	while(@path && shift @path ne 'ports') {};
+
+	# the next bit must be either branches or head
+	my $bit = shift @path;
+	if ($bit eq 'branches') {
+		# if branches, shift it away
+		shift @path;
+	} elsif ($bit ne 'head') {
+		# if not the expected values, die
+		die "Invalid ports path";
+	}
+
+	# add a / to the front of the path
+	return join '/', @path;
+}
+
 
 1;

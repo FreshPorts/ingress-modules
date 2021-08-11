@@ -11,12 +11,18 @@ use strict;
 use FreshPorts::utilities;
 use File::Basename;
 
+use Encode qw(encode);
+binmode *STDOUT, ':encoding(UTF-8)';
+
 sub new {
-	my $this		= {};
-	my $class		= shift;
-	$this->{dbh}	= shift;
+	my $this     = {};
+	my $class    = shift;
+	$this->{dbh} = shift;
+
 	bless $this;
+
 	$this->_initialize();
+
 	return $this
 }
 
@@ -25,55 +31,103 @@ sub _initialize {
 	my $row  = shift;
 
 	$this->{encoding_losses} = 0;
+
+	# by default, we use subversion.
+	# we set this, because we are moving to git.	
+	$this->{repository} = $FreshPorts::Constants::Subversion;
+}
+
+sub setRepo {
+	my $this  = shift;
+	my $repo  = shift;
+
+	defined($FreshPorts::Constants::Repositories{$repo}) || die('no known repository' . $repo);
+	
+	$this->{repository} = $repo;
 }
 
 sub _GetValuesFromRow {
 	my $this = shift;
 	my $row  = shift;
 
-	$this->{id} 				= $row->{id};
-	$this->{message_id}			= $row->{message_id};
-	$this->{message_date}		= $row->{message_date};
-	$this->{message_subject}	= $row->{message_subject};
-	$this->{date_added}			= $row->{date_added};
-	$this->{commit_date}		= $row->{commit_date};
-	$this->{committer}			= $row->{committer};
-	$this->{description}		= $row->{description};
-	$this->{encoding_losses}	= $row->{encoding_losses};
-	$this->{system_id}			= $row->{system_id};
-	$this->{revision}			= $row->{revision};
-	$this->{repo}			= $row->{repo};
+	$this->{id}                 = $row->{id};
+	$this->{message_id}         = $row->{message_id};
+	$this->{message_date}       = $row->{message_date};
+	$this->{message_subject}    = $row->{message_subject};
+	$this->{date_added}         = $row->{date_added};
+	$this->{commit_date}        = $row->{commit_date};
+	$this->{committer}          = $row->{committer};
+	$this->{committer_name}     = $row->{committer_name};
+	$this->{committer_email}    = $row->{committer_email};
+	$this->{author_name}        = $row->{author_name};
+	$this->{author_email}       = $row->{author_email};
+	$this->{description}        = $row->{description};
+	$this->{encoding_losses}    = $row->{encoding_losses};
+	$this->{system_id}          = $row->{system_id};
+	$this->{revision}           = $row->{revision};
+	$this->{repo}               = $row->{repo};
+	$this->{commit_hash_short}  = $row->{commit_hash_short};
 }
 
 sub save {
 	my $this = shift;
-
 	my $dbh = $this->{dbh}; # just a short cut...
+
 	my $sth;
 	my $sql;
 	my @row;
+	
+	print "\$this->{repo}       = '$this->{repo}'\n";
+	print "\$this->{repository} = '$this->{repository}'\n";
 
 	$this->{id} = FreshPorts::Database::GetNextValue($FreshPorts::Constants::commit_log_seq, $dbh);
-
+	
+	# repo is one of ports, doc, src, etc. It relates to the repo.name column
+	# repository is one of git, subversion. It relates to the repo.repository column
+	
+	print "Quoting the above we get:\n" . $dbh->quote($this->{repo}) . " and repository = " . $dbh->quote($this->{repository}) . "\n";
+	
 	$sql = "insert into commit_log (id, message_id, message_date, message_subject, date_added, commit_date, 
-											committer, description, system_id, svn_revision, repo_id, encoding_losses) values ( \
-				$this->{id},
-				" . $dbh->quote($this->{message_id})      . ",
-				" . $dbh->quote($this->{message_date})    . ",
-				" . $dbh->quote($this->{message_subject}) . ",
-				" . $dbh->quote($this->{date_added})      . ",
-				" . $dbh->quote($this->{commit_date})     . ",
-				" . $dbh->quote($this->{committer})       . ",
-				" . $dbh->quote($this->{description})     . ",
-				$this->{system_id},
-				" . $dbh->quote($this->{revision})        . ",
-				(SELECT id FROM repo WHERE name = " . $dbh->quote($this->{repo}) . "),
-				$this->{encoding_losses}::boolean)";
+	          committer, committer_name, committer_email, author_name, author_email, description, system_id, svn_revision, repo_id, encoding_losses, commit_hash_short) values ( 
+				?,
+				?,
+				?,
+				?,
+				now(),
+				?,
+				?,
+				?,
+				?,
+				?,
+				?,
+				?,
+				?,
+				?,
+				(SELECT id FROM repo WHERE name = ? and repository = ?),
+				?::boolean,
+				?)";
+
 
 	print "sql is $sql\n";
 
-	$sth = $this->{dbh}->prepare($sql);
-	if (!$sth->execute) {
+	$sth = $dbh->do($sql, undef,   $this->{id},
+				$this->{message_id},
+				$this->{message_date},
+				$this->{message_subject},
+				$this->{commit_date},
+				$this->{committer},
+				$this->{committer_name},
+				$this->{committer_email},
+				$this->{author_name},
+				$this->{author_email},
+				$this->{description},
+				$this->{system_id},
+				$this->{revision},
+				$this->{repo}, $this->{repository},
+				$this->{encoding_losses},
+				$this->{commit_hash_short});
+
+	if (!$sth) {
 		FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql ... maybe invalid? " . $dbh->errstr, 1);
 	}
 
@@ -82,7 +136,7 @@ sub save {
 }
 
 sub FetchByID {
-	my $this	= shift;
+	my $this = shift;
 
 	my $dbh;
 	my $sql;

@@ -6,7 +6,10 @@
 package FreshPorts::Branches;
 
 require FreshPorts::config;
+require FreshPorts::constants;
 require FreshPorts::utilities;
+
+#use Switch;
 
 # these are the mailing lists associated with those branches
 %FreshPorts::Branches::MailingLists = (
@@ -31,8 +34,8 @@ require FreshPorts::utilities;
      'repo'    => $FreshPorts::Config::Repo_PORTS,
      },
   'SVN commit messages for all the branches of the ports tree' => {
-    'process' => 'process_svn_mail',
-    'repo'    => $FreshPorts::Config::Repo_PORTS,
+     'process' => 'process_svn_mail',
+     'repo'    => $FreshPorts::Config::Repo_PORTS,
      },
   'CVS commit messages for the ports tree' => {
      'process' => 'process_cvs_mail',
@@ -72,28 +75,112 @@ sub ListProperties($)
  return $hash;
 }
 
-# for a given branch name, return the full path.  Including the CHROOT path.
-sub GetPathToRepoForBranch($)
+#
+# convert branches/quarter to just quarter
+# e.g. branches/2020Q3 becomes 2020Q3
+#
+
+sub stripBranchesToGetBranchName($)
 {
-  my $CommitBranch = shift;
+  my $branch = shift;
+
+  $branch =~ s/^branches\///;
   
-  return "$FreshPorts::Config::JailBaseDir/$FreshPorts::Config::SVNBaseDir/PORTS-$CommitBranch";
+  return $branch;
 }
 
-# for a given branch name, return the chroot'd full path.
-sub GetPathToRepoForBranchCHROOT($)
+# SVN
+# for a given branch name, return the full path.  Including the CHROOT path.
+sub GetPathToRepoForBranchSVN($)
 {
   my $CommitBranch = shift;
+
+  return "$FreshPorts::Config::RepoDir/PORTS-$CommitBranch";
+}
+
+# SVN
+# for a given branch name, return the chroot'd full path.
+# branches and trunk are now in the same direcvtory
+# This is relative to the chroot at FreshPorts::Config::JailBaseDir
+#
+sub GetPathToRepoForBranchCHROOTSVN($)
+{
+  my $CommitBranch = shift;
+  my $Path;
+
+  # typically '/usr/ports' for git
+  $Path = "$FreshPorts::Config::PortsDir";
   
-  return "$FreshPorts::Config::SVNBaseDir/PORTS-$CommitBranch";
+  return $Path
+}
+
+
+
+
+
+#
+# for a given branch name, return the repo name. This is a directory.
+# it is not fully qualfied.
+#
+sub GetRepoNameForBranch($;$)
+{
+  my $Repository   = shift;
+  my $CommitBranch = shift;
+
+  # yes, we are not using branch.
+  my $RepoName = $FreshPorts::Constants::GitRepos{$Repository};
+
+  if (!defined($RepoName)) {
+     FreshPorts::Utilities::ReportError('warning', "Could not find RepoName for Repository='$Repository' & CommitBranch='$CommitBranch'", 1);
+     $RepoName = 'freebsd-ports';
+  }
+  
+  return $RepoName
+}
+
+#
+# for a given branch name, return the chroot'd full path.
+# branches and trunk are now in the same direcvtory
+# This is relative to the chroot at FreshPorts::Config::JailBaseDir
+#
+sub GetPathToRepoForBranchCHROOT($;$)
+{
+  my $Repository   = shift;
+  my $CommitBranch = shift;
+  my $Path;
+
+  my $RepoName = GetRepoNameForBranch($Repository, $CommitBranch);
+
+  # typically '/usr/ports' for git
+  $Path = "$FreshPorts::Config::PortsDir";
+  
+  return $Path
+}
+
+#
+# for a given branch name, return the full path.  Including the CHROOT path.
+# We assume this is a ports commit, which we can't do once we start processing
+# git commits for src and doc.
+#
+sub GetPathToRepoForBranch($;$)
+{
+  my $Repository   = shift;
+  my $CommitBranch = shift;
+
+  $Path = GetPathToRepoForBranchCHROOT($Repository, $CommitBranch);
+  
+  return "$FreshPorts::Config::JailBaseDir$Path";
 }
 
 # can we process this branch?
-sub CanWeProcessThisBranch($)
+# I think this is only used by svn processing at present.  This function is invoked
+# only from within process_svn_mail.pm
+#
+sub CanWeProcessThisBranch($;$)
 {
   my $CommitBranch = shift;
   
-  my $RepoPath = GetPathToRepoForBranch($CommitBranch);
+  my $RepoPath = GetPathToRepoForBranchSVN($CommitBranch);
   
   FreshPorts::Utilities::Report('notice', "Let us verify that RepoPath ('$RepoPath') for Branch '$CommitBranch' actually exists on disk.");
 
@@ -156,7 +243,5 @@ sub SetBranchInDB($$) {
 }
 
 FreshPorts::Utilities::InitSyslog();
-
-
 
 1;

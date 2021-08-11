@@ -13,9 +13,10 @@ use strict;
 
 use Text::Wrap;
 
-$FreshPorts::CommitterOptIn::CommitMessageID      = '';
+$FreshPorts::CommitterOptIn::CommitMessageID  = '';
+$FreshPorts::CommitterOptIn::CommitMessageLog = '';
 $FreshPorts::CommitterOptIn::CommitMessageSubject = '';
-$FreshPorts::CommitterOptIn::Errors               = '';
+$FreshPorts::CommitterOptIn::Errors           = '';
 
 my %PortList;
 
@@ -36,6 +37,10 @@ sub RecordErrorDetails {
 
 sub RecordCommitMessageID {
 	$FreshPorts::CommitterOptIn::CommitMessageID .= shift;
+}
+
+sub RecordCommitMessageLog {
+	$FreshPorts::CommitterOptIn::CommitMessageLog .= shift;
 }
 
 sub RecordCommitMessageSubject {
@@ -80,8 +85,8 @@ sub GetErrorCount {
 }
 
 sub NotifyCommitter {
-	my $committer	= shift;
-	my $dbh			= shift;
+	my $committer = shift;
+	my $dbh       = shift;
 
 	$Text::Wrap::columns = 72;
 
@@ -91,9 +96,19 @@ You recently made this commit, which FreshPorts FreshPorts had trouble
 processing:
 
 MessageID: $FreshPorts::CommitterOptIn::CommitMessageID
-Subject  : $FreshPorts::CommitterOptIn::CommitMessageSubject
+";
 
-The following is a list of the ports which had errors:
+	# git uses log
+	# svn uses email message subject
+	if (defined($FreshPorts::CommitterOptIn::CommitMessageSubject)) {
+		$Body .= "Subject  : $FreshPorts::CommitterOptIn::CommitMessageSubject
+";
+	} else {
+		$Body .= "Log      : $FreshPorts::CommitterOptIn::CommitMessageLog
+";
+	}
+
+	$Body .= "The following is a list of the ports which had errors:
 
 ";
 

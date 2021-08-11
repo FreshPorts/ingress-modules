@@ -7,11 +7,8 @@
 package FreshPorts::email;
 
 use strict;
-use Email::Sender::Simple qw(sendmail);
-use Email::Simple;
-use Email::Simple::Creator;
 use Email::Sender::Transport::SMTP;
-
+use Email::Stuffer;
 use FreshPorts::config;
 use FreshPorts::utilities;
 use IO::Socket::SSL;
@@ -41,23 +38,19 @@ sub SendMail($;$;$;$;$;$) {
 		ssl  => 'starttls',
 		debug => 0,
 	});
- 
-	my $email = Email::Simple->create(
-            header => [
-            	To      => $To,
-                From    => $From,
-                Subject => $Subject,
-	    ],
-	    body => $Body,
-	);
 
-	# inject the headers
+	my $email = Email::Stuffer->from     ($From     )
+	                          ->to       ($To       )
+	                          ->subject  ($Subject  )
+	                          ->text_body($Body     )
+	                          ->transport($transport);
+
 	for my $header(keys %Headers) {
-		$email->header_set($header => $Headers{$header});
+		$email->header($header => $Headers{$header});
 	}
 
 	try {
-		sendmail($email, { transport => $transport} );
+		$email->send; 
 	}
 	catch {
 		# we set the last parameter to zero to avoid recursion - if 1, that function would call this function...etc.
