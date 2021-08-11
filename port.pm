@@ -818,8 +818,8 @@ sub _ExtractValuesFromMakefile {
 		#
 		# make -V PKGMESSAGE
 		#
-		# [dan@dev-ingress01:/var/db/freshports/ports-jail/usr/ports/sysutils/bacula9-server] $ make -V PKGMESSAGE
-		# /var/db/freshports/ports-jail/usr/ports/sysutils/bacula9-server/work/pkg-message.server
+		# [dan@freshports:/usr/ports/sysutils/bacula9-server] $ make -V PKGMESSAGE
+		# /usr/ports/sysutils/bacula9-server/work/pkg-message.server
 
 		#
 
