@@ -1223,21 +1223,9 @@ sub RefreshFromFiles($;$;$) {
 	print "into RefreshFromFiles()\n";
 	print "working with repo='$Repository'\n";
 	print "working on CommitBranch='$CommitBranch'\n";
-	if (defined($svn_revision)) {
-	  print "with svn_revision='$svn_revision'\n";
-        } else { 
-	  print "with svn_revision='NOT DEFINED'\n";
-        }
+	
+	# this function used to do a lot more than it does now.
         
-        if ($fetch_files) {
-		# see https://github.com/FreshPorts/freshports/issues/325
-		FreshPorts::Utilities::ReportError('warning', "fetch_files is set true. We ain't got no time for that.", 1);
-        }
-
-	if (!defined($needs_refresh)) {
-		FreshPorts::Utilities::ReportError('warning', "needs_refresh has no value", 1);
-	}
-
 	my $result = 0;
 	my $error;
 
