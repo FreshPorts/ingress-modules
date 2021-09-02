@@ -348,6 +348,8 @@ update ports
           $this->update_package_flavors($CommitBranch);
         }
 
+	print "leaving FreshPorts::Port::_save\n";
+
 	# after savings, return the ID
 	return $this->{id};
 }
@@ -527,7 +529,9 @@ sub _ExtractValuesFromMakefile {
           die("Unknown RepoType='$this->{RepoType}'");
         }
 
-        # this is a full pathname (i.e. not chroot'd)
+        # this is a full pathname including the jail dir name
+        # we use this to verify the Makefile exists from outside the jail
+        #
 	my $MakefileDirectory = "$FreshPorts::Config::JailBaseDir$REPODIR/$this->{category}/$this->{name}";
 
         print "CommitBranch:   '$CommitBranch\n";	
@@ -828,9 +832,8 @@ sub _ExtractValuesFromMakefile {
 		$pkgmessagepath =~ s|//|/|g;
 
 		print "\$pkgmessagepath='$pkgmessagepath'\n";
-		print "\$FreshPorts::Config::JailBaseDir . \$pkgmessagepath='$FreshPorts::Config::JailBaseDir$pkgmessagepath'\n";
-		# $pkgmessagepath is relative to the jail directory, so we need to prefix that here.
-		my $RealPKGMESSAGEPath = $this->_GetRealPath($FreshPorts::Config::JailBaseDir . $pkgmessagepath);
+		# $pkgmessagepath is relative to the inside of the jail, so no prefix required on this call.
+		my $RealPKGMESSAGEPath = $this->_GetRealPath($pkgmessagepath);
 		print "\$RealPKGMESSAGEPath='$RealPKGMESSAGEPath'\n";
 
 		# if it's defined, and it exists....
@@ -1235,6 +1238,7 @@ sub RefreshFromFiles($;$;$) {
 		$result = 1;
 	}
 
+	print "leaving RefreshFromFiles()\n";
 	return $result;
 }
 
