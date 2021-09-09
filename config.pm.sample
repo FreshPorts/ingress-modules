@@ -53,7 +53,7 @@ $FreshPorts::Config::QueueBaseDir               = $FreshPorts::Config::BaseDir .
 #
 # where on disk is the repo directory? This is a ports tree directory.
 #
-$FreshPorts::Config::PortsDir                  = '/usr/ports';
+$FreshPorts::Config::PortsDir                   = '/usr/ports';
 
 # various repo names that we follow
 $FreshPorts::Config::Repo_DOC             = 'doc';
