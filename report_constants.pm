@@ -27,9 +27,9 @@ Please refer to $WatchURL for details.
 -- 
 
 You are receiving this message as part of the service you joined at
-$FreshPorts::Config::FreshPortsURL.  You can unsubscribe at
-$ReportSubscriptionURL.
+$FreshPorts::Config::FreshPortsURL - You can unsubscribe at
+$ReportSubscriptionURL
 
-If a problem occurs, please send details to postmaster\@FreshPorts.org.";
+If a problem occurs, please send details to postmaster\@FreshPorts.org";
 
 1;
