@@ -805,12 +805,15 @@ sub RefreshAllSlavePortsOfPortsTouchedByCommit($;$;$;$;$;$) {
 	# For each slave port
 	while (my ($PortName, $ignore) = each %Slaves) {
 		# fetch it
+		print "looking at '$PortName'\n";
 		my $port = FreshPorts::Port->new($dbh, $RepoType);
 		
 		my $pathname;
 
 		# we have to fetch from the branch
 		$port->{partialpathname} = $FreshPorts::Config::Ports_Default_Directory . '/' . $PortName;
+		print "partialpathname is '" . $port->{partialpathname} . "'\n";
+		print "Given \$BranchStripped is '$BranchStripped':\n";
 		if ($BranchStripped eq $FreshPorts::Constants::HEAD)
 		{
 		  $pathname = $FreshPorts::Config::DB_Root_Prefix_PORTS . '/head/' . $PortName;
@@ -820,7 +823,8 @@ sub RefreshAllSlavePortsOfPortsTouchedByCommit($;$;$;$;$;$) {
 		  $pathname = $FreshPorts::Config::DB_Root_Prefix_PORTS . '/branches/' . $BranchStripped . '/' . $PortName;
 		}
 
-        $port->{partialpathname} = $pathname;
+		$port->{partialpathname} = $pathname;
+		print "that changes to / remains: '" . $port->{partialpathname} . "'\n";
 		my $port_id = $port->FetchByPartialPathName();
 		# if no such port, then it has not yet been committed to this branch
 		if (!defined($port_id)) {
