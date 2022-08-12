@@ -21,6 +21,9 @@ use strict;
 use FreshPorts::config;
 use FreshPorts::constants;
 
+# added to catch errors when printing SQL
+use Try::Tiny;
+
 # for Ade's special code in update_depends_helper
 use List::MoreUtils qw(uniq);
 
@@ -285,8 +288,11 @@ update ports
 		
 		$sql .= " where id = $this->{id}";
 
-		print "sql = $sql\n";
-
+		try {
+			print "sql = $sql\n";
+		} catch {
+			print "ERROR PRINTING SQL.  Maintainer: '" . $this->{maintainer} . "' homepage: '" . $this->{homepage} . "' package_name: '" . $this->{package_name} . "'\n";
+		};
 		$sth = $this->{dbh}->prepare($sql);
 		$sth->execute ||
 			FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql ... maybe invalid? " . $dbh->errstr, 1);
@@ -1427,7 +1433,7 @@ sub update_depends_helper {
   my $port_dependencies = FreshPorts::PortDependencies->new( $this->{dbh} );
 
   foreach $dependent (@depends_list) {
-    print 'adding in ' . $dependent;
+    print "adding in '$dependent'\n";
     
     # a dependant might be of the form:
     #
