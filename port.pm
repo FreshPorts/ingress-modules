@@ -390,7 +390,7 @@ sub FetchByID {
 
 	$dbh = $this->{dbh};
 
-	$sql = "
+	$sql = "SET CLIENT_ENCODING TO 'ISO-8859-1';
    select ports.*,
           categories.name as category, 
           element.name    as name, 
@@ -728,7 +728,8 @@ sub _ExtractValuesFromMakefile {
 		 my $only_for_archs, my $not_for_archs,      my $license,              my $fetchdepends, 
 		 my $extractdepends, my $patchdepends,       my $uses,                 my $pkgmessagepath,
 		 my $distinfo_file,  my $license_restricted, my $manual_package_build, my $license_perms,
-		 my $conflicts,      my $conflicts_build,    my $conflicts_install,    my $options_name) = split(/\n/s, $MakeResults);
+		 my $conflicts,      my $conflicts_build,    my $conflicts_install,    my $options_name,
+		 my $homepage) = split(/\n/s, $MakeResults);
 
 		my $package_name = $pkgnameprefix . $portname . $pkgnamesuffix;
 
@@ -768,6 +769,7 @@ sub _ExtractValuesFromMakefile {
 		print " packagename              = '$portname'\n";
 		print " category                 = '$this->{category}'\n";
 		print " packagename              = '$packagename'\n";
+		print " homepage                 = '$homepage'\n";
 		print " descrpath                = '$descrpath'\n";
 		print " categories               = '$categories'\n";
 		print " portversion              = '$portversion'\n";
@@ -807,8 +809,8 @@ sub _ExtractValuesFromMakefile {
 		}
 
 		# if it's defined, and it exists....
-		my $longdescription = '';
-		my $homepage        = '';
+		my $longdescription    = '';
+		my $homepage_pkg_descr = '';
 		if (looks_like_number($RealDescrPath))
 		{
                   print "Description file does not exist: '$descrpath' (result of make -V DESCR)\n";
@@ -818,11 +820,32 @@ sub _ExtractValuesFromMakefile {
 		{
                    if (defined($RealDescrPath) && $RealDescrPath) {
                       print "invoking _GetDescrAndHomePage() for DESCR with '$RealDescrPath'\n";
-                      ($longdescription, $homepage) = $this->_GetDescrAndHomePage($RealDescrPath);
+                      ($longdescription, $homepage_pkg_descr) = $this->_GetDescrAndHomePage($RealDescrPath);
                    }
 		}
 
 		chomp($longdescription); # get rid of the trailing whitespace.
+
+                # For decades, WWW was obtained from pkg-descr, hence the above code extracting said value.
+                # 		
+		# https://cgit.freebsd.org/ports/commit/?id=b7f05445c00f2625aa19b4154ebcbce5ed2daa52 moved WWW
+		# from pkg-descr to Makefile
+		#
+		# see also https://cgit.freebsd.org/ports/commit/?id=fb16dfecae4a6efac9f3a78e0b759fb7a3c53de4
+		#
+		# Support for make -V www was added via https://cgit.freebsd.org/ports/commit/?id=ddd0e820c8eb73acef94c72434c382982d0fa329
+		#
+		# If we didn't get a value from the Makefile, but we did get a value from
+		# pkg-descr, use the latter.
+		#
+		# This allows non-conforming ports to obtain the appropriate value. e.g. ports on 2022Q3
+		# Quarterly branch ports won't get this until 2022Q4
+		#
+		print " homepage_pkg_descr       = '$homepage_pkg_descr'\n";
+		if ($homepage eq '') {
+                    $homepage = $homepage_pkg_descr;
+                    print "\$homepage is empty, using \$homepage_pkg_descr instead\n";
+                }
 
 		print "Grabbing make -V PKGMESSAGE\n";
 		#
@@ -830,8 +853,6 @@ sub _ExtractValuesFromMakefile {
 		#
 		# [dan@freshports:/usr/ports/sysutils/bacula9-server] $ make -V PKGMESSAGE
 		# /usr/ports/sysutils/bacula9-server/work/pkg-message.server
-
-		#
 
 		# eliminate multiple // : PR 174
 		# to compensate for bug in File::PathConvert::realpath (which is no longer used; _GetRealPath)
