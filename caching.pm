@@ -4,6 +4,10 @@
 #
 # Copyright (c) 2001-2006 DVL Software
 #
+#
+# This is only valid on webserver hosts.
+# It won't work as expected on ingress hosts.
+#
 
 package FreshPorts::Caching;
 
