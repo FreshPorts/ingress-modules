@@ -31,6 +31,7 @@ sub Eat($;$;$;$;$) {
 	my $sql;
 	my @row;
 
+	Sys::Syslog::syslog('notice', 'Entering ' . __FILE__ . "::Eat\n");
 	if ($File eq $FreshPorts::Constants::PORTS_MOVED) {
  		# no need to fetch this file, it's in the ports tree.
  		# fetching such files is part of the usual process.	
@@ -95,6 +96,7 @@ sub Eat($;$;$;$;$) {
 		}
 	}
 	
+	Sys::Syslog::syslog('notice', 'Returning from ' . __FILE__ . "::Eat with ErrorCode='$ErrorCode'\n");
 	return $ErrorCode;
 
 }
