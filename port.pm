@@ -85,6 +85,7 @@ sub _initialize {
 	$this->{conflicts_install}    = '';
 	$this->{options_name}         = '';
 	$this->{generate_plist}       = '';
+	$this->{makefile}             = '';
 
 	$this->{categories}           = '';
 	$this->{element_pathname}     = '';
@@ -146,6 +147,7 @@ sub _GetValuesFromRow {
 	$this->{conflicts_install}     = $row->{conflicts_install};
 	$this->{options_name}          = $row->{options_name};
 	$this->{generate_plist}        = $row->{generate_plist};
+	$this->{makefile}              = $row->{makefile};
 
 	$this->{categories}            = $row->{categories};
 	$this->{last_commit_id}        = $row->{last_commit_id};
@@ -278,6 +280,7 @@ update ports
        conflicts_build      = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{conflicts_build})        . ", 
        conflicts_install    = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{conflicts_install})      . ", 
        options_name         = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{options_name})           . ", 
+       makefile             = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{makefile})               . ", 
        categories           = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{categories});
 
 
@@ -509,6 +512,8 @@ sub _ExtractValuesFromMakefile {
 	my $this         = shift;
 	my $Repository   = shift;
 	my $CommitBranch = shift;
+
+	my $makefile; # contents of Makefile for this port
 
 	my $result;
 	my $makecommand;
@@ -918,6 +923,20 @@ sub _ExtractValuesFromMakefile {
 		}
 		chomp($distinfo); # get rid of the trailing whitespace.
 
+		print "extracting Makefile contents for full test searching\n";
+		# this is relative to the host root, not the ports jail root
+		print "\$Makefile='$Makefile'\n";
+		# Let's pull in the Makefile file for full text searching
+		if (defined($Makefile) && $Makefile) {
+		  print "invoking _GetFileContents() for Makefile with '$Makefile'\n";
+		  $makefile = $this->_GetFileContents($Makefile);
+#		  print "back from _GetFileContentsFromJail with '$makefile'\n";
+		} else {
+		  print "Sorry kids, '$Makefile' doesn't look good to me\n";
+		}
+		chomp($makefile); # get rid of the trailing whitespace.
+
+
 
 		# extract the generate_plist contents
 		my $configure_plist_command = "/usr/local/bin/sudo /usr/sbin/jexec $FreshPorts::Config::JailName $FreshPorts::Config::JailConfigurePlist $REPODIR_CHROOT $this->{category}/$this->{name} 2>$TmpFile";
@@ -958,8 +977,9 @@ sub _ExtractValuesFromMakefile {
 
 
 		# show some results
-		print "12x \$generate_plist      = '$generate_plist\n'";
-		print "12y \$package_flavors     = '$package_flavors\n'";
+		print "12x \$generate_plist      = '$generate_plist'\n";
+		print "12y \$package_flavors     = '$package_flavors'\n";
+		print "12z \$makefile            = '$makefile'\n";
 
 		print "12 \$shortdescription     = '$shortdescription'\n";
 		print "13 \$longdescription      = '$longdescription'\n";
@@ -1068,6 +1088,7 @@ sub _ExtractValuesFromMakefile {
 		$this->{options_name}	        = $options_name;
 		$this->{conflicts_build}	= $conflicts_build;
 		$this->{generate_plist}		= $generate_plist;
+		$this->{makefile}		= $makefile;
 		# convert all whitespace to a single space
 		# This arose from 200609130717.k8D7HpNc057638@repoman.freebsd.org
 		#
@@ -1177,14 +1198,23 @@ sub _GetDescrAndHomePage($) {
 sub _GetFileContentsFromJail($) {
 	my $this = shift;
 	my $file = shift;
+
+	return $this->_GetFileContents($FreshPorts::Config::JailBaseDir . $file);
+}
+
+
+# =================================
+sub _GetFileContents($) {
+	my $this = shift;
+	my $file = shift;
 	my $filecontents;
 
-	print "about to read from " . $FreshPorts::Config::JailBaseDir . $file . "\n";
+	print "about to read from " . $file . "\n";
 
 	$filecontents = "";
 	# this needs to open relative to the jail root.
 	# to be pure, we should do this as a script in the jail-root
-	if (open (F, $FreshPorts::Config::JailBaseDir . $file))
+	if (open (F, $file))
 	{
 	
 	  while(<F>){
