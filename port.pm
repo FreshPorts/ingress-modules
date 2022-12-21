@@ -74,6 +74,7 @@ sub _initialize {
 	$this->{fetch_depends}        = '';
 	$this->{extract_depends}      = '';
 	$this->{patch_depends}        = '';
+	$this->{test_depends}         = '';
 	$this->{uses}                 = '';
 	$this->{pkgmessage}           = '';
 	$this->{distinfo}             = '';
@@ -136,6 +137,7 @@ sub _GetValuesFromRow {
 	$this->{fetch_depends}         = $row->{fetch_depends};
 	$this->{extract_depends}       = $row->{extract_depends};
 	$this->{patch_depends}         = $row->{patch_depends};
+	$this->{test_depends}          = $row->{test_depends};
 	$this->{uses}                  = $row->{uses};
 	$this->{pkgmessage}            = $row->{pkgmessage};
 	$this->{distinfo}              = $row->{distinfo};
@@ -270,6 +272,7 @@ update ports
        fetch_depends        = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{fetch_depends})          . ", 
        extract_depends      = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{extract_depends})        . ", 
        patch_depends        = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{patch_depends})          . ", 
+       test_depends         = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{test_depends})           . ", 
        uses                 = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{uses})                   . ", 
        pkgmessage           = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{pkgmessage})             . ", 
        distinfo             = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{distinfo})               . ", 
@@ -734,7 +737,7 @@ sub _ExtractValuesFromMakefile {
 		 my $extractdepends, my $patchdepends,       my $uses,                 my $pkgmessagepath,
 		 my $distinfo_file,  my $license_restricted, my $manual_package_build, my $license_perms,
 		 my $conflicts,      my $conflicts_build,    my $conflicts_install,    my $options_name,
-		 my $homepage) = split(/\n/s, $MakeResults);
+		 my $homepage,       my $testdepends) = split(/\n/s, $MakeResults);
 
 		my $package_name = $pkgnameprefix . $portname . $pkgnamesuffix;
 
@@ -766,6 +769,7 @@ sub _ExtractValuesFromMakefile {
 		$fetchdepends   = FreshPorts::Utilities::trim_multiple_to_single(FreshPorts::Utilities::trim($fetchdepends));
 		$extractdepends = FreshPorts::Utilities::trim_multiple_to_single(FreshPorts::Utilities::trim($extractdepends));
 		$patchdepends   = FreshPorts::Utilities::trim_multiple_to_single(FreshPorts::Utilities::trim($patchdepends));
+		$testdepends    = FreshPorts::Utilities::trim_multiple_to_single(FreshPorts::Utilities::trim($testdepends));
 
 
 		$master_port =~ s|$REPODIR_CHROOT/||;
@@ -790,6 +794,7 @@ sub _ExtractValuesFromMakefile {
 		print " fetchdepends             = '$fetchdepends'\n";
 		print " extractdepends           = '$extractdepends'\n";
 		print " patchdepends             = '$patchdepends'\n";
+		print " testdepends              = '$testdepends'\n";
 		print " uses                     = '$uses'\n";
 		print " pkgmessagepath           = '$pkgmessagepath'\n";
 		print " distinfo_file            = '$distinfo_file'\n";
@@ -1011,16 +1016,17 @@ sub _ExtractValuesFromMakefile {
 		print "35 \$fetchdepends         = '$fetchdepends'\n";
 		print "36 \$extractdepends       = '$extractdepends'\n";
 		print "37 \$patchdepends         = '$patchdepends'\n";
-		print "38 \$uses                 = '$uses'\n";
-		print "39 \$pkgmessage           = '$pkgmessage'\n";
-		print "40 \$distinfo             = '$distinfo'\n";
-		print "41 \$license_restricted   = '$license_restricted'\n";
-		print "42 \$manual_package_build = '$manual_package_build'\n";
-		print "43 \$license_perms        = '$license_perms'\n";
-		print "44 \$conflicts            = '$conflicts'\n";
-		print "45 \$conflicts_build      = '$conflicts_build'\n";
-		print "46 \$conflicts_install    = '$conflicts_install'\n";
-		print "47 \$options_name         = '$options_name'\n";
+		print "38 \$testdepends          = '$testdepends'\n";
+		print "39 \$uses                 = '$uses'\n";
+		print "41 \$pkgmessage           = '$pkgmessage'\n";
+		print "42 \$distinfo             = '$distinfo'\n";
+		print "43 \$license_restricted   = '$license_restricted'\n";
+		print "44 \$manual_package_build = '$manual_package_build'\n";
+		print "45 \$license_perms        = '$license_perms'\n";
+		print "46 \$conflicts            = '$conflicts'\n";
+		print "47 \$conflicts_build      = '$conflicts_build'\n";
+		print "48 \$conflicts_install    = '$conflicts_install'\n";
+		print "49 \$options_name         = '$options_name'\n";
 
 		print "\n ---------------------------------------- \n";
 
@@ -1077,6 +1083,7 @@ sub _ExtractValuesFromMakefile {
 		$this->{fetch_depends}		= $fetchdepends;
 		$this->{extract_depends}	= $extractdepends;
 		$this->{patch_depends}		= $patchdepends;
+		$this->{test_depends}		= $testdepends;
 		$this->{uses}	    		= $uses;
 		$this->{pkgmessage} 		= $pkgmessage;
 		$this->{distinfo}		= $distinfo;
@@ -1435,6 +1442,7 @@ sub update_depends {
   $this->update_depends_helper( $CommitBranch, $this->{fetch_depends},   'F' ); # fetch
   $this->update_depends_helper( $CommitBranch, $this->{extract_depends}, 'E' ); # extract
   $this->update_depends_helper( $CommitBranch, $this->{patch_depends},   'P' ); # patch
+  $this->update_depends_helper( $CommitBranch, $this->{test_depends},    'T' ); # test
 }
 
 sub depends_type_long {
@@ -1443,6 +1451,7 @@ sub depends_type_long {
 
   my %depends = (
     'B' => 'BUILD_DEPENDS',
+    'T' => 'TEST_DEPENDS',
     'R' => 'RUN_DEPENDS',
     'L' => 'LIB_DEPENDS',
     'F' => 'FETCH_DEPENDS',
