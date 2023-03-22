@@ -46,13 +46,13 @@ sub FetchByMaster($) {
 	my $dbh = $this->{dbh};
 
 	my $MasterPort = shift;
+	# As of 2022-12-10, ports_active is head only
+	# we can remove the element_pathname references
 	$sql = "
 SELECT PA.name        AS slave_port_name,
        PA.category    AS slave_category_name
        FROM ports_active PA, element_pathname EP
  WHERE PA.master_port = " . $dbh->quote($MasterPort) . "
-   AND EP.pathname    ilike '/ports/head/%'
-   AND PA.element_id  = EP.element_id
 ORDER BY slave_category_name, slave_port_name";
 
 #	echo "sql = <pre>$sql</pre>";
