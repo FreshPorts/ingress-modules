@@ -652,6 +652,10 @@ sub RefreshAllSlavePortsOfPortsTouchedByCommit($;$;$;$;$;$) {
 
 	# head or 2020Q3
 	my $BranchStripped = FreshPorts::Branches::stripBranchesToGetBranchName($CommitBranch);
+	if ($BranchStripped eq $FreshPorts::Constants::MAIN) {
+		# we don't use main here, we use head, to indicate .. head.
+		$BranchStripped = $FreshPorts::Constants::HEAD;
+	}
 
 	my $ErrorFound = 0;
 	my $MasterSlave;

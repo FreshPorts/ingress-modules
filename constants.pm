@@ -52,6 +52,7 @@ $FreshPorts::Constants::DISTDIR				= '/usr/ports/distfiles';
 
 $FreshPorts::Constants::HEAD				= 'head';
 $FreshPorts::Constants::MASTER				= 'master';
+$FreshPorts::Constants::MAIN				= 'main';
 $FreshPorts::Constants::PORTS 				= 'ports';
 
 #
