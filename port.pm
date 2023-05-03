@@ -870,7 +870,11 @@ sub _ExtractValuesFromMakefile {
 
 		print "\$pkgmessagepath='$pkgmessagepath'\n";
 		# $pkgmessagepath is relative to the inside of the jail, so no prefix required on this call.
-		my $RealPKGMESSAGEPath = $this->_GetRealPath($pkgmessagepath);
+		my $RealPKGMESSAGEPath = '';
+		if ($pkgmessagepath ne '') {
+		  # avoid invoking _GetRealPath() with an empty string because that logs an error
+		  $RealPKGMESSAGEPath = $this->_GetRealPath($pkgmessagepath);
+		}
 		print "\$RealPKGMESSAGEPath='$RealPKGMESSAGEPath'\n";
 
 		# if it's defined, and it exists....
