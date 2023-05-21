@@ -51,7 +51,7 @@ sub FetchByMaster($) {
 	$sql = "
 SELECT PA.name        AS slave_port_name,
        PA.category    AS slave_category_name
-       FROM ports_active PA, element_pathname EP
+       FROM ports_active PA JOIN element_pathname EP ON PA.element_id = EP.element_id
  WHERE PA.master_port = " . $dbh->quote($MasterPort) . "
 ORDER BY slave_category_name, slave_port_name";
 
