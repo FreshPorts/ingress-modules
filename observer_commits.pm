@@ -1,3 +1,4 @@
+#!/usr/local/bin/perl -w
 #
 # Copyright (c) 2004-2006 DVL Software
 #

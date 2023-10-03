@@ -1,3 +1,4 @@
+#!/usr/local/bin/perl -w
 #
 # $Id: report_constants.pm,v 1.3 2007-04-02 20:11:19 dan Exp $
 #

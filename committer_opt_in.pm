@@ -1,4 +1,4 @@
-#
+#!/usr/local/bin/perl -w
 #
 # $Id: committer_opt_in.pm,v 1.3 2012-06-26 12:24:51 dan Exp $
 #

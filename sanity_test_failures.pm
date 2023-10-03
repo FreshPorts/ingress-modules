@@ -1,4 +1,4 @@
-#!/usr/local/bin/perl
+#!/usr/local/bin/perl -w
 #
 # $Id: sanity_test_failures.pm,v 1.2 2006-12-17 12:04:03 dan Exp $
 #

@@ -1,5 +1,4 @@
-#!/usr/local/bin/perl
-
+#!/usr/local/bin/perl -w
 # 
 # $Id: xml_munge.pm,v 1.18 2012-10-23 16:31:04 dan Exp $
 #

@@ -1,3 +1,4 @@
+#!/usr/local/bin/perl -w
 #
 # $Id: constants.pm,v 1.16 2012-12-21 18:20:53 dan Exp $
 #

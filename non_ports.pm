@@ -1,3 +1,4 @@
+#!/usr/local/bin/perl -w
 #
 # $Id: non_ports.pm,v 1.2 2006-12-17 12:04:01 dan Exp $
 #

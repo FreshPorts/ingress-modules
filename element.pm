@@ -1,4 +1,4 @@
-#!/usr/local/bin/perl
+#!/usr/local/bin/perl -w
 #
 # $Id: element.pm,v 1.13 2012-09-25 18:11:23 dan Exp $
 #

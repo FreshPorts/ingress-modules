@@ -1,3 +1,4 @@
+#!/usr/local/bin/perl -w
 #
 # $Id: db_utils.pm,v 1.4 2006-12-17 12:04:00 dan Exp $
 #

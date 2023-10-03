@@ -1,4 +1,4 @@
-#!/usr/local/bin/perl
+#!/usr/local/bin/perl -w
 #
 # $Id: announcements.pm,v 1.3 2007-04-06 23:07:32 dan Exp $
 #

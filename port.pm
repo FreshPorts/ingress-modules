@@ -1,4 +1,4 @@
-#!/usr/local/bin/perl
+#!/usr/local/bin/perl -w
 #
 # $Id: port.pm,v 1.73 2013-04-24 12:22:43 dan Exp $
 #
@@ -7,6 +7,10 @@
 #
 
 package FreshPorts::Port;
+
+# for https://github.com/FreshPorts/freshports/issues/455
+use open ':std', ':encoding(UTF-8)';
+
 require Exporter;
 require FreshPorts::config;
 require FreshPorts::element;

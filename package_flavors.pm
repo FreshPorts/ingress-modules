@@ -1,4 +1,4 @@
-#!/usr/local/bin/perl
+#!/usr/local/bin/perl -w
 #
 # $Id: commit_log_port_elements.pm,v 1.4 2006-12-17 12:03:59 dan Exp $
 #

@@ -1,3 +1,4 @@
+#!/usr/local/bin/perl -w
 #
 # $Id: messages.pm,v 1.3 2012-06-22 15:17:27 dan Exp $
 #

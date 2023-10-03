@@ -1,3 +1,4 @@
+#!/usr/local/bin/perl -w
 #
 #
 # $Id: utilities.pm,v 1.27 2012-08-15 11:49:10 dan Exp $
