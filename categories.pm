@@ -9,7 +9,7 @@ require FreshPorts::utilities;
 
 use strict;
 
-# start wtih an empty array
+# start with an empty array
 @FreshPorts::Categories::categories = ();
 
 # =================================
