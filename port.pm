@@ -767,6 +767,8 @@ sub _ExtractValuesFromMakefile {
 		# 
 		# freshports.org=#
 		
+		print " rundepends as taken from script '$rundepends'\n";
+		
 		$builddepends   = FreshPorts::Utilities::trim_multiple_to_single(FreshPorts::Utilities::trim($builddepends));
 		$rundepends     = FreshPorts::Utilities::trim_multiple_to_single(FreshPorts::Utilities::trim($rundepends));
 		$libdepends     = FreshPorts::Utilities::trim_multiple_to_single(FreshPorts::Utilities::trim($libdepends));
@@ -1481,6 +1483,7 @@ sub update_depends_helper {
   my $depends      = shift;
   my $depends_type = shift;
 
+  my $depend;
   my $dependent;
 
   if ( !defined($depends) || $depends eq '' )
@@ -1500,8 +1503,8 @@ sub update_depends_helper {
 
   my $port_dependencies = FreshPorts::PortDependencies->new( $this->{dbh} );
 
-  foreach $dependent (@depends_list) {
-    print "adding in '$dependent'\n";
+  foreach $depend (@depends_list) {
+    print "adding in '$depend'\n";
     
     # a dependant might be of the form:
     #
@@ -1510,9 +1513,15 @@ sub update_depends_helper {
     # 
     # So we need to split them on either : or @
     #
-    ($dependent, undef) = split /[@\:]/, $dependent;
+    ($dependent, undef) = split /[@\:]/, $depend;
     
+    if (!defined($dependent)) {
+      FreshPorts::Utilities::ReportError('warning', "Could not split dependent '$depend ... maybe invalid? ", 1);
+      continue;
+    }
+
     print " which converts to '$dependent'\n";
+    
     
     $port_dependencies->{port_name}           = $this->{category} . '/' . $this->{name};
     $port_dependencies->{port_name_dependent} = $dependent;
