@@ -459,7 +459,7 @@ sub RecordVulnerabilitiesForThisPortVersion($;$;$;$;$;$) {
 
 sub ClearCachedEntries($) {
 	my $this = shift;
-    my $VID  = shift;
+	my $VID  = shift;
 
 	my $dbh  = $this->{dbh};
 	my $sth;
@@ -468,7 +468,8 @@ sub ClearCachedEntries($) {
 	my $i = 0;
 
 	$sql = '
-SELECT C.name AS category,
+SELECT P.id   AS port_id,
+       C.name AS category,
        E.name AS port
  FROM element E, categories C, ports P 
     JOIN (SELECT DISTINCT port_id
@@ -477,7 +478,7 @@ SELECT C.name AS category,
              AND V.vid = ' . $dbh->quote($VID) . ') as tmp on P.id = tmp.port_id
            WHERE E.id = P.element_id
              AND C.id = P.category_id
-        ORDER BY 1, 2';
+        ORDER BY category, port';
 
 	print "sql is $sql\n";
 
@@ -488,7 +489,7 @@ SELECT C.name AS category,
 	my $Caching = FreshPorts::Caching->new($dbh);
     while ($updated_port = $sth->fetchrow_hashref()) {
         $i++;
-		$Caching->RemovePortFromCache($updated_port->{category}, $updated_port->{port});
+		$Caching->RemovePortFromCache($updated_port->{port_id}, $updated_port->{category}, $updated_port->{port});
 	}
 
     return $i;

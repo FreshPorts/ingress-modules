@@ -17,8 +17,8 @@ my %PortsCacheRemove;
 my %FilesCacheRemove;
 
 sub new {
-	my $this		= {};
-	my $class		= shift;
+	my $this	= {};
+	my $class	= shift;
 
 	$this->{dbh}	= shift;
 
@@ -96,20 +96,60 @@ sub update {
 			$port = $commit_log_ports->{port};
 			print "$port->{category}/$port->{name}\n";
 			
-			$PortsCacheRemove{"$port->{category}/$port->{name}"}	= "$port->{category}/$port->{name}";
+			$PortsCacheRemove{"$port->{category}/$port->{name}"} = "$port->{category}/$port->{name}";
 		}
 
-		# right here, verify that $category_name is not a valid category.
-		# first, fetch them all.
-
 		print "Observer will clear the following files from cache after the commit:\n";
+
+		# declare these first
+		my ($null, $subtree, $head, $branches, $category_name, $port_name, $extra);
+
+		# For /ports/head/net/openmpi3/files/patch-opal_mca_pmix_pmix2x_pmix_src_mca_pshmem_mmap_pshmem__mmap.c for cache clearinge, we'd get:
+		# null          = ''
+		# subtree       = 'ports'
+		# head          = 'head'
+		# category_name = 'net'
+		# port_name     = 'openmpi3'
+		# extras        = 'files/patch-opal_mca_pmix_pmix2x_pmix_src_mca_pshmem_mmap_pshmem__mmap.c'
+		#
+		# For /ports/branches/2023Q4/net/traefik/Makefile, we'd get:
+		# null          = ''
+		# subtree       = 'ports'
+		# branches      = 'branches'
+		# branch        = '2023Q4'
+		# category_name = 'net'
+		# port_name     = 'traefik'
+		# extras        = 'Makefile'
+
 		my @Files = @{$params{Files}};
 		foreach $value (@Files) {
 			my ($action, $filename, $revision, $commit_log_element_id, $element_id) = @$value;
-			my ($subtree, $category_name, $port_name, $extra) = split/\//,$filename, 4;
 
-			# look for special files outside a port, such as LEGAL, GIDs, UIDs, .hooks
-			if ( ! any {/$category_name/} @FreshPorts::Categories::categories ) {
+			# if we're on head, we figure out the path components differently than on a branch
+			$on_head = $filename =~ m/^$FreshPorts::Constants::Ports_HEAD_commit/;
+
+			# see above for a breakdown on what this does
+			# because the path always starts with a leading /, the first component pulled out is always an empty string
+			if ($on_head) {
+				($null, $subtree, $head, $category_name, $extra) = split/\//,$filename, 5;
+			} else {
+				($null, $subtree, $branches, $branch, $category_name, $extra) = split/\//,$filename, 6;
+			}
+
+#			print "checking category: '$category_name'\n";
+
+			# This decides what to clear from cache and what to ignore, because it is not cached, or will be cleared
+			# when a 'parent' item is cleared. e.g. sysutils/anvil/Makefile will get cleared when sysutils/anvil is
+			# cleared.
+			# We want anything which is not a category
+			# If we have a port in this commit, the category is already cleared
+			# so anything in a category can be ignored.
+			# We are looking for stuff which is not under a category.
+			# We might not get a category, e.g. /base/head/ObsoleteFiles.inc in ae5c3dfd3e75bb287984947359d4f958aea505ec
+			# FreshPorts does not provided access to individual history for src and www. The data is there. The website
+			# just does not parse the incoming URI to see if thats what is being requested. It checks only for ports.
+			#
+			if ( defined($category_name) && ! any {/$category_name/} @FreshPorts::Categories::categories ) {
 				# take a copy of that filename and remove the subtree prefix. Add that to the queue for removal
 				my $FileCacheItem = $filename;
 				$FileCacheItem =~ s|^$FreshPorts::Config::ports_prefix/||g;
@@ -129,8 +169,13 @@ sub update {
 
 		use FreshPorts::caching;
 		$Caching = FreshPorts::Caching->new($class->{dbh});
-		$Caching->RemovePortsFromCache(\%PortsCacheRemove);
+#		$Caching->RemovePortsFromCache(\%PortsCacheRemove);  # I suspect this call can be dropped. The code is a NOP
 		$Caching->RemoveFilesFromCache(\%FilesCacheRemove);
+
+		# we have to commit because we are separate - the main commit has already occurred.
+        $sth = $class->{dbh}->prepare("commit");
+        $sth->execute ||
+            die "Could not execute SQL $sql ... maybe invalid?";
 	}
 
 }

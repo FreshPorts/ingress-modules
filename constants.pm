@@ -157,6 +157,12 @@ $FreshPorts::Constants::VUXML				= '\/ports\/head\/security\/vuxml/vuln/(\d{4})?
 $FreshPorts::Constants::PORTS_UPDATING			= '/ports/head/UPDATING';
 $FreshPorts::Constants::PORTS_MOVED			= '/ports/head/MOVED';
 
+# used by observer_commits.pm
+$FreshPorts::Constants::Ports_HEAD_commit		= '/ports/head/';
+
+# not used, yet. For completeness, matches Ports_HEAD_commit above
+$FreshPorts::Constants::Ports_BRANCHES_commit		= '/ports/branches/';
+
 #
 # Special repositories we watch
 #
