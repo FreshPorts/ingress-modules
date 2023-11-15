@@ -1493,6 +1493,15 @@ sub update_depends_helper {
   }
 
   print "depends with this: '$depends'\n";
+  # see https://lists.freebsd.org/archives/freebsd-ports/2023-October/004814.html
+  #     https://lists.freebsd.org/archives/freebsd-ports/2023-October/004775.html
+  #
+  my $run_depends_failure_expected = 0;
+  if ($CommitBranch eq '2023Q4' && (index($depends, ' /bin/java:') != -1)) {
+    # this will fail later: e.g.: 'jsvc:devel/apache-commons-daemon /bin/java:'
+    $run_depends_failure_expected = 1;
+    print "Detected ' /bin/java:' in \$rundepends. Probabaly a Java error on Branch 2023Q4 - https://lists.freebsd.org/archives/freebsd-ports/2023-October/004775.html\n";
+  }
 
   # this magic courtesy of Ade Lovett
   # with a tweak on 2017.12.15 from https://gist.github.com/ktracer
@@ -1505,6 +1514,14 @@ sub update_depends_helper {
 
   foreach $depend (@depends_list) {
     print "adding in '$depend'\n";
+    
+    if ($depend eq '' && $run_depends_failure_expected) {
+      print "No, we can't process that - probabaly a Java error on Branch 2023Q4 - https://lists.freebsd.org/archives/freebsd-ports/2023-October/004775.html\n";
+      FreshPorts::Utilities::Report('warning', "\$depends is empty - for branch $CommitBranch - see https://lists.freebsd.org/archives/freebsd-ports/2023-October/004775.html");
+      
+      # we can't do anything with this. It's just wrong.
+      next;
+    }
     
     # a dependant might be of the form:
     #
