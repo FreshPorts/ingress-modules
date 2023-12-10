@@ -59,43 +59,19 @@ sub Eat($;$;$;$;$) {
 		`/usr/bin/touch $FreshPorts::Config::JobWaiting`;
 	}
 
- 	if ($File eq $FreshPorts::Constants::CVSROOT_Approvers && $Repository eq $FreshPorts::Constants::Repository_Ports) {
- 		# must fetch this file.  It's not in the ports tree.
+	#
+	# When Mk/bsd.default-versions.mk changes, invoke this script
+	# re https://github.com/FreshPorts/freshports/issues/509
+	#
+ 	if ($File eq $FreshPorts::Constants::DEFAULT_VERSION) {
 		print "applying special processing to $File\n";
-		Sys::Syslog::syslog('notice', "applying special processing to $File");
- 		my $DESTDIR = $FreshPorts::Config::TMP;
- 		my $SRCDIR  = dirname ($FreshPorts::Constants::CVSROOT_Ports_Approvers);
- 		my $FILE    = basename($FreshPorts::Constants::CVSROOT_Ports_Approvers);
- 		if (FreshPorts::Utilities::FetchFile($DESTDIR, $SRCDIR, $FILE, $Revision)) {
- 			print "$DESTDIR/$FILE is our friend\n";
-			`/bin/sh process_CVSROOT_approvers.sh $DESTDIR/$FILE`;
- 			print "is $DESTDIR/$FILE still our friend?\n";
-			#
-			# We don't need to set the Job Waiting flag for this file.
-			# Processing is simple and does not involve the database.
-			#
-		} else {
-			Sys::Syslog::syslog('notice', "special processing to $File will not proceed becaused of fetch failures.");
-			$ErrorCode = 1;
-		}
+		Sys::Syslog::syslog('notice', "applying special processing to $File by creating $FreshPorts::Config::DefaultVersionsFlag");
+		
+		`/usr/bin/touch $FreshPorts::Config::DefaultVersionsFlag`;
+		`/usr/bin/touch $FreshPorts::Config::JobWaiting`;
+		# to be completed
 	}
 
- 	if ($File eq $FreshPorts::Constants::Categories) {
-		print "applying special processing to $File\n";
-		Sys::Syslog::syslog('notice', "applying special processing to $File by creating $FreshPorts::Config::WWWENPortsCategoriesFlag");
- 		# fetch this file.  It's not in the ports tree
- 		my $DESTDIR = $FreshPorts::Config::TMP;
- 		my $SRCDIR  = dirname($FreshPorts::Constants::Categories);
- 		my $FILE    = basename($FreshPorts::Constants::Categories);
- 		if (FreshPorts::Utilities::FetchFile($DESTDIR, $SRCDIR, $FILE, $Revision)) {
-			`/usr/bin/touch $FreshPorts::Config::WWWENPortsCategoriesFlag`;
- 			`/usr/bin/touch $FreshPorts::Config::JobWaiting`;
-		} else {
-			Sys::Syslog::syslog('notice', "special processing to $File will not proceed becaused of fetch failures.");
-			$ErrorCode = 1;
-		}
-	}
-	
 	Sys::Syslog::syslog('notice', 'Returning from ' . __FILE__ . "::Eat with ErrorCode='$ErrorCode'\n");
 	return $ErrorCode;
 

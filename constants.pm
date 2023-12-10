@@ -145,17 +145,14 @@ $FreshPorts::Constants::Notify_ports_moved              = 'notify_ports_moved'; 
 $FreshPorts::Constants::Notify_ports_updating           = 'notify_ports_updating';    # /usr/ports/UPDATING
 $FreshPorts::Constants::Notify_port_updated             = 'notify_port_updated';      # a port has been updated
 $FreshPorts::Constants::Notify_vuxml                    = 'notify_vuxml';             # vuxml has been updated
-$FreshPorts::Constants::Notify_cvsroot_approvers        = 'notify_cvsroot_approvers'; # CVSROOT/approvers has been updated
 
 #
 # some special files
 #
-$FreshPorts::Constants::CVSROOT_Approvers		= 'CVSROOT/approvers';       # what we see in the commit msg
-$FreshPorts::Constants::CVSROOT_Ports_Approvers		= 'CVSROOT-ports/approvers'; # what we need to fetch from cvsweb
-$FreshPorts::Constants::Categories			= 'www/en/ports/categories';
-$FreshPorts::Constants::VUXML				= '\/ports\/head\/security\/vuxml/vuln/(\d{4})?.xml';
-$FreshPorts::Constants::PORTS_UPDATING			= '/ports/head/UPDATING';
-$FreshPorts::Constants::PORTS_MOVED			= '/ports/head/MOVED';
+$FreshPorts::Constants::VUXML                           = '\/ports\/head\/security\/vuxml/vuln/(\d{4})?.xml';
+$FreshPorts::Constants::PORTS_UPDATING                  = '/ports/head/UPDATING';
+$FreshPorts::Constants::PORTS_MOVED                     = '/ports/head/MOVED';
+$FreshPorts::Constants::DEFAULT_VERSION                 = '/ports/head/Mk/bsd.default-versions.mk';
 
 # used by observer_commits.pm
 $FreshPorts::Constants::Ports_HEAD_commit		= '/ports/head/';
@@ -183,4 +180,14 @@ $FreshPorts::Constants::DB_ConnectionType_ReadOnly  = 'RO';             # read-o
 $FreshPorts::Constants::DB_ConnectionType_Commits   = 'Commits';        # used for inserting and processing new commits
 $FreshPorts::Constants::DB_ConnectionType_Listener  = 'listen';         # for the fp-listen daemon
 
+#
+# The ports to be refreshed when Mk/bsd.default-versions.mk is modified
+# value must be category/name and correspond to an entry in the element_pathname table.
+# originally created for process_default_versions.pl
+#
+%FreshPorts::Constants::PortsAffectedByDefaultVersions = (
+   'lang/go' => 'lang/go',
+ );
+
 1;
+ 
