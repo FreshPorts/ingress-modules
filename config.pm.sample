@@ -106,9 +106,10 @@ $FreshPorts::Config::JobWaiting                  = $FreshPorts::Config::BaseDirI
 $FreshPorts::Config::CheckGit                    = $FreshPorts::Config::BaseDirIngress . '/signals/check_git';
 
 # freshports signals
+$FreshPorts::Config::CheckPortsCategoriesFlag   = $FreshPorts::Config::BaseDir . '/signals/check_port_categories';
+$FreshPorts::Config::DefaultVersionsFlag        = $FreshPorts::Config::BaseDir . '/signals/default_versions';
 $FreshPorts::Config::JobWaiting                 = $FreshPorts::Config::BaseDir . '/signals/job_waiting';
 $FreshPorts::Config::MovedFileFlag              = $FreshPorts::Config::BaseDir . '/signals/refresh_moved';
-$FreshPorts::Config::DefaultVersionsFlag        = $FreshPorts::Config::BaseDir . '/signals/default_versions';
 $FreshPorts::Config::NewReposReadyForImport     = $FreshPorts::Config::BaseDir . '/signals/new_repo_ready_for_import';
 $FreshPorts::Config::NewRepoImported            = $FreshPorts::Config::BaseDir . '/signals/new_repo_imported';
 $FreshPorts::Config::PortsToRefresh             = $FreshPorts::Config::BaseDir . '/signals/ports_to_refresh';
