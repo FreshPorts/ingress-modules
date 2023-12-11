@@ -4,6 +4,9 @@
 
 package FreshPorts::Config;
 
+# for https://github.com/FreshPorts/freshports/issues/455
+use utf8;
+
 use Cwd;
 
 #
@@ -105,14 +108,13 @@ $FreshPorts::Config::CheckGit                    = $FreshPorts::Config::BaseDirI
 # freshports signals
 $FreshPorts::Config::JobWaiting                 = $FreshPorts::Config::BaseDir . '/signals/job_waiting';
 $FreshPorts::Config::MovedFileFlag              = $FreshPorts::Config::BaseDir . '/signals/refresh_moved';
+$FreshPorts::Config::DefaultVersionsFlag        = $FreshPorts::Config::BaseDir . '/signals/default_versions';
 $FreshPorts::Config::NewReposReadyForImport     = $FreshPorts::Config::BaseDir . '/signals/new_repo_ready_for_import';
 $FreshPorts::Config::NewRepoImported            = $FreshPorts::Config::BaseDir . '/signals/new_repo_imported';
 $FreshPorts::Config::PortsToRefresh             = $FreshPorts::Config::BaseDir . '/signals/ports_to_refresh';
 $FreshPorts::Config::RefreshCachFileFlag        = $FreshPorts::Config::BaseDir . '/signals/cache_needs_refresh';
 $FreshPorts::Config::UpdatingFileFlag           = $FreshPorts::Config::BaseDir . '/signals/refresh_updating';
 $FreshPorts::Config::VuXMLFileFlag              = $FreshPorts::Config::BaseDir . '/signals/vuxml';
-$FreshPorts::Config::CheckPortsCategoriesFlag   = $FreshPorts::Config::BaseDir . '/signals/check_port_categories';
-$FreshPorts::Config::WWWENPortsCategoriesFlag   = $FreshPorts::Config::BaseDir . '/signals/www.en.ports.categories';
 
 $FreshPorts::Config::PortsFreezeFile            = $FreshPorts::Config::BaseDir . '/signals/PortsFreezeIsInEffect';
 
