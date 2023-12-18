@@ -57,6 +57,8 @@ sub update {
 	# That way, script processing will not attempt to run
 	# through a file that is not yet fetched, or worse still,
 	# is being fetched.
+	# However, we now do a git pull, not an svn up, or was this created under cvs?
+	# Regardless, the original comment is no longer a concern.
 	#
 	if ($action eq $FreshPorts::Messages::FileUpdate) {
 		print "Observer has noticed that commit '" . $object->id() . "' contains file $params{FilePath} as revision $params{FileRevision} in repository $params{Repository}\n";

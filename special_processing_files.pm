@@ -31,6 +31,9 @@ sub Eat($;$;$;$;$) {
 	my $sql;
 	my @row;
 
+	# NOTE: this script acts only upon HEAD, not branches.
+	#       The constants here are all on HEAD.
+
 	Sys::Syslog::syslog('notice', 'Entering ' . __FILE__ . "::Eat\n");
 	if ($File eq $FreshPorts::Constants::PORTS_MOVED) {
  		# no need to fetch this file, it's in the ports tree.
@@ -62,6 +65,7 @@ sub Eat($;$;$;$;$) {
 	#
 	# When Mk/bsd.default-versions.mk changes, invoke this script
 	# re https://github.com/FreshPorts/freshports/issues/509
+	# NOTE: this is head and only head.
 	#
  	if ($File eq $FreshPorts::Constants::DEFAULT_VERSION) {
 		print "applying special processing to $File\n";
