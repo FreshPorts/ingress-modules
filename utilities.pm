@@ -166,11 +166,11 @@ sub gitCheckout($;$;$) {
 
 			FreshPorts::Utilities::ReportError('warning', 'sleeping for ' . ($FreshPorts::Config::Fetch_Retry_Limit - $numAttempts + 1) * $FreshPorts::Config::Fetch_Sleep_Time . " seconds after git checkout failed for ($GITDIR $REVISION)");
 			print "fetch failed, sleeping...\n";
-			# this waits less time each wait... should be longer each wait I think
+
 			print "\$FreshPorts::Config::Fetch_Retry_Limit='$FreshPorts::Config::Fetch_Retry_Limit'\n";
 			print "\$numAttempts='$numAttempts'\n";
 			print "\$FreshPorts::Config::Fetch_Sleep_Time='$FreshPorts::Config::Fetch_Sleep_Time'\n";
-			sleep (($FreshPorts::Config::Fetch_Retry_Limit - $numAttempts + 1) * $FreshPorts::Config::Fetch_Sleep_Time);
+			sleep $FreshPorts::Config::Fetch_Sleep_Time;
 			$numAttempts--;
 
 		} else {
