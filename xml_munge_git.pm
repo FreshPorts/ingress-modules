@@ -400,6 +400,7 @@ sub handle_update_end {
 	
 		if ($FetchOK) {
 			if ($refresh_ports) {
+				#  parameters:                                                        $Repository           $CommitBranch        $CommitLogPortsRef $dbh
 				$ErrorFound = FreshPorts::VerifyPort::RefreshAllPortsTouchedByCommit($Updates{repository}, $Updates{branch_git}, \%CommitLogPorts, $self->{dbh});
 
 				if (!$ErrorFound) {
