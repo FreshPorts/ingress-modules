@@ -355,6 +355,8 @@ sub SaveChangesToPortsTree($;$;$;$;$) {
 	# The commit_log_ports_elements table records the ports and elements (which
 	# are not part of a port) which were touched by a commit.
 	#
+	# 2024-01-07 - what does 'not part of a port' mean here? perhaps MOVED? UPDATING?
+	#
 	_RecordPortsAndElements($commit_log_id, $Files, \%CommitLogPorts, $dbh);
 
 	return %CommitLogPorts;
@@ -581,8 +583,8 @@ sub RefreshAllPortsTouchedByCommit($;$;$;$) {
 	# refresh each of them
 	#
 
-	my $Repository           = shift;
-	my $CommitBranch         = shift;
+	my $Repository           = shift; # src, ports, doc, etc.
+	my $CommitBranch         = shift; # main 2024Q1, etc
 	my $CommitLogPortsRef    = shift;
 	my %CommitLogPorts       = %{$CommitLogPortsRef};
 	my $dbh                  = shift;
