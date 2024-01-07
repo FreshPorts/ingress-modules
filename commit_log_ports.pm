@@ -44,9 +44,9 @@ sub save {
 	my $sql;
 	my @row;
 
-	my $quoted_port_version		= $dbh->quote($this->{port_version});
-	my $quoted_port_revision	= $dbh->quote($this->{port_revision});
-	my $quoted_port_epoch		= $dbh->quote($this->{port_epoch});
+	my $quoted_port_version	 = $dbh->quote($this->{port_version});
+	my $quoted_port_revision = $dbh->quote($this->{port_revision});
+	my $quoted_port_epoch	 = $dbh->quote($this->{port_epoch});
 
 	if (!defined($this->{saved})) {
 		# we are inserting
@@ -58,12 +58,12 @@ sub save {
 		# we are updating
 		$sql = "update commit_log_ports
 				   set needs_refresh  =  $this->{needs_refresh},
-					    port_version  =  $quoted_port_version,
-					    port_revision =  $quoted_port_revision,
-					    port_epoch    =  $quoted_port_epoch,
+					    port_version  = $quoted_port_version,
+					    port_revision = $quoted_port_revision,
+					    port_epoch    = $quoted_port_epoch,
 					    port_name_revision = PackageName($this->{port_id}) || '-' || $quoted_port_version
-				 where commit_log_id  =  $this->{commit_log_id}
-				   and port_id        =  $this->{port_id}";
+				 where commit_log_id = $this->{commit_log_id}
+				   and port_id       = $this->{port_id}";
 	}
 
 	print "sql is $sql\n";
