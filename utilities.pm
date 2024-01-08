@@ -175,7 +175,7 @@ sub gitCheckout($;$;$) {
 
 		} else {
 			# fetch worked
-			print "That fetch worked: '$gitCheckoutResults'\n";
+			print "That fetch worked. Full output is:\n $gitCheckoutResults\n- - - End of fetch output\n";
 			last;
 		}
     }
