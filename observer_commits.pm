@@ -77,12 +77,13 @@ sub update {
 	if ($action eq $FreshPorts::Messages::ProcessingDone) {
 		print "Observer has noticed that processing has finished.\n";
 		if ($this->{cache_refresh_needed}) {
-			`/usr/bin/touch $FreshPorts::Config::RefreshCachFileFlag`;
+			# we used to touch the RefreshCachFileFlag but nothig acts upon that now. It is not needed.
 		}
 	}
 
 	if ($action eq $FreshPorts::Messages::PortsFreezeCheck) {
 		print "Observer has noticed that we must do a ports freeze check.\n";
+		# I'm not sure we know how to check for a ports freeze now - I'm not even sure that we do that any more.
 	}
 
 	if ($action eq $FreshPorts::Messages::UpdateEnds) {
