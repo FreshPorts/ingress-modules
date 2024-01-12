@@ -572,7 +572,7 @@ sub _ExtractValuesFromMakefile {
 		# This preserves commit history when a port is being renamed, but it makes life difficultJailShowConfigScript
 		# for FreshPorts, which only tracks commits.
 		# We need the trailing space because there will be another message added right after this one.
-		FreshPorts::CommitterOptIn::RecordErrorDetails("$this->{category}/$this->{name}", "I did not find a Makefile for this port, and none was mentioned in the commit.  If a repocopy has been done, please ignore this message. ");
+		FreshPorts::CommitterOptIn::RecordErrorDetails("$this->{category}/$this->{name}", "I did not find a Makefile for this port. ");
 	}
 
 	my $TmpFile = FreshPorts::Utilities::TmpFileName("$this->{category}.$this->{name}.make-error");
@@ -1334,7 +1334,7 @@ sub GetNeedsRefreshForNewPort {
 	#
 	# Let's just use this for now.  See how it goes.
 	#
-	if (!defined($this->{deleted})) {
+	if (!$this->IsDeleted()) {
 		return 7;
 	} else {
 		return 0
@@ -1377,6 +1377,12 @@ sub IsValidDate($) {
 
   # convert from YYYY-MM-DD format into variables
   my ($year, $mon, $mday) = split /-/, $string;
+
+  # e.g. 20240101 (no dashes, for example)
+  #
+  if (!defined($year) || !defined($mon) || !defined($mday)) {
+    return undef;
+  }
 
   # create a string
   my $test = strftime("%Y-%m-%d", 0, 0, 0, $mday, $mon - 1, $year - 1900);

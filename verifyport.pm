@@ -1,3 +1,4 @@
+
 #!/usr/local/bin/perl -w
 #
 # $Id: verifyport.pm,v 1.56 2012-09-25 18:11:23 dan Exp $
@@ -213,7 +214,8 @@ sub _CompileListOfPorts($;$;$;$;$) {
 							#
 							# we are deleted (local value, never actually saved to db)
 							#
-							$port->{deleted} = 1;
+							# instead of settting $port->{deleted} = 1;, try this: re https://github.com/FreshPorts/freshports/issues/528
+							$port->SetDeleted();
 							print "THIS PORT HAS BEEN DELETED\n";
 						}
 					}
@@ -798,7 +800,7 @@ sub _DeleteDeletedPorts($;$) {
 	#
 	print "# # # # Deleting deleted ports # # # #\n\n";
 	while (my ($portname, $port) = each %Ports) {
-		if (defined($port->{deleted})) {
+		if ($port->IsDeleted()) {
 			print "deleting : port = $portname, port_id = '$port->{id}', ' element_id = $port->{element_id}'\n";
 
 			$element->{id} = $port->{element_id};
