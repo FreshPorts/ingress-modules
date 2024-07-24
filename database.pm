@@ -59,7 +59,7 @@ sub GetDBHandle {
         $password = $FreshPorts::Config::password_listening;
     }
        
-    my $dbh_pg = DBI->connect('DBI:Pg:dbname=' . $FreshPorts::Config::dbname . ';host=' . $FreshPorts::Config::host . ';sslmode=' . $sslmode . ';client_encoding=UTF8', $user, $password);
+    my $dbh_pg = DBI->connect('DBI:Pg:dbname=' . $FreshPorts::Config::dbname . ';host=' . $FreshPorts::Config::host . ';sslcertmode=disable ;sslmode=' . $sslmode . ';client_encoding=UTF8', $user, $password);
     if ($dbh_pg->{Active}) {
         $dbh_pg->{AutoCommit} = 0;
 
