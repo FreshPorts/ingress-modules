@@ -1231,20 +1231,22 @@ sub _GetFileContents($) {
 	$filecontents = "";
 	# this needs to open relative to the jail root.
 	# to be pure, we should do this as a script in the jail-root
-	if (open (F, $file))
+	print "This is bullshit\n";
+	open my $in,  '<:encoding(iso-8859-1)',  $file;
+	if ($in)
 	{
 	
-	  while(<F>){
+	  while(<$in>){
 		$filecontents .= $_;
 	   }
 
-	   close F;
+	   close $in;
 	} else {
           print "Unable to open '$file'\n";
           FreshPorts::CommitterOptIn::RecordErrorDetails("$this->{category}/$this->{name}", "Unable to open '$file'\n");
 	}
 
-	print "here is what we have: $filecontents\n";	
+	print "here is what we have:\n$filecontents\n###\n\nEOF\n";	
 
 	return $filecontents;
 }
