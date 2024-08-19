@@ -83,6 +83,12 @@ $FreshPorts::Config::CommitterNotify            = 0;    # Should we notify commi
 $FreshPorts::Config::NotifyAdmin                = 1;    # Notify me
 
 #
+# where do we log, unlikely to need changing
+#
+$FreshPorts::Config::LogDir                     = '/var/log/freshports';
+$FreshPorts::Config::LogJobsWaiting             = $FreshPorts::Config::LogDir . '/jobs_waiting.log';
+
+#
 # Change only above. Do not change below.
 #
 
@@ -111,7 +117,6 @@ $FreshPorts::Config::DefaultVersionsFlag        = $FreshPorts::Config::BaseDir .
 $FreshPorts::Config::JobWaiting                 = $FreshPorts::Config::BaseDir . '/signals/job_waiting';
 $FreshPorts::Config::MovedFileFlag              = $FreshPorts::Config::BaseDir . '/signals/refresh_moved';
 $FreshPorts::Config::NewReposReadyForImport     = $FreshPorts::Config::BaseDir . '/signals/new_repo_ready_for_import';
-$FreshPorts::Config::NewRepoImported            = $FreshPorts::Config::BaseDir . '/signals/new_repo_imported';
 $FreshPorts::Config::PortsToRefresh             = $FreshPorts::Config::BaseDir . '/signals/ports_to_refresh';
 $FreshPorts::Config::UpdatingFileFlag           = $FreshPorts::Config::BaseDir . '/signals/refresh_updating';
 $FreshPorts::Config::VuXMLFileFlag              = $FreshPorts::Config::BaseDir . '/signals/vuxml';
