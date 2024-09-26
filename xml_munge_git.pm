@@ -364,7 +364,7 @@ sub handle_update_end {
 	FreshPorts::CommitterOptIn::RecordCommitMessageLog($Updates{log});
 
 	if (scalar(@Files) == 0) {
-		FreshPorts::Utilities::ReportError('Err', "No files found in commit '$Updates{commit_hash}'.  Has someone done a cvs import instead of addport?", 0)
+		FreshPorts::Utilities::ReportError('Err', 'No files found in commit ' . $FreshPorts::Config::FreshPortsURL . 'commit.php?message_id=' . $Updates{commit_hash} . '.  This is probably a merge.', 0)
 	}
 
 	# some things, we do only for port commits
