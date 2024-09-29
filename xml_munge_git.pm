@@ -360,8 +360,10 @@ sub handle_update_end {
 	#
 	# Record the information which is used during Error Notification.
 	#
-	FreshPorts::CommitterOptIn::RecordCommitMessageID ($Updates{commit_hash});
-	FreshPorts::CommitterOptIn::RecordCommitMessageLog($Updates{log});
+	FreshPorts::CommitterOptIn::RecordCommitMessageID     ($Updates{commit_hash});
+	FreshPorts::CommitterOptIn::RecordCommitMessageSubject($Updates{MessageSubject});
+	FreshPorts::CommitterOptIn::RecordCommitBranch        ($Updates{branch_git});
+	FreshPorts::CommitterOptIn::RecordCommitMessageLog    ($Updates{log});
 
 	if (scalar(@Files) == 0) {
 		FreshPorts::Utilities::ReportError('Err', 'No files found in commit ' . $FreshPorts::Config::FreshPortsURL . 'commit.php?message_id=' . $Updates{commit_hash} . '.  This is probably a merge.', 0)
@@ -419,7 +421,7 @@ sub handle_update_end {
 		if (scalar(keys %CommitLogPorts)) {
 			print "adding that commit date to the daily summary refresh list\n";
 
-		    my $commit_date = sprintf "%04u-%02u-%02u", $Updates{dateyear}, $Updates{datemonth}, $Updates{dateday};
+			my $commit_date = sprintf "%04u-%02u-%02u", $Updates{dateyear}, $Updates{datemonth}, $Updates{dateday};
 
 			FreshPorts::Cache::DailySummaryDateAdd($commit_date, $self->{dbh})
 		} else {
@@ -982,6 +984,10 @@ sub SaveUpdateToDB {
 	my $committer       = $Updates{committer};
 	my $description     = $Updates{log};
 	my $revision        = $Updates{revision};
+
+	# declare, assign, and never use. Trying to avoid this error by delcaring it:
+	# Name "FreshPorts::XML_Munge_git::rest" used only once: possible typo at xml_munge_git.pm line 990.
+	my $rest;
    
 	# sometimes the committer field looks like: scheidell (ports committer)
 	# this takes the stuff before the first blank and we assume that is the committer id.
