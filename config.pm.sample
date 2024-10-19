@@ -177,6 +177,14 @@ $FreshPorts::Config::JailShowConfigScript         = '/make-showconfig.sh';
 $FreshPorts::Config::JailName                     = 'freshports';
 
 # This is where we chroot.  It also contains scripts for that jail.
-$FreshPorts::Config::JailBaseDir                = "/jails/$FreshPorts::Config::JailName";
+$FreshPorts::Config::JailBaseDir                  = "/jails/$FreshPorts::Config::JailName";
+
+# The existence of this script means the system is offline.
+# scripts etc should not run.
+# We don't use one for the Ingress user because scripts don't run as that user.
+# If you want to stop Ingress scripts, stop the ingress service.
+# There are many cronjobs and periodic scripts which run as the FreshPorts user.
+#
+$FreshPorts::Config::OFFLINE                      = "$FreshPorts::Config::BaseDir/OFFLINE";
 
 1;
