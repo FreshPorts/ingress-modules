@@ -298,18 +298,18 @@ sub handle_os_end {
 	#       954144 | /ports/branches/2019Q3/Mk/Scripts/do-depends.sh
 	#       956066 | /ports/branches/2019Q3/Mk/Uses
 	# (5 rows)
-        # freshports.dev=# 
-        #
-        #
-        # So we have the following values:
-        #
-        # $Updates{branch_git}           - value supplied in XML
-        # $Updates{branch_database_name} - for use in system_branch.branch_name
-        # $Updates{branch_for_files}     - for use in filenames
-        #
+    # freshports.dev=#
+    #
+    #
+    # So we have the following values:
+    #
+    # $Updates{branch_git}           - value supplied in XML
+    # $Updates{branch_database_name} - for use in system_branch.branch_name
+    # $Updates{branch_for_files}     - for use in filenames
+    #
 
-        # this converts main to head, and leaves everything else unchanged
-        #
+    # this converts main to head, and leaves everything else unchanged
+    #
 	$Updates{branch_for_files} = ConvertGitBranchNameToFreshPortsName($Updates{branch_git});
 	
 	print "after converting '\$Updates{branch_git}' we have '$Updates{branch_for_files}'\n";
@@ -362,7 +362,10 @@ sub handle_update_end {
 	#
 	FreshPorts::CommitterOptIn::RecordCommitMessageID     ($Updates{commit_hash});
 	FreshPorts::CommitterOptIn::RecordCommitMessageSubject($Updates{MessageSubject});
-	FreshPorts::CommitterOptIn::RecordCommitBranch        ($Updates{branch_git});
+	# Originally, I thought this should be $Update{branch_for_files}, but that's not right for commits on head.
+	# The XML comes through with '<OS Repo="ports" Id="FreeBSD" Branch="main"/>'
+	# 'main' needs to be converted to 'head' which is what FreshPorts uses.
+	FreshPorts::CommitterOptIn::RecordCommitBranch        ($Updates{branch_for_files});
 	FreshPorts::CommitterOptIn::RecordCommitMessageLog    ($Updates{log});
 
 	if (scalar(@Files) == 0) {
@@ -645,7 +648,7 @@ sub handle_file_end {
 	# This is where we add in the repo name to the path
 	# At one time, I think, $Updates{branch_for_files} was to be either head or branches/2021Q2 (or example).
 	# As of 2021.06.20, it is either head or 2021Q2 (no branches).
-	# I think the best thing to do is to check $Updates{branch_for_files} here and add in braches when required.
+	# I think the best thing to do is to check $Updates{branch_for_files} here and add in branches when required.
 	if ($Updates{branch_for_files} eq $FreshPorts::Constants::HEAD) {
 		$filename = $DB_Root_Prefix . '/' .          $Updates{branch_for_files} . '/' . $FilePath;
 	} else {
