@@ -123,7 +123,7 @@ sub save {
 }
 
 sub FetchByID {
-	my $this	= shift;
+	my $this = shift;
 
 	my $dbh;
 	my $sql;
@@ -207,7 +207,7 @@ sub _description_read {
 	# and another for head.	
 	my $REPODIR_CHROOT = $FreshPorts::Config::PortsDir;
 
-	my $makecommand = "/usr/local/bin/sudo /usr/sbin/jexec $FreshPorts::Config::JailName $REPODIR_CHROOT $FreshPorts::Config::JailCategoryDescrptionScript $category 2>$TmpFile";
+	my $makecommand = "/usr/local/bin/sudo /usr/sbin/jexec $FreshPorts::Config::JailName $FreshPorts::Config::JailCategoryDescrptionScript $REPODIR_CHROOT $category 2>$TmpFile";
 	print "makecommand = $makecommand\n";
 
 	my $MakeResults = `$makecommand`;
@@ -272,13 +272,7 @@ sub _description_fetch {
 	print "SRCDIR =$SRCDIR\n";
 	print "FILE   =$FILE\n";
 
-	if (FreshPorts::Utilities::FetchFile($DESTDIR, $SRCDIR, $FILE, $FreshPorts::Constants::HEAD)) {
-		$description = _description_read($CommitBranch, $category);
-
-	} else {
-		FreshPorts::Utilities::ReportError('warning', "Could not fetch file for '$DESTDIR' '$SRCDIR' '$FILE'.  Error code = " . ($? >> 8), 0);
-		$description = 'No description supplied (pkg/COMMENT not found)';
-	}
+	$description = _description_read($CommitBranch, $category);
 
 	# get rid of the trailing CR/LF.
 	chomp $description;
