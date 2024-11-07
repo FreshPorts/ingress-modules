@@ -1,4 +1,3 @@
-
 #!/usr/local/bin/perl -w
 #
 # $Id: verifyport.pm,v 1.56 2012-09-25 18:11:23 dan Exp $
