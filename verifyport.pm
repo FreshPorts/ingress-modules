@@ -67,13 +67,10 @@ sub _CompileListOfPorts($;$;$;$;$) {
 		my ($emptyLeadingSlash, $subtree, $branches, $branch, $category_name, $port_name, $extra);
 		
 		# depending on which branch we are one, we need to split this path differently
-		if ($CommitBranch eq $FreshPorts::Constants::HEAD)
-		{
+		if ($CommitBranch eq $FreshPorts::Constants::HEAD) {
 		  print "this commit is on head\n";
 		  ($emptyLeadingSlash, $subtree,            $branch, $category_name, $port_name, $extra) = split/\//,$filename, 6;
-		}
-		else
-		{
+		} else  {
 		  print "this commit is NOT ON head\n";
 		  ($emptyLeadingSlash, $subtree, $branches, $branch, $category_name, $port_name, $extra) = split/\//,$filename, 7;
 		}
@@ -92,139 +89,152 @@ sub _CompileListOfPorts($;$;$;$;$) {
 
 		# is this file is in the ports tree?
 		# e.g. ports/LEGAL won't get through here because $port_name will not be defined.
-		
-		
-		
+
 		if ($subtree eq $FreshPorts::Config::ports_prefix && defined($category_name) && defined($port_name)) {
 			print "YES, this file is in the ports tree\n";
 
-			# if this is a valid category
+			# Validate or create the category
+			# By validate, it means check the list we compiled at the start of commit processing.
+			# This list is pulled from the ports tree: see categories.pm
+			# A category in this list, but not in the database needs to be created.
 			if ( any {/$category_name/} @FreshPorts::Categories::categories ) {
-				# find the port for this filename....
-				if ($ListOfPorts{"$category_name/$port_name"}) {
-					print "but we have already seen the port $category_name/$port_name\n\n";
-					# we've already added this port to the list of ports for this commit
-				} else {
-					#
-					# check that the category exists.  and the port.
-					# But we don't create any ports yet.
-					# we do that, if necessary, later.
-					#
+			    # this category was in the repo when we started.
 
-					print "checking for category='$category_name'\n";
+			    # have we seen this category already in this commit?
+	            $category = $CategoriesChecked{$category_name};
+	            if (!defined($category)) {
+	                # no, so we fetch it
+	                $category = FreshPorts::Category->new($dbh);
+	                $category->{name} = $category_name;
+	                my $category_id = $category->FetchByName();
+	            }
 
-					$category = $CategoriesChecked{$category_name};
-					if (!defined($category)) {
-						$category = FreshPorts::Category->new($dbh);
-						$category->{name} = $category_name;
-						my $category_id = $category->FetchByName();
+                # if we didn't fetch that category from the database, we need to create it
+			   # create category, if the 'port name' is a Makefile
+			   if ($port_name eq $FreshPorts::Constants::FILE_MAKEFILE) {
+			      # yes, this is the Makefile for the new category - we are good to create a new category.
+			      $category = FreshPorts::Category->new($dbh);
+			      $category->{name} = $category_name;
+			      print "creating new category $category_name\n";
+			      FreshPorts::Utilities::ReportError('warning', "creating new category $category_name", 0);
 
-						if (defined($category_id)) {
-							print "Category $category_name has ID = $category_id\n";
-						} else {
-							# we need to create this catgory.
-							# remember to grab ports/<category>/pkg/COMMENT
-							# actually, it's in ports/<category>/Makefile as a COMMENT
-							print "creating new category $category_name\n";
-							FreshPorts::Utilities::ReportError('warning', "creating new category $category_name", 0);
-
-							$category->{is_primary} = 1;
-							$category_id = $category->save();
-							if (!defined($category_id)) {
-								FreshPorts::Utilities::ReportError('warning', "failed to create new category $category_name", 1);
-							}
-
-						$CategoriesChecked{$category_name} = $category;
-						}
-					} else {
-						print "found that category $category_name in the cache\n";
-					}
-
-					print "checking for port='$category_name/$port_name'\n";
-
-					$port = $ListOfPorts{"$category_name/$port_name"};
-					
-					# we won't create a new port based on "cat/port", because that could be a file in the category's directory.
-					# instead, we want to ensure that "cat/port" refers to a directory, versus a file.
-					# such a situation exists if $extra has some value.
-					# see 201205251025.q4PAPOvV092118@repoman.freebsd.org where 'deskutils/svn.log' was accidently added
-					# in a previous commit, and then removed.  The previous code would add svn.log as a port, and then
-					# add it as an element and a port.  See _RecordPortsAndElements() where svn.log would be listed in 
-					# both CommitLogPorts and Files.
-					#
-
-					if (defined($extra)) {
-						if (!$port) {
-							print "* * * not found in existing cache.  we'll have to load/create that port!\n";
-							$port = FreshPorts::Port->new($dbh, $RepoType);
-
-							# this is all that's needed to retrieve a port which exists
-							if ($CommitBranch eq $FreshPorts::Constants::HEAD)
-							{
-							  $port->{partialpathname} = "/$subtree/$branch/$category_name/$port_name";
-							}
-							else
-							{
-							  $port->{partialpathname} = "/$subtree/branches/$branch/$category_name/$port_name";
-							}
-
-							$port->FetchByPartialPathName();
-							#
-							# the above fetch may have failed.
-							# in which case, $port->{id} will not be defined
-							# we will take advantage of that later.
-							# for now, all we want is a complete list of ports.
-							#
-							if (!defined($port->{id})) {
-								print "port not retrieved with $port->{partialpathname}.  This must be a new port.\n";
-								#
-								# these are the values needed to create a new port
-								#
-								$port->{category_id} = $category->{id};
-								$port->{name}        = $port_name;
-								$port->{category}    = $category_name;
-
-								#
-								# we are creating a new port (probably), so we make it active.
-								# we need this set for later use.
-								#
-								$port->SetActive();
-							}
-
-							print "SETTING CATEGORY = $port->{category_id}\n";
-							$ListOfPorts{"$category_name/$port_name"} = $port;
-						} else {
-							print "found that port $category_name/$port_name in the cache\n";
-						}
-
-						#
-						# $port now contains the port for this file.
-						# let's adjust the needs_refresh value.
-						#
-						#
-						# if we just deleted the Makefile for this port, there's no sense in refreshing the port.
-						# because it's been deleted.
-						#
-						if ($extra eq $FreshPorts::Constants::FILE_MAKEFILE && ($action eq $FreshPorts::Constants::REMOVE || $action eq $FreshPorts::Constants::DELETE)) {
-							#
-							# EDIT 2020-07-30 - for git processing, we want to delete the parent of $extra when we detect that the
-							# port Makefile is being deleted. see https://news.freshports.org/2020/07/29/git-changing-libraries-gave-us-new-xml-options/
-							# This should be straight forward.
-							#
-							# we are deleted (local value, never actually saved to db)
-							#
-							# instead of settting $port->{deleted} = 1;, try this: re https://github.com/FreshPorts/freshports/issues/528
-							$port->SetDeleted();
-							print "THIS PORT HAS BEEN DELETED\n";
-						}
-					}
-					else
-					{
-					  print "\$extra is not defined, therefore, this is not considered a port.\n";
-					}
-				}
+			      $category->{is_primary} = 1;
+			      my $category_id = $category->save();
+			      if (!defined($category_id)) {
+			         FreshPorts::Utilities::ReportError('warning', "failed to create new category $category_name", 1);
+			      }
+			      # add this newly created category to our list
+			      # As I type this, I realize, this should be a method on the FreshPorts::categories package.
+			      push(@FreshPorts::Categories::categories, $category_name);
+			   }
 			} else {
-				print "... but this file is not part of a physical category on disk!\n\n";
+			}
+
+            # at this point, $category contains the category for the file we are processing
+            # HOWEVER, for something like Mk/bsd.port.mk, let's see what happens.
+            # At the time of writing, I seem to recall exceptions being made for 'special' files.
+
+            # We update this list of categories we have found to avoid repeated pulls from the database
+            $CategoriesChecked{$category_name} = $category;
+
+            # find the port for this filename....
+            if ($ListOfPorts{"$category_name/$port_name"}) {
+                print "but we have already seen the port $category_name/$port_name\n\n";
+                # we've already added this port to the list of ports for this commit
+            } else {
+                #
+                # check that the category exists.  and the port.
+                # But we don't create any ports yet.
+                # we do that, if necessary, later.
+                #
+
+                print "checking for category='$category_name'\n";
+
+                $category = $CategoriesChecked{$category_name};
+                if (!defined($category)) {
+                    print "we did not find that category $category_name in the cache\n";
+                    FreshPorts::Utilities::ReportError('warning', "failed to find required category $category_name", 1);
+                } else {
+                    print "found that category $category_name in the cache\n";
+                }
+
+                print "checking for port='$category_name/$port_name'\n";
+
+                $port = $ListOfPorts{"$category_name/$port_name"};
+
+                # we won't create a new port based on "cat/port", because that could be a file in the category's directory.
+                # instead, we want to ensure that "cat/port" refers to a directory, versus a file.
+                # such a situation exists if $extra has some value.
+                # see 201205251025.q4PAPOvV092118@repoman.freebsd.org where 'deskutils/svn.log' was accidentally added
+                # in a previous commit, and then removed. The previous code would add svn.log as a port, and then
+                # add it as an element and a port. See _RecordPortsAndElements() where svn.log would be listed in
+                # both CommitLogPorts and Files.
+                #
+
+                if (defined($extra)) {
+                    if (!$port) {
+                        print "* * * not found in existing cache.  we'll have to load/create that port!\n";
+                        $port = FreshPorts::Port->new($dbh, $RepoType);
+
+                        # this is all that's needed to retrieve a port which exists
+                        if ($CommitBranch eq $FreshPorts::Constants::HEAD) {
+                          $port->{partialpathname} = "/$subtree/$branch/$category_name/$port_name";
+                        } else {
+                          $port->{partialpathname} = "/$subtree/branches/$branch/$category_name/$port_name";
+                        }
+
+                        $port->FetchByPartialPathName();
+                        #
+                        # the above fetch may have failed.
+                        # in which case, $port->{id} will not be defined
+                        # we will take advantage of that later.
+                        # for now, all we want is a complete list of ports.
+                        #
+                        if (!defined($port->{id})) {
+                            print "port not retrieved with $port->{partialpathname}.  This must be a new port.\n";
+                            #
+                            # these are the values needed to create a new port
+                            #
+                            $port->{category_id} = $category->{id};
+                            $port->{name}        = $port_name;
+                            $port->{category}    = $category_name;
+
+                            #
+                            # we are creating a new port (probably), so we make it active.
+                            # we need this set for later use.
+                            #
+                            $port->SetActive();
+                        }
+
+                        print "SETTING CATEGORY = $port->{category_id}\n";
+                        $ListOfPorts{"$category_name/$port_name"} = $port;
+                    } else {
+                        print "found that port $category_name/$port_name in the cache\n";
+                    }
+
+                    #
+                    # $port now contains the port for this file.
+                    # let's adjust the needs_refresh value.
+                    #
+                    #
+                    # if we just deleted the Makefile for this port, there's no sense in refreshing the port.
+                    # because it's been deleted.
+                    #
+                    if ($extra eq $FreshPorts::Constants::FILE_MAKEFILE && ($action eq $FreshPorts::Constants::REMOVE || $action eq $FreshPorts::Constants::DELETE)) {
+                        #
+                        # EDIT 2020-07-30 - for git processing, we want to delete the parent of $extra when we detect that the
+                        # port Makefile is being deleted. see https://news.freshports.org/2020/07/29/git-changing-libraries-gave-us-new-xml-options/
+                        # This should be straight forward.
+                        #
+                        # we are deleted (local value, never actually saved to db)
+                        #
+                        # instead of settting $port->{deleted} = 1;, try this: re https://github.com/FreshPorts/freshports/issues/528
+                        $port->SetDeleted();
+                        print "THIS PORT HAS BEEN DELETED\n";
+                    }
+                } else {
+                  print "\$extra is not defined, therefore, this is not considered a port.\n";
+                }
 			}
 		} else {
 			print "that file isn't in the ports tree\n";
@@ -880,7 +890,6 @@ sub _UndeleteResurrectedPorts($;$;$) {
 	print "# # # # Finished resurrecting deleted ports # # # #\n\n";
 }
 
-FreshPorts::categories::FetchAll();
 FreshPorts::Utilities::InitSyslog();
 
 1;

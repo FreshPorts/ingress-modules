@@ -10,6 +10,7 @@ require FreshPorts::utilities;
 use strict;
 
 # start with an empty array
+# this is the list of valid categories according to the repo
 @FreshPorts::Categories::categories = ();
 
 # =================================

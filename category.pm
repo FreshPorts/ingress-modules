@@ -191,7 +191,6 @@ sub FetchByName {
 # =================================
 
 sub _description_read {
-	my $Repository   = shift;
 	my $CommitBranch = shift;
 	my $category     = shift;
 
@@ -315,15 +314,6 @@ sub FetchAll {
 	}
 
 	return %Categories;
-}
-
-# XXX not sure this is used by anyone
-sub RefreshDescription {
-	my $this         = shift;
-	my $Repository   = shift;
-	my $CommitBranch = shift;
-
-	$this->{description} = FreshPorts::Category::_description_read($Repository, $CommitBranch, $this->{name});
 }
 
 1;

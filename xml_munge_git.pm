@@ -56,8 +56,8 @@ my $commit_log_id           = 0;
 my $debug                   = 0;
 my $overwrite               = 0;
 my $refresh_ports           = 1;  # refresh any ports touched by a commit
-my $fetch_before_refresh    = 1;  # by default, we fetch files from cvs 
-                                  # before refreshing from them
+my $fetch_before_refresh    = 1;  # by default, we fetch files from the repo
+                                  # before refreshing the database
 
 my $SystemID;                     # the system id for this update.  Usually 'FreeBSD' => 1
 my $SystemBranchID;               # the system version id for this update.  Usually 'head' => 1
@@ -374,6 +374,25 @@ sub handle_update_end {
 
 	# some things, we do only for port commits
 	if (($Updates{repository} eq $FreshPorts::Config::Repo_PORTS || $Updates{repository} eq $FreshPorts::Config::Repo_PORTS_QUARTERLY)) {
+
+		# XXX - I am quite sure we don't have to do any fetching any more
+		if ($fetch_before_refresh) {
+			print "oh, the script goes to fetch...\n";
+			$FetchOK = FreshPorts::VerifyPort::ScrollToThatCommit($Updates{repository}, $Updates{branch_git}, $Updates{revision}, $self->{dbh});
+			if ($FetchOK) {
+				$self->notify_observers($FreshPorts::Messages::FilesFetched);
+				# we should also refresh our list of categories.
+				# this is the list of valid categories according to the repo
+				FreshPorts::categories::FetchAll();
+			} else {
+				print "There was a problem fetching, so I won't be telling the Observer that files have been fetched\n";
+			}
+		} else {
+			$FetchOK = 1;
+			print "We are not fetching before refreshing\n";
+		}
+
+
 		%CommitLogPorts = FreshPorts::VerifyPort::SaveChangesToPortsTree($Updates{branch_database_name}, commit_log_id(), \@Files, $self->{dbh}, 'git');
 
 		#
@@ -386,20 +405,6 @@ sub handle_update_end {
 		# we only fetch stuff for the ports repository
 		print "this commit is from the '" . $Updates{repository} . "' repository.\n";
 	
-		# XXX - I am quite sure we don't have to do any fetching any more
-		if (($Updates{repository} eq $FreshPorts::Config::Repo_PORTS || $Updates{repository} eq $FreshPorts::Config::Repo_PORTS_QUARTERLY) && $fetch_before_refresh) {
-			print "oh, the script goes to fetch...\n";
-			$FetchOK = FreshPorts::VerifyPort::ScrollToThatCommit($Updates{repository}, $Updates{branch_git}, $Updates{revision}, $self->{dbh});
-			if ($FetchOK) {
-				$self->notify_observers($FreshPorts::Messages::FilesFetched);
-			} else {
-				print "There was a problem fetching, so I won't be telling the Observer that files have been fetched\n";
-			}
-		} else {
-			$FetchOK = 1;
-			print "We are not fetching before refreshing\n";
-		}
-
 		# now we should refresh all the ports associated with this commit
 		# as each port is refreshed, it will be committed
 	
