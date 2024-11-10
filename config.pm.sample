@@ -117,6 +117,7 @@ $FreshPorts::Config::DefaultVersionsFlag        = $FreshPorts::Config::BaseDir .
 $FreshPorts::Config::JobWaiting                 = $FreshPorts::Config::BaseDir . '/signals/job_waiting';
 $FreshPorts::Config::MovedFileFlag              = $FreshPorts::Config::BaseDir . '/signals/refresh_moved';
 $FreshPorts::Config::NewReposReadyForImport     = $FreshPorts::Config::BaseDir . '/signals/new_repo_ready_for_import';
+$FreshPorts::Config::Offline                    = $FreshPorts::Config::BaseDir . '/signals/OFFLINE';
 $FreshPorts::Config::PortsToRefresh             = $FreshPorts::Config::BaseDir . '/signals/ports_to_refresh';
 $FreshPorts::Config::UpdatingFileFlag           = $FreshPorts::Config::BaseDir . '/signals/refresh_updating';
 $FreshPorts::Config::VuXMLFileFlag              = $FreshPorts::Config::BaseDir . '/signals/vuxml';
@@ -178,13 +179,5 @@ $FreshPorts::Config::JailName                     = 'freshports';
 
 # This is where we chroot.  It also contains scripts for that jail.
 $FreshPorts::Config::JailBaseDir                  = "/jails/$FreshPorts::Config::JailName";
-
-# The existence of this script means the system is offline.
-# scripts etc should not run.
-# We don't use one for the Ingress user because scripts don't run as that user.
-# If you want to stop Ingress scripts, stop the ingress service.
-# There are many cronjobs and periodic scripts which run as the FreshPorts user.
-#
-$FreshPorts::Config::OFFLINE                      = "$FreshPorts::Config::BaseDir/OFFLINE";
 
 1;
