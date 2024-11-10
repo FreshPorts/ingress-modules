@@ -29,7 +29,13 @@ sub _initialize {
 sub Online {
 	my $this = shift;
 
-	if (-e "$FreshPorts::Config::OFFLINE") {
+# The existence of this script means the system is offline.
+# scripts etc should not run.
+# We don't use one for the Ingress user because scripts don't run as that user.
+# If you want to stop Ingress scripts, stop the ingress service.
+# There are many cronjobs and periodic scripts which run as the FreshPorts user.
+
+	if (-e "$FreshPorts::Config::Offline") {
 		return 0;
 	} else {
 		return 1;
