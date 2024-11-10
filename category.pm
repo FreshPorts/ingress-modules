@@ -53,12 +53,13 @@ sub save {
 	#
 	# if id is supplied, we are updating. otherwise we are inserting.
 	# if element_id is supplied, it will be used.  Otherwise, it will
-	# be derived from name based on /ports/<name>.
+	# be derived from name based on /ports/head/<name>.
+	# Categories are always on head, never a branch.
 	# A new element will be created if necessary.
 	#
 	# For new categories:
 	# description will be obtained from the contents of
-	# /ports/<name>/pkg/COMMENT
+	# /ports/head/<name>/pkg/COMMENT
 	# 
 
 	my $dbh = $this->{dbh}; # just a short cut...
@@ -90,9 +91,9 @@ sub save {
 		# we are updating
 		$sql = "update categories  
 				set 
-				is_primary = " . $dbh->quote($this->{is_primary}) . ", 
-				element_id = " . $elementid . ",
-				name      = " . $dbh->quote($this->{name}) . ", 
+				is_primary  = " . $dbh->quote($this->{is_primary}) . ",
+				element_id  = " . $elementid . ",
+				name        = " . $dbh->quote($this->{name}) . ",
 				description = " . $dbh->quote($this->{description}) . " 
 				 where id = $this->{id}";
 		$sth = $this->{dbh}->prepare($sql);
@@ -281,7 +282,7 @@ sub _description_fetch {
 
 sub FetchAll {
 	#
-	# return a hash containing one entry for each category
+	# return a hash containing one entry for each category from the database
 	#
 	my $this = shift;
 	
@@ -306,11 +307,11 @@ sub FetchAll {
 
 	while ($row = $sth->fetchrow_hashref()) {
 		$category = FreshPorts::Category->new($dbh);
-   	print "found $row->{id} = $row->{name}\n";
+	    print "found $row->{id} = $row->{name}\n";
 
-	$category->{id} = $row->{id};
-	$category->FetchByID();
-	$Categories{$row->{name}} = $category;
+		$category->{id} = $row->{id};
+		$category->FetchByID();
+		$Categories{$row->{name}} = $category;
 	}
 
 	return %Categories;
