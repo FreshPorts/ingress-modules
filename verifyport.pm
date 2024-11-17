@@ -739,6 +739,7 @@ sub RefreshAllSlavePortsOfPortsTouchedByCommit($;$;$;$;$;$) {
 		# See also observer_commits.pm::update()
 		# and https://github.com/FreshPorts/freshports/issues/607
 		#
+		print 'Adjusting port vulnerabilities for that port (port_id = ' . $port->{id} . ")\n";
 		my $PV = FreshPorts::PortsVulnerable->new($dbh);
 		$PV->AdjustVulnerabilityCountForPort($port->{id});
 
