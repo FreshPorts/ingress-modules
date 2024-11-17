@@ -10,6 +10,9 @@ package FreshPorts::ObserverCommits;
 
 use FreshPorts::special_processing_files;
 use FreshPorts::categories;
+use FreshPorts::ports_vulnerable;
+use FreshPorts::caching;
+use FreshPorts::messages;
 
 use List::MoreUtils 'any';
 
@@ -68,8 +71,6 @@ sub update {
 	if ($action eq $FreshPorts::Messages::PortsRefreshed) {
 		print "Observer has noticed that ports for $params{message_id} have been refreshed.\n";
 
-		use FreshPorts::ports_vulnerable;
-
 		$PV = FreshPorts::PortsVulnerable->new($class->{dbh});
 		$PV->PortsVulnerabilityCountAdjust($params{CommitLogPorts});
 	}
@@ -105,7 +106,7 @@ sub update {
 		print "Observer will clear the following files from cache after the commit:\n";
 
 		# declare these first
-		my ($null, $subtree, $head, $branches, $category_name, $port_name, $extra);
+		my ($null, $subtree, $head, $branches, $branch, $category_name, $port_name, $extra);
 
 		# For /ports/head/net/openmpi3/files/patch-opal_mca_pmix_pmix2x_pmix_src_mca_pshmem_mmap_pshmem__mmap.c for cache clearinge, we'd get:
 		# null          = ''
@@ -170,17 +171,14 @@ sub update {
 	if ($action eq $FreshPorts::Messages::TransactionCommitted) {
 		print "Observer has noticed that a transaction has been committed.\n";
 
-		use FreshPorts::caching;
 		$Caching = FreshPorts::Caching->new($class->{dbh});
 #		$Caching->RemovePortsFromCache(\%PortsCacheRemove);  # I suspect this call can be dropped. The code is a NOP
 		$Caching->RemoveFilesFromCache(\%FilesCacheRemove);
 
 		# we have to commit because we are separate - the main commit has already occurred.
-        $sth = $class->{dbh}->prepare("commit");
-        $sth->execute ||
-            die "Could not execute SQL $sql ... maybe invalid?";
+		$sth = $class->{dbh}->prepare("commit");
+		$sth->execute || die "Could not execute SQL ... maybe invalid?";
 	}
-
 }
 
 FreshPorts::categories::FetchAll();
