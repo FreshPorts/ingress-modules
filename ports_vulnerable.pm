@@ -11,10 +11,10 @@ use strict;
 use FreshPorts::utilities;
 
 sub new {
-	my $this		= {};
-	my $class		= shift;
+	my $this     = {};
+	my $class    = shift;
 
-	$this->{dbh}	= shift;
+	$this->{dbh} = shift;
 
 	bless $this;
 
@@ -71,8 +71,8 @@ sub PortsVulnerabilityCountAdjust($) {
 	#
 
 
-	my $CommitLogPortsRef		= shift;
-	my %CommitLogPorts			= %{$CommitLogPortsRef};
+	my $CommitLogPortsRef = shift;
+	my %CommitLogPorts    = %{$CommitLogPortsRef};
 
 	my $port;
 	my $error;
