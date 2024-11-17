@@ -19,6 +19,7 @@ use FreshPorts::commit_log_ports_elements;
 use FreshPorts::utilities;
 use FreshPorts::committer_opt_in;
 use FreshPorts::master_slave;
+use FreshPorts::ports_vulnerable;
 use FreshPorts::vuxml_mark_commits;
 
 require File::Basename;
@@ -733,6 +734,16 @@ sub RefreshAllSlavePortsOfPortsTouchedByCommit($;$;$;$;$;$) {
 
 		print "refreshed " . $port->{category} . '/' . $port->{name} . "\n";
 
+		#
+		# the slave ports need their vulnerability counts adjusted
+		# See also observer_commits.pm::update()
+		# and https://github.com/FreshPorts/freshports/issues/607
+		#
+		my $PV = FreshPorts::PortsVulnerable->new($dbh);
+		$PV->AdjustVulnerabilityCountForPort($port->{id});
+
+		# start clean. start fresh.
+		undef $PV;
 		undef $port;
 	}
 
