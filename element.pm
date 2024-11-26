@@ -15,9 +15,9 @@ $FreshPorts::Element::Active	= 'A';
 $FreshPorts::Element::Deleted	= 'D';
 
 sub new {
-	my $this			= {};
-	my $class		= shift;
-	$this->{dbh}	= shift;
+	my $this     = {};
+	my $class    = shift;
+	$this->{dbh} = shift;
 	bless $this;
 	$this->_initialize();
 	return $this
