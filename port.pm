@@ -333,21 +333,21 @@ update ports
 
 		$sql = "insert into ports (id, element_id, category_id";
 
-                # really, this should always be supplied, but we are retrofiting this, so be cautious		
+	            # really, this should always be supplied, but we are retrofiting this, so be cautious
 		if (defined($this->{last_commit_id})) {
 		    $sql .= ', last_commit_id';
 		}
 
-                $sql .= ") values ( \
+	            $sql .= ") values ( \
 				$this->{id}, \
-				$this->{element_id}, \ 
+				$this->{element_id}, \
 				$this->{category_id}";
-				
+
 		if (defined($this->{last_commit_id})) {
 			$sql .= ', ' . $this->{last_commit_id};
 		}
 
-                $sql .= ")";
+        $sql .= ")";
 
 		print "sql is $sql\n";
 
@@ -355,14 +355,14 @@ update ports
 		if (!$sth->execute) {
 			FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql ... maybe invalid? " . $dbh->errstr, 1);
 		}
-		
+
 	}
 
 	if ($FullSave) {
-	  $this->update_depends($CommitBranch);
-          $this->upate_generate_plist($CommitBranch);
-          $this->update_package_flavors($CommitBranch);
-        }
+		$this->update_depends($CommitBranch);
+		$this->update_generate_plist($CommitBranch);
+		$this->update_package_flavors($CommitBranch);
+	}
 
 	print "leaving FreshPorts::Port::_save\n";
 
@@ -1393,7 +1393,7 @@ sub IsValidDate($) {
   return ($test eq $string) ? $string : undef;
 }
 
-sub upate_generate_plist {
+sub update_generate_plist {
   # for each of the depends in this port, update the ports_dependencies relationships
   my $this = shift;
 
