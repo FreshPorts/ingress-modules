@@ -697,7 +697,9 @@ sub handle_file_end {
 	$element->{pathname} = $filename;
 	$element_id = $element->FetchByName();
 
+	# if we didn't find it, we add it.
 	if (!defined($element_id)) {
+		print "We didn't find $FilePath in the database\n";
 		# add the element to the tree
 		$element->{directory_file_flag} = 'F';
 
@@ -707,6 +709,7 @@ sub handle_file_end {
 		#
 
 		if ($FileAction eq $FreshPorts::Constants::DELETE) {
+			print "we will add it as a deleted item\n";
 			$element->{status} = $FreshPorts::Element::Deleted;
 		}
 		$element_id = $element->save();
@@ -1167,38 +1170,9 @@ sub SystemBranchElementInsert($;$;$;$) {
 	}
 }
 
-sub Element_Add($;$;$) {
-	my $element_name = shift;
-	my $FileDirFlag  = shift;
-	my $dbh          = shift;
-   
-	my $element_id;
-	my $sth;
-	my $sql;
-	my @row;
-
-	$sql = "select Element_Add('$element_name', '$FileDirFlag')";
-
-	print "sql is $sql\n";
-
-	if (!$debug) {
-		$sth = $dbh->prepare($sql);
-		$sth->execute ||
-			FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql ... maybe invalid?", 1);
-
-		@row = $sth->fetchrow_array();
-   
-		$sth->finish();
-	}
-
-	$element_id = $row[0];
-
-	return $element_id;
-}
-
 sub id {
 	# this will get the message id once we know it.
-	# impelemented only for observable class
+	# implemented only for observable class
 
 	return $Updates{commit_hash};
 }
@@ -1215,7 +1189,7 @@ sub repo {
 
 sub commit_log_id {
 	# this will get the message id once we know it.
-	# impelemented only for observable class
+	# implemented only for observable class
 
 	return $commit_log_id;
 }
