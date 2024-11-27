@@ -54,29 +54,6 @@ sub save {
 		$this->{status} = $FreshPorts::Element::Active;
 	}
 
-	# if we don't have the parent id, derive it from the pathname
-	if (!$this->{parent_id}) {
-		#
-		# our parent's name is the basename of our pathname
-		# i.e. our path name - our name.
-		#
-		if (!$this->{pathname}) {
-			FreshPorts::Utilities::ReportError('warning', "neither parent_id nor pathname supplied", 1);
-		}
-
-		#
-		# my parent's name is my name less the last directory/file.
-		#
-		my $parent_name = File::Basename::dirname($this->{pathname});
-
-		#
-		# fetch the element with that name
-		#
-		my $parent = FreshPorts::Element->new($dbh);
-		$parent->{pathname} = $parent_name;
-		$this->{parent_id}  = $parent->FetchByName();
-	}
-
 	if ($this->{id}) {
 		# we are updating
 
@@ -104,8 +81,7 @@ update element
 			FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql ... maybe invalid?", 1);
 	} else {
 		# we are inserting
-		$sql = "select Element_Add(" . $dbh->quote($this->{pathname}) . ", \
-									'$this->{directory_file_flag}')";
+		$sql = 'select Element_Add(' . $dbh->quote($this->{pathname}) . ', ' . $dbh->quote($this->{directory_file_flag}) . ')';
 
 #		print "sql is $sql\n";
 
@@ -187,16 +163,15 @@ sub FetchByID {
 
 sub FetchByName {
 	# obtain the element based on the pathname supplied
-	my $this	= shift;
+	my $this = shift;
 
-	my $dbh		= $this->{dbh};
+	my $dbh  = $this->{dbh};
 	if (!$dbh) {
 		FreshPorts::Utilities::ReportError('warning', " no database handle!", 1);
 	}
 
 	my ($sql, $sth, @row);
 
-	my $tmp = $dbh->quote("things");
 	$sql = "select Pathname_ID(" . $dbh->quote($this->{pathname}) . ")";
 	print "sql = '$sql'\n";
 
