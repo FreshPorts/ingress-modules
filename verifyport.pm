@@ -110,11 +110,11 @@ sub _CompileListOfPorts($;$;$;$;$) {
 	                $category_id = $category->{id};
 	                print "We have already seen that category '$category_name' in this commit.  It has id = '$category_id'\n";
 	            } else {
-	                # no, so we fetch it
-	                print "We have not seen the category '$category_name' so far in this commit, let's fetch it from the database.\n";
-	                $category = FreshPorts::Category->new($dbh);
-	                $category->{name} = $category_name;
-	                $category_id = $category->FetchByName();
+					# no, so we fetch it
+					print "We have not seen the category '$category_name' so far in this commit, let's fetch it from the database.\n";
+					$category = FreshPorts::Category->new($dbh);
+					$category->{name} = $category_name;
+					$category_id = $category->FetchByName();
 
 					if (!defined($category_id)) {
 						# if we didn't fetch that category from the database, we need to create it
@@ -128,10 +128,10 @@ sub _CompileListOfPorts($;$;$;$;$) {
 
 						$category->{is_primary} = 1;
 						$category_id = $category->save();
-						if (!defined($category_id)) {
-							# this call does not return
-	                        FreshPorts::Utilities::ReportError('warning', "failed to create new category $category_name", 1);
-						}
+                        if (!defined($category_id)) {
+                            # this call does not return
+                            FreshPorts::Utilities::ReportError('warning', "failed to create new category $category_name", 1);
+                        }
 					}
 
 					# We update this list of categories we have found to avoid repeated pulls from the database
@@ -185,6 +185,14 @@ sub _CompileListOfPorts($;$;$;$;$) {
                     # for now, all we want is a complete list of ports.
                     #
                     if (!defined($port->{id})) {
+                    	# this could be a 'new' port on a branch - which case we need to add it.
+                    	# it may be, as in the case for 8e7c184e8620e1568983be5b8beabd4047650f70, it is a 'new'
+                    	# port on the branch, but it is being deleted with this commit.
+                    	# By 'new', I mean we've never seen a commit on this branch for this port.
+                    	# FreshPorts does not branch like git does. FreshPorts only adds ports to a branch
+                    	# if it sees a commit for that port on that branch.
+                    	# Thus, for the mentioned commit, it will add the port, then mark it as deleted
+                    	# Search below for 
                         print "port not retrieved with $port->{partialpathname}.  This must be a new port.\n";
                         #
                         # these are the values needed to create a new port
@@ -203,28 +211,29 @@ sub _CompileListOfPorts($;$;$;$;$) {
                     print "SETTING CATEGORY = $port->{category_id}\n";
                     $ListOfPorts{"$category_name/$port_name"} = $port;
 				} else {
-					print "\$extra is not defined, therefore, this is not considered a port.\n";
+				    print "\$extra is not defined, therefore, this is not considered a port.\n";
 				}
 
-                #
-                # $port now contains the port for this file.
-                # let's adjust the needs_refresh value.
-                #
-                #
-                # if we just deleted the Makefile for this port, there's no sense in refreshing the port.
-                # because it's been deleted.
-                #
-                if (defined($extra) && $extra eq $FreshPorts::Constants::FILE_MAKEFILE && ($action eq $FreshPorts::Constants::REMOVE || $action eq $FreshPorts::Constants::DELETE)) {
-                    #
-                    # EDIT 2020-07-30 - for git processing, we want to delete the parent of $extra when we detect that the
-                    # port Makefile is being deleted. see https://news.freshports.org/2020/07/29/git-changing-libraries-gave-us-new-xml-options/
-                    # This should be straight forward.
-                    #
-                    # we are deleted (local value, never actually saved to db)
-                    #
-                    # instead of setting $port->{deleted} = 1;, try this: re https://github.com/FreshPorts/freshports/issues/528
-                    $port->SetDeleted();
-                    print "THIS PORT HAS BEEN DELETED\n";
+				#
+				# $port now contains the port for this file.
+				# let's adjust the needs_refresh value.
+				#
+				# if we just deleted the Makefile for this port, there's no sense in refreshing the port.
+				# because it's been deleted.
+				#
+				if (defined($extra) && $extra eq $FreshPorts::Constants::FILE_MAKEFILE && ($action eq $FreshPorts::Constants::REMOVE || $action eq $FreshPorts::Constants::DELETE)) {
+					#
+					# EDIT 2020-07-30 - for git processing, we want to delete the parent of $extra when we detect that the
+					# port Makefile is being deleted. see https://news.freshports.org/2020/07/29/git-changing-libraries-gave-us-new-xml-options/
+					# This should be straight forward.
+					#
+					# we are deleted (local value, never actually saved to db)
+					#
+					# instead of setting $port->{deleted} = 1;, try this:1444512 re https://github.com/FreshPorts/freshports/issues/528
+					if ($port->IsActive()) {
+					    $port->SetDeleted();
+					}
+					print "THIS PORT HAS BEEN DELETED\n";
                 }
 			}
 		} else {
@@ -288,6 +297,12 @@ sub SaveChangesToPortsTree($;$;$;$;$) {
 				print ", port_id = '". $port->{id} . "'";
 			}
 			print "\n";
+
+            # we are checking to see if this port is deleted - sort of
+            # This caters mostly for ports which we see for the first time and are deleted by this commit
+            # This is most likely to happen on a branch. see https://github.com/FreshPorts/freshports/issues/528
+            # this is a boolean value
+			my $IsActive = $port->IsActive();
 			
 			if ($FreshPorts::Config::Debug_FetchBeforeSavingPort && defined($port->{id})) {
 				print "Fetching port before saving\n";
@@ -316,6 +331,23 @@ sub SaveChangesToPortsTree($;$;$;$;$) {
 				print "just created that port.  Now loading it back in....\n";
 				$port->FetchByID();
 			}
+
+            if ($IsActive) {
+                # we were active before, if we aren't now, we need to fix that
+                #
+                if (!$port->IsActive()) {
+                    # we were active and now we're not: fix that
+                    print "This port was active and after that save(), it was not - fixing.\n";
+                    $port->SetActive();
+                }
+            } else {
+                # we were not active, i.e. we were deleted
+                if (!$port->IsDeleted()) {
+                    # we were deleted and now we're not: fix that
+                    print "This port was deleted and after that save(), it was not - fixing.\n";
+                    $port->SetDeleted();
+                }
+            }
 
 			#
 			# make sure we record what ports were updated by this commit
@@ -565,7 +597,7 @@ sub _RecordPortsAndElements($;$;$;$) {
 	%CommitLogPorts = %{$CommitLogPortsRef};
 	while (my ($portname, $commit_log_ports) = each %CommitLogPorts) {
 		$port = $commit_log_ports->{port};
-	    print $port->{category} . '/' . $port->{name} . "\n";
+		print $port->{category} . '/' . $port->{name} . "\n";
 		if ($CommitLogPortElements{$commit_log_id . '||' . $port->{element_id}}) {
 			print "That element_id ($element_id) has already been recorded against this commit\n";
 		} else {
@@ -811,14 +843,18 @@ sub _DeleteDeletedPorts($;$) {
 	#
 	print "# # # # Deleting deleted ports # # # #\n\n";
 	while (my ($portname, $port) = each %Ports) {
+		print "must we delete: $portname, port_id = '$port->{id}', ' element_id = $port->{element_id}'  ????";
 		if ($port->IsDeleted()) {
-			print "deleting : port = $portname, port_id = '$port->{id}', ' element_id = $port->{element_id}'\n";
+			print "\nyes, yes, we must delete that\n";
 
 			$element->{id} = $port->{element_id};
 			if (defined($element->FetchByID())) {
+				# why not use: $element->update_status($FreshPorts::Element::Deleted) ?
 				$element->{status} = $FreshPorts::Element::Deleted;
 				$element->save();
 			}
+		} else {
+			print " no, we don't delete that\n";
 		}
 	}
 	print "# # # # Finished deleting deleted ports # # # #\n\n";
@@ -850,7 +886,7 @@ sub _UndeleteResurrectedPorts($;$;$) {
 	while (my ($portname, $port) = each %Ports) {
 		if ($port->IsDeleted()) {
 			print "found a deleted port: port='$port->{name}', port_id='$port->{id}', element_id='$port->{element_id}'\n";
-			print "now looking for files which were modified...\n";
+			print "now looking for files which were modified to see if anything was added - if so, we must undelete this port...\n";
 
 			foreach $value (@{$Files}) {
 				my ($action, $filename, $revision, $commit_log_element_id, $element_id) = @$value;
