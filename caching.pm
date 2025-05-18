@@ -24,7 +24,7 @@ sub new {
 	my $this  = {};
 	my $class = shift;
 
-	$this->{dbh}	= shift;
+	$this->{dbh} = shift;
 
 	bless $this;
 
@@ -121,8 +121,8 @@ sub RemoveFilesFromCache($) {
 	# remove each one from the cache
 	#
 
-	my $FilesRef	= shift;
-	my %Files		= %{$FilesRef};
+	my $FilesRef = shift;
+	my %Files    = %{$FilesRef};
 
 	my $error;
 	my $ErrorFound = 0;
@@ -146,9 +146,9 @@ sub RemoveFilesFromCache($) {
 			}
 		}
 		# after populating the cache_clearing_files table, we notify.
-        $sth = $this->{dbh}->prepare("notify file_updated");
-        $sth->execute ||
-            die "Could not execute SQL $sql ... maybe invalid?";
+		$sth = $this->{dbh}->prepare("notify file_updated");
+		$sth->execute ||
+			die "Could not execute SQL $sql ... maybe invalid?";
 
 		print "\n# # # # Finished: Removing files from the cache # # # #\n\n";
 	} else {
