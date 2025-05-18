@@ -1150,7 +1150,7 @@ sub SystemBranchElementInsert($;$;$;$) {
 	my $SystemBranchID	= shift;
 	my $ElementID		= shift;
 	my $RevisionName	= shift;
-	my $dbh				= shift;
+	my $dbh			= shift;
 
 	my $sth;
 	my $sql;
