@@ -298,18 +298,18 @@ sub handle_os_end {
 	#       954144 | /ports/branches/2019Q3/Mk/Scripts/do-depends.sh
 	#       956066 | /ports/branches/2019Q3/Mk/Uses
 	# (5 rows)
-    # freshports.dev=#
-    #
-    #
-    # So we have the following values:
-    #
-    # $Updates{branch_git}           - value supplied in XML
-    # $Updates{branch_database_name} - for use in system_branch.branch_name
-    # $Updates{branch_for_files}     - for use in filenames
-    #
+	# freshports.dev=#
+	#
+	#
+	# So we have the following values:
+	#
+	# $Updates{branch_git}           - value supplied in XML
+	# $Updates{branch_database_name} - for use in system_branch.branch_name
+	# $Updates{branch_for_files}     - for use in filenames
+	#
 
-    # this converts main to head, and leaves everything else unchanged
-    #
+	# this converts main to head, and leaves everything else unchanged
+	#
 	$Updates{branch_for_files} = ConvertGitBranchNameToFreshPortsName($Updates{branch_git});
 	
 	print "after converting '\$Updates{branch_git}' we have '$Updates{branch_for_files}'\n";
