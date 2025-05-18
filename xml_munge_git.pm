@@ -975,10 +975,10 @@ sub SaveUpdateToDB {
 		}
 	}
 
-	$message_date       = sprintf "%04u/%02u/%02u %02u:%02u:%02u %s", 
-							$Updates{dateyear}, $Updates{datemonth},  $Updates{dateday}, 
-							$Updates{timehour}, $Updates{timeminute}, $Updates{timesecond}, 
-							$Updates{timezone};
+	$message_date = sprintf "%04u/%02u/%02u %02u:%02u:%02u %s", 
+		$Updates{dateyear}, $Updates{datemonth},  $Updates{dateday}, 
+		$Updates{timehour}, $Updates{timeminute}, $Updates{timesecond}, 
+		$Updates{timezone};
 
 	my $message_subject = $Updates{MessageSubject};
 
