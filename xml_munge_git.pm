@@ -897,8 +897,16 @@ sub handle_message_end {
 		$commit_log_id = SaveUpdateToDB();
 	}
 
+	# Let's found avoid: DBI::db=HASH(0x348838f41618)->disconnect invalidates 1 active statement handle (either destroy statement handles or
+	# call finish on them before disconnecting) at /usr/local/lib/perl5/site_perl/FreshPorts/xml_munge_git.pm line 902.
+	# if no commit log id is returned.
+	$sth->finish();
+
 	if (!defined(commit_log_id())) {
 		print "no commit id returned.  we'll just exit now shall we?\n";
+		# We are exiting here, let's destroy this and avoid:
+		# DBI dr handle 0x340f309447c8 cleared whilst still active during global destruction
+		$self->{dbh}->disconnect();		
 		exit 0;
 	}
 }
@@ -969,6 +977,7 @@ sub SaveUpdateToDB {
 			if (!$sth->execute) {
 				FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql $self->{dbh}->err", 1);
 			}
+			$sth->finish();
 		} else {
 			my $nullvalue;
 			return $nullvalue;
