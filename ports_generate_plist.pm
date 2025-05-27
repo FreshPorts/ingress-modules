@@ -48,8 +48,9 @@ sub save {
 	}
 
 	if (!defined($this->{generate_plist}) || $this->{generate_plist} eq '') {
-	  print "nothing in generate_plist to save; leaving\n";
-	  return;
+		$sth->finish();
+		print "nothing in generate_plist to save; leaving\n";
+		return;
 	}
 
 	print "generate_plist is:\n###\n" . $this->{generate_plist} . "\n###\n";
@@ -58,21 +59,23 @@ sub save {
 	my (@lines) = split("\n", $this->{generate_plist});
 
 	for (@lines) {
-	  if (!$_) {
-	    print "ignoring empty string\n";
-	  } else {
-	    print "pushing '$_'\n";
-	    push @sql, "( $this->{port_id}, " . $this->{dbh}->quote($_) . ')';
-	  }
+		if (!$_) {
+			print "ignoring empty string\n";
+		} else {
+			print "pushing '$_'\n";
+			push @sql, "( $this->{port_id}, " . $this->{dbh}->quote($_) . ')';
+		}
 	}
 
-    $sql .= join(',', @sql) . ';';
+	$sql .= join(',', @sql) . ';';
 
 	print "sql is $sql\n";
 	$sth = $this->{dbh}->prepare($sql);
 	if (!$sth->execute) {
 		FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql ... maybe invalid? ". $dbh->errstr, 1);
 	}
+
+	$sth->finish();
 }
 
 1;

@@ -45,18 +45,20 @@ sub insert {
 	print "sql is $sql\n";
 
 	$sth = $this->{dbh}->prepare($sql);
-  if ($sth->execute)
-  {
-    my $row = $sth->fetchrow_hashref();
-    my $result = $row->{result};
-    print "result is $result\n";
-    return $result;
-  }
-  else
-  {
-    FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql ... maybe invalid? ". $dbh->errstr, 0);
-    print "that failed\n";
-    return 0;
+	if ($sth->execute)
+	{
+		my $row = $sth->fetchrow_hashref();
+		my $result = $row->{result};
+		$sth->finish();
+		print "result is $result\n";
+		return $result;
+	}
+	else
+	{
+		FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql ... maybe invalid? ". $dbh->errstr, 0);
+		$sth->finish();
+		print "that failed\n";
+		return 0;
 	}
 }
 
@@ -76,6 +78,7 @@ sub delete {
 	if (!$sth->execute) {
 		FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql ... maybe invalid? ". $dbh->errstr, 1);
 	}
+	$sth->finish();
 }
 
 1;

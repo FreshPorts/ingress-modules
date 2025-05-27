@@ -13,9 +13,9 @@ use FreshPorts::utilities;
 use FreshPorts::vuxml_package;
 
 sub new {
-	my $this		= {};
-	my $class		= shift;
-	$this->{dbh}	= shift;
+	my $this     = {};
+	my $class    = shift;
+	$this->{dbh} = shift;
 	bless $this;
 
 	$this->_initialize();
@@ -75,6 +75,7 @@ UPDATE vuxml_affected
 		FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql ... maybe invalid? " . $dbh->errstr, 1);
 	}
 
+	$sth->finish();
 	# after saving, return the ID
 	return $this->{id};
 }

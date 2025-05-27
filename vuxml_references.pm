@@ -73,6 +73,8 @@ sub save {
 		FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql ... maybe invalid? " . $dbh->errstr, 1);
 	}
 
+	$sth->finish();
+
 	# after saving, return the ID
 	return $this->{id};
 }

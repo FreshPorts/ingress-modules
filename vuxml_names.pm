@@ -9,6 +9,7 @@ package FreshPorts::vuxml_names;
 
 use strict;
 use FreshPorts::utilities;
+use FreshPorts::constants;
 
 sub new {
 	my $this		= {};
@@ -73,6 +74,8 @@ sub save {
 		FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql ... maybe invalid? " . $dbh->errstr, 1);
 	}
 
+	$sth->finish();
+
 	# after saving, return the ID
 	return $this->{id};
 }
@@ -113,6 +116,7 @@ sub FetchByVuXMLAffectedID {
 
 		push @Names, $vuxml_names;
 	}
+
 	$sth->finish();
 
 	return @Names;

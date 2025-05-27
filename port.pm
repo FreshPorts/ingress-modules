@@ -305,7 +305,7 @@ update ports
 		};
 		$sth = $this->{dbh}->prepare($sql);
 		$sth->execute ||
-			FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql ... maybe invalid? " . $dbh->errstr, 1);
+			FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql ... maybe invalid? " . $dbh->errstr, 1)
 	} else {
 		# we are inserting
 		# do we really need to quote these things?
@@ -347,7 +347,7 @@ update ports
 			$sql .= ', ' . $this->{last_commit_id};
 		}
 
-        $sql .= ")";
+                $sql .= ")";
 
 		print "sql is $sql\n";
 
@@ -366,6 +366,8 @@ update ports
 
 	print "leaving FreshPorts::Port::_save\n";
 
+	$sth->finish();
+	
 	# after savings, return the ID
 	return $this->{id};
 }

@@ -79,6 +79,7 @@ update element
 		$sth = $this->{dbh}->prepare($sql);
 		$sth->execute ||
 			FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql ... maybe invalid?", 1);
+		$sth->finish();
 	} else {
 		# we are inserting
 		$sql = 'select Element_Add(' . $dbh->quote($this->{pathname}) . ', ' . $dbh->quote($this->{directory_file_flag}) . ')';
@@ -129,15 +130,17 @@ update element
 			FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql ... maybe invalid?", 1);
 	}
 
+	$sth->finish();
+	
 	# after saving, return the ID
 	return $this->{id};
 }
 
 
 sub FetchByID {
-	my $this	= shift;
+	my $this = shift;
 
-	my $dbh		= $this->{dbh};
+	my $dbh  = $this->{dbh};
 
 	my $sql = "select *, element_pathname(id) as pathname from element where id = $this->{id}";
 #	print "sql = '$sql'\n";

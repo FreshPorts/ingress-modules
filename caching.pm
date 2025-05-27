@@ -52,7 +52,8 @@ sub RemovePortFromCache($;$;$) {
 	if (!$sth->execute) {
 		FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql ... maybe invalid? ". $this->{dbh}->errstr, 1);
 	}
-	
+
+	$sth->finish();
 }
 
 sub RemoveFileFromCache($;$) {
@@ -144,6 +145,7 @@ sub RemoveFilesFromCache($) {
 			if (!$sth->execute) {
 				FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql ... maybe invalid? ". $this->{dbh}->errstr, 1);
 			}
+			$sth->finish();
 		}
 		# after populating the cache_clearing_files table, we notify.
 		$sth = $this->{dbh}->prepare("notify file_updated");
@@ -151,10 +153,12 @@ sub RemoveFilesFromCache($) {
 			die "Could not execute SQL $sql ... maybe invalid?";
 
 		print "\n# # # # Finished: Removing files from the cache # # # #\n\n";
+		$sth->finish();
+
 	} else {
 		print "This commit had no files that need to be removed from the cache\n";
 	}
-
+	
 	return $ErrorFound;
 }
 

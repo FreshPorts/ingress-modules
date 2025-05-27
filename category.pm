@@ -99,6 +99,7 @@ sub save {
 		$sth = $this->{dbh}->prepare($sql);
 		$sth->execute ||
 			FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql ... maybe invalid?", 1);
+		$sth->finish();
 	} else {
 		# we are inserting
 		$sql = "select CreateCategory(" . $dbh->quote($this->{name}) . ", \
@@ -298,21 +299,23 @@ sub FetchAll {
 
 	$sth = $dbh->prepare($sql);
 	if ( !defined $sth ) {
-   	FreshPorts::Utilities::ReportError('warning', "Could not prepare SQL $sql" . pg_last_error(), 1);
+	   	FreshPorts::Utilities::ReportError('warning', "Could not prepare SQL $sql" . pg_last_error(), 1);
 	}
 
 	if (!$sth->execute) {
-   	FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql" . pg_last_error(), 1);
+   		FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql" . pg_last_error(), 1);
 	}
 
 	while ($row = $sth->fetchrow_hashref()) {
 		$category = FreshPorts::Category->new($dbh);
-	    print "found $row->{id} = $row->{name}\n";
+		print "found $row->{id} = $row->{name}\n";
 
 		$category->{id} = $row->{id};
 		$category->FetchByID();
 		$Categories{$row->{name}} = $category;
 	}
+
+	$sth->finish();
 
 	return %Categories;
 }

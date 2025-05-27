@@ -71,9 +71,11 @@ SELECT distinct CLP.port_id, CLP.port_version, CLP.port_revision, CLP.port_epoch
 
     while ($row = $sth->fetchrow_hashref()) {
         push @Commits, $row;
-	}
+    }
+    
+    $sth->finish();
 
-	return @Commits;
+    return @Commits;
 }
 
 sub EmptyCommitLogPortsVuXML() {
@@ -90,6 +92,7 @@ sub EmptyCommitLogPortsVuXML() {
 	if (!$sth->execute())  {
 		FreshPorts::Utilities::ReportError('warning', "Could not execute sql: $sql", 1);
 	}
+	$sth->finish();
 }
 
 sub ValueOrNull($) {
@@ -109,14 +112,14 @@ sub ValueOrNull($) {
 
 sub MarkOneCommit($) {
 	my $this        = shift;
-    my $VID         = shift;
+	my $VID         = shift;
 	my $PortID      = shift;
 	my $CommitLogID = shift;
 
 	my $Commit;
 	my $dbh = $this->{dbh};
-    my $sth;
-    my $sql;
+	my $sth;
+	my $sql;
 
 	$sql = "INSERT INTO commit_log_ports_vuxml(commit_log_id, port_id, vuxml_id)
             values ($CommitLogID, $PortID, $VID)";
@@ -126,16 +129,17 @@ sub MarkOneCommit($) {
 	$sth = $dbh->prepare($sql);
 	$sth->execute ||
 		die "Could not execute SQL $sql ... maybe invalid?";
+	$sth->finish();
 }
 
 sub ClearCommitsForOneVuln($) {
 	my $this        = shift;
-    my $VID         = shift;
+	my $VID         = shift;
 
 	my $Commit;
 	my $dbh = $this->{dbh};
-    my $sth;
-    my $sql;
+	my $sth;
+	my $sql;
 
 	$sql = 'select commit_log_ports_vuxml_purge(' . $dbh->quote($VID) . ')';
 
@@ -144,16 +148,17 @@ sub ClearCommitsForOneVuln($) {
 	$sth = $dbh->prepare($sql);
 	$sth->execute ||
 		die "Could not execute SQL $sql ... maybe invalid?";
+	$sth->finish();
 }
 
 sub MarkTheseCommits($) {
 	my $this    = shift;
-    my $Commits = shift;
+	my $Commits = shift;
 
 	my $Commit;
 	my $dbh = $this->{dbh};
-    my $sth;
-    my $sql;
+	my $sth;
+	my $sql;
 
 	print "now marking those commits\n";
 
@@ -200,6 +205,7 @@ SELECT commit_log_id,
 		$sth = $dbh->prepare($sql);
 		$sth->execute ||
 			die "Could not execute SQL $sql ... maybe invalid?";
+		$sth->finish();
 	}
 
 	$| = $OldValue;
@@ -329,38 +335,38 @@ sub ProcessEachRangeRecord() {
 	$sth->execute ||
 		die "Could not execute SQL $sql ... maybe invalid?";
 
-    while ($range = $sth->fetchrow_hashref()) {
-	$i++;
-	# This is effectively the exit of the loop... once we find a new package,
-	# we mark the commits
-        if (!defined($LastPackage) || $LastPackage ne $range->{'package_name'}) {
-		if (defined($LastPackage)) {
-			$this->MarkTheseCommits(\@AffectedCommits);
-		}
+	while ($range = $sth->fetchrow_hashref()) {
+		$i++;
+		# This is effectively the exit of the loop... once we find a new package,
+		# we mark the commits
+		if (!defined($LastPackage) || $LastPackage ne $range->{'package_name'}) {
+			if (defined($LastPackage)) {
+				$this->MarkTheseCommits(\@AffectedCommits);
+			}
 			
-            $LastPackage = $range->{'package_name'};
+			$LastPackage = $range->{'package_name'};
 
-            print "We have a new package name: '$LastPackage'\n";
+			print "We have a new package name: '$LastPackage'\n";
 			@Commits = $this->CommitsForThisPackage($LastPackage);
 			@AffectedCommits = ();
-        } else {
-            print "processing another record for that package\n";
-	}
-	print "*** Working on $range->{'op1'} $range->{'v1'}";
-	if (defined($range->{'op2'})) {
-		print "*** $range->{'op2'} $range->{'v2'}";
-	}
-	print "\n";
-
-        foreach my $Commit (@Commits) {
-		my $CommitVersion = $this->PackageVersion($Commit->{'port_version'},  $Commit->{'port_revision'}, $Commit->{'port_epoch'});
-
-		print "Looking at port='$Commit->{'port_id'}' " . sprintf "%10s", $CommitVersion . ' ';
-		print "$range->{'op1'} " . sprintf "%10s", $range->{'v1'};
+		} else {
+			print "processing another record for that package\n";
+		}
+		print "*** Working on $range->{'op1'} $range->{'v1'}";
 		if (defined($range->{'op2'})) {
-			print " $range->{'op1'} " . sprintf "%10s", $range->{'v1'};
+			print "*** $range->{'op2'} $range->{'v2'}";
 		}
 		print "\n";
+
+	        foreach my $Commit (@Commits) {
+			my $CommitVersion = $this->PackageVersion($Commit->{'port_version'},  $Commit->{'port_revision'}, $Commit->{'port_epoch'});
+
+			print "Looking at port='$Commit->{'port_id'}' " . sprintf "%10s", $CommitVersion . ' ';
+			print "$range->{'op1'} " . sprintf "%10s", $range->{'v1'};
+			if (defined($range->{'op2'})) {
+				print " $range->{'op1'} " . sprintf "%10s", $range->{'v1'};
+			}
+			print "\n";
 
 			if ($this->IsCommitAffected($CommitVersion, $range)) {
 				print "### this version is affected\n";
@@ -378,7 +384,7 @@ sub ProcessEachRangeRecord() {
 				                           port_revision => $Commit->{'port_revision'},
 				                           port_epoch    => $Commit->{'port_epoch'},
 				                         }
-				                       );
+				);
 
 				# keep track of this ports because we need to recalculate
 				$Ports{$Commit->{'port_id'}} = $Commit->{'port_id'};
@@ -390,19 +396,19 @@ sub ProcessEachRangeRecord() {
 			}
 			else
 			{
-			  print "not affected\n";
-            }
-        }
-    }
+				print "not affected\n";
+			}
+		}
+	}
 
-    # whatever you do as you exit this loop, you must
-    # also do in the 'found new package'-loop above
+	# whatever you do as you exit this loop, you must
+	# also do in the 'found new package'-loop above
 	$this->MarkTheseCommits(\@AffectedCommits);
 	
 	# when all else is done, we do this for all the ports.
 	$this->CalculateVulnerabilityCount(\%Ports);
 
-    return $i;
+	return $i;
 }
 
 sub CalculateVulnerabilityCount($;$) {
@@ -446,15 +452,16 @@ sub RecordVulnerabilitiesForThisPortVersion($;$;$;$;$;$) {
 	$sth->execute ||
 		die "Could not execute SQL $sql ... maybe invalid?";
 
-    while ($range = $sth->fetchrow_hashref()) {
+	while ($range = $sth->fetchrow_hashref()) {
 		$i++;
 		if ($this->IsCommitAffected($Version, $range)) {
 			print '### this version is affected by ' . $range->{id} . "\n";
 			$this->MarkOneCommit($range->{id}, $PortID, $CommitLogID);
 		}
 	}
+	$sth->finish();
 
-    return $i;
+	return $i;
 }
 
 sub ClearCachedEntries($) {
@@ -487,12 +494,14 @@ SELECT P.id   AS port_id,
 		die "Could not execute SQL $sql ... maybe invalid?";
 
 	my $Caching = FreshPorts::Caching->new($dbh);
-    while ($updated_port = $sth->fetchrow_hashref()) {
-        $i++;
+	while ($updated_port = $sth->fetchrow_hashref()) {
+        	$i++;
 		$Caching->RemovePortFromCache($updated_port->{port_id}, $updated_port->{category}, $updated_port->{port});
 	}
 
-    return $i;
+	$sth->finish();
+
+	return $i;
 }
 
 

@@ -22,7 +22,6 @@ my $dirname='';
 my $porttorefresh;
 my @PORTS;
 my $sql;
-my $sth;
 my @row;
 
 
@@ -44,11 +43,11 @@ sub new {
 
 sub refresh_one_port {
 	my $this    = shift;
-	ny $port_id = shift;
+	my $port_id = shift;
 
 	my $dbh = $this->{dbh}; # just a short cut...
 
-	$port = FreshPorts::Port->new($dbh);
+	my $port = FreshPorts::Port->new($dbh);
 	$port->{id} = $port_id;
 	if ($port->FetchByID()) {
 		$port->RefreshFromFiles($FreshPorts::Constants::HEAD, 0, 0, '');

@@ -55,6 +55,8 @@ sub save {
 		FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql ... maybe invalid? ". $dbh->errstr, 1);
 	}
 
+	$sth->finish();
+
 	#
 	# This is the only way we know we've save this already.  we don't have an id.
 	# we could query the db for our primary key, but perhaps we don't have to.

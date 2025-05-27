@@ -185,6 +185,8 @@ sub CreateDailySummary($;$) {
 		FreshPorts::Utilities::ReportError('err',  "could not open '$OutputFile'\n", 1);
 		return 3;
 	}
+
+	$sth->finish();
    
 	return 0;
 }

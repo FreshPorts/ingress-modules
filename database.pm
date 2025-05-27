@@ -66,6 +66,9 @@ sub GetDBHandle {
         if (!$dbh_pg) {
             FreshPorts::Utilities::ReportError('warning', "could not connect to $FreshPorts::Config::dbname", 1);
         }
+
+        # trying to avoid DBI db handle 0x142b99534a68 has 1 uncleared child handles during global destruction 
+        $dbh_pg->{AutoInactiveDestroy} = 1;
     }
 
     return $dbh_pg;

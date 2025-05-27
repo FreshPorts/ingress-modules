@@ -130,7 +130,9 @@ sub save {
 	if (!$sth) {
 		FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql ... maybe invalid? " . $dbh->errstr, 1);
 	}
-
+# No, that's a do, we don't finish on a do. It returns true/false 
+#	$sth->finish();
+	
 	# after saving, return the ID
 	return $this->{id};
 }

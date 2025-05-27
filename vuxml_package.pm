@@ -10,7 +10,7 @@ package FreshPorts::vuxml_package;
 use strict;
 use FreshPorts::utilities;
 
-use FreshPorts::vuxml_affected;
+#use FreshPorts::vuxml_affected;
 use FreshPorts::vuxml_names;
 use FreshPorts::vuxml_ranges;
 

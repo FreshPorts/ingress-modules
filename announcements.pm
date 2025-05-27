@@ -44,6 +44,8 @@ sub Get {
 	while ($row = $sth->fetchrow_hashref()) {
 		$Announce .= $row->{text} . "\n";
 	}
+	
+	$sth->finish();
 
 	return $Announce;
 }

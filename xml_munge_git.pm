@@ -85,8 +85,8 @@ my %Updates;
 my $self;	# for use by functions that cannot get this value (i.e. handler_*)
 
 sub new {
-	my $this     = {};
-	my $class    = shift;
+	my $this  = {};
+	my $class = shift;
 
 	$this->{dbh} = shift;
 
@@ -991,7 +991,7 @@ sub SaveUpdateToDB {
 
 	my $message_subject = $Updates{MessageSubject};
 
-	my $date_added      = "now()";
+	my $date_added = "now()";
 	if (defined($Updates{DateAdded})) {
 		$date_added = $Updates{DateAdded};
 	}
@@ -1001,9 +1001,9 @@ sub SaveUpdateToDB {
 							$Updates{timehour}, $Updates{timeminute}, $Updates{timesecond}, 
 							$Updates{timezone};
 
-	my $committer       = $Updates{committer};
-	my $description     = $Updates{log};
-	my $revision        = $Updates{revision};
+	my $committer   = $Updates{committer};
+	my $description = $Updates{log};
+	my $revision    = $Updates{revision};
 
 	# declare, assign, and never use. Trying to avoid this error by delcaring it:
 	# Name "FreshPorts::XML_Munge_git::rest" used only once: possible typo at xml_munge_git.pm line 990.
@@ -1110,6 +1110,8 @@ sub SystemBranchIDGetOrCreate($;$;$) {
 	}
 
 	@row = $sth->fetchrow_array();
+	
+	$sth->finish();
 
 	$SystemBranchID = $row[0];
 	if (!defined($SystemBranchID)) {
@@ -1123,9 +1125,8 @@ sub SystemBranchIDGetOrCreate($;$;$) {
 		if (!$sth->execute) {
 			FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql", 1);
 		}
+		$sth->finish();
 	}
-
-	$sth->finish();
 
 	return $SystemBranchID;
 }

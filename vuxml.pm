@@ -105,6 +105,7 @@ sub save {
 		FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql ... maybe invalid? " . $dbh->errstr, 1);
 	}
 
+	$sth->finish();
 	# after saving, return the ID
 	return $this->{id};
 }
@@ -126,6 +127,7 @@ sub FetchByID {
 #	print "sql = '$sql'\n";
 
 	$sth = $dbh->prepare($sql);
+
 	if (!$sth->execute) {
 		FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql", 1);
 	}

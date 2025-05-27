@@ -14,9 +14,9 @@ use FreshPorts::utilities;
 require FreshPorts::constants;
 
 sub new {
-	my $this		= {};
-	my $class		= shift;
-	$this->{dbh}	= shift;
+	my $this     = {};
+	my $class    = shift;
+	$this->{dbh} = shift;
 	bless $this;
 	$this->_initialize();
 	return $this
@@ -55,6 +55,7 @@ sub save {
 		if (!$sth->execute) {
 			FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql ... maybe invalid? ". $dbh->errstr, 1);
 		}
+		$sth->finish();
 	} else {
 		FreshPorts::Utilities::ReportError('warning', "FreshPorts::CommitLogElements::save works for updates only", 1);
 	}

@@ -69,6 +69,8 @@ sub _LatestCommitsPortsInsert($;$) {
 	$sth = $dbh->prepare($sql);
 	$sth->execute ||
 			FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql ... maybe invalid? " . $dbh->errstr, 1);
+
+	$sth->finish();
 }
 
 1;

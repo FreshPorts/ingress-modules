@@ -13,18 +13,20 @@ sub GetNextValue($;$) {
 	my $sql;
 	my @row;
 
+	$debug = 0;
+
 	$sql = "select nextval('$sequence')";
 
 	if (!$debug) {
-	$sth = $dbh->prepare($sql);
-	if (!$sth->execute) {
-		Sys::Syslog::syslog('warning', "Could not execute SQL $sql");
-		die "Could not execute SQL $sql ... maybe invalid?";
+		$sth = $dbh->prepare($sql);
+		if (!$sth->execute) {
+			Sys::Syslog::syslog('warning', "Could not execute SQL $sql");
+			die "Could not execute SQL $sql ... maybe invalid?";
 		}
 
-	@row = $sth->fetchrow_array();
+		@row = $sth->fetchrow_array();
 
-	$sth->finish();
+		$sth->finish();
 	}
 
 	return $row[0];

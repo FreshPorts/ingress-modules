@@ -74,6 +74,8 @@ sub CommitterHasOptedIn($;$) {
 		$OptedIn = 1;
 	}
 
+	$sth->finish();
+
 	return $OptedIn;
 }
 

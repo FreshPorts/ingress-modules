@@ -72,8 +72,9 @@ ORDER BY slave_category_name, slave_port_name";
 		$Slaves{"$this->{slave_category_name}/$this->{slave_port_name}"} = 1;
 	}
 
-	return %Slaves;
+	$sth->finish();
 
+	return %Slaves;
 }
 
 1;

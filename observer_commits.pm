@@ -178,6 +178,7 @@ sub update {
 		# we have to commit because we are separate - the main commit has already occurred.
 		$sth = $class->{dbh}->prepare("commit");
 		$sth->execute || die "Could not execute SQL ... maybe invalid?";
+		$sth->finish();
 	}
 }
 
