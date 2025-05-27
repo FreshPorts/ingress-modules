@@ -152,6 +152,8 @@ sub RemoveFilesFromCache($) {
 		$sth->execute ||
 			die "Could not execute SQL $sql ... maybe invalid?";
 
+		# although testing did not show this one was needed: avoiding DBI db handle 0x26630a140570 has 1 uncleared child handles during global destruction
+		$sth->finish();
 		print "\n# # # # Finished: Removing files from the cache # # # #\n\n";
 		$sth->finish();
 
