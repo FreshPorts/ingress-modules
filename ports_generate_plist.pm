@@ -78,4 +78,10 @@ sub save {
 	$sth->finish();
 }
 
+sub DESTROY {
+	my $this = shift;
+
+	undef $this->{dbh};
+}
+
 1;

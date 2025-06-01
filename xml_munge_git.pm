@@ -818,6 +818,8 @@ sub ElementRevisionExists($;$;$) {
 	}
 	@row = $sth->fetchrow_array();   
 	$sth->finish();
+	
+	undef $dbh;
 
 	return $row[0];
 }
@@ -846,6 +848,8 @@ sub ElementRevisionInsert($;$;$) {
 
 		$sth->finish();
 	}
+
+	undef $dbh;
 }
 
 sub handle_message_end {
@@ -1075,6 +1079,8 @@ sub GetExistingMessageID($;$) {
 	@row = $sth->fetchrow_array();
    
 	$sth->finish();
+
+	undef $dbh;
    
 	return $row[0];
 }
@@ -1127,6 +1133,8 @@ sub SystemBranchIDGetOrCreate($;$;$) {
 		}
 		$sth->finish();
 	}
+	
+	undef $dbh;
 
 	return $SystemBranchID;
 }
@@ -1153,6 +1161,8 @@ sub SystemIDGet($;$) {
 
 	$sth->finish();
 
+	undef $dbh;
+
 	return $row[0];
 }
 
@@ -1178,6 +1188,8 @@ sub SystemBranchElementInsert($;$;$;$) {
 
 		$sth->finish();
 	}
+
+	undef $dbh;
 }
 
 sub id {
@@ -1206,6 +1218,12 @@ sub commit_log_id {
 
 sub Set_Rollback_Needed() {
 	$_RollbackNeeded = 1;
+}
+
+sub DESTROY {
+	my $this = shift;
+
+	undef $this->{dbh};
 }
 
 1;

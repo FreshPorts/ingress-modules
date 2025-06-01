@@ -1615,6 +1615,11 @@ sub CreatePortOnBranch {
   return $this->{id};
 }
 
+sub DESTROY {
+	my $this = shift;
+
+	undef $this->{dbh};
+}
 
 FreshPorts::Utilities::InitSyslog();
 

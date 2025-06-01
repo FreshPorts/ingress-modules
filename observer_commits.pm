@@ -182,6 +182,12 @@ sub update {
 	}
 }
 
+sub DESTROY {
+	my $this = shift;
+
+	undef $this->{dbh};
+}
+
 FreshPorts::categories::FetchAll();
 
 1;

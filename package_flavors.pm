@@ -11,9 +11,9 @@ use strict;
 use FreshPorts::utilities;
 
 sub new {
-	my $this		= {};
-	my $class		= shift;
-	$this->{dbh}	= shift;
+	my $this     = {};
+	my $class    = shift;
+	$this->{dbh} = shift;
 	bless $this;
 	$this->_initialize();
 	return $this
@@ -61,6 +61,12 @@ sub add {
 		FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql ... maybe invalid? ". $dbh->errstr, 1);
 	}
 	$sth->finish();
+}
+
+sub DESTROY {
+	my $this = shift;
+
+	undef $this->{dbh};
 }
 
 1;

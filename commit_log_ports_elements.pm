@@ -11,10 +11,10 @@ use strict;
 use FreshPorts::utilities;
 
 sub new {
-	my $this		= {};
-	my $class		= shift;
+	my $this  = {};
+	my $class = shift;
 
-	$this->{dbh}	= shift;
+	$this->{dbh} = shift;
 
 	bless $this;
 
@@ -32,7 +32,7 @@ sub _initialize {
 	# the locations of the master port files required to
 	# refresh this port.
 	#
-    my $this = shift;
+	my $this = shift;
 	$this->{needs_refresh} = -1;
 }
 
@@ -62,6 +62,12 @@ sub save {
 	# we could query the db for our primary key, but perhaps we don't have to.
 	#
 	$this->{saved} = 1;
+}
+
+sub DESTROY {
+	my $this = shift;
+
+	undef $this->{dbh};
 }
 
 1;

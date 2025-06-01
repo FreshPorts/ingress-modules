@@ -94,4 +94,10 @@ sub PortsVulnerabilityCountAdjust($) {
 	return $ErrorFound;
 }
 
+sub DESTROY {
+	my $this = shift;
+
+	undef $this->{dbh};
+}
+
 1;

@@ -82,4 +82,10 @@ sub save {
 	$this->{saved} = 1;
 }
 
+sub DESTROY {
+	my $this = shift;
+
+	undef $this->{dbh};
+}
+
 1;

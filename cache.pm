@@ -12,8 +12,8 @@ use FreshPorts::config;
 use FreshPorts::utilities;
 
 sub DailySummaryDateAdd($;$) {
-	my $Date	= shift;
-	my $dbh		= shift;
+	my $Date = shift;
+	my $dbh	 = shift;
 
 	my $sql;
 	my $sth;

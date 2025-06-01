@@ -132,6 +132,8 @@ sub save {
 	}
 # No, that's a do, we don't finish on a do. It returns true/false 
 #	$sth->finish();
+
+	undef $dbh;
 	
 	# after saving, return the ID
 	return $this->{id};
@@ -165,6 +167,8 @@ sub FetchByID {
 	if ($row) {
 		$this->_GetValuesFromRow($row);
 	}
+
+	undef $dbh;
 
 	return $this->{id};
 }
