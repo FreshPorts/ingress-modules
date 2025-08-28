@@ -91,6 +91,7 @@ sub _initialize {
 	$this->{options_name}         = '';
 	$this->{generate_plist}       = '';
 	$this->{makefile}             = '';
+	$this->{use_rc_subr}          = '';
 
 	$this->{categories}           = '';
 	$this->{element_pathname}     = '';
@@ -154,6 +155,7 @@ sub _GetValuesFromRow {
 	$this->{options_name}          = $row->{options_name};
 	$this->{generate_plist}        = $row->{generate_plist};
 	$this->{makefile}              = $row->{makefile};
+	$this->{use_rc_subr}           = $row->{use_rc_subr};
 
 	$this->{categories}            = $row->{categories};
 	$this->{last_commit_id}        = $row->{last_commit_id};
@@ -288,7 +290,8 @@ update ports
        conflicts_install    = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{conflicts_install})      . ", 
        options_name         = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{options_name})           . ", 
        makefile             = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{makefile})               . ", 
-       categories           = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{categories});
+       categories           = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{categories})             . ",
+       use_rc_subr          = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{use_rc_subr});
 
 
 		# we don't always have this value, so we don't change it....
@@ -743,7 +746,7 @@ sub _ExtractValuesFromMakefile {
 		 my $extractdepends, my $patchdepends,       my $uses,                 my $pkgmessagepath,
 		 my $distinfo_file,  my $license_restricted, my $manual_package_build, my $license_perms,
 		 my $conflicts,      my $conflicts_build,    my $conflicts_install,    my $options_name,
-		 my $homepage,       my $testdepends) = split(/\n/s, $MakeResults);
+		 my $homepage,       my $testdepends,        my $use_rc_subr) = split(/\n/s, $MakeResults);
 
 		my $package_name = $pkgnameprefix . $portname . $pkgnamesuffix;
 
@@ -813,6 +816,7 @@ sub _ExtractValuesFromMakefile {
 		print " conflicts_build          = '$conflicts_build'\n";
 		print " conflicts_install        = '$conflicts_install'\n";
 		print " options_name             = '$options_name'\n";
+		print " use_rc_subr              = '$use_rc_subr'\n";
 
 		print "Grabbing make -V DESCR\n";
 
@@ -1039,6 +1043,7 @@ sub _ExtractValuesFromMakefile {
 		print "47 \$conflicts_build      = '$conflicts_build'\n";
 		print "48 \$conflicts_install    = '$conflicts_install'\n";
 		print "49 \$options_name         = '$options_name'\n";
+		print "50 \$use_rc_subr          = '$use_rc_subr'\n";
 
 		print "\n ---------------------------------------- \n";
 
@@ -1061,59 +1066,60 @@ sub _ExtractValuesFromMakefile {
 
 		# put everything into the hash...
 
-		$this->{portname}		= $portname;
-		$this->{short_description}	= $shortdescription;
-		$this->{long_description}	= $longdescription;
-		$this->{version}		= $portversion;
-		$this->{revision}		= $portrevision;
-		$this->{maintainer}		= $maintainer;
-		$this->{homepage}		= $homepage;
-		$this->{master_sites}		= $mastersites;
-		$this->{extract_suffix}		= $extractsuffix;
-		$this->{depends_build}		= $builddepends;
-		$this->{depends_run}		= $rundepends;
-		$this->{depends_lib}		= $libdepends;
-		$this->{forbidden}		= $forbidden;
-		$this->{broken}			= $broken;
-		$this->{deprecated}		= $deprecated;
-		$this->{ignore}			= $ignore;
-		$this->{master_port}		= $master_port;
-		$this->{latest_link}		= $latest_link;
-		$this->{no_latest_link}		= $no_latest_link;
-		$this->{no_package}		= $no_package;
-		$this->{package_name}		= $package_name;
-		$this->{portepoch}		= $portepoch;
-		$this->{restricted}		= $restricted;
-		$this->{no_cdrom}		= $no_cdrom;
-		$this->{expiration_date}	= $expiration_date;
-		$this->{is_interactive}		= $is_interactive;
-		$this->{only_for_archs}		= $only_for_archs;
-		$this->{not_for_archs}		= $not_for_archs;
-		$this->{showconfig} 		= $showconfig;
+		$this->{portname}               = $portname;
+		$this->{short_description}      = $shortdescription;
+		$this->{long_description}       = $longdescription;
+		$this->{version}                = $portversion;
+		$this->{revision}               = $portrevision;
+		$this->{maintainer}             = $maintainer;
+		$this->{homepage}               = $homepage;
+		$this->{master_sites}           = $mastersites;
+		$this->{extract_suffix}         = $extractsuffix;
+		$this->{depends_build}          = $builddepends;
+		$this->{depends_run}            = $rundepends;
+		$this->{depends_lib}            = $libdepends;
+		$this->{forbidden}              = $forbidden;
+		$this->{broken}                 = $broken;
+		$this->{deprecated}             = $deprecated;
+		$this->{ignore}                 = $ignore;
+		$this->{master_port}            = $master_port;
+		$this->{latest_link}            = $latest_link;
+		$this->{no_latest_link}         = $no_latest_link;
+		$this->{no_package}             = $no_package;
+		$this->{package_name}           = $package_name;
+		$this->{portepoch}              = $portepoch;
+		$this->{restricted}             = $restricted;
+		$this->{no_cdrom}               = $no_cdrom;
+		$this->{expiration_date}    	= $expiration_date;
+		$this->{is_interactive}	    	= $is_interactive;
+		$this->{only_for_archs}	    	= $only_for_archs;
+		$this->{not_for_archs}	    	= $not_for_archs;
+		$this->{showconfig} 	    	= $showconfig;
 		$this->{license}                = $license;
-		$this->{categories}	        = $categories;
-		$this->{fetch_depends}		= $fetchdepends;
-		$this->{extract_depends}	= $extractdepends;
-		$this->{patch_depends}		= $patchdepends;
-		$this->{test_depends}		= $testdepends;
-		$this->{uses}	    		= $uses;
-		$this->{pkgmessage} 		= $pkgmessage;
-		$this->{distinfo}		= $distinfo;
-		$this->{license_restricted}	= $license_restricted;
-		$this->{manual_package_build}	= $manual_package_build;
-		$this->{license_perms}		= $license_perms;
-		$this->{conflicts}		= $conflicts;
-		$this->{conflicts_install}	= $conflicts_install;
-		$this->{options_name}	        = $options_name;
-		$this->{conflicts_build}	= $conflicts_build;
-		$this->{generate_plist}		= $generate_plist;
-		$this->{makefile}		= $makefile;
+		$this->{categories}	            = $categories;
+		$this->{fetch_depends}	    	= $fetchdepends;
+		$this->{extract_depends}	    = $extractdepends;
+		$this->{patch_depends}	    	= $patchdepends;
+		$this->{test_depends}	    	= $testdepends;
+		$this->{uses}	    	    	= $uses;
+		$this->{pkgmessage} 	    	= $pkgmessage;
+		$this->{distinfo}               = $distinfo;
+		$this->{license_restricted}	    = $license_restricted;
+		$this->{manual_package_build}   = $manual_package_build;
+		$this->{license_perms}          = $license_perms;
+		$this->{conflicts}              = $conflicts;
+		$this->{conflicts_install}      = $conflicts_install;
+		$this->{options_name}           = $options_name;
+		$this->{conflicts_build}        = $conflicts_build;
+		$this->{generate_plist}         = $generate_plist;
+		$this->{makefile}               = $makefile;
+		$this->{use_rc_subr}            = $use_rc_subr;
 		# convert all whitespace to a single space
 		# This arose from 200609130717.k8D7HpNc057638@repoman.freebsd.org
 		#
-		$this->{categories}		=~ s/\s+/ /g;
+		$this->{categories}             =~ s/\s+/ /g;
 		
-		$this->{package_flavors}	= $package_flavors;
+		$this->{package_flavors}        = $package_flavors;
 
 		$result = $this->_Validate();
 
