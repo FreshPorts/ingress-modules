@@ -1,4 +1,4 @@
-#!/usr/local/bin/perl -w
+#!/usr/local/bin/perl
 # 
 # $Id: xml_munge.pm,v 1.18 2012-10-23 16:31:04 dan Exp $
 #
@@ -377,7 +377,7 @@ sub handle_update_end {
 		# XXX - I am quite sure we don't have to do any fetching any more
 		if ($fetch_before_refresh) {
 			print "oh, the script goes to fetch...\n";
-			$FetchOK = FreshPorts::VerifyPort::ScrollToThatCommit($Updates{repository}, $Updates{branch_git}, $Updates{revision}, $self->{dbh});
+			$FetchOK = FreshPorts::VerifyPort::ScrollToThatCommit($Updates{repository}, $Updates{branch_git}, $Updates{revision});
 			if ($FetchOK) {
 				$self->notify_observers($FreshPorts::Messages::FilesFetched);
 				# we should also refresh our list of categories.
@@ -483,10 +483,12 @@ sub handle_update_end {
 	undef $Updates{commit_hash};
 	undef $Updates{commit_hash_short};
 	undef $Updates{repo};
-
+	
 	if ($ErrorFound) {
 		Set_Rollback_Needed();
 	}
+
+	undef $dbh;
 }
 
 sub handle_updates_end {
@@ -739,7 +741,7 @@ sub handle_file_end {
 	# the ElementRevision entry must always exist, regardless
 	# of what we are doing.  If we are deleting an item, it may
 	# have not yet been added.  This may be because of mail
-	# messages being recieved out of order or because of items
+	# messages being received out of order or because of items
 	# not on file because their creation pre-dates this database.
 	#
 	if (ElementRevisionExists($element_id, $revisionname, $self->{dbh})) {
@@ -1006,21 +1008,21 @@ sub SaveUpdateToDB {
 	# the rest, we discard, ignore, and toss away.  So sad.
 	($committer, $rest) = split /\s+\W+\s*/, $committer, 2;
 
-	$commit_log->{message_id}	= $message_id;
-	$commit_log->{message_date}	= $message_date;
-	$commit_log->{message_subject}	= $message_subject;
-	$commit_log->{date_added}	= $date_added;
-	$commit_log->{commit_date}	= $commit_date;
-	$commit_log->{committer}	= $committer;
-	$commit_log->{committer_name}	= $Updates{committerName};
-	$commit_log->{committer_email}	= $Updates{committerEmail};
-	$commit_log->{author_name}	= $Updates{authorName};
-	$commit_log->{author_email}	= $Updates{authorEmail};
-	$commit_log->{description}	= $description;
-	$commit_log->{system_id}	= $SystemID;
-	$commit_log->{commit_hash_short}= $Updates{commit_hash_short};
-	$commit_log->{repo}	 	= ConvertRepoLabelToGitRepoName($Updates{repository});
-	$commit_log->{revision} 	= $revision;
+	$commit_log->{message_id}        = $message_id;
+	$commit_log->{message_date}      = $message_date;
+	$commit_log->{message_subject}   = $message_subject;
+	$commit_log->{date_added}        = $date_added;
+	$commit_log->{commit_date}       = $commit_date;
+	$commit_log->{committer}         = $committer;
+	$commit_log->{committer_name}    = $Updates{committerName};
+	$commit_log->{committer_email}   = $Updates{committerEmail};
+	$commit_log->{author_name}       = $Updates{authorName};
+	$commit_log->{author_email}      = $Updates{authorEmail};
+	$commit_log->{description}       = $description;
+	$commit_log->{system_id}         = $SystemID;
+	$commit_log->{commit_hash_short} = $Updates{commit_hash_short};
+	$commit_log->{repo}	             = ConvertRepoLabelToGitRepoName($Updates{repository});
+	$commit_log->{revision}          = $revision;
 
 	#
 	# MessageEncodingLosses is new.
@@ -1121,7 +1123,7 @@ sub SystemBranchIDGetOrCreate($;$;$) {
 		}
 		$sth->finish();
 	}
-	
+
 	undef $dbh;
 
 	return $SystemBranchID;
@@ -1155,10 +1157,10 @@ sub SystemIDGet($;$) {
 }
 
 sub SystemBranchElementInsert($;$;$;$) {
-	my $SystemBranchID	= shift;
-	my $ElementID		= shift;
-	my $RevisionName	= shift;
-	my $dbh			= shift;
+	my $SystemBranchID = shift;
+	my $ElementID      = shift;
+	my $RevisionName   = shift;
+	my $dbh            = shift;
 
 	my $sth;
 	my $sql;
@@ -1208,10 +1210,5 @@ sub Set_Rollback_Needed() {
 	$_RollbackNeeded = 1;
 }
 
-sub DESTROY {
-	my $this = shift;
-
-	undef $this->{dbh};
-}
 
 1;
