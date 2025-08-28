@@ -42,7 +42,6 @@ use FreshPorts::commit_log_element;
 use FreshPorts::db_utils;
 use FreshPorts::database;
 use FreshPorts::utilities;
-use FreshPorts::cache;
 use FreshPorts::committer_opt_in;
 use FreshPorts::non_ports;
 use FreshPorts::messages;
@@ -424,17 +423,6 @@ sub handle_update_end {
 				$self->notify_observers($FreshPorts::Messages::PortsRefreshed, (message_id => $Updates{commit_hash}, CommitLogPorts => \%CommitLogPorts) );
 
 			}
-		}
-
-		if (scalar(keys %CommitLogPorts)) {
-			print "adding that commit date to the daily summary refresh list\n";
-
-			my $commit_date = sprintf "%04u-%02u-%02u", $Updates{dateyear}, $Updates{datemonth}, $Updates{dateday};
-
-			FreshPorts::Cache::DailySummaryDateAdd($commit_date, $self->{dbh})
-		} else {
-			print "that was not a port, so not adding to daily summary refresh list\n";
-			FreshPorts::NonPorts::RecordPortsTreeButNonPortCommits(commit_log_id(), \@Files, $self->{dbh})
 		}
 	}
 
