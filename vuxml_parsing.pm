@@ -354,7 +354,7 @@ sub update_database
 		$vuxml->DeleteByVID($self->vid());
 	}
 
-        print "Shall we update?\n";
+	print "Shall we update?\n";
 	if ($self->{update_in_place} && !defined $self->cancelled()) {
 		# updates in place are awkward... it gets complex.
 		# let's just delete and then do a full insert
@@ -726,7 +726,7 @@ sub references_shift
                   " " x ( 10 - length $range->[1] );
                 if ( $range->[2] ) {
 	                print $range->[2], ": ", $range->[3], "\n";
-				}
+                }
             }
         }
 
