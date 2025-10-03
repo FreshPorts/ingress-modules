@@ -504,8 +504,18 @@ sub update_database_vuxml_affected
 
         if ( $package->range() ) {
             for my $range ( $package->range() ) {
+                #
+                # based on this:
+                # freshports.dvl=# select max(length(version1)), max(length(version2)) from vuxml_ranges;
+                #  max | max 
+                # -----+-----
+                #   21 |  19
+                # (1 row)
+                #
+                # without that, we get Negative repeat count does nothing at /usr/local/lib/perl5/site_perl/FreshPorts/vuxml_parsing.pm line 507
+                # look for a similar '25 - length' around line 735.
                 print $range->[0], ": ", $range->[1],
-                  " " x ( 10 - length $range->[1] );
+                  " " x ( 25 - length $range->[1] );
                 if ( $range->[2] ) {
 	                print $range->[2], ": ", $range->[3], "\n";
 				}
@@ -722,8 +732,18 @@ sub references_shift
         if ( $self->range() ) {
             for my $range ( $self->range() ) {
                 print " " x 15;
+                #
+                # based on this:
+                # freshports.dvl=# select max(length(version1)), max(length(version2)) from vuxml_ranges;
+                #  max | max 
+                # -----+-----
+                #   21 |  19
+                # (1 row)
+                #
+                # without that, we get Negative repeat count does nothing at /usr/local/lib/perl5/site_perl/FreshPorts/vuxml_parsing.pm line 507
+                # look for a similar '25 - length' around line 516.
                 print $range->[0], ": ", $range->[1],
-                  " " x ( 10 - length $range->[1] );
+                  " " x ( 25 - length $range->[1] );
                 if ( $range->[2] ) {
 	                print $range->[2], ": ", $range->[3], "\n";
                 }
