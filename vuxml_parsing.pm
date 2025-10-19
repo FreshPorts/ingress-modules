@@ -57,6 +57,9 @@ use DBI;
 use Digest::SHA qw(sha256_hex);
 
 use base qw( Class::Observable );
+use Readonly;
+
+Readonly my $MAX_RANGE_WIDTH => 35;
 
 # Class variables
 
@@ -237,7 +240,7 @@ sub print_self
 
         print "references:\n";
         foreach my $i ( $self->references() ) {
-            print "    ", $i->[0], ":", " " x ( 10 - length( $i->[0] ) ),
+            print "    ", $i->[0], ":", " " x ( MAX_RANGE_WIDTH - length( $i->[0] ) ),
               $i->[1], "\n";
         }
 
@@ -515,10 +518,10 @@ sub update_database_vuxml_affected
                 # without that, we get Negative repeat count does nothing at /usr/local/lib/perl5/site_perl/FreshPorts/vuxml_parsing.pm line 507
                 # look for a similar '25 - length' around line 735.
                 print $range->[0], ": ", $range->[1],
-                  " " x ( 25 - length $range->[1] );
+                  " " x ( $MAX_RANGE_WIDTH - length $range->[1] );
                 if ( $range->[2] ) {
 	                print $range->[2], ": ", $range->[3], "\n";
-				}
+		}
                 $vuxml_affected_ranges->{vuxml_affected_id} = $vuxml_affected_id;
                 $vuxml_affected_ranges->{operator1}         = $range->[0];
                 $vuxml_affected_ranges->{version1}          = $range->[1];
@@ -549,7 +552,7 @@ sub update_database_vuxml_references
     my $vuxml_references = FreshPorts::vuxml_references->new( $self->{db_handle} );
 
     foreach my $i ( $self->references() ) {
-        print "    ", $i->[0], ":", " " x ( 10 - length( $i->[0] ) ),
+        print "    ", $i->[0], ":", " " x ( MAX_RANGE_WIDTH - length( $i->[0] ) ),
           $i->[1], "\n";
         $vuxml_references->{vuxml_id}  = $vuxml_id;
         $vuxml_references->{type}      = $i->[0];
@@ -743,7 +746,7 @@ sub references_shift
                 # without that, we get Negative repeat count does nothing at /usr/local/lib/perl5/site_perl/FreshPorts/vuxml_parsing.pm line 507
                 # look for a similar '25 - length' around line 516.
                 print $range->[0], ": ", $range->[1],
-                  " " x ( 25 - length $range->[1] );
+                  " " x ( $MAX_RANGE_WIDTH - length $range->[1] );
                 if ( $range->[2] ) {
 	                print $range->[2], ": ", $range->[3], "\n";
                 }
