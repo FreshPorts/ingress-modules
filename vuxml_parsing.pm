@@ -240,7 +240,7 @@ sub print_self
 
         print "references:\n";
         foreach my $i ( $self->references() ) {
-            print "    ", $i->[0], ":", " " x ( MAX_RANGE_WIDTH - length( $i->[0] ) ),
+            print "    ", $i->[0], ":", " " x ( $MAX_RANGE_WIDTH - length( $i->[0] ) ),
               $i->[1], "\n";
         }
 
@@ -552,7 +552,7 @@ sub update_database_vuxml_references
     my $vuxml_references = FreshPorts::vuxml_references->new( $self->{db_handle} );
 
     foreach my $i ( $self->references() ) {
-        print "    ", $i->[0], ":", " " x ( MAX_RANGE_WIDTH - length( $i->[0] ) ),
+        print "    ", $i->[0], ":", " " x ( $MAX_RANGE_WIDTH - length( $i->[0] ) ),
           $i->[1], "\n";
         $vuxml_references->{vuxml_id}  = $vuxml_id;
         $vuxml_references->{type}      = $i->[0];
