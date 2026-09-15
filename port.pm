@@ -79,6 +79,7 @@ sub _initialize {
 	$this->{extract_depends}      = '';
 	$this->{patch_depends}        = '';
 	$this->{test_depends}         = '';
+	$this->{build_run_depends}    = '';
 	$this->{uses}                 = '';
 	$this->{pkgmessage}           = '';
 	$this->{distinfo}             = '';
@@ -143,6 +144,7 @@ sub _GetValuesFromRow {
 	$this->{extract_depends}       = $row->{extract_depends};
 	$this->{patch_depends}         = $row->{patch_depends};
 	$this->{test_depends}          = $row->{test_depends};
+	$this->{build_run_depends}     = $row->{build_run_depends};
 	$this->{uses}                  = $row->{uses};
 	$this->{pkgmessage}            = $row->{pkgmessage};
 	$this->{distinfo}              = $row->{distinfo};
@@ -279,6 +281,7 @@ update ports
        extract_depends      = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{extract_depends})        . ", 
        patch_depends        = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{patch_depends})          . ", 
        test_depends         = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{test_depends})           . ", 
+       build_run_depends    = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{build_run_depends})      . ", 
        uses                 = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{uses})                   . ", 
        pkgmessage           = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{pkgmessage})             . ", 
        distinfo             = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{distinfo})               . ", 
@@ -746,7 +749,7 @@ sub _ExtractValuesFromMakefile {
 		 my $extractdepends, my $patchdepends,       my $uses,                 my $pkgmessagepath,
 		 my $distinfo_file,  my $license_restricted, my $manual_package_build, my $license_perms,
 		 my $conflicts,      my $conflicts_build,    my $conflicts_install,    my $options_name,
-		 my $homepage,       my $testdepends,        my $use_rc_subr) = split(/\n/s, $MakeResults);
+		 my $homepage,       my $testdepends,        my $buildrundepends,      my $use_rc_subr) = split(/\n/s, $MakeResults);
 
 		my $package_name = $pkgnameprefix . $portname . $pkgnamesuffix;
 
@@ -781,6 +784,7 @@ sub _ExtractValuesFromMakefile {
 		$extractdepends = FreshPorts::Utilities::trim_multiple_to_single(FreshPorts::Utilities::trim($extractdepends));
 		$patchdepends   = FreshPorts::Utilities::trim_multiple_to_single(FreshPorts::Utilities::trim($patchdepends));
 		$testdepends    = FreshPorts::Utilities::trim_multiple_to_single(FreshPorts::Utilities::trim($testdepends));
+		$buildrundepends = FreshPorts::Utilities::trim_multiple_to_single(FreshPorts::Utilities::trim($buildrundepends));
 
 
 		$master_port =~ s|$REPODIR_CHROOT/||;
@@ -806,6 +810,7 @@ sub _ExtractValuesFromMakefile {
 		print " extractdepends           = '$extractdepends'\n";
 		print " patchdepends             = '$patchdepends'\n";
 		print " testdepends              = '$testdepends'\n";
+		print " buildrundepends          = '$buildrundepends'\n";
 		print " uses                     = '$uses'\n";
 		print " pkgmessagepath           = '$pkgmessagepath'\n";
 		print " distinfo_file            = '$distinfo_file'\n";
@@ -1033,6 +1038,7 @@ sub _ExtractValuesFromMakefile {
 		print "36 \$extractdepends       = '$extractdepends'\n";
 		print "37 \$patchdepends         = '$patchdepends'\n";
 		print "38 \$testdepends          = '$testdepends'\n";
+		print "38a \$buildrundepends     = '$buildrundepends'\n";
 		print "39 \$uses                 = '$uses'\n";
 		print "41 \$pkgmessage           = '$pkgmessage'\n";
 		print "42 \$distinfo             = '$distinfo'\n";
@@ -1101,6 +1107,7 @@ sub _ExtractValuesFromMakefile {
 		$this->{extract_depends}	    = $extractdepends;
 		$this->{patch_depends}	    	= $patchdepends;
 		$this->{test_depends}	    	= $testdepends;
+		$this->{build_run_depends}      = $buildrundepends;
 		$this->{uses}	    	    	= $uses;
 		$this->{pkgmessage} 	    	= $pkgmessage;
 		$this->{distinfo}               = $distinfo;
@@ -1469,6 +1476,7 @@ sub update_depends {
   $this->update_depends_helper( $CommitBranch, $this->{extract_depends}, 'E' ); # extract
   $this->update_depends_helper( $CommitBranch, $this->{patch_depends},   'P' ); # patch
   $this->update_depends_helper( $CommitBranch, $this->{test_depends},    'T' ); # test
+  $this->update_depends_helper( $CommitBranch, $this->{build_run_depends}, 'A' ); # build And run
 }
 
 sub depends_type_long {
@@ -1482,7 +1490,8 @@ sub depends_type_long {
     'L' => 'LIB_DEPENDS',
     'F' => 'FETCH_DEPENDS',
     'E' => 'EXTRACT_DEPENDS',
-    'P' => 'PATCH_DEPENDS'
+    'P' => 'PATCH_DEPENDS',
+    'A' => 'BUILD_RUN_DEPENDS'
   );
 
   return $depends{$depends_type};
