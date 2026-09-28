@@ -80,6 +80,7 @@ sub _initialize {
 	$this->{patch_depends}        = '';
 	$this->{test_depends}         = '';
 	$this->{build_run_depends}    = '';
+	$this->{pkgversion}           = '';
 	$this->{uses}                 = '';
 	$this->{pkgmessage}           = '';
 	$this->{distinfo}             = '';
@@ -145,6 +146,7 @@ sub _GetValuesFromRow {
 	$this->{patch_depends}         = $row->{patch_depends};
 	$this->{test_depends}          = $row->{test_depends};
 	$this->{build_run_depends}     = $row->{build_run_depends};
+	$this->{pkgversion}            = $row->{pkgversion};
 	$this->{uses}                  = $row->{uses};
 	$this->{pkgmessage}            = $row->{pkgmessage};
 	$this->{distinfo}              = $row->{distinfo};
@@ -282,6 +284,7 @@ update ports
        patch_depends        = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{patch_depends})          . ", 
        test_depends         = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{test_depends})           . ", 
        build_run_depends    = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{build_run_depends})      . ", 
+       pkgversion           = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{pkgversion})             . ", 
        uses                 = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{uses})                   . ", 
        pkgmessage           = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{pkgmessage})             . ", 
        distinfo             = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{distinfo})               . ", 
@@ -749,7 +752,8 @@ sub _ExtractValuesFromMakefile {
 		 my $extractdepends, my $patchdepends,       my $uses,                 my $pkgmessagepath,
 		 my $distinfo_file,  my $license_restricted, my $manual_package_build, my $license_perms,
 		 my $conflicts,      my $conflicts_build,    my $conflicts_install,    my $options_name,
-		 my $homepage,       my $testdepends,        my $buildrundepends,      my $use_rc_subr) = split(/\n/s, $MakeResults);
+		 my $homepage,       my $testdepends,        my $buildrundepends,      my $use_rc_subr,
+		 my $pkgversion) = split(/\n/s, $MakeResults);
 
 		my $package_name = $pkgnameprefix . $portname . $pkgnamesuffix;
 
@@ -811,6 +815,7 @@ sub _ExtractValuesFromMakefile {
 		print " patchdepends             = '$patchdepends'\n";
 		print " testdepends              = '$testdepends'\n";
 		print " buildrundepends          = '$buildrundepends'\n";
+		print " pkgversion               = '$pkgversion'\n";
 		print " uses                     = '$uses'\n";
 		print " pkgmessagepath           = '$pkgmessagepath'\n";
 		print " distinfo_file            = '$distinfo_file'\n";
@@ -1108,6 +1113,7 @@ sub _ExtractValuesFromMakefile {
 		$this->{patch_depends}	    	= $patchdepends;
 		$this->{test_depends}	    	= $testdepends;
 		$this->{build_run_depends}      = $buildrundepends;
+		$this->{pkgversion}             = $pkgversion;
 		$this->{uses}	    	    	= $uses;
 		$this->{pkgmessage} 	    	= $pkgmessage;
 		$this->{distinfo}               = $distinfo;
