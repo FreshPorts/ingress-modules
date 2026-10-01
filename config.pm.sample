@@ -119,6 +119,7 @@ $FreshPorts::Config::MovedFileFlag              = $FreshPorts::Config::BaseDir .
 $FreshPorts::Config::NewReposReadyForImport     = $FreshPorts::Config::BaseDir . '/signals/new_repo_ready_for_import';
 $FreshPorts::Config::Offline                    = $FreshPorts::Config::BaseDir . '/signals/OFFLINE';
 $FreshPorts::Config::PortsToRefresh             = $FreshPorts::Config::BaseDir . '/signals/ports_to_refresh';
+$FreshPorts::Config::RefreshFromIndexFlag       = $FreshPorts::Config::BaseDir . '/signals/refresh_from_index';
 $FreshPorts::Config::UpdatingFileFlag           = $FreshPorts::Config::BaseDir . '/signals/refresh_updating';
 $FreshPorts::Config::VuXMLFileFlag              = $FreshPorts::Config::BaseDir . '/signals/vuxml';
 
