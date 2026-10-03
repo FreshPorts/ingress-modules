@@ -2,7 +2,7 @@
 #
 # $Id: port_dependencies.pm,v 1.2 2011-08-15 16:32:47 dan Exp $
 #
-# Copyright (c) 2001-2011 DVL Software
+# Copyright (c) 2001-2026 Dan Langille
 #
 
 package FreshPorts::PortDependencies;

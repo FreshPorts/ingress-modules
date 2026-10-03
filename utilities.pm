@@ -3,7 +3,7 @@
 #
 # $Id: utilities.pm,v 1.27 2012-08-15 11:49:10 dan Exp $
 #
-# Copyright (c) 2001-2006 DVL Software
+# Copyright (c) 2001-2026 Dan Langille
 #
 
 package FreshPorts::Utilities;

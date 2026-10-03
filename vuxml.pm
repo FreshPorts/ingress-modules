@@ -2,7 +2,7 @@
 #
 # $Id: vuxml.pm,v 1.4 2013-01-16 15:37:57 dan Exp $
 #
-# Copyright (c) 2004 DVL Software
+# Copyright (c) 2004-2026 Dan Langille
 #
 
 package FreshPorts::vuxml;

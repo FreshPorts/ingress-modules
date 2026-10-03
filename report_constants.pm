@@ -2,7 +2,7 @@
 #
 # $Id: report_constants.pm,v 1.3 2007-04-02 20:11:19 dan Exp $
 #
-# Copyright (c) 2002-2006 DVL Software
+# Copyright (c) 2002-2026 Dan Langille
 #
 
 package FreshPorts::ReportConstants;

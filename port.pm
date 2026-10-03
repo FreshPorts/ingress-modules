@@ -3,7 +3,7 @@
 # $Id: port.pm,v 1.73 2013-04-24 12:22:43 dan Exp $
 #
 #
-# Copyright (c) 2001-2005 DVL Software
+# Copyright (c) 2001-2026 Dan Langille
 #
 
 package FreshPorts::Port;

@@ -2,7 +2,7 @@
 #
 # $Id: announcements.pm,v 1.3 2007-04-06 23:07:32 dan Exp $
 #
-# Copyright (c) 2001-2004 DVL Software
+# Copyright (c) 2001-2026 Dan Langille
 #
 
 package FreshPorts::Announcements;

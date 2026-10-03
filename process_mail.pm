@@ -2,7 +2,7 @@
 #
 # $Id: process_mail.pm,v 1.4 2012-11-01 00:54:56 dan Exp $
 #
-# Copyright (c) 2001-2012  DVL Software
+# Copyright (c) 2001-2026 Dan Langille
 #
 # helper functions for processing email
 #

@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl -w
 #
-# Copyright (c) 2014 DVL Software
+# Copyright (c) 2014-2026 Dan Langille
 #
 
 package FreshPorts::Commit_Log_Branches;

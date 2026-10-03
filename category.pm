@@ -2,7 +2,7 @@
 #
 # $Id: category.pm,v 1.12 2013-03-23 22:15:50 dan Exp $
 #
-# Copyright (c) 2001-2003 DVL Software
+# Copyright (c) 2001-2026 Dan Langille
 #
 
 package FreshPorts::Category;

@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl -w
 #
-# Copyright (c) 2023 Dan Langille
+# Copyright (c) 2023-2026 Dan Langille
 #
 
 package FreshPorts::Port_refresh;

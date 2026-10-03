@@ -2,7 +2,7 @@
 #
 # $Id: sanity_test_failures.pm,v 1.2 2006-12-17 12:04:03 dan Exp $
 #
-# Copyright (c) 2001-2006 DVL Software
+# Copyright (c) 2001-2026 Dan Langille
 #
 
 package FreshPorts::SanityTestFailures;

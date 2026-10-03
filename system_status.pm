@@ -2,7 +2,7 @@
 #
 # $Id: system_status.pm,v 1.3 2007-12-30 18:36:46 dan Exp $
 #
-# Copyright (c) 2001-2004 DVL Software
+# Copyright (c) 2001-2026 Dan Langille
 #
 
 

@@ -2,7 +2,7 @@
 #
 # $Id: committer_opt_in.pm,v 1.3 2012-06-26 12:24:51 dan Exp $
 #
-# Copyright (c) 2001-2006 DVL Software
+# Copyright (c) 2001-2026 Dan Langille
 #
 
 package FreshPorts::CommitterOptIn;

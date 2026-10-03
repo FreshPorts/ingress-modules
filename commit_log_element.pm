@@ -2,7 +2,7 @@
 #
 # $Id: commit_log_element.pm,v 1.5 2006-12-17 12:03:59 dan Exp $
 #
-# Copyright (c) 2001-2003 DVL Software
+# Copyright (c) 2001-2026 Dan Langille
 #
 
 

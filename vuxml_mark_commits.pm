@@ -2,7 +2,7 @@
 #
 # $Id: vuxml_mark_commits.pm,v 1.7 2012-07-22 12:02:19 dan Exp $
 #
-# Copyright (c) 1999-2006 DVL Software
+# Copyright (c) 1999-2026 Dan Langille
 #
 
 package FreshPorts::vuxml_mark_commits;

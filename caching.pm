@@ -2,7 +2,7 @@
 #
 # $Id: caching.pm,v 1.4 2008-09-29 06:11:39 dan Exp $
 #
-# Copyright (c) 2001-2006 DVL Software
+# Copyright (c) 2001-2026 Dan Langille
 #
 #
 # This is only valid on webserver hosts.

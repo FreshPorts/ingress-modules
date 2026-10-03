@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2001-2021 DVL Software
+# Copyright (c) 2001-2026 Dan Langille
 #
 
 package FreshPorts::categories;

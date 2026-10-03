@@ -2,7 +2,7 @@
 #
 # $Id: verifyport.pm,v 1.56 2012-09-25 18:11:23 dan Exp $
 #
-# Copyright (c) 2001-2006 DVL Software
+# Copyright (c) 2001-2026 Dan Langille
 #
 
 package FreshPorts::VerifyPort;

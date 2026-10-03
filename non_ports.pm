@@ -2,7 +2,7 @@
 #
 # $Id: non_ports.pm,v 1.2 2006-12-17 12:04:01 dan Exp $
 #
-# Copyright (c) 2001-2003 DVL Software
+# Copyright (c) 2001-2026 Dan Langille
 #
 
 package FreshPorts::NonPorts;

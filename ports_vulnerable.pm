@@ -2,7 +2,7 @@
 #
 # $Id: ports_vulnerable.pm,v 1.3 2012-03-31 20:38:04 dan Exp $
 #
-# Copyright (c) 2001-2003 DVL Software
+# Copyright (c) 2001-2026 Dan Langille
 #
 
 package FreshPorts::PortsVulnerable;

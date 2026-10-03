@@ -2,7 +2,7 @@
 #
 # $Id: messages.pm,v 1.3 2012-06-22 15:17:27 dan Exp $
 #
-# Copyright (c) 2004-2006 DVL Software
+# Copyright (c) 2004-2026 Dan Langille
 #
 
 #

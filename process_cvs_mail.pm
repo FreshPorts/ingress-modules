@@ -2,7 +2,7 @@
 #
 # $Id: process_cvs_mail.pm,v 1.1 2011-08-21 19:29:02 dan Exp $
 #
-# Copyright (c) 2001-2003  DVL Software
+# Copyright (c) 2001-2026 Dan Langille
 #
 # Process incoming mail from cvs-all mailing list at freebsd.org
 # and convert it to XML output according to the FreshPorts DTD.
