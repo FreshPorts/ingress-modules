@@ -108,7 +108,6 @@ $FreshPorts::Config::email_port                          = 25;
 $FreshPorts::Config::SystemOwnerEmail                    = 'dan@langille.org';
 
 # ingress signals
-$FreshPorts::Config::JobWaiting                  = $FreshPorts::Config::BaseDirIngress . '/signals/job_waiting';
 $FreshPorts::Config::CheckGit                    = $FreshPorts::Config::BaseDirIngress . '/signals/check_git';
 
 # freshports signals
