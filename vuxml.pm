@@ -79,7 +79,7 @@ sub save {
 				$this->{id},
 				" . $dbh->quote($this->{vid})            . ",
 				" . $dbh->quote($this->{topic})          . ",
-				" . $dbh->quote(encode('UTF-8', $this->{description}, Encode::FB_CROAK))    . ",
+				" . $dbh->quote($this->{description})    . ",
 				" . $dbh->quote($this->{date_discovery}) . ",
 				" . $dbh->quote($this->{date_entry})     . ",
 				" . $dbh->quote($this->{date_modified})  . ",
@@ -89,7 +89,7 @@ sub save {
 		$sql = "UPDATE vuxml SET
 				vid            = " . $dbh->quote($this->{vid})            . ",
 				topic          = " . $dbh->quote($this->{topic})          . ",
-				description    = " . $dbh->quote(encode('UTF-8', $this->{description}, Encode::FB_CROAK))    . ",
+				description    = " . $dbh->quote($this->{description})    . ",
 				date_discovery = " . $dbh->quote($this->{date_discovery}) . ",
 				date_entry     = " . $dbh->quote($this->{date_entry})     . ",
 				date_modified  = " . $dbh->quote($this->{date_modified})  . ",

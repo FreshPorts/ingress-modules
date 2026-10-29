@@ -310,7 +310,8 @@ sub parse_xml
 
     $self->{checksum} = $checksum;
          
-    $self->{xml_parser}->parse( $self->{input}, ProtocolEncoding => 'ISO-8859-1' );
+    # the input is UTF-8; reading it as ISO-8859-1 garbled every non-ASCII character
+    $self->{xml_parser}->parse( $self->{input}, ProtocolEncoding => 'UTF-8' );
 
     return $self;
 }
@@ -1134,7 +1135,7 @@ sub handle_start ($$;@)
         if ( $VuXML->{save_text} eq 'description' ) {
             $VuXML->{text_buffer} .= '<' . $element;
             while (@_) {
-                $VuXML->{text_buffer} .= ' ' . shift() . '="' . shift() . '"';
+                $VuXML->{text_buffer} .= ' ' . shift() . '="' . escape_html( shift() ) . '"';
             }
             $VuXML->{text_buffer} .= '>';
         }
@@ -1220,12 +1221,31 @@ sub handle_char ($$)
     my $expat = shift;
     my $text  = shift;
 
-    # If we're in text saving mode, save this text.
+    # If we're in text saving mode, save this text.  Expat has already
+    # decoded &lt; etc, so the description, which is output as HTML,
+    # must be escaped again.  The other fields are plain text.
     if ( $VuXML->{save_text} ) {
-        $VuXML->{text_buffer} .= $text;
+        if ( $VuXML->{save_text} eq 'description' ) {
+            $VuXML->{text_buffer} .= escape_html($text);
+        } else {
+            $VuXML->{text_buffer} .= $text;
+        }
     }
 
     return;
+}
+
+# escape text for output as HTML, in content or in a quoted attribute
+sub escape_html
+{
+    my $text = shift;
+
+    $text =~ s/&/&amp;/g;
+    $text =~ s/</&lt;/g;
+    $text =~ s/>/&gt;/g;
+    $text =~ s/"/&quot;/g;
+
+    return $text;
 }
 
 #
@@ -1251,8 +1271,9 @@ sub handle_end ($$)
        }
     } 
 
-    # If we're in text saving mode, save this end tag
-    if ( $VuXML->{save_text} ) {
+    # If we're in text saving mode, save this end tag, but not for void
+    # elements: <br/> in the XHTML must be <br> in HTML, not <br></br>
+    if ( $VuXML->{save_text} && $element !~ m/^(br|hr|img)$/ ) {
         $VuXML->{text_buffer} .= '</' . $element . '>';
     }
 
