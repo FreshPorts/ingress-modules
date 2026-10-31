@@ -152,7 +152,6 @@ $FreshPorts::Constants::Notify_vuxml                    = 'notify_vuxml';       
 $FreshPorts::Constants::VUXML                           = '\/ports\/head\/security\/vuxml/vuln/(\d{4})?.xml';
 $FreshPorts::Constants::PORTS_UPDATING                  = '/ports/head/UPDATING';
 $FreshPorts::Constants::PORTS_MOVED                     = '/ports/head/MOVED';
-$FreshPorts::Constants::DEFAULT_VERSION                 = '/ports/head/Mk/bsd.default-versions.mk';
 
 # used by observer_commits.pm
 $FreshPorts::Constants::Ports_HEAD_commit		= '/ports/head/';
@@ -179,14 +178,5 @@ $FreshPorts::Constants::DB_ConnectionType           = 'ConnectionType';
 $FreshPorts::Constants::DB_ConnectionType_ReadOnly  = 'RO';             # read-only. still rather limited in what you can read
 $FreshPorts::Constants::DB_ConnectionType_Commits   = 'Commits';        # used for inserting and processing new commits
 $FreshPorts::Constants::DB_ConnectionType_Listener  = 'listen';         # for the fp-listen daemon
-
-#
-# The ports to be refreshed when Mk/bsd.default-versions.mk is modified
-# value must be category/name and correspond to an entry in the element_pathname table.
-# originally created for process_default_versions.pl
-#
-%FreshPorts::Constants::PortsAffectedByDefaultVersions = (
-   'lang/go' => 'lang/go',
- );
 
 1;

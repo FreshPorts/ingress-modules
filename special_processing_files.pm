@@ -62,20 +62,6 @@ sub Eat($;$;$;$;$) {
 		`/usr/bin/touch $FreshPorts::Config::JobWaiting`;
 	}
 
-	#
-	# When Mk/bsd.default-versions.mk changes, invoke this script
-	# re https://github.com/FreshPorts/freshports/issues/509
-	# NOTE: this is head and only head.
-	#
- 	if ($File eq $FreshPorts::Constants::DEFAULT_VERSION) {
-		print "applying special processing to $File\n";
-		Sys::Syslog::syslog('notice', "applying special processing to $File by creating $FreshPorts::Config::DefaultVersionsFlag");
-		
-		`/usr/bin/touch $FreshPorts::Config::DefaultVersionsFlag`;
-		`/usr/bin/touch $FreshPorts::Config::JobWaiting`;
-		# to be completed
-	}
-
 #	Sys::Syslog::syslog('notice', 'Returning from ' . __FILE__ . "::Eat with ErrorCode='$ErrorCode'\n");
 	return $ErrorCode;
 
