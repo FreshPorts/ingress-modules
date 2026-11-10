@@ -257,7 +257,7 @@ update ports
        maintainer           = " . $dbh->quote($this->{maintainer})                                          . ", 
        homepage             = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{homepage})               . ", 
        master_sites         = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{master_sites})           . ", 
-       extract_suffix       = " . $dbh->quote($this->{package_exists})                                      . ", 
+       extract_suffix       = " . $dbh->quote($this->{extract_suffix})                                      . ", 
        depends_build        = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{depends_build})          . ", 
        depends_run          = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{depends_run})            . ", 
        depends_lib          = " . FreshPorts::Utilities::NULLIfEmpty($dbh, $this->{depends_lib})            . ", 
