@@ -153,7 +153,28 @@ sub update {
 			# FreshPorts does not provided access to individual history for src and www. The data is there. The website
 			# just does not parse the incoming URI to see if thats what is being requested. It checks only for ports.
 			#
-			if ( defined($category_name) && ! any {/$category_name/} @FreshPorts::Categories::categories ) {
+			# The test is for a category with exactly that name.  It used to be
+			# any {/$category_name/}, which asks whether any category *contains*
+			# that name, as a regex.  So:
+			#
+			# - a name which is part of a category name counted as a category,
+			#   and the file was not queued for cache clearing.  In the ports
+			#   tree today no top-level name does that, but a top-level ports/
+			#   would (it is part of ports-mgmt).  Every src and doc file goes
+			#   through here too: their paths, e.g. /base/head/sys/dev/foo.c,
+			#   do not start with /ports/head/, so they are split as a branch
+			#   and $category_name is the second directory down -- 'dev' here.
+			#   'dev' is part of devel, so sys/dev/* was skipped, and so were
+			#   sys/sys/* (sysutils) and share/man/* (german), while every
+			#   other src file was queued.  Those three are what the recent
+			#   commit logs on dvl-ingress01 showed being skipped in November
+			#   2026.  Now all src files are queued alike.
+			#
+			# - a name with a regex character in it was a pattern, not a name:
+			#   '.' matched any character, and a name with an unmatched ( or [
+			#   was not a valid regex, so the commit would die here.
+			#
+			if ( defined($category_name) && ! any { $_ eq $category_name } @FreshPorts::Categories::categories ) {
 				# take a copy of that filename and remove the subtree prefix. Add that to the queue for removal
 				my $FileCacheItem = $filename;
 				$FileCacheItem =~ s|^$FreshPorts::Config::ports_prefix/||g;

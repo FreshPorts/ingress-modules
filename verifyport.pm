@@ -101,7 +101,7 @@ sub _CompileListOfPorts($;$;$;$;$) {
 			# We know this file is the ports tree, but we don't know if we're dealing with a category/
 
 			# is this 'category' in the list of categories defined in this repo?
-			if ( any {/$category_name/} @FreshPorts::Categories::categories ) {
+			if ( any { $_ eq $category_name } @FreshPorts::Categories::categories ) {
 			    # yes, it is in the list. this category was in the repo when we started.
 			    # have we seen this category already in this commit?
 	            $category = $CategoriesChecked{$category_name};
@@ -490,7 +490,7 @@ sub _RecordPortFilesTouchedByThatCommit($;$;$;$) {
 			if ($subtree eq $FreshPorts::Config::ports_prefix && defined($category_name) && defined($port_name)) {
 				print "yes, this file is in the ports tree\n";
 
-				if ( any {/$category_name/} @FreshPorts::Categories::categories ) {
+				if ( any { $_ eq $category_name } @FreshPorts::Categories::categories ) {
 					# find the port for this filename....
 					$port = $Ports{"$category_name/$port_name"};
 					if (!$port) {
