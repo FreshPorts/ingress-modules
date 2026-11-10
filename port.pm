@@ -1181,7 +1181,8 @@ sub _Validate {
 	}
 	
 	if (!$primaryCategoryFound) {
-	  $ErrorMsg = "\nThe CATEGORIES value ('" . $this->{categories} . "') does not contain the primary category ('" . $this->{category} . "')";
+	  # .= so an EXPIRATION_DATE error above is kept, not replaced
+	  $ErrorMsg .= "\nThe CATEGORIES value ('" . $this->{categories} . "') does not contain the primary category ('" . $this->{category} . "')";
 	}
 	                 
 	if ($ErrorMsg ne '') {
