@@ -50,14 +50,33 @@ sub SendMail($;$;$;$;$;$) {
 		$email->header($header => $Headers{$header});
 	}
 
-	try {
-		$email->send; 
+	#
+	# A failed send is logged and returned as 0, and the caller carries on.
+	#
+	# send_or_die, not send: Email::Stuffer's send uses try_to_send, which
+	# returns false instead of dying, so with send a failed message was
+	# never logged -- it vanished without a trace.
+	#
+	# The catch used to exit, which is exit(0).  It never ran, because send
+	# never died, but with send_or_die it would have: ReportError(..., 1)
+	# mails first and dies afterwards, so with the mail server down the
+	# script would have stopped here and reported success instead of dying.
+	#
+	my $sent = try {
+		$email->send_or_die;
+		1;
 	}
 	catch {
+		# an Email::Sender::Failure stringifies with a full stack trace;
+		# its message is the part worth a line in syslog
+		my $error = (ref($_) && $_->can('message')) ? $_->message : $_;
+
 		# we set the last parameter to zero to avoid recursion - if 1, that function would call this function...etc.
-		FreshPorts::Utilities::ReportError('LOG_ERR', "could not open Email::Sender.  from='$From' to='$To' subject='$Subject' errorcode='$_'", 0);
-		exit;
+		FreshPorts::Utilities::ReportError('LOG_ERR', "could not send email.  from='$From' to='$To' subject='$Subject' error='$error'", 0);
+		0;
 	};
+
+	return $sent;
 }
 
 # From http://jenda.krynicky.cz/perl/Sender.pm.html
