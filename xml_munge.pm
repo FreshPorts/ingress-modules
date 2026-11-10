@@ -79,8 +79,9 @@ sub process {
 sub usage {
 	my $this = shift;
 
-	print "USAGE : $0 INPUTFILE [-D]\n";
+	print "USAGE : $0 INPUTFILE [-D] [-O] [-r] [-R]\n";
 	print "   -D : debug\n";
+	print "   -O, -r, -R : accepted and passed on; see xml_munge_git.pm\n";
 }
 
 #####
@@ -106,6 +107,17 @@ sub main {
 			if ($ARGV[$i] eq '-D') {
 				print "debugging....\n";
 				$debug = 1;
+				next;
+			}
+
+			# load_xml_into_db.pl runs this first, on the same arguments,
+			# only to learn the Source of the XML; then xml_munge_git.pm
+			# runs on them for real.  -O, -r and -R are its options, so
+			# let them through here.  Rejecting them made -O unusable:
+			# "load_xml_into_db.pl FILE -O" stopped here with
+			# "unknown argument -O" and exit 1, so a commit which failed
+			# after its commit_log row was saved could not be loaded again.
+			if ($ARGV[$i] eq '-O' || $ARGV[$i] eq '-r' || $ARGV[$i] eq '-R') {
 				next;
 			}
 
