@@ -46,6 +46,14 @@ sub SendMail($;$;$;$;$;$) {
 	                          ->text_body($Body     )
 	                          ->transport($transport);
 
+	# NotifyCommitter (committer_opt_in.pm) copies the system owner on mail
+	# to an opted-in committer.  $CC was accepted but never used after the
+	# move to Email::Stuffer in 325dd42 (2021), so that copy never arrived.
+	# Empty means no Cc, which is what every other caller passes.
+	if (defined($CC) && $CC ne '') {
+		$email->cc($CC);
+	}
+
 	for my $header(keys %Headers) {
 		$email->header($header => $Headers{$header});
 	}
