@@ -326,10 +326,17 @@ sub update_database
     
     # Only commit stuff related to FreeBSD.  Assume it's FreeBSD
     # related if no explicit <system> tag is given.
+    #
+    # Each system is a FreshPorts::VuXML::Affects; its names are in name().
+    # This used to be grep '/FreeBSD/', $self->systems() > 0, which is
+    # always true: '/FreeBSD/' is a string, not a pattern, and > binds
+    # before the comma.  vuln.xml has no <system> entries as of November
+    # 2026 -- FreeBSD advisories list a <package> named FreeBSD -- so the
+    # first test always decided it, and nothing changes today.
 
     return $self
       unless $self->systems() == 0
-      || grep '/FreeBSD/', $self->systems() > 0;
+      || grep { grep { /FreeBSD/ } $_->name() } $self->systems();
 
     # Only interested in ports -- vulns to do with the base system
     # don't have package names listed.
