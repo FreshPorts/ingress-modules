@@ -39,13 +39,17 @@ sub FetchAll {
 	#
 	# return an array containing one entry for each category as obtained from the repo
 	#
+	# Read the list again on every call.  observer_commits.pm reads it when
+	# it loads, before the commit is checked out, and xml_munge_git.pm
+	# calls this again once ScrollToThatCommit has the tree at that commit.
+	# This used to return the list it already had, so the second call
+	# changed nothing: a commit which added a category had the ports in
+	# that new category skipped as "not an actual category".  The list is
+	# one find(1) of the top of the ports tree, so reading it twice per
+	# commit costs nothing worth saving.
+	#
 	my $this = shift;
-	
-	if (@FreshPorts::Categories::categories != 0) {
-		print "categories already loaded\n";
-		return @FreshPorts::Categories::categories;
-	}
-	
+
 	print "grabbing categories from disk\n";
 	my $categories_1line = `$FreshPorts::Config::ScriptDir/get-list-of-current-categories.sh`;
 	if ($?) {
