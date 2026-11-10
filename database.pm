@@ -39,7 +39,14 @@ sub GetDBHandle {
 
     # check values for $sslmode
     # as found at https://www.postgresql.org/docs/current/static/libpq-ssl.html
-    if ($sslmode ne 'disable' && $sslmode ne 'allow' && $sslmode ne 'prefer' && $sslmode ne 'rneuire' && $sslmode ne 'verify-ca	' && $sslmode ne 'verify-full') {
+    #
+    # Anything else is replaced by require, and said so in syslog.  This
+    # list used to have 'verify-ca' with a TAB after it, so a configured
+    # verify-ca never matched and was quietly turned into require, which
+    # does not check the server certificate.
+    my %ValidSSLModes = map { $_ => 1 } qw(disable allow prefer require verify-ca verify-full);
+    if (!$ValidSSLModes{$sslmode}) {
+        FreshPorts::Utilities::ReportError('warning', "ssl_mode '$sslmode' is not one libpq knows; using require", 0);
         $sslmode = 'require';
     }
 
@@ -60,16 +67,25 @@ sub GetDBHandle {
     }
        
     my $dbh_pg = DBI->connect('DBI:Pg:dbname=' . $FreshPorts::Config::dbname . ';host=' . $FreshPorts::Config::host . ';sslcertmode=disable ;sslmode=' . $sslmode . ';client_encoding=UTF8', $user, $password);
-    if ($dbh_pg->{Active}) {
-        $dbh_pg->{AutoCommit} = 0;
-
-        if (!$dbh_pg) {
-            FreshPorts::Utilities::ReportError('warning', "could not connect to $FreshPorts::Config::dbname", 1);
-        }
-
-        # trying to avoid DBI db handle 0x142b99534a68 has 1 uncleared child handles during global destruction 
-        $dbh_pg->{AutoInactiveDestroy} = 1;
+    #
+    # DBI->connect returns undef when it fails.  Return undef, so a caller's
+    # "GetDBHandle() || die" and "if (!$dbh)" work.
+    #
+    # This used to test $dbh_pg->{Active} first.  On undef that quietly
+    # turns $dbh_pg into an empty hash, which is true, so "could not
+    # connect" was never logged, "|| die" never fired, and the caller
+    # crashed later with "Can't call method prepare on unblessed reference".
+    # Callers which test $dbh->{Active} still see false.
+    #
+    if (!$dbh_pg) {
+        FreshPorts::Utilities::ReportError('err', "could not connect to $FreshPorts::Config::dbname: " . ($DBI::errstr // 'no error given'), 0);
+        return undef;
     }
+
+    $dbh_pg->{AutoCommit} = 0;
+
+    # trying to avoid DBI db handle 0x142b99534a68 has 1 uncleared child handles during global destruction
+    $dbh_pg->{AutoInactiveDestroy} = 1;
 
     return $dbh_pg;
 }
