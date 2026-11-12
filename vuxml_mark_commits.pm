@@ -56,17 +56,19 @@ sub CommitsForThisPackage($) {
     my $row;
     my @Commits;
 
+    # The package name comes from vuln.xml; pass it as a parameter, so a
+    # name with a ' in it cannot break or change the query.
     $sql = "
 SELECT distinct CLP.port_id, CLP.port_version, CLP.port_revision, CLP.port_epoch
   FROM commit_log_ports CLP, ports P
  WHERE CLP.port_id       = P.id
-   AND P.package_name    = '$PackageName'
+   AND P.package_name    = ?
    AND CLP.port_version <> ''";
 
-    print "sql is $sql\n";
+    print "sql is $sql with '$PackageName'\n";
 
     $sth = $dbh->prepare($sql);
-    $sth->execute ||
+    $sth->execute($PackageName) ||
            die "Could not execute SQL $sql ... maybe invalid?";
 
     while ($row = $sth->fetchrow_hashref()) {
@@ -95,21 +97,6 @@ sub EmptyCommitLogPortsVuXML() {
 	$sth->finish();
 }
 
-sub ValueOrNull($) {
-	my $this  = shift;
-	my $Value = shift;
-
-	my $Result;
-
-	if (defined($Value)) {
-		$Result = "= '$Value'"
-	} else {
-		$Result = "IS NULL";
-	}
-
-	return $Result;
-}
-
 sub MarkOneCommit($) {
 	my $this        = shift;
 	my $VID         = shift;
@@ -122,12 +109,12 @@ sub MarkOneCommit($) {
 	my $sql;
 
 	$sql = "INSERT INTO commit_log_ports_vuxml(commit_log_id, port_id, vuxml_id)
-            values ($CommitLogID, $PortID, $VID)";
+            values (?, ?, ?)";
 
 #	print "sql is $sql\n";
 
 	$sth = $dbh->prepare($sql);
-	$sth->execute ||
+	$sth->execute($CommitLogID, $PortID, $VID) ||
 		die "Could not execute SQL $sql ... maybe invalid?";
 	$sth->finish();
 }
@@ -188,22 +175,37 @@ sub MarkTheseCommits($) {
 		# this SQL will add all the commit_log_id values we need.
 		#
 
+		# Every value is a parameter.  port_version used to be pasted in
+		# between quotes, so a version with a ' in it broke the query.
+		# A NULL revision or epoch has to be matched with IS NULL, not = ?.
+		my @params = ($Commit->{vid}, $Commit->{port_id}, $Commit->{port_version});
+		my $revision_test = 'IS NULL';
+		if (defined($Commit->{port_revision})) {
+			$revision_test = '= ?';
+			push @params, $Commit->{port_revision};
+		}
+		my $epoch_test = 'IS NULL';
+		if (defined($Commit->{port_epoch})) {
+			$epoch_test = '= ?';
+			push @params, $Commit->{port_epoch};
+		}
+
         $sql = "
 INSERT INTO commit_log_ports_vuxml(commit_log_id, port_id, vuxml_id)
 SELECT commit_log_id,
        port_id,
-       " . $dbh->quote($Commit->{vid}) . " as vuxml_id
+       ?::integer as vuxml_id
   FROM commit_log_ports
- WHERE port_id       = "  . $Commit->{port_id}                    . "
-   AND port_version  = '" . $Commit->{port_version}               . "'
-   AND port_revision " . $this->ValueOrNull($Commit->{port_revision})  . " 
-   AND port_epoch    " . $this->ValueOrNull($Commit->{port_epoch});
+ WHERE port_id       = ?
+   AND port_version  = ?
+   AND port_revision $revision_test
+   AND port_epoch    $epoch_test";
 
 #		print "sql is $sql\n";
 		print ".";
 
 		$sth = $dbh->prepare($sql);
-		$sth->execute ||
+		$sth->execute(@params) ||
 			die "Could not execute SQL $sql ... maybe invalid?";
 		$sth->finish();
 	}
@@ -258,9 +260,23 @@ sub TestVersionValues($;$;$) {
 	                         },
 	                );
 
-	my $command = "$FreshPorts::vuxml_mark_commits::PKGVERSION -t $Version1 $Version2";
-	print "testing for $command\n";
-	my $result  = `$command`;
+	#
+	# Run pkg version -t without a shell.  The versions come from vuln.xml
+	# and from port Makefiles, and used to be pasted into a backtick
+	# command line, so a version such as "1.0;touch /tmp/x" would have
+	# run the extra command, and one with a space or quote in it would
+	# have been split or broken by the shell.  PKGVERSION is one or two
+	# words ("/usr/sbin/pkg version"), so it is split into the list here.
+	#
+	my @command = (split(' ', $FreshPorts::vuxml_mark_commits::PKGVERSION), '-t', $Version1, $Version2);
+	print "testing for @command\n";
+	my $result = '';
+	if (open(my $pkg, '-|', @command)) {
+		local $/;
+		$result = <$pkg>;
+		$result = '' if !defined($result);
+		close($pkg);
+	}
 	my $error   = $?;
 	if ( $error != 0 ) {
           Sys::Syslog::syslog('notice', 'invoking PKGVERSION for ' . `uname -a` . "Version1='$Version1' Version2='$Version2' failed: " . $error);
@@ -320,9 +336,10 @@ sub ProcessEachRangeRecord() {
 	my @AffectedCommits = ();
 	my %Ports;
 
+	# the vid comes from vuln.xml: quote it rather than paste it in
 	if (defined($this->{vid}))
 	{
-	  $sql = "select * from vuxml_ranges('" . $this->{vid} . "');";
+	  $sql = "select * from vuxml_ranges(" . $dbh->quote($this->{vid}) . ");";
         }
         else
         {
