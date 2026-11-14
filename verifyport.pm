@@ -14,7 +14,6 @@ use FreshPorts::category;
 use FreshPorts::categories;
 use FreshPorts::port;
 use FreshPorts::commit_log_ports;
-use FreshPorts::commit_log_port_elements;
 use FreshPorts::commit_log_ports_elements;
 use FreshPorts::utilities;
 use FreshPorts::committer_opt_in;
@@ -379,8 +378,6 @@ sub SaveChangesToPortsTree($;$;$;$;$) {
 			print "size of %CommitLogPorts for " . $portname . " is '" . scalar(keys %CommitLogPorts) . "'\n";
 		}
 
-		_RecordPortFilesTouchedByThatCommit($commit_log_id, $Files, \%ListOfPorts, $dbh);
-
 		_DeleteDeletedPorts      (\%ListOfPorts, $dbh);
 		_UndeleteResurrectedPorts(\%ListOfPorts, $Files, $dbh);
 	}
@@ -430,90 +427,6 @@ sub ScrollToThatCommit($;$;$;$) {
 	}
 
 	return $FetchOK;
-}
-
-sub _RecordPortFilesTouchedByThatCommit($;$;$;$) {
-	#
-	# This function will populate the commit_log_port_element table.
-	#
-	my $commit_log_id = shift;
-	my $Files         = shift;
-	my $PortsRef      = shift;
-	my $dbh           = shift;
-
-	my %Ports         = %{$PortsRef};
-
-	my $portname;                 # of the form "$category/$port"
-	my $port;                     # of type FreshPorts::Element
-	my $commit_log_port_elements; # of type FreshPorts::CommitLogPortElements
-
-	my $action;
-	my $filename;
-	my $revision;
-	my $commit_log_element_id;
-	my $element_id;
-	my $value;
-
-	my $subtree;
-	my $category_name;
-	my $port_name;
-	my $extra;
-
-	$commit_log_port_elements = FreshPorts::CommitLogPortElements->new($dbh);
-
-	print "\n\nThat message is all done under Commit ID = '$commit_log_id'\n";
-
-	print "the size of \@Files is ", scalar(@{$Files}), "\n";
-
-	#
-	# in this loop assign a value to needs_refresh for each port
-	#
-	foreach $value (@{$Files}) {
-		($action, $filename, $revision, $commit_log_element_id, $element_id) = @$value;
-
-		($subtree, $category_name, $port_name, $extra) = split/\//,$filename, 4;
-		print "FILE ==: $action, $filename, $revision, $subtree, $category_name, ";
-		if (defined($port_name)) {
-			print "$port_name, ";
-		}
-
-		if (defined($extra)) {
-			print "$extra, ";
-		}
-
-		print "$commit_log_element_id\n";
-
-		# is this file is in the ports tree?
-		# e.g. ports/LEGAL won't get through here because $port_name will not be defined.
-		if (defined($extra))
-		{
-			if ($subtree eq $FreshPorts::Config::ports_prefix && defined($category_name) && defined($port_name)) {
-				print "yes, this file is in the ports tree\n";
-
-				if ( any { $_ eq $category_name } @FreshPorts::Categories::categories ) {
-					# find the port for this filename....
-					$port = $Ports{"$category_name/$port_name"};
-					if (!$port) {
-						FreshPorts::Utilities::ReportError('warning', "could not find port '$category_name/$port_name' in hash.", 1);
-					}
-
-					#
-					# record which files go with what port...
-					#
-					$commit_log_port_elements->{commit_log_id}         = $commit_log_id;
-					$commit_log_port_elements->{port_id}               = $port->{id};
-					$commit_log_port_elements->{commit_log_element_id} = $commit_log_element_id;
-					$commit_log_port_elements->save();
-				} else {
-					print "... but is not a file in a category on disk!\n\n";
-				}
-			}
-		}
-		else
-		{
-			print "ignoring that item because it is not part of a port\n";
-		}
-	}
 }
 
 sub _RecordPortsAndElements($;$;$;$) {
