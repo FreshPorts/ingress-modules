@@ -35,18 +35,6 @@ sub _initialize {
 	$this->{ranges} = ();
 }
 
-sub Fetch {
-	my $this = shift;
-	my $VID  = shift;
-
-	$this->FetchPackages($VID);
-
-	$this->FetchPackageNames();
-	$this->FetchPackageRanges();
-
-	return $VID;
-}
-
 sub FetchByVID {
 	my $this = shift;
 	my $VID  = shift;
