@@ -88,16 +88,16 @@ sub new
     my %args   = ref( $_[0] ) eq 'HASH' ? %{ shift() } : @_;
     my $self;
 
-    # There can be only one! Since we keep $self hanging around as a
-    # Class variable, more than one instance would be a disaster.
-    # Therefore, all calls to new() (except the first or when
-    # DESTROY() has been called) just return a reference to the same
-    # object.
-
-    if ( $VuXML && $VuXML->isa(__PACKAGE__) ) {
-        $self = $VuXML;
-        return bless $self, $class;
-    }
+    # The XML::Parser handlers find the object being filled in through
+    # the class variable $VuXML, not through an argument.  Each call to
+    # new() builds a fresh object, so the Stream, DBHandle and
+    # UpdateInPlace given to this call are the ones used.  parse_xml()
+    # points $VuXML at the object it is parsing for.
+    #
+    # new() used to hand back the first object it had made, ignoring
+    # the arguments to every later call.  That went unnoticed only
+    # because process_vuxml.pl and vuxml_fix_text.pl pass the same
+    # filehandle and database handle every time.
 
     $VuXML = $self = {};
     bless $self, $class;
@@ -254,18 +254,6 @@ sub print_self
     return $self;
 }
 
-# Goodbye cruel world!
-sub DESTROY
-{
-    my __PACKAGE__ $self = shift;
-
-    # The object won't be deallocated until all references to it are
-    # gone.  Plus this allows the new() method to be called again.
-
-    undef($VuXML);
-    undef($self);
-}
-
 # Wipe out all vuln data -- reset to empty values
 sub reset
 {
@@ -309,6 +297,9 @@ sub parse_xml
     my $checksum = shift;
 
     $self->{checksum} = $checksum;
+
+    # the handlers write into whichever object $VuXML points at
+    $VuXML = $self;
          
     # the input is UTF-8; reading it as ISO-8859-1 garbled every non-ASCII character
     $self->{xml_parser}->parse( $self->{input}, ProtocolEncoding => 'UTF-8' );

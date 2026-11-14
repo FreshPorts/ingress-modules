@@ -51,26 +51,4 @@ sub save {
 	$sth->finish();
 }
 
-sub delete {
-	my $this = shift;
-
-	my $dbh = $this->{dbh}; # just a short cut...
-	my $sth;
-	my $sql;
-	my @row;
-
-	my $quoted_reason = $dbh->quote($this->{reason});
-
-	$sql = "delete from commit_log_ports_ignore
-		      WHERE commit_log_id = this->{commit_log_id} and port_id = $this->{port_id}";
-
-	print "sql is $sql\n";
-
-	$sth = $this->{dbh}->prepare($sql);
-	if (!$sth->execute) {
-		FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql ... maybe invalid? ". $dbh->errstr, 1);
-	}
-
-	$sth->finish();
-}
 1;
