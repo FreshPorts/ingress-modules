@@ -276,6 +276,16 @@ sub TestVersionValues($;$;$) {
 		$result = <$pkg>;
 		$result = '' if !defined($result);
 		close($pkg);
+	} else {
+		#
+		# pkg could not be started (fork failed, or the binary is gone).
+		# $? is not set by a failed open and still holds the status of the
+		# last pkg run, usually 0, so without this the empty result would
+		# be read as "not affected" and the commit left unmarked.
+		#
+		my $err = $!;
+		Sys::Syslog::syslog('notice', "could not run @command: $err");
+		die("could not run @command: $err");
 	}
 	my $error   = $?;
 	if ( $error != 0 ) {
