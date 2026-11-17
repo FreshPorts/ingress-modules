@@ -54,29 +54,40 @@ sub RecordCommitBranch {
 	$FreshPorts::CommitterOptIn::CommitBranch = shift;
 }
 
+#
+# The token of an active opt-in for this committer, or '' if there is none.
+#
+# Only active opt-ins count (status 'A'): one is pending ('P') until the link
+# mailed to <committer>@FreeBSD.org by committer-opt-in.php on the website
+# is used, because anyone could type any login into that form.  The token
+# goes into the link at the end of the mail, which stops these mails.
+#
 sub CommitterHasOptedIn($;$) {
 	my $committer = shift;
 	my $dbh       = shift;
 
-	my $OptedIn   = 0;
+	my $Token     = '';
 	my $myrow;
 
-	my $sql = "select committer
+	my $sql = "select token
 	             from committer_notify
-	            where lower(committer) = lower('$committer')";
+	            where lower(committer) = lower(?)
+	              and status = 'A'
+	            order by token_created
+	            limit 1";
 	my $sth = $dbh->prepare($sql);
-	if (!$sth->execute())  {
+	if (!$sth->execute($committer))  {
 		FreshPorts::Utilities::ReportError('warning', "Could not execute sql: $sql", 1);
 	}
 
 	# if we fetch a row, then the committer has opted in.
 	if ($myrow = $sth->fetchrow_hashref()) {
-		$OptedIn = 1;
+		$Token = $myrow->{token};
 	}
 
 	$sth->finish();
 
-	return $OptedIn;
+	return $Token;
 }
 
 sub GetErrors {
@@ -131,6 +142,10 @@ Commit : $FreshPorts::CommitterOptIn::CommitMessageID\n";
 		$Body .= $Port . ":\n\n" . Text::Wrap::wrap('', '', $Error) . "\n";
 	}
 
+	# the token of the committer's active opt-in, '' if none: the mail goes
+	# to them only if there is one
+	my $Token = $FreshPorts::Config::CommitterNotify ? CommitterHasOptedIn($committer, $dbh) : '';
+
 	if ($FreshPorts::Config::CommitterNotify) {
 		$Body .= "
 
@@ -139,6 +154,13 @@ committer who has opted into this service.  Please
 see https://www.FreshPorts.org/committer-opt-in.php
 for more information.
 ";
+		if ($Token ne '') {
+			# FreshPortsURL ends in /, as the port links above rely on
+			$Body .= "
+To stop these messages, use this link:
+$FreshPorts::Config::FreshPortsURL" . "committer-notify.php?token=$Token
+";
+		}
 	}
 
 	$Body .= "
@@ -164,7 +186,7 @@ FreshPorts Daemon\n";
 	);
 
 	if ($FreshPorts::Config::CommitterNotify) {
-		if ($FreshPorts::Config::CommitterNotify && CommitterHasOptedIn($committer, $dbh)) {
+		if ($Token ne '') {
 			$To = "$committer\@FreeBSD.org";
 			$CC = $FreshPorts::Config::SystemOwnerEmail;
 			FreshPorts::Utilities::ReportError('warning', "Committer $committer has been notified of errors: $FreshPorts::CommitterOptIn::Errors", 0);
