@@ -1,0 +1,8 @@
+# Local copies made from config.pm.sample and status.pm.sample
+/config.pm
+/status.pm
+
+/Verify/
+
+# Editor backup files
+*~
