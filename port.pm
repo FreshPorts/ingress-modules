@@ -37,6 +37,9 @@ use Scalar::Util qw(looks_like_number);
 # for testing dates, as recommended by "B. Estrade" <estrabd@gmail.com>
 use POSIX qw/strftime/;
 
+# for _GetFileContents(): decode port files as UTF-8, else ISO-8859-1
+use Encode ();
+
 # =================================
 
 sub _initialize {
@@ -1253,16 +1256,29 @@ sub _GetFileContents($) {
 	$filecontents = "";
 	# this needs to open relative to the jail root.
 	# to be pure, we should do this as a script in the jail-root
-	print "This is bullshit\n";
-	open my $in,  '<:encoding(iso-8859-1)',  $file;
+	#
+	# Read the raw bytes, then decode them ourselves. Port files are
+	# normally UTF-8, but some old Makefiles still carry ISO-8859-1
+	# headers such as "# Created by: José". Reading everything as
+	# ISO-8859-1 (as this did from 6fc4782, 2024-07-24) turned every
+	# UTF-8 Makefile, pkg-message and distinfo into double-encoded text
+	# in the database: www/galene showed "GalÃ¨ne". A strict UTF-8 decode
+	# accepts only valid UTF-8; anything else is read as ISO-8859-1,
+	# where every byte is a valid character, so the read never dies.
+	#
+	open my $in,  '<:raw',  $file;
 	if ($in)
 	{
-	
-	  while(<$in>){
-		$filecontents .= $_;
-	   }
+		local $/;
+		my $bytes = <$in>;
+		close $in;
+		$bytes = '' unless defined $bytes;
 
-	   close $in;
+		$filecontents = eval { Encode::decode('UTF-8', $bytes, Encode::FB_CROAK | Encode::LEAVE_SRC) };
+		if (!defined $filecontents) {
+			print "'$file' is not valid UTF-8; reading it as ISO-8859-1\n";
+			$filecontents = Encode::decode('ISO-8859-1', $bytes);
+		}
 	} else {
           print "Unable to open '$file'\n";
           FreshPorts::CommitterOptIn::RecordErrorDetails("$this->{category}/$this->{name}", "Unable to open '$file'\n");
