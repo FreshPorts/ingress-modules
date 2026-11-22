@@ -61,6 +61,14 @@ sub FetchAll {
 
 	@FreshPorts::Categories::categories = split / /, $categories_1line;
 
+	# With no categories every ports file looks like it is outside a port,
+	# so the commit would be saved without its ports.  Stop instead, so the
+	# commit fails and goes to retry/ to be loaded again once the ports
+	# tree is back.
+	if (!@FreshPorts::Categories::categories) {
+		FreshPorts::Utilities::ReportErrorEmail('ERR', "the list of categories is empty: is the ports tree missing or empty?", 1, 1);
+	}
+
 	return @FreshPorts::Categories::categories;
 }
 
