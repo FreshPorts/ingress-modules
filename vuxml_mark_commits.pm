@@ -108,8 +108,16 @@ sub MarkOneCommit($) {
 	my $sth;
 	my $sql;
 
+	#
+	# ON CONFLICT DO NOTHING: once commit_log_ports_vuxml has a unique
+	# constraint on (commit_log_id, port_id, vuxml_id), a repeat mark is
+	# skipped instead of failing the commit being processed.  No conflict
+	# target is named, so this also runs on a database without that
+	# constraint, where it changes nothing.
+	#
 	$sql = "INSERT INTO commit_log_ports_vuxml(commit_log_id, port_id, vuxml_id)
-            values (?, ?, ?)";
+            values (?, ?, ?)
+            ON CONFLICT DO NOTHING";
 
 #	print "sql is $sql\n";
 
@@ -119,25 +127,18 @@ sub MarkOneCommit($) {
 	$sth->finish();
 }
 
-sub ClearCommitsForOneVuln($) {
-	my $this        = shift;
-	my $VID         = shift;
-
-	my $Commit;
-	my $dbh = $this->{dbh};
-	my $sth;
-	my $sql;
-
-	$sql = 'select commit_log_ports_vuxml_purge(' . $dbh->quote($VID) . ')';
-
-#	print "sql is $sql\n";
-
-	$sth = $dbh->prepare($sql);
-	$sth->execute ||
-		die "Could not execute SQL $sql ... maybe invalid?";
-	$sth->finish();
-}
-
+#
+# Old marks for a vuln need no clearing here.  process_vuxml.pl marks a
+# vuln only after vuxml_parsing.pm has deleted it and inserted it again,
+# and commit_log_ports_vuxml.vuxml_id references vuxml(id) with ON DELETE
+# CASCADE, so the delete has already taken that vuln's old marks with it.
+#
+# This used to call ClearCommitsForOneVuln() before each insert.  It
+# passed vuxml.id (an integer) to commit_log_ports_vuxml_purge(), which
+# matches vuxml.vid (the UUID), so it never deleted anything.  Passing the
+# vid would have been worse: it ran once per affected port version, so it
+# would have deleted the marks this same run had just inserted.
+#
 sub MarkTheseCommits($) {
 	my $this    = shift;
 	my $Commits = shift;
@@ -164,9 +165,15 @@ sub MarkTheseCommits($) {
 #
 #		print "that was VULN => $Commit->{vid}\n";
 
-	    # delete any references to this particular vuln
-	    # from the database
-	    $this->ClearCommitsForOneVuln($Commit->{vid});
+		#
+		# A port version is listed once for each range of the vuln it
+		# falls in, e.g. both <lt>2.0</lt> and <ge>1.5</ge><lt>1.9</lt>
+		# for 1.6.  Mark it once.  Without a unique constraint the second
+		# insert would add the same rows again; with one, ON CONFLICT
+		# below would skip them, but only after a wasted query.
+		#
+		my $key = join("\0", map { defined($_) ? $_ : '' } @{$Commit}{qw(vid port_id port_version port_revision port_epoch)});
+		next if $this->{marked}{$key}++;
 
 		#
 		# when marking multiple commits
@@ -190,6 +197,8 @@ sub MarkTheseCommits($) {
 			push @params, $Commit->{port_epoch};
 		}
 
+		# ON CONFLICT DO NOTHING: see MarkOneCommit().  A repeat mark is
+		# skipped rather than aborting the whole VuXML update.
         $sql = "
 INSERT INTO commit_log_ports_vuxml(commit_log_id, port_id, vuxml_id)
 SELECT commit_log_id,
@@ -199,7 +208,8 @@ SELECT commit_log_id,
  WHERE port_id       = ?
    AND port_version  = ?
    AND port_revision $revision_test
-   AND port_epoch    $epoch_test";
+   AND port_epoch    $epoch_test
+ON CONFLICT DO NOTHING";
 
 #		print "sql is $sql\n";
 		print ".";
@@ -479,11 +489,16 @@ sub RecordVulnerabilitiesForThisPortVersion($;$;$;$;$;$) {
 	$sth->execute ||
 		die "Could not execute SQL $sql ... maybe invalid?";
 
+	# one row per vuln: a vuln can have several ranges this version falls in
+	my %Marked;
 	while ($range = $sth->fetchrow_hashref()) {
 		$i++;
 		if ($this->IsCommitAffected($Version, $range)) {
 			print '### this version is affected by ' . $range->{id} . "\n";
-			$this->MarkOneCommit($range->{id}, $PortID, $CommitLogID);
+			if (!$Marked{$range->{id}}) {
+				$Marked{$range->{id}} = 1;
+				$this->MarkOneCommit($range->{id}, $PortID, $CommitLogID);
+			}			
 		}
 	}
 	$sth->finish();
