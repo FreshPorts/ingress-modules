@@ -92,15 +92,16 @@ sub MarkOneCommit($) {
 	my $sql;
 
 	#
-	# ON CONFLICT DO NOTHING: once commit_log_ports_vuxml has a unique
-	# constraint on (commit_log_id, port_id, vuxml_id), a repeat mark is
-	# skipped instead of failing the commit being processed.  No conflict
-	# target is named, so this also runs on a database without that
-	# constraint, where it changes nothing.
+	# A repeat mark for the same commit, port and vuln is skipped instead
+	# of failing the commit being processed.  The constraint is named so
+	# that only that duplicate is skipped: a conflict on any other unique
+	# constraint still fails loudly.  It needs
+	# updates-2026-11-22-commit-log-ports-vuxml-unique.ddl (database-schema)
+	# to have been run on the database; without it, every insert fails.
 	#
 	$sql = "INSERT INTO commit_log_ports_vuxml(commit_log_id, port_id, vuxml_id)
             values (?, ?, ?)
-            ON CONFLICT DO NOTHING";
+            ON CONFLICT ON CONSTRAINT commit_log_ports_vuxml_commit_port_vuxml_key DO NOTHING";
 
 #	print "sql is $sql\n";
 
@@ -151,9 +152,8 @@ sub MarkTheseCommits($) {
 		#
 		# A port version is listed once for each range of the vuln it
 		# falls in, e.g. both <lt>2.0</lt> and <ge>1.5</ge><lt>1.9</lt>
-		# for 1.6.  Mark it once.  Without a unique constraint the second
-		# insert would add the same rows again; with one, ON CONFLICT
-		# below would skip them, but only after a wasted query.
+		# for 1.6.  Mark it once.  ON CONFLICT below would skip the
+		# second insert's rows anyway, but only after a wasted query.
 		#
 		my $key = join("\0", map { defined($_) ? $_ : '' } @{$Commit}{qw(vid port_id port_version port_revision port_epoch)});
 		next if $this->{marked}{$key}++;
@@ -180,8 +180,8 @@ sub MarkTheseCommits($) {
 			push @params, $Commit->{port_epoch};
 		}
 
-		# ON CONFLICT DO NOTHING: see MarkOneCommit().  A repeat mark is
-		# skipped rather than aborting the whole VuXML update.
+		# ON CONFLICT: see MarkOneCommit().  A repeat mark is skipped
+		# rather than aborting the whole VuXML update.
         $sql = "
 INSERT INTO commit_log_ports_vuxml(commit_log_id, port_id, vuxml_id)
 SELECT commit_log_id,
@@ -192,7 +192,7 @@ SELECT commit_log_id,
    AND port_version  = ?
    AND port_revision $revision_test
    AND port_epoch    $epoch_test
-ON CONFLICT DO NOTHING";
+ON CONFLICT ON CONSTRAINT commit_log_ports_vuxml_commit_port_vuxml_key DO NOTHING";
 
 #		print "sql is $sql\n";
 		print ".";
