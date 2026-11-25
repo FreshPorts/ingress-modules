@@ -80,23 +80,6 @@ SELECT distinct CLP.port_id, CLP.port_version, CLP.port_revision, CLP.port_epoch
     return @Commits;
 }
 
-sub EmptyCommitLogPortsVuXML() {
-	# do not appear to be needed
-	my $this = shift;
-
-	my $dbh;
-	my $sth;
-	my $sql;
-
-	# quote everything going to the database
-	$sql = "DELETE FROM commit_log_ports_vuxml";
-	$sth = $dbh->prepare($sql);
-	if (!$sth->execute())  {
-		FreshPorts::Utilities::ReportError('warning', "Could not execute sql: $sql", 1);
-	}
-	$sth->finish();
-}
-
 sub MarkOneCommit($) {
 	my $this        = shift;
 	my $VID         = shift;
