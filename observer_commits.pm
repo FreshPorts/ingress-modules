@@ -82,11 +82,6 @@ sub update {
 		}
 	}
 
-	if ($action eq $FreshPorts::Messages::PortsFreezeCheck) {
-		print "Observer has noticed that we must do a ports freeze check.\n";
-		# I'm not sure we know how to check for a ports freeze now - I'm not even sure that we do that any more.
-	}
-
 	if ($action eq $FreshPorts::Messages::UpdateEnds) {
 		print "Observer has noticed that the update for $params{message_id} has finished.\n";
 

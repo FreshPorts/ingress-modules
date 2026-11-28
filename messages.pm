@@ -17,7 +17,6 @@ $FreshPorts::Messages::CommitSaved          = 'CommitSaved';
 $FreshPorts::Messages::FileUpdate           = 'FileUpdate';
 $FreshPorts::Messages::PortsRefreshed       = 'PortsRefreshed';
 $FreshPorts::Messages::ProcessingDone       = 'ProcessingDone';
-$FreshPorts::Messages::PortsFreezeCheck     = 'PortsFreezeCheck';
 $FreshPorts::Messages::FilesFetched         = 'FilesFetched';
 $FreshPorts::Messages::TransactionCommitted = 'TransactionCommitted';
 

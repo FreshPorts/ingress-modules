@@ -120,8 +120,6 @@ $FreshPorts::Config::RefreshFromIndexFlag       = $FreshPorts::Config::BaseDir .
 $FreshPorts::Config::UpdatingFileFlag           = $FreshPorts::Config::BaseDir . '/signals/refresh_updating';
 $FreshPorts::Config::VuXMLFileFlag              = $FreshPorts::Config::BaseDir . '/signals/vuxml';
 
-$FreshPorts::Config::PortsFreezeFile            = $FreshPorts::Config::BaseDir . '/signals/PortsFreezeIsInEffect';
-
 # number of files in the ports tree
 $FreshPorts::Config::PortsTreeCount             = $FreshPorts::Config::BaseDir . '/cache/html/PortsTreeCount';
 
