@@ -151,7 +151,7 @@ Commit : $FreshPorts::CommitterOptIn::CommitMessageID\n";
 
 You are receiving this message as you are a FreeBSD
 committer who has opted into this service.  Please
-see https://www.FreshPorts.org/committer-opt-in.php
+see https://www.freshports.org/committer-opt-in.php
 for more information.
 ";
 		if ($Token ne '') {
