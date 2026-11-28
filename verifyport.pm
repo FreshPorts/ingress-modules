@@ -79,8 +79,11 @@ sub _CompileListOfPorts($;$;$;$;$) {
 		  ($emptyLeadingSlash, $subtree, $branches, $branch, $category_name, $port_name, $extra) = split/\//,$filename, 7;
 		}
 		# FILE ==: Modify, /ports/head/ftp/vsftpd/Makefile, 303756, , head, ftp, vsftpd/Makefile, 1935356
-		# for README, GUIs, UIDs: category_name will be empty.
-		print "FILE ==: $action, $filename, $revision, $subtree, $category_name, ";
+		# For a file at the top of the tree (README, GIDs, UIDs), or a path
+		# shorter than the split expects, $subtree and $category_name can be
+		# undefined.  Print them as empty, as the deleted-port check further
+		# down does, instead of logging "Use of uninitialized value" (#236).
+		print "FILE ==: $action, $filename, $revision, " . ($subtree // '') . ', ' . ($category_name // '') . ', ';
 		if (defined($port_name)) {
 			print "$port_name, ";
 		}
@@ -94,7 +97,7 @@ sub _CompileListOfPorts($;$;$;$;$) {
 		# is this file is in the ports tree?
 		# e.g. ports/LEGAL won't get through here because $port_name will not be defined.
 
-		if ($subtree eq $FreshPorts::Config::ports_prefix && defined($category_name) && defined($port_name)) {
+		if (defined($subtree) && $subtree eq $FreshPorts::Config::ports_prefix && defined($category_name) && defined($port_name)) {
 			print "YES, this file is in the ports tree\n";
 
 			# We know this file is the ports tree, but we don't know if we're dealing with a category/
